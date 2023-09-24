@@ -1,0 +1,23 @@
+.logo {
+  width: 50px;
+  /* Largeur du logo */
+  height: 50px;
+  /* Hauteur du logo */
+  margin-right: 15px;
+  /* Marge à droite du logo pour l'espacement */
+  background-image: url('./logo_mosquee_thonon.png');
+  /* Spécifiez le chemin de votre image de logo */
+  background-size: cover;
+  /* Ajustez la taille de l'image du logo */
+}
+
+/* Centre le menu horizontalement */
+.ant-menu-horizontal {
+  display: flex;
+  justify-content: center;
+}
+
+.centered-content {
+  display: flex;
+  justify-content: center;
+}
