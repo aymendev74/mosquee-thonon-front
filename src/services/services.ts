@@ -48,3 +48,22 @@ export const getPersonnesInscrites = async (): Promise<Inscription[]> => {
         return undefined;
     });
 }
+
+export const saveInscription = async (inscription: Inscription): Promise<Inscription> => {
+    return AxiosInstance.request({
+        method: "POST",
+        url: INSCRIPTION_ENDPOINT,
+        data: inscription
+    }).then(response => {
+        return response.data;
+    }).catch(function (error) {
+        console.log(error.toJSON());
+        if (error.response.status === HttpErrors.HTTP_401) {
+            Modal.error({
+                title: "Erreur",
+                content: "Veuillez vous reconnecter",
+            });
+        }
+        return undefined;
+    });
+}
