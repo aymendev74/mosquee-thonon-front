@@ -1,7 +1,7 @@
-import { Button, Col, DatePicker, Form, Input, Modal, Radio, Row } from "antd";
+import { Button, Col, DatePicker, Divider, Form, Input, Modal, Radio, Row } from "antd";
 import { FunctionComponent } from "react";
 import { saveInscription } from "../../services/services";
-import { Inscription } from "../../services/inscription";
+import { Inscription, StatutInscription } from "../../services/inscription";
 import moment from "moment";
 
 type FieldType = {
@@ -12,12 +12,19 @@ type FieldType = {
     telephone: string;
     email: string;
     sexe: string;
+    numeroEtRue: string;
+    codePostal: number;
+    ville: string;
+    statut: StatutInscription;
 };
 
 export const InscriptionForm: FunctionComponent = () => {
 
     const onFinish = async (inscription: Inscription) => {
         inscription.dateNaissance = moment(inscription.dateNaissance).format("DD.MM.YYYY");
+        if (!inscription.statut) {
+            inscription.statut = StatutInscription.PROVISOIRE;
+        }
         console.log(inscription);
         inscription = await saveInscription(inscription);
         if (inscription && inscription.id) {
@@ -32,7 +39,6 @@ export const InscriptionForm: FunctionComponent = () => {
         name="basic"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
-        initialValues={{ remember: true }}
         onFinish={onFinish}
         autoComplete="off"
         className="container-form"
@@ -40,6 +46,14 @@ export const InscriptionForm: FunctionComponent = () => {
         <Form.Item<FieldType> name="id" style={{ display: "none" }}>
             <Input type="hidden" />
         </Form.Item>
+        <Form.Item<FieldType> name="statut" style={{ display: "none" }}>
+            <Input type="hidden" />
+        </Form.Item>
+        <Row>
+            <Col span={24}>
+                <Divider orientation="left">Identité</Divider>
+            </Col>
+        </Row>
         <Row gutter={[16, 32]}>
             <Col span={12}>
                 <Form.Item<FieldType>
@@ -60,7 +74,6 @@ export const InscriptionForm: FunctionComponent = () => {
                 </Form.Item>
             </Col>
         </Row>
-
         <Row gutter={[16, 32]}>
             <Col span={12}>
                 <Form.Item<FieldType>
@@ -84,7 +97,12 @@ export const InscriptionForm: FunctionComponent = () => {
                 </Form.Item>
             </Col>
         </Row>
-
+        <br />
+        <Row>
+            <Col span={24}>
+                <Divider orientation="left">Contact</Divider>
+            </Col>
+        </Row>
         <Row gutter={[16, 32]}>
             <Col span={12}>
                 <Form.Item<FieldType>
@@ -105,7 +123,43 @@ export const InscriptionForm: FunctionComponent = () => {
                 </Form.Item>
             </Col>
         </Row>
-
+        <br />
+        <Row>
+            <Col span={24}>
+                <Divider orientation="left">Adresse postale</Divider>
+            </Col>
+        </Row>
+        <Row gutter={[16, 32]}>
+            <Col span={12}>
+                <Form.Item<FieldType>
+                    label="Numéro et rue"
+                    name="numeroEtRue"
+                    rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]}
+                >
+                    <Input />
+                </Form.Item>
+            </Col>
+        </Row>
+        <Row gutter={[16, 32]}>
+            <Col span={12}>
+                <Form.Item<FieldType>
+                    label="Code postal"
+                    name="codePostal"
+                    rules={[{ required: true, message: "Veuillez saisir votre code postal" }]}
+                >
+                    <Input />
+                </Form.Item>
+            </Col>
+            <Col span={12}>
+                <Form.Item<FieldType>
+                    label="Ville"
+                    name="ville"
+                    rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
+                >
+                    <Input />
+                </Form.Item>
+            </Col>
+        </Row>
         <Row gutter={[16, 32]}>
             <Col span={24} className="centered-content">
                 <Form.Item>

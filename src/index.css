@@ -23,7 +23,7 @@
 }
 
 /* Styles.css */
-/* Par défaut, le conteneur utilise 80% de la largeur de l'écran */
+/* Par défaut, le conteneur utilise 50% de la largeur de l'écran */
 .container-form {
   width: 50%;
   margin: 0 auto;

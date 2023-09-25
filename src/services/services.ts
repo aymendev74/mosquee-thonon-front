@@ -3,7 +3,7 @@ import { AxiosInstance } from "./AxiosConfig";
 import { Inscription } from "./inscription";
 
 const AUTHENTIFICATION_ENDPOINT = "auth/login/";
-const INSCRIPTION_ENDPOINT = "inscription/";
+const INSCRIPTION_ENDPOINT = "inscriptions/";
 
 enum HttpErrors {
     HTTP_401 = 401,
