@@ -1,27 +1,20 @@
-import { useState } from 'react';
 import { Layout, Button, Row, Col } from 'antd';
 import {
   LoginOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { InscriptionForm } from './components/pages/InscriptionForm';
 import { Authenticate } from './components/pages/Authenticate';
 import { Inscriptions } from './components/pages/Inscriptions';
 import { MyMenu } from './components/MyMenu';
+import { useAuth } from './hooks/UseAuth';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    navigate("/");
-  };
+  const { isAuthenticated, logout } = useAuth();
 
   return (
     <Layout>
@@ -31,14 +24,14 @@ function App() {
             <div className="logo" />
           </Col>
           <Col span={8}>
-            <MyMenu isLoggedIn={isLoggedIn} />
+            <MyMenu />
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <Button
                 type="primary"
                 icon={<LogoutOutlined />}
-                onClick={handleLogout}
+                onClick={logout}
               >
                 Déconnexion
               </Button>
@@ -58,7 +51,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/inscription" element={<InscriptionForm />} />
-            <Route path="/login" element={<Authenticate setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/login" element={<Authenticate />} />
             <Route path="/inscriptions" element={<Inscriptions />} />
           </Routes>
         </div>

@@ -2,13 +2,11 @@ import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
 import { HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { useAuth } from "../hooks/UseAuth";
 
-export type MyMenuProps = {
-    isLoggedIn: boolean,
-}
-
-export const MyMenu: FunctionComponent<MyMenuProps> = ({ isLoggedIn }) => {
+export const MyMenu: FunctionComponent = () => {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
 
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
@@ -32,7 +30,7 @@ export const MyMenu: FunctionComponent<MyMenuProps> = ({ isLoggedIn }) => {
             label: "Inscription",
         }];
 
-        if (isLoggedIn) {
+        if (isAuthenticated) {
             menuItems.push({
                 key: "inscriptions",
                 icon: <UserOutlined />,

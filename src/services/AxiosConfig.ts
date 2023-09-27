@@ -1,9 +1,14 @@
 import axios from "axios";
 
+const AxiosInstance = axios.create();
 
-export const AxiosInstance = axios.create({
-    baseURL: "http://localhost:8080/v1/",
-    headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-    },
+AxiosInstance.interceptors.request.use((config) => {
+    config.baseURL = "http://localhost:8080/v1/";
+    const token = sessionStorage.getItem("token");
+    if (token) {
+        config.headers.Authorization = "Bearer " + sessionStorage.getItem("token");
+    }
+    return config;
 });
+
+export { AxiosInstance };

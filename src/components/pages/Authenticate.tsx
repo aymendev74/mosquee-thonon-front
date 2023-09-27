@@ -1,10 +1,7 @@
 import { Button, Form, Input } from 'antd';
-import { Dispatch, FunctionComponent, SetStateAction } from 'react';
+import { FunctionComponent } from 'react';
 import { authenticate } from '../../services/services';
-
-export type AuthenticateProps = {
-    setIsLoggedIn: Dispatch<SetStateAction<boolean>>,
-}
+import { useAuth } from '../../hooks/UseAuth';
 
 type FieldType = {
     username?: string;
@@ -12,15 +9,17 @@ type FieldType = {
     remember?: string;
 };
 
-export const Authenticate: FunctionComponent<AuthenticateProps> = ({ setIsLoggedIn }) => {
+export const Authenticate: FunctionComponent = () => {
+    const { login } = useAuth();
 
     const onFinish = async (values: any) => {
         const username: string = values.username;
         const password: string = values.password;
         const token = await authenticate(username, password);
         if (token) {
-            localStorage.setItem("token", token)
-            setIsLoggedIn(true);
+            if (login) {
+                login(token);
+            }
         }
     };
 
