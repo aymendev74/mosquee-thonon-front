@@ -1,8 +1,9 @@
 import { Button, Col, DatePicker, Divider, Form, Input, Modal, Radio, Row } from "antd";
 import { FunctionComponent } from "react";
-import { saveInscription } from "../../services/services";
+import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, StatutInscription } from "../../services/inscription";
 import moment from "moment";
+import useApi from "../../services/useApi";
 
 type FieldType = {
     id: number;
@@ -20,20 +21,22 @@ type FieldType = {
 
 export const InscriptionForm: FunctionComponent = () => {
 
+    const { result, setApiCallDefinition } = useApi();
+
     const onFinish = async (inscription: Inscription) => {
         inscription.dateNaissance = moment(inscription.dateNaissance).format("DD.MM.YYYY");
         if (!inscription.statut) {
             inscription.statut = StatutInscription.PROVISOIRE;
         }
-        console.log(inscription);
-        inscription = await saveInscription(inscription);
-        if (inscription && inscription.id) {
-            Modal.success({
-                title: "Inscription prise en compte",
-                content: "Votre inscription a bien été enregistrée"
-            });
-        }
+        setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
+
+    if (result && (result as Inscription).id) {
+        Modal.success({
+            title: "Inscription prise en compte",
+            content: "Votre inscription a bien été enregistrée"
+        });
+    }
 
     return (<Form
         name="basic"

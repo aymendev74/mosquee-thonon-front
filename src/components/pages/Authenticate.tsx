@@ -1,7 +1,8 @@
 import { Button, Form, Input } from 'antd';
 import { FunctionComponent } from 'react';
-import { authenticate } from '../../services/services';
+import { AUTHENTIFICATION_ENDPOINT } from '../../services/services';
 import { useAuth } from '../../hooks/UseAuth';
+import useApi from '../../services/useApi';
 
 type FieldType = {
     username?: string;
@@ -11,17 +12,15 @@ type FieldType = {
 
 export const Authenticate: FunctionComponent = () => {
     const { login } = useAuth();
+    const { result, setApiCallDefinition } = useApi();
 
     const onFinish = async (values: any) => {
-        const username: string = values.username;
-        const password: string = values.password;
-        const token = await authenticate(username, password);
-        if (token) {
-            if (login) {
-                login(token);
-            }
-        }
+        setApiCallDefinition({ method: "POST", url: AUTHENTIFICATION_ENDPOINT, data: { username: values.username, password: values.password } });
     };
+
+    if (result && login) {
+        login(result as string);
+    }
 
     return (
         <Form
