@@ -5,7 +5,7 @@ export type ApiCallDefinition = {
     url?: string,
     method?: string,
     data?: any,
-    params?: string
+    params?: any
 }
 
 const useApi = (apiCallDef?: ApiCallDefinition) => {

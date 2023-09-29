@@ -1,5 +1,5 @@
 import { Button, Col, DatePicker, Divider, Form, Input, Modal, Radio, Row } from "antd";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect } from "react";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, StatutInscription } from "../../services/inscription";
 import moment from "moment";
@@ -31,12 +31,14 @@ export const InscriptionForm: FunctionComponent = () => {
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
 
-    if (result && (result as Inscription).id) {
-        Modal.success({
-            title: "Inscription prise en compte",
-            content: "Votre inscription a bien été enregistrée"
-        });
-    }
+    useEffect(() => {
+        if (result && (result as Inscription).id) {
+            Modal.success({
+                title: "Inscription prise en compte",
+                content: "Votre inscription a bien été enregistrée"
+            });
+        }
+    }, [result]);
 
     return (<Form
         name="basic"

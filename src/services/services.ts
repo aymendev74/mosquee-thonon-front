@@ -10,6 +10,7 @@ enum HttpErrors {
 }
 
 export const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<any> => {
+    console.log(apiCallDefinition);
     return AxiosInstance.request({
         ...apiCallDefinition
     }).then(response => {

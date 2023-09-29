@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthResponse } from '../services/AuthResponse';
 
 export type AuthContextValues = {
   isAuthenticated?: boolean,
-  login?: (token: string) => void,
+  login?: (authResponse: AuthResponse) => void,
   logout?: () => void,
 }
 
@@ -20,8 +21,8 @@ export const AuthProvider = (props: any) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
-  const login = (token: string) => {
-    sessionStorage.setItem("token", token)
+  const login = (authResponse: AuthResponse) => {
+    sessionStorage.setItem("token", authResponse.accessToken)
     setIsAuthenticated(true);
   };
 

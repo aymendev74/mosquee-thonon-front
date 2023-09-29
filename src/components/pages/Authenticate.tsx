@@ -3,6 +3,7 @@ import { FunctionComponent } from 'react';
 import { AUTHENTIFICATION_ENDPOINT } from '../../services/services';
 import { useAuth } from '../../hooks/UseAuth';
 import useApi from '../../services/useApi';
+import { AuthResponse } from '../../services/AuthResponse';
 
 type FieldType = {
     username?: string;
@@ -19,7 +20,7 @@ export const Authenticate: FunctionComponent = () => {
     };
 
     if (result && login) {
-        login(result as string);
+        login(result as AuthResponse);
     }
 
     return (

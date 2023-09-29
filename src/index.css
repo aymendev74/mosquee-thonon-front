@@ -42,3 +42,29 @@
     width: 100%;
   }
 }
+
+.menu-action-container {
+  display: flex;
+  margin-bottom: 20px;
+
+  .label {
+    margin-right: 15px;
+  }
+}
+
+.d-flex {
+  display: flex;
+}
+
+.container-full-width {
+  width: 100%;
+}
+
+.filters-container {
+  width: 20%;
+  margin-right: 25px;
+}
+
+.result-container {
+  width: 60%;
+}
