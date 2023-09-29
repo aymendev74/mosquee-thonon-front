@@ -1,9 +1,11 @@
-import { Button, Col, DatePicker, Divider, Form, Input, Modal, Radio, Row } from "antd";
+import { Button, Col, DatePicker, Divider, Form, Input, Modal, Radio, Row, Switch } from "antd";
 import { FunctionComponent, useEffect } from "react";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, StatutInscription } from "../../services/inscription";
 import moment from "moment";
 import useApi from "../../services/useApi";
+import { useLocation } from "react-router-dom";
+import { useForm } from "antd/es/form/Form";
 
 type FieldType = {
     id: number;
@@ -21,7 +23,16 @@ type FieldType = {
 
 export const InscriptionForm: FunctionComponent = () => {
 
-    const { result, setApiCallDefinition } = useApi();
+    const { result, apiCallDefinition, setApiCallDefinition } = useApi();
+    const location = useLocation();
+    const [form] = useForm();
+
+    let id: any, isReadOnly, isAdmin;
+    if (location.state) {
+        id = location.state.id;
+        isReadOnly = location.state.isReadOnly;
+        isAdmin = location.state.isAdmin;
+    }
 
     const onFinish = async (inscription: Inscription) => {
         inscription.dateNaissance = moment(inscription.dateNaissance).format("DD.MM.YYYY");
@@ -32,13 +43,25 @@ export const InscriptionForm: FunctionComponent = () => {
     };
 
     useEffect(() => {
-        if (result && (result as Inscription).id) {
+        if (result && apiCallDefinition?.method === "POST" && (result as Inscription).id) {
             Modal.success({
                 title: "Inscription prise en compte",
                 content: "Votre inscription a bien été enregistrée"
             });
         }
+
+        if (result && apiCallDefinition?.method === "GET") {
+            const loadedInscription = result as Inscription;
+            loadedInscription.dateNaissance = moment(loadedInscription.dateNaissance, 'DD.MM.YYYY')
+            form.setFieldsValue(result);
+        }
     }, [result]);
+
+    useEffect(() => {
+        if (id) {
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + id });
+        }
+    }, [id]);
 
     return (<Form
         name="basic"
@@ -47,6 +70,7 @@ export const InscriptionForm: FunctionComponent = () => {
         onFinish={onFinish}
         autoComplete="off"
         className="container-form"
+        form={form}
     >
         <Form.Item<FieldType> name="id" style={{ display: "none" }}>
             <Input type="hidden" />
@@ -66,7 +90,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="nom"
                     rules={[{ required: true, message: "Veuillez saisir votre nom" }]}
                 >
-                    <Input className="input" />
+                    <Input className="input" readOnly={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -75,7 +99,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="prenom"
                     rules={[{ required: true, message: "Veuillez saisir votre prénom" }]}
                 >
-                    <Input />
+                    <Input readOnly={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
@@ -86,7 +110,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="dateNaissance"
                     rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
                 >
-                    <DatePicker />
+                    <DatePicker disabled={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -95,7 +119,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="sexe"
                     rules={[{ required: true, message: "Veuillez saisir votre sexe" }]}
                 >
-                    <Radio.Group>
+                    <Radio.Group disabled={isReadOnly} >
                         <Radio value="H">Homme</Radio>
                         <Radio value="F">Femme</Radio>
                     </Radio.Group>
@@ -115,7 +139,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="email"
                     rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" }]}
                 >
-                    <Input />
+                    <Input readOnly={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -124,7 +148,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="telephone"
                     rules={[{ required: true, message: "Veuillez saisir votre téléphone" }]}
                 >
-                    <Input />
+                    <Input readOnly={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
@@ -141,7 +165,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="numeroEtRue"
                     rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]}
                 >
-                    <Input />
+                    <Input readOnly={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
@@ -152,7 +176,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="codePostal"
                     rules={[{ required: true, message: "Veuillez saisir votre code postal" }]}
                 >
-                    <Input />
+                    <Input readOnly={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -161,10 +185,23 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="ville"
                     rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
                 >
-                    <Input />
+                    <Input readOnly={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
+        {isAdmin &&
+            <Row gutter={[16, 32]}>
+                <Col span={12}>
+                    <Form.Item<FieldType>
+                        label="Statut"
+                        name="statut"
+                        rules={[{ required: true, message: "Veuillez saisir le statut" }]}
+                    >
+                        <Switch disabled={isReadOnly} />
+                    </Form.Item>
+                </Col>
+            </Row>
+        }
         <Row gutter={[16, 32]}>
             <Col span={24} className="centered-content">
                 <Form.Item>

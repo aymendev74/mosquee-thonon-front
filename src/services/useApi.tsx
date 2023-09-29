@@ -33,7 +33,7 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
         }
     }, [apiCallDefinition]);
 
-    return { setApiCallDefinition, result, isLoading, error };
+    return { setApiCallDefinition, result, isLoading, error, apiCallDefinition };
 };
 
 export default useApi;

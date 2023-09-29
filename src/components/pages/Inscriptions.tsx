@@ -1,12 +1,13 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Inscription } from "../../services/inscription";
+import { Inscription, StatutInscription } from "../../services/inscription";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../services/useApi";
 import Table, { ColumnsType } from "antd/es/table";
-import { Button, Col, Collapse, Dropdown, Form, Input, Menu, MenuProps, Row } from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import { Button, Col, Collapse, Dropdown, Form, Input, Menu, MenuProps, Row, Select, Tooltip } from "antd";
+import { CheckCircleTwoTone, DownOutlined, PauseCircleTwoTone } from "@ant-design/icons";
+import { read } from "fs";
 
 export const Inscriptions: FunctionComponent = () => {
 
@@ -16,11 +17,18 @@ export const Inscriptions: FunctionComponent = () => {
     const { result, setApiCallDefinition } = useApi();
     const { Panel } = Collapse;
     const [form] = Form.useForm();
+    const [selectedInscription, setSelectedInscription] = useState<Inscription | undefined>();
 
     const DropdownMenu = () => {
         const handleMenuClick = (e: any) => {
-            console.log('Clicked on menu item', e);
-            // Ajoutez ici la logique pour gérer les actions du menu
+            if (selectedInscription) {
+                let readOnly: boolean = false;
+                if (e.key === "1") {
+                    readOnly = true;
+                }
+                navigate("/inscription", { state: { readOnly: readOnly, id: selectedInscription.id, isAdmin: true } })
+            }
+
         };
 
         const items: MenuProps['items'] = [{ label: "Consulter", key: "1" }, { label: "Modifier", key: "2" }, { label: "Valider inscription", key: "3" }];
@@ -39,7 +47,8 @@ export const Inscriptions: FunctionComponent = () => {
         const nom = form.getFieldValue("nom");
         const prenom = form.getFieldValue("prenom");
         const telephone = form.getFieldValue("telephone");
-        const searchCriteria = { nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null }
+        const statut = form.getFieldValue("statut");
+        const searchCriteria = { nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null, statut: statut ?? null }
         console.log(searchCriteria);
         setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
     }
@@ -48,20 +57,34 @@ export const Inscriptions: FunctionComponent = () => {
         return (
             <Collapse defaultActiveKey={['1']}>
                 <Panel header="Filtres de recherche" key="1">
-                    <Row gutter={[0, 16]}>
+                    <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="prenom" label="Prénom">
                                 <Input placeholder="Prénom" onBlur={doSearch} />
                             </Form.Item>
                         </Col>
+                    </Row>
+                    <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="nom" label="Nom">
                                 <Input placeholder="Nom" onBlur={doSearch} />
                             </Form.Item>
                         </Col>
+                    </Row>
+                    <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="telephone" label="Téléphone">
                                 <Input placeholder="Téléphone" onBlur={doSearch} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 32]}>
+                        <Col span={24}>
+                            <Form.Item name="statut" label="Statut">
+                                <Select placeholder="Statut" onBlur={doSearch} options={[
+                                    { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
+                                    { value: StatutInscription.VALIDEE, label: "Validée" }
+                                ]} onSelect={doSearch} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -90,6 +113,16 @@ export const Inscriptions: FunctionComponent = () => {
             title: 'Téléphone',
             dataIndex: 'telephone',
             key: 'telephone',
+        },
+        {
+            title: 'Statut',
+            dataIndex: 'statut',
+            key: 'statut',
+            render: (value, record, index) => {
+                return (value === StatutInscription.VALIDEE ?
+                    <Tooltip title="Inscription validée" color="green"><CheckCircleTwoTone /></Tooltip> :
+                    <Tooltip title="Inscription non validée" color="red"><PauseCircleTwoTone /></Tooltip>);
+            }
         }
     ];
 
@@ -112,6 +145,12 @@ export const Inscriptions: FunctionComponent = () => {
         setDataSource(result);
     }, [result]);
 
+    const rowSelection = {
+        onChange: (selectedRowKeys: React.Key[], selectedRows: Inscription[]) => {
+            setSelectedInscription(selectedRows[0]);
+        }
+    };
+
     return (<>
         <Form
             name="basic"
@@ -133,7 +172,7 @@ export const Inscriptions: FunctionComponent = () => {
                     </div>
                     <Row>
                         <Col span={24}>
-                            <Table columns={columns} dataSource={dataSource} />
+                            <Table rowSelection={{ type: "radio", ...rowSelection }} columns={columns} dataSource={dataSource} />
                         </Col>
                     </Row>
                 </div>
