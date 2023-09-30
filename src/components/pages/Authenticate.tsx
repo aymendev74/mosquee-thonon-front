@@ -4,6 +4,7 @@ import { AUTHENTIFICATION_ENDPOINT } from '../../services/services';
 import { useAuth } from '../../hooks/UseAuth';
 import useApi from '../../services/useApi';
 import { AuthResponse } from '../../services/AuthResponse';
+import { useNavigate } from 'react-router-dom';
 
 type FieldType = {
     username?: string;
@@ -14,6 +15,7 @@ type FieldType = {
 export const Authenticate: FunctionComponent = () => {
     const { login } = useAuth();
     const { result, setApiCallDefinition } = useApi();
+    const navigate = useNavigate();
 
     const onFinish = async (values: any) => {
         setApiCallDefinition({ method: "POST", url: AUTHENTIFICATION_ENDPOINT, data: { username: values.username, password: values.password } });
@@ -21,6 +23,7 @@ export const Authenticate: FunctionComponent = () => {
 
     if (result && login) {
         login(result as AuthResponse);
+        navigate("/administration");
     }
 
     return (

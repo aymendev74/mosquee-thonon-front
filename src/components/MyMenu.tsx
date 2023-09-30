@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
-import { Menu, MenuProps } from "antd";
+import { Menu, MenuProps, Tag } from "antd";
 import { useNavigate } from "react-router-dom"
-import { HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { CrownOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/UseAuth";
 
 export const MyMenu: FunctionComponent = () => {
@@ -13,13 +13,13 @@ export const MyMenu: FunctionComponent = () => {
             navigate("/");
         } else if (menuInfo.key === "inscription") {
             navigate("/inscription");
-        } else if (menuInfo.key === "inscriptions") {
-            navigate("/inscriptions");
+        } else if (menuInfo.key === "administration") {
+            navigate("/administration");
         }
     }
 
     const getMenuItems = () => {
-        const menuItems = [{
+        const menuItems: MenuProps["items"] = [{
             key: "home",
             icon: <HomeOutlined />,
             label: "Accueil",
@@ -32,9 +32,10 @@ export const MyMenu: FunctionComponent = () => {
 
         if (isAuthenticated) {
             menuItems.push({
-                key: "inscriptions",
-                icon: <UserOutlined />,
-                label: "Inscriptions",
+                key: "administration",
+                icon: <CrownOutlined />,
+                label: "Administration",
+                style: { background: '#06686E' }
             });
         }
         return menuItems;

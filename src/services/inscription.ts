@@ -16,5 +16,5 @@ export type Inscription = {
     numeroEtRue: string;
     codePostal: number;
     ville: string;
-    statut: StatutInscription;
+    statut: StatutInscription | boolean;
 }

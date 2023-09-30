@@ -7,7 +7,7 @@ import { Link, Route, Routes } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { InscriptionForm } from './components/pages/InscriptionForm';
 import { Authenticate } from './components/pages/Authenticate';
-import { Inscriptions } from './components/pages/Inscriptions';
+import { Administration } from './components/pages/Administration';
 import { MyMenu } from './components/MyMenu';
 import { useAuth } from './hooks/UseAuth';
 
@@ -52,7 +52,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/inscription" element={<InscriptionForm />} />
             <Route path="/login" element={<Authenticate />} />
-            <Route path="/inscriptions" element={<Inscriptions />} />
+            <Route path="/administration" element={<Administration />} />
           </Routes>
         </div>
       </Content>

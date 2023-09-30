@@ -4,7 +4,7 @@ import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, StatutInscription } from "../../services/inscription";
 import moment from "moment";
 import useApi from "../../services/useApi";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
 
 type FieldType = {
@@ -26,8 +26,11 @@ export const InscriptionForm: FunctionComponent = () => {
     const { result, apiCallDefinition, setApiCallDefinition } = useApi();
     const location = useLocation();
     const [form] = useForm();
+    const navigate = useNavigate();
 
-    let id: any, isReadOnly, isAdmin;
+    let id: any;
+    let isReadOnly = false;
+    let isAdmin = false;
     if (location.state) {
         id = location.state.id;
         isReadOnly = location.state.isReadOnly;
@@ -36,23 +39,28 @@ export const InscriptionForm: FunctionComponent = () => {
 
     const onFinish = async (inscription: Inscription) => {
         inscription.dateNaissance = moment(inscription.dateNaissance).format("DD.MM.YYYY");
-        if (!inscription.statut) {
-            inscription.statut = StatutInscription.PROVISOIRE;
-        }
+        inscription.statut = inscription.statut === true ? StatutInscription.VALIDEE : StatutInscription.PROVISOIRE;
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
 
     useEffect(() => {
         if (result && apiCallDefinition?.method === "POST" && (result as Inscription).id) {
-            Modal.success({
-                title: "Inscription prise en compte",
-                content: "Votre inscription a bien été enregistrée"
-            });
+            // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
+            if (isAdmin) {
+                navigate("/inscriptions");
+            } else {
+                Modal.success({
+                    title: "Inscription prise en compte",
+                    content: "Votre inscription a bien été enregistrée"
+                });
+                form.resetFields();
+            }
         }
 
         if (result && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
             loadedInscription.dateNaissance = moment(loadedInscription.dateNaissance, 'DD.MM.YYYY')
+            loadedInscription.statut = loadedInscription.statut === StatutInscription.PROVISOIRE ? false : true;
             form.setFieldsValue(result);
         }
     }, [result]);
@@ -90,7 +98,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="nom"
                     rules={[{ required: true, message: "Veuillez saisir votre nom" }]}
                 >
-                    <Input className="input" readOnly={isReadOnly} />
+                    <Input disabled={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -99,7 +107,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="prenom"
                     rules={[{ required: true, message: "Veuillez saisir votre prénom" }]}
                 >
-                    <Input readOnly={isReadOnly} />
+                    <Input disabled={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
@@ -110,7 +118,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="dateNaissance"
                     rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
                 >
-                    <DatePicker disabled={isReadOnly} />
+                    <DatePicker placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -139,7 +147,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="email"
                     rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" }]}
                 >
-                    <Input readOnly={isReadOnly} />
+                    <Input disabled={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -148,7 +156,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="telephone"
                     rules={[{ required: true, message: "Veuillez saisir votre téléphone" }]}
                 >
-                    <Input readOnly={isReadOnly} />
+                    <Input disabled={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
@@ -165,7 +173,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="numeroEtRue"
                     rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]}
                 >
-                    <Input readOnly={isReadOnly} />
+                    <Input disabled={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
@@ -176,7 +184,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="codePostal"
                     rules={[{ required: true, message: "Veuillez saisir votre code postal" }]}
                 >
-                    <Input readOnly={isReadOnly} />
+                    <Input disabled={isReadOnly} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -185,7 +193,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     name="ville"
                     rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
                 >
-                    <Input readOnly={isReadOnly} />
+                    <Input disabled={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>
@@ -193,9 +201,8 @@ export const InscriptionForm: FunctionComponent = () => {
             <Row gutter={[16, 32]}>
                 <Col span={12}>
                     <Form.Item<FieldType>
-                        label="Statut"
+                        label="Validation"
                         name="statut"
-                        rules={[{ required: true, message: "Veuillez saisir le statut" }]}
                     >
                         <Switch disabled={isReadOnly} />
                     </Form.Item>
@@ -205,9 +212,8 @@ export const InscriptionForm: FunctionComponent = () => {
         <Row gutter={[16, 32]}>
             <Col span={24} className="centered-content">
                 <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        S'inscrire
-                    </Button>
+                    {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
+                    {!isAdmin && (<Button type="primary" htmlType="submit">S'inscrire</Button>)}
                 </Form.Item>
             </Col>
         </Row>
