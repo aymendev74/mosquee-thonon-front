@@ -5,6 +5,13 @@ export enum StatutInscription {
     VALIDEE = "VALIDEE",
 }
 
+export type SignatureDto = {
+    dateCreation: string;
+    visaCreation: string;
+    dateModification: string;
+    visaModification: string;
+}
+
 export type Inscription = {
     id: number;
     nom: string;
@@ -17,4 +24,5 @@ export type Inscription = {
     codePostal: number;
     ville: string;
     statut: StatutInscription | boolean;
+    signature?: SignatureDto;
 }

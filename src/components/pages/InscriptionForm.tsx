@@ -1,7 +1,7 @@
 import { Button, Col, DatePicker, Divider, Form, Input, Modal, Radio, Row, Switch } from "antd";
 import { FunctionComponent, useEffect } from "react";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
-import { Inscription, StatutInscription } from "../../services/inscription";
+import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
 import moment from "moment";
 import useApi from "../../services/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,6 +19,7 @@ type FieldType = {
     codePostal: number;
     ville: string;
     statut: StatutInscription;
+    signature: SignatureDto;
 };
 
 export const InscriptionForm: FunctionComponent = () => {
@@ -47,7 +48,7 @@ export const InscriptionForm: FunctionComponent = () => {
         if (result && apiCallDefinition?.method === "POST" && (result as Inscription).id) {
             // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
             if (isAdmin) {
-                navigate("/inscriptions");
+                navigate("/administration");
             } else {
                 Modal.success({
                     title: "Inscription prise en compte",
@@ -84,6 +85,9 @@ export const InscriptionForm: FunctionComponent = () => {
             <Input type="hidden" />
         </Form.Item>
         <Form.Item<FieldType> name="statut" style={{ display: "none" }}>
+            <Input type="hidden" />
+        </Form.Item>
+        <Form.Item<FieldType> name="signature" style={{ display: "none" }}>
             <Input type="hidden" />
         </Form.Item>
         <Row>

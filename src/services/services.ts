@@ -4,6 +4,7 @@ import { ApiCallDefinition } from "./useApi";
 
 export const AUTHENTIFICATION_ENDPOINT = "auth/login/";
 export const INSCRIPTION_ENDPOINT = "inscriptions/";
+export const VALIDATION_ENDPOINT = "inscriptions/validation/";
 
 enum HttpErrors {
     HTTP_401 = 401,
