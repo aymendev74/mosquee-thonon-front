@@ -1,33 +1,36 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { Inscription, StatutInscription } from "../../services/inscription";
-import { INSCRIPTION_ENDPOINT } from "../../services/services";
+import { INSCRIPTION_ENDPOINT, VALIDATION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
-import useApi from "../../services/useApi";
-import Table, { ColumnsType } from "antd/es/table";
-import { Button, Col, Collapse, Dropdown, Form, Input, Menu, MenuProps, Row, Select, Tooltip } from "antd";
-import { CheckCircleTwoTone, DownOutlined, PauseCircleTwoTone } from "@ant-design/icons";
+import useApi from "../../hooks/useApi";
+import Table from "antd/es/table";
+import { Button, Col, Collapse, Dropdown, Form, Input, MenuProps, Row, Select, Tooltip, notification } from "antd";
+import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
+import { columnsTableInscriptions } from "../common/tableDefinition";
+import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
 
 export const Administration: FunctionComponent = () => {
 
     const [dataSource, setDataSource] = useState<Inscription[]>();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
-    const { result, setApiCallDefinition } = useApi();
+    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const { Panel } = Collapse;
     const [form] = Form.useForm();
     const [selectedInscriptions, setSelectedInscriptions] = useState<Inscription[]>([]);
+    const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
 
     const DropdownMenu = () => {
         const handleMenuClick = (e: any) => {
-            if (selectedInscriptions.length === 1) { // Consultation/Modification d'inscription
+            if (selectedInscriptions.length === 1 && e.key !== "3") { // Consultation/Modification d'inscription
                 let readOnly: boolean = false;
                 if (e.key === "1") {
                     readOnly = true;
                 }
                 navigate("/inscription", { state: { isReadOnly: readOnly, id: selectedInscriptions[0].id, isAdmin: true } })
             } else { // Validation d'inscription
-
+                setApiCallDefinition({ method: "POST", url: VALIDATION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
             }
         };
 
@@ -82,76 +85,41 @@ export const Administration: FunctionComponent = () => {
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="statut" label="Statut">
-                                <Select placeholder="Statut" onBlur={doSearch} options={[
+                                <Select placeholder="Statut" options={[
                                     { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
                                     { value: StatutInscription.VALIDEE, label: "Validée" }
-                                ]} />
+                                ]} allowClear />
                             </Form.Item>
                         </Col>
                     </Row>
                     <div className="centered-content">
-                        <Button onClick={doSearch}>Rechercher</Button>
+                        <Button onClick={doSearch} style={{ marginRight: "10px" }}>Rechercher</Button>
+                        <Tooltip title="Dernières inscriptions">
+                            <Button icon={<ClockCircleOutlined />} shape="circle" onClick={() => { setModaleDernieresInscriptionOpen(true) }} />
+                        </Tooltip>
                     </div>
                 </Panel>
             </Collapse>
         );
     };
 
-    const columns: ColumnsType<Inscription> = [
-        {
-            title: 'Nom',
-            dataIndex: 'nom',
-            key: 'nom',
-        },
-        {
-            title: 'Prénom',
-            dataIndex: 'prenom',
-            key: 'prenom',
-        },
-        {
-            title: 'Sexe',
-            dataIndex: 'sexe',
-            key: 'sexe',
-        },
-        {
-            title: 'Téléphone',
-            dataIndex: 'telephone',
-            key: 'telephone',
-        },
-        {
-            title: 'Ville',
-            dataIndex: 'ville',
-            key: 'ville',
-        },
-        {
-            title: 'Statut',
-            dataIndex: 'statut',
-            key: 'statut',
-            render: (value, record, index) => {
-                return (value === StatutInscription.VALIDEE ?
-                    <Tooltip title="Inscription validée" color="green"><CheckCircleTwoTone /></Tooltip> :
-                    <Tooltip title="Inscription non validée" color="red"><PauseCircleTwoTone /></Tooltip>);
-            }
-        }
-    ];
-
     useEffect(() => {
         const fetchInscriptions = async () => {
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
         }
-
-        // Si l'utilisateur a réussi à accéder directement à cette partie protégée sans être authentifié (via l'URL en général)
-        // alors on le redirige vers la page d'authentification
-        if (!isAuthenticated) {
-            navigate("/login");
-        } else {
-            fetchInscriptions();
-        }
-
+        fetchInscriptions();
     }, []);
 
     useEffect(() => {
-        setDataSource(result);
+        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && result) {
+            setDataSource(result);
+            resetApi();
+        }
+        if (apiCallDefinition?.url === VALIDATION_ENDPOINT && result) {
+            notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été validées", type: "success" });
+            setSelectedInscriptions([]);
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+        }
     }, [result]);
 
     const rowSelection = {
@@ -160,7 +128,7 @@ export const Administration: FunctionComponent = () => {
         }
     };
 
-    return (<>
+    return isAuthenticated ? (<>
         <Form
             name="basic"
             labelCol={{ span: 8 }}
@@ -181,11 +149,13 @@ export const Administration: FunctionComponent = () => {
                     </div>
                     <Row>
                         <Col span={24}>
-                            <Table rowSelection={{ type: "checkbox", ...rowSelection }} columns={columns} dataSource={dataSource} rowKey={record => record.id} />
+                            <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
+                                columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id} />
                         </Col>
                     </Row>
                 </div>
             </div>
+            <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
         </Form>
-    </>)
+    </>) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
 };

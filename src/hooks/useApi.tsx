@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { executeApiCall } from './services';
+import { executeApiCall } from '../services/services';
 
 export type ApiCallDefinition = {
     url?: string,
@@ -33,7 +33,13 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
         }
     }, [apiCallDefinition]);
 
-    return { setApiCallDefinition, result, isLoading, error, apiCallDefinition };
+
+    const resetApi = () => {
+        setResult(undefined);
+        setApiCallDefinition(undefined);
+    }
+
+    return { setApiCallDefinition, result, isLoading, error, apiCallDefinition, resetApi };
 };
 
 export default useApi;

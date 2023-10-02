@@ -2,7 +2,7 @@ import { Button, Form, Input } from 'antd';
 import { FunctionComponent } from 'react';
 import { AUTHENTIFICATION_ENDPOINT } from '../../services/services';
 import { useAuth } from '../../hooks/UseAuth';
-import useApi from '../../services/useApi';
+import useApi from '../../hooks/useApi';
 import { AuthResponse } from '../../services/AuthResponse';
 import { useNavigate } from 'react-router-dom';
 

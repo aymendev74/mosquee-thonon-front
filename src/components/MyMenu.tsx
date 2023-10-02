@@ -1,5 +1,5 @@
 import { FunctionComponent } from "react";
-import { Menu, MenuProps, Tag } from "antd";
+import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
 import { CrownOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/UseAuth";

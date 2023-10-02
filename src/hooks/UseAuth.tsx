@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthResponse } from '../services/AuthResponse';
 
@@ -31,6 +31,12 @@ export const AuthProvider = (props: any) => {
     setIsAuthenticated(false);
     navigate("/");
   };
+
+  useEffect(() => {
+    if (sessionStorage.getItem("token")) {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

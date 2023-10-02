@@ -68,3 +68,22 @@
 .result-container {
   width: 60%;
 }
+
+.logo-title {
+  color: white;
+  font-family: "Poppins", "sans-serif";
+  font-weight: 600;
+  font-size: x-large;
+}
+
+.footer {
+  text-align: center;
+  font-family: "Poppins", "sans-serif";
+}
+
+.home {
+  font-family: "Poppins", "sans-serif";
+  font-weight: 200;
+  font-size: large;
+  text-align: justify;
+}

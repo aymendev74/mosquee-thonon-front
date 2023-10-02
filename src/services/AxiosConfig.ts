@@ -5,7 +5,6 @@ const AxiosInstance = axios.create();
 AxiosInstance.interceptors.request.use((config) => {
     config.baseURL = "http://localhost:8080/v1/";
     const token = sessionStorage.getItem("token");
-    console.log(token?.toString());
     if (token) {
         config.headers.Authorization = "Bearer " + token;
     }

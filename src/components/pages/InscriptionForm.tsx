@@ -1,9 +1,9 @@
-import { Button, Col, DatePicker, Divider, Form, Input, Modal, Radio, Row, Switch } from "antd";
+import { Button, Col, DatePicker, Divider, Form, Input, Radio, Row, notification } from "antd";
 import { FunctionComponent, useEffect } from "react";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
 import moment from "moment";
-import useApi from "../../services/useApi";
+import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
 
@@ -24,23 +24,20 @@ type FieldType = {
 
 export const InscriptionForm: FunctionComponent = () => {
 
-    const { result, apiCallDefinition, setApiCallDefinition } = useApi();
+    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const location = useLocation();
     const [form] = useForm();
     const navigate = useNavigate();
 
-    let id: any;
-    let isReadOnly = false;
-    let isAdmin = false;
-    if (location.state) {
-        id = location.state.id;
-        isReadOnly = location.state.isReadOnly;
-        isAdmin = location.state.isAdmin;
-    }
+    const id = location.state ? location.state.id : undefined;
+    const isReadOnly = location.state ? location.state.isReadOnly : undefined;
+    const isAdmin = location.state ? location.state.isAdmin : undefined;
 
     const onFinish = async (inscription: Inscription) => {
         inscription.dateNaissance = moment(inscription.dateNaissance).format("DD.MM.YYYY");
-        inscription.statut = inscription.statut === true ? StatutInscription.VALIDEE : StatutInscription.PROVISOIRE;
+        if (!inscription.statut) {
+            inscription.statut = StatutInscription.PROVISOIRE;
+        }
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
 
@@ -48,21 +45,20 @@ export const InscriptionForm: FunctionComponent = () => {
         if (result && apiCallDefinition?.method === "POST" && (result as Inscription).id) {
             // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
             if (isAdmin) {
+                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
                 navigate("/administration");
             } else {
-                Modal.success({
-                    title: "Inscription prise en compte",
-                    content: "Votre inscription a bien été enregistrée"
-                });
+                notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
                 form.resetFields();
             }
+            resetApi();
         }
 
         if (result && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
             loadedInscription.dateNaissance = moment(loadedInscription.dateNaissance, 'DD.MM.YYYY')
-            loadedInscription.statut = loadedInscription.statut === StatutInscription.PROVISOIRE ? false : true;
             form.setFieldsValue(result);
+            resetApi();
         }
     }, [result]);
 
@@ -70,7 +66,7 @@ export const InscriptionForm: FunctionComponent = () => {
         if (id) {
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + id });
         }
-    }, [id]);
+    }, []);
 
     return (<Form
         name="basic"
@@ -202,16 +198,26 @@ export const InscriptionForm: FunctionComponent = () => {
             </Col>
         </Row>
         {isAdmin &&
-            <Row gutter={[16, 32]}>
-                <Col span={12}>
-                    <Form.Item<FieldType>
-                        label="Validation"
-                        name="statut"
-                    >
-                        <Switch disabled={isReadOnly} />
-                    </Form.Item>
-                </Col>
-            </Row>
+            <>
+                <Row>
+                    <Col span={24}>
+                        <Divider orientation="left">Statut inscription</Divider>
+                    </Col>
+                </Row>
+                <Row gutter={[16, 32]}>
+                    <Col span={12}>
+                        <Form.Item<FieldType>
+                            label="Statut"
+                            name="statut"
+                        >
+                            <Radio.Group disabled={isReadOnly} >
+                                <Radio value={StatutInscription.PROVISOIRE}>Provisoire</Radio>
+                                <Radio value={StatutInscription.VALIDEE}>Validée</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </>
         }
         <Row gutter={[16, 32]}>
             <Col span={24} className="centered-content">

@@ -21,7 +21,10 @@ function App() {
       <Header>
         <Row justify="space-between">
           <Col span={8} style={{ marginTop: "5px" }}>
-            <div className="logo" />
+            <div className="d-flex">
+              <div className="logo" />
+              <div className="logo-title">Association musulmane du Chablais</div>
+            </div>
           </Col>
           <Col span={8}>
             <MyMenu />
@@ -56,12 +59,14 @@ function App() {
           </Routes>
         </div>
       </Content>
-      <Footer style={{ textAlign: 'center', fontFamily: "Roboto", }}>
-        <p>Copyright © 2023 | MOSQUEE-THONON</p>
-        <strong>Association Musulmane du Chablais</strong><br />
-        5 chemin des Epinanches<br />
-        74200 THONON LES BAINS<br />
-        Tel: (+33)4 50 70 64 78<br />
+      <Footer>
+        <div className="footer">
+          <p>Copyright © 2023 | MOSQUEE-THONON</p>
+          <strong>Association Musulmane du Chablais</strong><br />
+          5 chemin des Epinanches<br />
+          74200 THONON LES BAINS<br />
+          Tel: (+33)4 50 70 64 78<br />
+        </div>
       </Footer>
     </Layout>
   );
