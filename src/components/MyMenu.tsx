@@ -35,12 +35,12 @@ export const MyMenu: FunctionComponent = () => {
                 key: "administration",
                 icon: <CrownOutlined />,
                 label: "Administration",
-                style: { background: '#06686E' }
+                style: { background: "#06686E" }
             });
         }
         return menuItems;
     }
 
-    return (<Menu theme="dark" mode="horizontal" defaultSelectedKeys={['home']} onClick={onMenuClicked}
+    return (<Menu theme="dark" mode="horizontal" onClick={onMenuClicked}
         items={getMenuItems()} />);
 }

@@ -1,20 +1,44 @@
-import { Layout, Button, Row, Col } from 'antd';
+import { Layout, Button, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
 import {
   LoginOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { InscriptionForm } from './components/pages/InscriptionForm';
 import { Authenticate } from './components/pages/Authenticate';
 import { Administration } from './components/pages/Administration';
 import { MyMenu } from './components/MyMenu';
 import { useAuth } from './hooks/UseAuth';
+import { ChangePassword } from './components/pages/ChangePasswordForm';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
   const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const DropdownAuthUser = () => {
+    const handleMenuClick = (e: any) => {
+      if (e.key === "1" && logout) {
+        logout();
+      } else if (e.key === "2") {
+        navigate("/changePassword");
+      }
+    };
+
+    const items: MenuProps['items'] = [{ label: "Se déconnecter", key: "1" }, { label: "Modifier mot de passe", key: "2" }];
+
+    const menu: MenuProps = { items, onClick: handleMenuClick };
+
+    return (
+      <Dropdown menu={menu}>
+        <Avatar style={{ backgroundColor: "#06686E", verticalAlign: "middle", cursor: "pointer" }} size="large">
+          Aymen
+        </Avatar>
+      </Dropdown>
+    );
+  };
 
   return (
     <Layout>
@@ -31,13 +55,7 @@ function App() {
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
             {isAuthenticated ? (
-              <Button
-                type="primary"
-                icon={<LogoutOutlined />}
-                onClick={logout}
-              >
-                Déconnexion
-              </Button>
+              <DropdownAuthUser />
             ) : (
               <Link to="/login"><Button
                 type="primary"
@@ -56,6 +74,7 @@ function App() {
             <Route path="/inscription" element={<InscriptionForm />} />
             <Route path="/login" element={<Authenticate />} />
             <Route path="/administration" element={<Administration />} />
+            <Route path="/changePassword" element={<ChangePassword />} />
           </Routes>
         </div>
       </Content>

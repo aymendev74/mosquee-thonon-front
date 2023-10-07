@@ -1,6 +1,6 @@
-import { Button, Form, Input } from 'antd';
-import { FunctionComponent } from 'react';
-import { AUTHENTIFICATION_ENDPOINT } from '../../services/services';
+import { Button, Form, Input, notification } from 'antd';
+import { FunctionComponent, useEffect } from 'react';
+import { AUTHENTIFICATION_ENDPOINT, ERROR_INVALID_CREDENTIALS } from '../../services/services';
 import { useAuth } from '../../hooks/UseAuth';
 import useApi from '../../hooks/useApi';
 import { AuthResponse } from '../../services/AuthResponse';
@@ -9,22 +9,27 @@ import { useNavigate } from 'react-router-dom';
 type FieldType = {
     username?: string;
     password?: string;
-    remember?: string;
 };
 
 export const Authenticate: FunctionComponent = () => {
     const { login } = useAuth();
-    const { result, setApiCallDefinition } = useApi();
+    const { errorResult, result, setApiCallDefinition, resetApi } = useApi();
     const navigate = useNavigate();
 
     const onFinish = async (values: any) => {
         setApiCallDefinition({ method: "POST", url: AUTHENTIFICATION_ENDPOINT, data: { username: values.username, password: values.password } });
     };
 
-    if (result && login) {
-        login(result as AuthResponse);
-        navigate("/administration");
-    }
+    useEffect(() => {
+        if (result && login) {
+            login(result as AuthResponse);
+            navigate("/administration");
+        }
+        if (errorResult === ERROR_INVALID_CREDENTIALS) {
+            notification.open({ message: "Vos identifiants sont incorrects", type: "error" });
+        }
+        resetApi();
+    }, [result, errorResult]);
 
     return (
         <Form

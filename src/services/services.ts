@@ -2,9 +2,13 @@ import { notification } from "antd";
 import { AxiosInstance } from "./AxiosConfig";
 import { ApiCallDefinition } from "../hooks/useApi";
 
-export const AUTHENTIFICATION_ENDPOINT = "auth/login/";
-export const INSCRIPTION_ENDPOINT = "inscriptions/";
-export const VALIDATION_ENDPOINT = "inscriptions/validation/";
+export const AUTHENTIFICATION_ENDPOINT = "user/auth";
+export const CHANGE_PASSWORD_ENDPOINT = "user/password";
+export const INSCRIPTION_ENDPOINT = "inscriptions";
+export const VALIDATION_ENDPOINT = "inscriptions/validation";
+
+export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
+export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";
 
 export const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<any> => {
     return AxiosInstance.request({
@@ -12,7 +16,11 @@ export const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Prom
     }).then(response => {
         return response.data;
     }).catch(function (error) {
-        notification.open({ message: "Une erreur est survenue", type: "error" });
+        // Si pas de code d'erreur spécifique renvoyé par le back, alors on affiche un message d'erreur standard (problème technique)
+        // Sinon on ne fait rien d'autre que levé l'erreur pour que ce soit géré par l'appelant (message spécifique à afficher à l'utilisateur)
+        if (!error.response.data) {
+            notification.open({ message: "Une erreur est survenue", type: "error" });
+        }
         throw error;
     });
 }

@@ -12,6 +12,7 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
     const [result, setResult] = useState();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(false);
+    const [errorResult, setErrorResult] = useState<string>();
     const [apiCallDefinition, setApiCallDefinition] = useState<ApiCallDefinition | undefined>(apiCallDef);
 
     useEffect(() => {
@@ -23,6 +24,10 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
                 setResult(responseData);
             } catch (err) {
                 setError(true);
+                const error = err as any;
+                if (error.response && error.response.data) {
+                    setErrorResult(error.response.data);
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -36,10 +41,11 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
 
     const resetApi = () => {
         setResult(undefined);
+        setErrorResult(undefined);
         setApiCallDefinition(undefined);
     }
 
-    return { setApiCallDefinition, result, isLoading, error, apiCallDefinition, resetApi };
+    return { setApiCallDefinition, result, isLoading, error, errorResult, apiCallDefinition, resetApi };
 };
 
 export default useApi;

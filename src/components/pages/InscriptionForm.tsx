@@ -1,11 +1,13 @@
 import { Button, Col, DatePicker, Divider, Form, Input, Radio, Row, notification } from "antd";
-import { FunctionComponent, useEffect } from "react";
+import { ChangeEvent, FunctionComponent, useEffect, useRef } from "react";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
 import moment from "moment";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
+import { RuleObject } from "antd/es/form";
+import { StoreValue } from "antd/es/form/interface";
 
 type FieldType = {
     id: number;
@@ -64,9 +66,15 @@ export const InscriptionForm: FunctionComponent = () => {
 
     useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + id });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + "/" + id });
         }
     }, []);
+
+    const onCodePostalChanged = (e: any) => {
+        if (!["Backspace", "Tab", "End", "Home", "ArrowLeft", "ArrowRight"].includes(e.key) && isNaN(e.key)) {
+            e.preventDefault();
+        }
+    }
 
     return (<Form
         name="basic"
@@ -145,7 +153,9 @@ export const InscriptionForm: FunctionComponent = () => {
                 <Form.Item<FieldType>
                     label="E-mail"
                     name="email"
-                    rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" }]}
+                    rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" },
+                    { type: "email", message: "Veuillez saisir une adresse e-mail valide", validateTrigger: "onSubmit" }
+                    ]}
                 >
                     <Input disabled={isReadOnly} />
                 </Form.Item>
@@ -182,9 +192,10 @@ export const InscriptionForm: FunctionComponent = () => {
                 <Form.Item<FieldType>
                     label="Code postal"
                     name="codePostal"
-                    rules={[{ required: true, message: "Veuillez saisir votre code postal" }]}
+                    rules={[{ required: true, message: "Veuillez saisir votre code postal" },
+                    { pattern: /^\d{5}$/, message: "Veuillez saisir un code postale valide", validateTrigger: "onSubmit" }]}
                 >
-                    <Input disabled={isReadOnly} />
+                    <Input disabled={isReadOnly} onKeyDown={onCodePostalChanged} />
                 </Form.Item>
             </Col>
             <Col span={12}>
@@ -197,7 +208,8 @@ export const InscriptionForm: FunctionComponent = () => {
                 </Form.Item>
             </Col>
         </Row>
-        {isAdmin &&
+        {
+            isAdmin &&
             <>
                 <Row>
                     <Col span={24}>
@@ -227,6 +239,6 @@ export const InscriptionForm: FunctionComponent = () => {
                 </Form.Item>
             </Col>
         </Row>
-    </Form>);
+    </Form >);
 
 }
