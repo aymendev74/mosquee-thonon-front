@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import Table from "antd/es/table";
-import { Button, Col, Collapse, Dropdown, Form, Input, MenuProps, Row, Select, Tooltip, notification } from "antd";
+import { Button, Col, Collapse, Dropdown, Form, Input, MenuProps, Row, Select, Spin, Tooltip, notification } from "antd";
 import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { columnsTableInscriptions } from "../common/tableDefinition";
 import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
@@ -15,7 +15,7 @@ export const Administration: FunctionComponent = () => {
     const [dataSource, setDataSource] = useState<Inscription[]>();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
+    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const { Panel } = Collapse;
     const [form] = Form.useForm();
     const [selectedInscriptions, setSelectedInscriptions] = useState<Inscription[]>([]);
@@ -128,7 +128,7 @@ export const Administration: FunctionComponent = () => {
         }
     };
 
-    return isAuthenticated ? (<>
+    return isAuthenticated ? (
         <Form
             name="basic"
             labelCol={{ span: 8 }}
@@ -137,25 +137,26 @@ export const Administration: FunctionComponent = () => {
             className="container-full-width"
             form={form}
         >
-
-            <div className="d-flex">
-                <div className="filters-container">
-                    <SearchCollapse />
-                </div>
-                <div className="result-container">
-                    <div className="menu-action-container">
-                        <div className="label">Veuillez choisir une action à effectuer :</div>
-                        <div><DropdownMenu /></div>
+            <Spin spinning={isLoading}>
+                <div className="d-flex">
+                    <div className="filters-container">
+                        <SearchCollapse />
                     </div>
-                    <Row>
-                        <Col span={24}>
-                            <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id} />
-                        </Col>
-                    </Row>
+                    <div className="result-container">
+                        <div className="menu-action-container">
+                            <div className="label">Veuillez choisir une action à effectuer :</div>
+                            <div><DropdownMenu /></div>
+                        </div>
+                        <Row>
+                            <Col span={24}>
+                                <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
+                                    columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id} />
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
-            </div>
-            <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
+                <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
+            </Spin>
         </Form>
-    </>) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
+    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
 };

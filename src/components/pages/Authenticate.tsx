@@ -1,4 +1,4 @@
-import { Button, Form, Input, notification } from 'antd';
+import { Button, Form, Input, Spin, notification } from 'antd';
 import { FunctionComponent, useEffect } from 'react';
 import { AUTHENTIFICATION_ENDPOINT, ERROR_INVALID_CREDENTIALS } from '../../services/services';
 import { useAuth } from '../../hooks/UseAuth';
@@ -13,7 +13,7 @@ type FieldType = {
 
 export const Authenticate: FunctionComponent = () => {
     const { login } = useAuth();
-    const { errorResult, result, setApiCallDefinition, resetApi } = useApi();
+    const { errorResult, result, setApiCallDefinition, resetApi, isLoading } = useApi();
     const navigate = useNavigate();
 
     const onFinish = async (values: any) => {
@@ -41,27 +41,29 @@ export const Authenticate: FunctionComponent = () => {
             onFinish={onFinish}
             autoComplete="off"
         >
-            <Form.Item<FieldType>
-                label="Nom d'utilisateur"
-                name="username"
-                rules={[{ required: true, message: "Veuillez saisir votre nom d'utilisateur" }]}
-            >
-                <Input />
-            </Form.Item>
+            <Spin spinning={isLoading} >
+                <Form.Item<FieldType>
+                    label="Nom d'utilisateur"
+                    name="username"
+                    rules={[{ required: true, message: "Veuillez saisir votre nom d'utilisateur" }]}
+                >
+                    <Input />
+                </Form.Item>
 
-            <Form.Item<FieldType>
-                label="Mot de passe"
-                name="password"
-                rules={[{ required: true, message: "Veuillez saisir votre mot de passe" }]}
-            >
-                <Input.Password />
-            </Form.Item>
+                <Form.Item<FieldType>
+                    label="Mot de passe"
+                    name="password"
+                    rules={[{ required: true, message: "Veuillez saisir votre mot de passe" }]}
+                >
+                    <Input.Password />
+                </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
-                <Button type="primary" htmlType="submit">
-                    Connexion
-                </Button>
-            </Form.Item>
+                <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
+                    <Button type="primary" htmlType="submit">
+                        Connexion
+                    </Button>
+                </Form.Item>
+            </Spin>
         </Form>
     );
 }
