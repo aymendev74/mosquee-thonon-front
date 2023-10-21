@@ -1,13 +1,13 @@
-import { Button, Col, DatePicker, Divider, Form, Input, Radio, Row, Spin, notification } from "antd";
-import { ChangeEvent, FunctionComponent, useEffect, useRef } from "react";
+import { Button, Checkbox, Col, DatePicker, Divider, Form, Input, Radio, Row, Spin, notification } from "antd";
+import { FunctionComponent, useEffect, useState } from "react";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
 import moment from "moment";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
-import { RuleObject } from "antd/es/form";
-import { StoreValue } from "antd/es/form/interface";
+import { ModaleRGPD } from "../modals/ModalRGPD";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 
 type FieldType = {
     id: number;
@@ -30,12 +30,19 @@ export const InscriptionForm: FunctionComponent = () => {
     const location = useLocation();
     const [form] = useForm();
     const navigate = useNavigate();
+    const [modalRGPDOpen, setModalRGPDOpen] = useState(false);
+    const [consentementOk, setConsentementOk] = useState(false);
 
     const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
     const isAdmin = location.state ? location.state.isAdmin : undefined;
 
     const onFinish = async (inscription: Inscription) => {
+        if (!isAdmin && !consentementOk) {
+            notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
+            return;
+        }
+
         inscription.dateNaissance = moment(inscription.dateNaissance).format("DD.MM.YYYY");
         if (!inscription.statut) {
             inscription.statut = StatutInscription.PROVISOIRE;
@@ -70,7 +77,7 @@ export const InscriptionForm: FunctionComponent = () => {
         }
     }, []);
 
-    const onCodePostalChanged = (e: any) => {
+    const onNumericFieldChanged = (e: any) => {
         if (!["Backspace", "Tab", "End", "Home", "ArrowLeft", "ArrowRight"].includes(e.key) && isNaN(e.key)) {
             e.preventDefault();
         }
@@ -166,9 +173,10 @@ export const InscriptionForm: FunctionComponent = () => {
                         <Form.Item<FieldType>
                             label="Téléphone"
                             name="telephone"
-                            rules={[{ required: true, message: "Veuillez saisir votre téléphone" }]}
+                            rules={[{ required: true, message: "Veuillez saisir votre téléphone" },
+                            { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]}
                         >
-                            <Input disabled={isReadOnly} />
+                            <Input disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -197,7 +205,7 @@ export const InscriptionForm: FunctionComponent = () => {
                             rules={[{ required: true, message: "Veuillez saisir votre code postal" },
                             { pattern: /^\d{5}$/, message: "Veuillez saisir un code postale valide", validateTrigger: "onSubmit" }]}
                         >
-                            <Input disabled={isReadOnly} onKeyDown={onCodePostalChanged} />
+                            <Input disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -233,6 +241,27 @@ export const InscriptionForm: FunctionComponent = () => {
                         </Row>
                     </>
                 }
+                {
+                    !isAdmin &&
+                    <>
+                        <br /><br />
+                        <Row gutter={[16, 32]}>
+                            <Col span={24}>
+                                <Checkbox onChange={(e) => { setConsentementOk(e.target.checked) }}>
+                                    Je consents à ce que mes données personnelles soient collectées dans le but d'être recontacté par l'association musulmane du chablais,
+                                    afin de finaliser mon inscription aux cours dispensés par l'association.
+                                </Checkbox>
+                                <br /><br />
+                            </Col>
+                        </Row>
+                        <Row gutter={[16, 32]}>
+                            <Col span={24}>
+                                Vous pouvez consulter <a href="#" onClick={() => { setModalRGPDOpen(true) }} >ici</a> les informations relatives au règlement général sur la protection des données.
+                            </Col>
+                            <br /><br />
+                        </Row>
+                    </>
+                }
                 <Row gutter={[16, 32]}>
                     <Col span={24} className="centered-content">
                         <Form.Item>
@@ -242,6 +271,7 @@ export const InscriptionForm: FunctionComponent = () => {
                     </Col>
                 </Row>
             </Spin>
+            <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
         </Form >
     );
 

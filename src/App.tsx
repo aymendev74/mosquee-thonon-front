@@ -1,7 +1,6 @@
 import { Layout, Button, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
 import {
   LoginOutlined,
-  LogoutOutlined,
 } from '@ant-design/icons';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
