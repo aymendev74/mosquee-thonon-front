@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { AuthResponse } from '../services/AuthResponse';
 
 export type AuthContextValues = {
-  isAuthenticated?: boolean,
+  loggedUser?: string,
   login?: (authResponse: AuthResponse) => void,
   logout?: () => void,
 }
 
 // Créez un contexte pour gérer l'authentification
-const AuthContext = createContext<AuthContextValues>({ isAuthenticated: false });
+const AuthContext = createContext<AuthContextValues>({});
 
 // Hook personnalisé pour gérer l'authentification
 export function useAuth() {
@@ -18,28 +18,29 @@ export function useAuth() {
 
 // Fournit le contexte AuthProvider
 export const AuthProvider = (props: any) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loggedUser, setLoggedUser] = useState<string>();
   const navigate = useNavigate();
 
   const login = (authResponse: AuthResponse) => {
     sessionStorage.setItem("token", authResponse.accessToken)
-    setIsAuthenticated(true);
+    sessionStorage.setItem("loggedUser", authResponse.username)
+    setLoggedUser(authResponse.username);
   };
 
   const logout = () => {
     sessionStorage.removeItem("token");
-    setIsAuthenticated(false);
+    setLoggedUser(undefined);
     navigate("/");
   };
 
   useEffect(() => {
-    if (sessionStorage.getItem("token")) {
-      setIsAuthenticated(true);
+    if (sessionStorage.getItem("loggedUser")) {
+      setLoggedUser(String(sessionStorage.getItem("loggedUser")));
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ loggedUser, login, logout }}>
       {props.children}
     </AuthContext.Provider>
   );

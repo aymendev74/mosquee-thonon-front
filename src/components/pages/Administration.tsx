@@ -13,7 +13,7 @@ import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions"
 export const Administration: FunctionComponent = () => {
 
     const [dataSource, setDataSource] = useState<Inscription[]>();
-    const { isAuthenticated } = useAuth();
+    const { loggedUser } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const { Panel } = Collapse;
@@ -128,7 +128,7 @@ export const Administration: FunctionComponent = () => {
         }
     };
 
-    return isAuthenticated ? (
+    return loggedUser ? (
         <Form
             name="basic"
             labelCol={{ span: 8 }}

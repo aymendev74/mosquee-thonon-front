@@ -14,7 +14,7 @@ import { ChangePassword } from './components/pages/ChangePasswordForm';
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const { isAuthenticated, logout } = useAuth();
+  const { loggedUser, logout } = useAuth();
   const navigate = useNavigate();
 
   const DropdownAuthUser = () => {
@@ -33,7 +33,7 @@ function App() {
     return (
       <Dropdown menu={menu}>
         <Avatar style={{ backgroundColor: "#06686E", verticalAlign: "middle", cursor: "pointer" }} size="large">
-          Aymen
+          {loggedUser}
         </Avatar>
       </Dropdown>
     );
@@ -53,7 +53,7 @@ function App() {
             <MyMenu />
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
-            {isAuthenticated ? (
+            {loggedUser ? (
               <DropdownAuthUser />
             ) : (
               <Link to="/login"><Button

@@ -6,7 +6,7 @@ import { useAuth } from "../hooks/UseAuth";
 
 export const MyMenu: FunctionComponent = () => {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { loggedUser } = useAuth();
 
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
@@ -30,7 +30,7 @@ export const MyMenu: FunctionComponent = () => {
             label: "Inscription",
         }];
 
-        if (isAuthenticated) {
+        if (loggedUser) {
             menuItems.push({
                 key: "administration",
                 icon: <CrownOutlined />,
