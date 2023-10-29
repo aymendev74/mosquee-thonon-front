@@ -21,21 +21,31 @@ export const Administration: FunctionComponent = () => {
     const [selectedInscriptions, setSelectedInscriptions] = useState<Inscription[]>([]);
     const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
 
+    const CONSULTER_MENU_KEY = "1";
+    const MODIFIER_MENU_KEY = "2";
+    const VALIDER_MENU_KEY = "3";
+    const SUPPRIMER_MENU_KEY = "4";
+
+
     const DropdownMenu = () => {
         const handleMenuClick = (e: any) => {
-            if (selectedInscriptions.length === 1 && e.key !== "3") { // Consultation/Modification d'inscription
+            if (selectedInscriptions.length === 1 && [CONSULTER_MENU_KEY, MODIFIER_MENU_KEY].includes(e.key)) { // Consultation/Modification d'inscription
                 let readOnly: boolean = false;
-                if (e.key === "1") {
+                if (e.key === CONSULTER_MENU_KEY) {
                     readOnly = true;
                 }
                 navigate("/inscription", { state: { isReadOnly: readOnly, id: selectedInscriptions[0].id, isAdmin: true } })
-            } else { // Validation d'inscription
+            } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
                 setApiCallDefinition({ method: "POST", url: VALIDATION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
+            } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
+                setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
             }
         };
 
-        const items: MenuProps['items'] = [{ label: "Consulter", key: "1", disabled: selectedInscriptions.length !== 1 },
-        { label: "Modifier", key: "2", disabled: selectedInscriptions.length !== 1 }, { label: "Valider inscription", key: "3", disabled: selectedInscriptions.length < 1 }];
+        const items: MenuProps['items'] = [{ label: "Consulter", key: CONSULTER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
+        { label: "Modifier", key: MODIFIER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
+        { label: "Valider inscription", key: VALIDER_MENU_KEY, disabled: selectedInscriptions.length < 1 },
+        { label: "Supprimer", danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedInscriptions.length < 1 }];
 
         const menu: MenuProps = { items, onClick: handleMenuClick };
 
@@ -111,12 +121,19 @@ export const Administration: FunctionComponent = () => {
     }, []);
 
     useEffect(() => {
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && result) {
+        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
             setDataSource(result);
             resetApi();
         }
         if (apiCallDefinition?.url === VALIDATION_ENDPOINT && result) {
             notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été validées", type: "success" });
+            // On reload toutes les inscriptions depuis la base
+            setSelectedInscriptions([]);
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+        }
+        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
+            notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été supprimées", type: "success" });
+            // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
         }
