@@ -9,6 +9,7 @@ import { Button, Col, Collapse, Dropdown, Form, Input, MenuProps, Row, Select, S
 import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { columnsTableInscriptions } from "../common/tableDefinition";
 import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
+import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 
 export const Administration: FunctionComponent = () => {
 
@@ -20,12 +21,17 @@ export const Administration: FunctionComponent = () => {
     const [form] = Form.useForm();
     const [selectedInscriptions, setSelectedInscriptions] = useState<Inscription[]>([]);
     const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
+    const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
 
     const CONSULTER_MENU_KEY = "1";
     const MODIFIER_MENU_KEY = "2";
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
 
+    const onConfirmSuppression = () => {
+        setModaleConfirmSuppressionOpen(false);
+        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
+    }
 
     const DropdownMenu = () => {
         const handleMenuClick = (e: any) => {
@@ -38,7 +44,7 @@ export const Administration: FunctionComponent = () => {
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
                 setApiCallDefinition({ method: "POST", url: VALIDATION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
-                setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
+                setModaleConfirmSuppressionOpen(true);
             }
         };
 
@@ -173,6 +179,8 @@ export const Administration: FunctionComponent = () => {
                     </div>
                 </div>
                 <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
+                <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
+                    nbInscriptions={selectedInscriptions.length} onConfirm={onConfirmSuppression} />
             </Spin>
         </Form>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
