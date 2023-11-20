@@ -24,5 +24,8 @@ export type Inscription = {
     codePostal: number;
     ville: string;
     statut: StatutInscription | boolean;
+    niveau: string;
     signature?: SignatureDto;
 }
+
+export type InscriptionForExport = Omit<Inscription, "id" | "signature">;

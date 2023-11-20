@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Inscription, StatutInscription } from "../../services/inscription";
+import { Inscription, InscriptionForExport, StatutInscription } from "../../services/inscription";
 import { INSCRIPTION_ENDPOINT, VALIDATION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { columnsTableInscriptions } from "../common/tableDefinition";
 import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
+import * as XLSX from 'xlsx';
 
 export const Administration: FunctionComponent = () => {
 
@@ -27,6 +28,31 @@ export const Administration: FunctionComponent = () => {
     const MODIFIER_MENU_KEY = "2";
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
+
+    const prepareForExport = (dataSource: Inscription) => {
+        const { id, signature, ...rest } = dataSource;
+        return rest as InscriptionForExport;
+    }
+
+    const exportData = () => {
+        // Crée une feuille de calcul
+        if (dataSource) {
+            const inscriptionForExports: InscriptionForExport[] = [];
+            // On ne garde que les champs intéressants pour l'export excel
+            dataSource.forEach(inscription => {
+                inscriptionForExports.push(prepareForExport(inscription));
+            });
+
+            const ws = XLSX.utils.json_to_sheet(inscriptionForExports);
+
+            // Crée un classeur
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Inscriptions');
+
+            // Sauvegarde le fichier Excel
+            XLSX.writeFile(wb, 'inscriptions.xlsx');
+        }
+    }
 
     const onConfirmSuppression = () => {
         setModaleConfirmSuppressionOpen(false);
@@ -151,6 +177,10 @@ export const Administration: FunctionComponent = () => {
         }
     };
 
+    const isInscriptionsSelected = () => {
+        return dataSource && dataSource.length > 0;
+    }
+
     return loggedUser ? (
         <Form
             name="basic"
@@ -168,7 +198,8 @@ export const Administration: FunctionComponent = () => {
                     <div className="result-container">
                         <div className="menu-action-container">
                             <div className="label">Veuillez choisir une action à effectuer :</div>
-                            <div><DropdownMenu /></div>
+                            <div className="bt-action"><DropdownMenu /></div>
+                            <Button onClick={exportData} disabled={!isInscriptionsSelected()}>Exporter</Button>
                         </div>
                         <Row>
                             <Col span={24}>
@@ -176,6 +207,11 @@ export const Administration: FunctionComponent = () => {
                                     columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id} />
                             </Col>
                         </Row>
+                        {selectedInscriptions && selectedInscriptions.length > 0 && (<Row>
+                            <Col span={24}>
+                                <Button onClick={exportData}>Exporter</Button>
+                            </Col>
+                        </Row>)}
                     </div>
                 </div>
                 <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
