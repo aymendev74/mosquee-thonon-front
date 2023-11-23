@@ -91,3 +91,19 @@
   font-size: large;
   text-align: justify;
 }
+
+.m-top-15 {
+  margin-top: 15px;
+}
+
+.m-left-10 {
+  margin-left: 10px;
+}
+
+.m-bottom-15 {
+  margin-bottom: 15px;
+}
+
+.pad-10 {
+  padding: 10px;
+}

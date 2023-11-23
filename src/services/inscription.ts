@@ -1,4 +1,6 @@
-import moment from "moment";
+import { Moment } from "moment";
+import { ResponsableLegal } from "./ResponsableLegal";
+import { Eleve } from "./eleve";
 
 export enum StatutInscription {
     PROVISOIRE = "PROVISOIRE",
@@ -14,17 +16,10 @@ export type SignatureDto = {
 
 export type Inscription = {
     id: number;
-    nom: string;
-    prenom: string;
-    dateNaissance: string | moment.Moment;
-    telephone: string;
-    email: string;
-    sexe: string;
-    numeroEtRue: string;
-    codePostal: number;
-    ville: string;
     statut: StatutInscription | boolean;
-    niveau: string;
+    dateInscription: Moment | string;
+    responsableLegal: ResponsableLegal;
+    eleves: Eleve[];
     signature?: SignatureDto;
 }
 
