@@ -7,5 +7,6 @@ export type Eleve = {
     prenom: string;
     dateNaissance: Moment | string;
     niveau: string;
+    idTarif?: number;
     signature?: SignatureDto;
 }

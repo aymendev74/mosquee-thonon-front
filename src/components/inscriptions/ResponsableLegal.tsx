@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, DatePicker, Divider, Form, Input, Radio, Row } from "antd";
+import { Button, Checkbox, Col, DatePicker, Divider, Form, Input, Radio, Row, Switch } from "antd";
 import { FunctionComponent } from "react";
 import { SignatureDto, StatutInscription } from "../../services/inscription";
 
@@ -37,6 +37,9 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
             <Input type="hidden" />
         </Form.Item>
         <Form.Item name={["responsableLegal", "signature"]} style={{ display: "none" }}>
+            <Input type="hidden" />
+        </Form.Item>
+        <Form.Item name={["responsableLegal", "idTarif"]} style={{ display: "none" }}>
             <Input type="hidden" />
         </Form.Item>
         <Row>
@@ -134,6 +137,16 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                     ]}
                 >
                     <Input disabled={isReadOnly} />
+                </Form.Item>
+            </Col>
+        </Row>
+        <Row gutter={[16, 32]}>
+            <Col span={12}>
+                <Form.Item
+                    label="Je suis adhérent"
+                    name={["responsableLegal", "adherent"]}
+                >
+                    <Switch disabled={isReadOnly} />
                 </Form.Item>
             </Col>
         </Row>

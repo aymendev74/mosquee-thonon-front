@@ -6,6 +6,8 @@ export const AUTHENTIFICATION_ENDPOINT = "user/auth";
 export const CHANGE_PASSWORD_ENDPOINT = "user/password";
 export const INSCRIPTION_ENDPOINT = "inscriptions";
 export const VALIDATION_ENDPOINT = "inscriptions/validation";
+export const INSCRIPTION_TARIFS = "tarifs-inscription";
+
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

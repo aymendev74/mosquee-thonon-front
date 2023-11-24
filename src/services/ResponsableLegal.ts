@@ -10,5 +10,7 @@ export type ResponsableLegal = {
     numeroEtRue: string;
     codePostal: number;
     ville: string;
+    idTarif: number;
+    adherent: boolean;
     signature?: SignatureDto;
 }

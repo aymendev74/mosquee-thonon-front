@@ -2,6 +2,7 @@ import { Button, Col, Collapse, DatePicker, Divider, Form, FormInstance, Input, 
 import { FunctionComponent, useState } from "react";
 import { SignatureDto, StatutInscription } from "../../services/inscription";
 import { Eleve } from "../../services/eleve";
+import moment from "moment";
 
 export type EleveProps = {
     isReadOnly: boolean;
@@ -9,21 +10,6 @@ export type EleveProps = {
     setEleves: React.Dispatch<React.SetStateAction<Eleve[]>>;
     form: FormInstance;
 }
-
-type FieldType = {
-    id: number;
-    nom: string;
-    prenom: string;
-    dateNaissance: string;
-    telephone: string;
-    email: string;
-    sexe: string;
-    numeroEtRue: string;
-    codePostal: number;
-    ville: string;
-    statut: StatutInscription;
-    signature: SignatureDto;
-};
 
 export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setEleves, form }) => {
     const [editingIndex, setEditingIndex] = useState<number | null>();
@@ -34,8 +20,10 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
         <Collapse accordion>
             {eleves.map((eleve, index) => (
                 <Panel header={eleve.prenom} key={index}>
-                    <p><strong>Nom:</strong> {eleve.nom}</p>
-                    <p><strong>Prénom:</strong> {eleve.prenom}</p>
+                    <p><strong>Nom :</strong> {eleve.nom}</p>
+                    <p><strong>Prénom :</strong> {eleve.prenom}</p>
+                    <p><strong>Date de naissance :</strong> {moment(eleve.dateNaissance).format("DD.MM.YYYY")}</p>
+                    <p><strong>Niveau scolaire :</strong> {eleve.niveau}</p>
                     <Button onClick={() => handleEdit(index)}>Modifier</Button>
                     <Button className="m-left-10" onClick={() => handleDelete(index)} danger>Supprimer</Button>
                 </Panel>
@@ -67,7 +55,14 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
         const prenom = form.getFieldValue("prenomEleve");
         const dateNaissance = form.getFieldValue("dateNaissanceEleve");
         const niveau = form.getFieldValue("niveauScolaire");
-        const updatedEleves = [...eleves, { nom, prenom, dateNaissance, niveau }];
+        let newEleve: Eleve = { nom, prenom, dateNaissance, niveau };
+        if (eleves[editingIndex!] && eleves[editingIndex!].signature) {
+            newEleve = { ...newEleve, signature: eleves[editingIndex!].signature }
+        }
+        if (eleves[editingIndex!] && eleves[editingIndex!].idTarif) {
+            newEleve = { ...newEleve, idTarif: eleves[editingIndex!].idTarif }
+        }
+        const updatedEleves = [...eleves, newEleve];
         setEleves(updatedEleves);
         setEditingIndex(null);
         resetEmptyForm();
@@ -127,7 +122,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
             <div className="centered-content pad-10">
                 <Button onClick={() => setEditingIndex(null)}>Annuler</Button>
 
-                <Button className="m-left-10" onClick={ajouterEleve}>Ajouter</Button>
+                <Button className="m-left-10" onClick={ajouterEleve}>Enregistrer</Button>
 
             </div>
         </>)}

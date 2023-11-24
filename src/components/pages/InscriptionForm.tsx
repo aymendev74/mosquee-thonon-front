@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, DatePicker, Divider, Form, Input, Radio, Row, Spin, Tabs, TabsProps, notification } from "antd";
+import { Button, Col, Form, Input, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { INSCRIPTION_ENDPOINT } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
@@ -7,8 +7,8 @@ import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
 import { ModaleRGPD } from "../modals/ModalRGPD";
-import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { ResponsableLegal } from "../inscriptions/ResponsableLegal";
+import { Tarif } from "../inscriptions/Tarif";
 import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
 
@@ -37,6 +37,11 @@ export const InscriptionForm: FunctionComponent = () => {
             key: '2',
             label: 'Eleves',
             children: <Eleves isReadOnly={isReadOnly} form={form} eleves={eleves} setEleves={setEleves} />,
+        },
+        {
+            key: '3',
+            label: 'Tarif',
+            children: <Tarif eleves={eleves} form={form} />,
         }];
 
     const onFinish = async (inscription: Inscription) => {
