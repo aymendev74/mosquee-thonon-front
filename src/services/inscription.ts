@@ -24,3 +24,17 @@ export type Inscription = {
 }
 
 export type InscriptionForExport = Omit<Inscription, "id" | "signature">;
+
+export type InscriptionLight = {
+    id: number;
+    dateInscription: Moment | string;
+    idInscription: number;
+    nom: string;
+    prenom: string;
+    dateNaissance: Moment | string;
+    niveau: string;
+    telephone: string;
+    mobile: string;
+    statut: StatutInscription;
+    ville: string;
+}

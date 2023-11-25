@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Inscription, InscriptionForExport, StatutInscription } from "../../services/inscription";
+import { Inscription, InscriptionForExport, InscriptionLight, StatutInscription } from "../../services/inscription";
 import { INSCRIPTION_ENDPOINT, VALIDATION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
@@ -14,13 +14,13 @@ import * as XLSX from 'xlsx';
 
 export const Administration: FunctionComponent = () => {
 
-    const [dataSource, setDataSource] = useState<Inscription[]>();
+    const [dataSource, setDataSource] = useState<InscriptionLight[]>();
     const { loggedUser } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const { Panel } = Collapse;
     const [form] = Form.useForm();
-    const [selectedInscriptions, setSelectedInscriptions] = useState<Inscription[]>([]);
+    const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
     const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
 
@@ -36,7 +36,7 @@ export const Administration: FunctionComponent = () => {
 
     const exportData = () => {
         // Crée une feuille de calcul
-        if (dataSource) {
+        /*if (dataSource) {
             const inscriptionForExports: InscriptionForExport[] = [];
             // On ne garde que les champs intéressants pour l'export excel
             dataSource.forEach(inscription => {
@@ -51,7 +51,7 @@ export const Administration: FunctionComponent = () => {
 
             // Sauvegarde le fichier Excel
             XLSX.writeFile(wb, 'inscriptions.xlsx');
-        }
+        }*/
     }
 
     const onConfirmSuppression = () => {
@@ -172,7 +172,7 @@ export const Administration: FunctionComponent = () => {
     }, [result]);
 
     const rowSelection = {
-        onChange: (selectedRowKeys: React.Key[], selectedRows: Inscription[]) => {
+        onChange: (selectedRowKeys: React.Key[], selectedRows: InscriptionLight[]) => {
             setSelectedInscriptions(selectedRows);
         }
     };

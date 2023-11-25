@@ -1,7 +1,7 @@
 import { Button, Modal, Table } from 'antd';
 import { FunctionComponent, useState, useEffect } from 'react';
 import { columnsTableInscriptions } from '../common/tableDefinition';
-import { Inscription } from '../../services/inscription';
+import { InscriptionLight } from '../../services/inscription';
 import useApi from '../../hooks/useApi';
 import { INSCRIPTION_ENDPOINT } from '../../services/services';
 
@@ -12,7 +12,7 @@ export type ModaleDerniersInscriptionProps = {
 
 export const ModaleDerniersInscription: FunctionComponent<ModaleDerniersInscriptionProps> = ({ open, setOpen }) => {
     const nbJours = 30;
-    const [dataSource, setDataSource] = useState<Inscription[]>();
+    const [dataSource, setDataSource] = useState<InscriptionLight[]>();
     const { result } = useApi({ url: INSCRIPTION_ENDPOINT, method: "GET", params: { nbDerniersJours: nbJours } });
 
     useEffect(() => {

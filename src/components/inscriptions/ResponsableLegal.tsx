@@ -5,26 +5,10 @@ import { SignatureDto, StatutInscription } from "../../services/inscription";
 export type ResponsableLegalProps = {
     isReadOnly: boolean;
     isAdmin: boolean;
+    doCalculTarif: () => void;
 }
 
-type FieldType = {
-    id: number;
-    nom: string;
-    prenom: string;
-    dateNaissance: string;
-    telephone: string;
-    email: string;
-    sexe: string;
-    numeroEtRue: string;
-    codePostal: number;
-    ville: string;
-    statut: StatutInscription;
-    mobile: string;
-    signature: SignatureDto;
-};
-
-
-export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isReadOnly, isAdmin }) => {
+export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isReadOnly, isAdmin, doCalculTarif }) => {
 
     const onNumericFieldChanged = (e: any) => {
         if (!["Backspace", "Tab", "End", "Home", "ArrowLeft", "ArrowRight"].includes(e.key) && isNaN(e.key)) {
@@ -146,7 +130,7 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                     label="Je suis adhérent"
                     name={["responsableLegal", "adherent"]}
                 >
-                    <Switch disabled={isReadOnly} />
+                    <Switch disabled={isReadOnly} onChange={() => doCalculTarif()} />
                 </Form.Item>
             </Col>
         </Row>
@@ -160,7 +144,7 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <Form.Item<FieldType>
+                        <Form.Item
                             label="Statut"
                             name="statut"
                         >

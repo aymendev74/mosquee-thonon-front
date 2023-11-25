@@ -1,51 +1,28 @@
 import { Col, Divider, FormInstance, Row } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Eleve } from "../../services/eleve";
-import useApi from "../../hooks/useApi";
-import { INSCRIPTION_TARIFS } from "../../services/services";
 import { TarifInscriptionDto } from "../../services/tarif";
 
 export type TarifProps = {
     eleves: Eleve[];
+    tarifInscription?: TarifInscriptionDto;
     form: FormInstance;
 }
 
-export const Tarif: FunctionComponent<TarifProps> = ({ eleves, form }) => {
+export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription, form }) => {
 
-    const { result, setApiCallDefinition, resetApi } = useApi();
-    const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
+    const getStatutAdherent = () => {
+        const adherent = form.getFieldValue(["responsableLegal", "adherent"]);
+        return adherent ? "adhérent" : "non adhérent"
+    }
 
-    useEffect(() => {
-        const responsableLegal = form.getFieldValue("responsableLegal");
-        if (eleves.length > 0) {
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS, data: { responsableLegal, eleves } });
-        } else {
-            setTarifInscription(undefined);
-        }
-    }, [eleves.length]);
-
-    useEffect(() => {
-        if (result) {
-            setTarifInscription(result);
-            resetApi();
-        }
-    }, [result]);
-
-    return (<>
-        <Row>
-            <Col span={24}>
+    return !tarifInscription ? (<div className="m-bottom-15">Pour obtenir un tarif, veuillez ajouter des élèves</div>)
+        : (
+            <>
                 <Divider orientation="left">Tarifs</Divider>
-            </Col>
-        </Row>
-        <Row>
-            <Col span={12}>
-                Tarif Base: {tarifInscription?.tarifBase ?? ""}
-            </Col>
-        </Row>
-        <Row>
-            <Col span={12}>
-                Tarif par enfant: {tarifInscription?.tarifEleve ?? ""}
-            </Col>
-        </Row>
-    </>)
+                <div className="m-bottom-10">Votre tarif <strong> {getStatutAdherent()}</strong> pour <strong>{eleves.length} élève(s)</strong></div>
+                <div className="m-bottom-10">Tarif Base: {tarifInscription?.tarifBase ?? ""}</div>
+                <div className="m-bottom-10">Tarif par enfant: {tarifInscription?.tarifEleve ?? ""}</div>
+            </>);
+
 }

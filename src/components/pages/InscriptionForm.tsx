@@ -1,6 +1,6 @@
 import { Button, Col, Form, Input, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { INSCRIPTION_ENDPOINT } from "../../services/services";
+import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
 import moment from "moment";
 import useApi from "../../hooks/useApi";
@@ -11,6 +11,7 @@ import { ResponsableLegal } from "../inscriptions/ResponsableLegal";
 import { Tarif } from "../inscriptions/Tarif";
 import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
+import { TarifInscriptionDto } from "../../services/tarif";
 
 export const InscriptionForm: FunctionComponent = () => {
 
@@ -21,17 +22,30 @@ export const InscriptionForm: FunctionComponent = () => {
     const [modalRGPDOpen, setModalRGPDOpen] = useState(false);
     const [consentementOk, setConsentementOk] = useState(false);
     const [eleves, setEleves] = useState<Eleve[]>([]);
+    const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
 
     const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
     const isAdmin = location.state ? location.state.isAdmin : undefined;
 
+    const calculTarif = () => {
+        let responsableLegal = form.getFieldValue("responsableLegal");
+        if (eleves.length > 0) {
+            if (!responsableLegal) {
+                // Cas ou l'utilisateur arrive sur l'écran et ne saisit rien dans l'onglet responsable légal
+                responsableLegal = { adherent: false };
+            }
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS, data: { responsableLegal, eleves } });
+        } else {
+            setTarifInscription(undefined);
+        }
+    };
 
     const tabItems: TabsProps['items'] = [
         {
             key: '1',
             label: 'Responsable légal',
-            children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} />,
+            children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} />,
         },
         {
             key: '2',
@@ -41,7 +55,7 @@ export const InscriptionForm: FunctionComponent = () => {
         {
             key: '3',
             label: 'Tarif',
-            children: <Tarif eleves={eleves} form={form} />,
+            children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} />,
         }];
 
     const onFinish = async (inscription: Inscription) => {
@@ -52,17 +66,16 @@ export const InscriptionForm: FunctionComponent = () => {
 
         inscription.dateInscription = moment(inscription.dateInscription).format("DD.MM.YYYY");
         inscription.eleves = eleves;
-        console.log(eleves);
         inscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance).format("DD.MM.YYYY"));
         if (!inscription.statut) {
             inscription.statut = StatutInscription.PROVISOIRE;
         }
-        console.log(inscription);
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
 
     useEffect(() => {
-        if (result && apiCallDefinition?.method === "POST" && (result as Inscription).id) {
+        // Sauvegarde de l'inscription
+        if (result && apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENDPOINT && (result as Inscription).id) {
             // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
             if (isAdmin) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
@@ -74,11 +87,18 @@ export const InscriptionForm: FunctionComponent = () => {
             resetApi();
         }
 
+        // Load de l'inscription
         if (result && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
             loadedInscription.dateInscription = moment(loadedInscription.dateInscription, 'DD.MM.YYYY');
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, 'DD.MM.YYYY'));
             form.setFieldsValue(result);
+            resetApi();
+        }
+
+        // Calcul tarif
+        if (result && apiCallDefinition?.url === INSCRIPTION_TARIFS) {
+            setTarifInscription(result);
             resetApi();
         }
     }, [result]);
@@ -89,11 +109,10 @@ export const InscriptionForm: FunctionComponent = () => {
         }
     }, []);
 
-    const onNumericFieldChanged = (e: any) => {
-        if (!["Backspace", "Tab", "End", "Home", "ArrowLeft", "ArrowRight"].includes(e.key) && isNaN(e.key)) {
-            e.preventDefault();
-        }
-    }
+    useEffect(() => {
+        calculTarif();
+    }, [eleves.length]);
+
 
     return (
         <Form

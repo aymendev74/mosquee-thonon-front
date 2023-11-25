@@ -1,9 +1,9 @@
 import { ColumnsType } from "antd/es/table";
-import { Inscription, StatutInscription } from "../../services/inscription";
+import { Inscription, InscriptionLight, StatutInscription } from "../../services/inscription";
 import { Tooltip } from "antd";
 import { CheckCircleTwoTone, PauseCircleTwoTone } from "@ant-design/icons";
 
-export const columnsTableInscriptions: ColumnsType<Inscription> = [
+export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
     {
         title: 'Nom',
         dataIndex: 'nom',
@@ -13,11 +13,6 @@ export const columnsTableInscriptions: ColumnsType<Inscription> = [
         title: 'Prénom',
         dataIndex: 'prenom',
         key: 'prenom',
-    },
-    {
-        title: 'Sexe',
-        dataIndex: 'sexe',
-        key: 'sexe',
     },
     {
         title: 'Téléphone',
@@ -41,10 +36,10 @@ export const columnsTableInscriptions: ColumnsType<Inscription> = [
     },
     {
         title: 'Date inscription',
-        dataIndex: 'signature.dateCreation',
-        key: 'signature.dateCreation',
+        dataIndex: 'dateInscription',
+        key: 'dateInscription',
         render: (value, record, index) => {
-            return record.signature?.dateCreation;
+            return record.dateInscription as string;
         }
     }
 ];
