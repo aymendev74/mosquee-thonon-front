@@ -2,7 +2,7 @@ import { Button, Col, Form, Input, Row, Spin, Tabs, TabsProps, notification } fr
 import { FunctionComponent, useEffect, useState } from "react";
 import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -66,7 +66,7 @@ export const InscriptionForm: FunctionComponent = () => {
 
         inscription.dateInscription = moment(inscription.dateInscription).format("DD.MM.YYYY");
         inscription.eleves = eleves;
-        inscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance).format("DD.MM.YYYY"));
+        inscription.eleves.forEach(eleve => eleve.dateNaissance = (eleve.dateNaissance as Moment).format("DD.MM.YYYY"));
         if (!inscription.statut) {
             inscription.statut = StatutInscription.PROVISOIRE;
         }

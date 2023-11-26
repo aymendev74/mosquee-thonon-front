@@ -5,12 +5,14 @@ import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import Table from "antd/es/table";
-import { Button, Col, Collapse, Dropdown, Form, Input, MenuProps, Row, Select, Spin, Tooltip, notification } from "antd";
+import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, MenuProps, Row, Select, Spin, Tooltip, notification } from "antd";
 import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { columnsTableInscriptions } from "../common/tableDefinition";
 import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
+import moment from "moment";
+import { getNiveauOptions } from "../common/commoninputs";
 
 export const Administration: FunctionComponent = () => {
 
@@ -95,7 +97,17 @@ export const Administration: FunctionComponent = () => {
         const prenom = form.getFieldValue("prenom");
         const telephone = form.getFieldValue("telephone");
         const statut = form.getFieldValue("statut");
-        const searchCriteria = { nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null, statut: statut ?? null }
+        let dateInscription = form.getFieldValue("dateInscription");
+        if (dateInscription) {
+            console.log(dateInscription);
+            dateInscription = dateInscription.format("DD.MM.YYYY");
+            console.log(dateInscription);
+        }
+        const niveau = form.getFieldValue("niveau");
+        const searchCriteria = {
+            nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null,
+            statut: statut ?? null, dateInscription: dateInscription ?? null, niveau: niveau ?? null
+        }
         setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
     }
 
@@ -119,8 +131,22 @@ export const Administration: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
+                            <Form.Item name="niveau" label="Niveau scolaire">
+                                <Select options={getNiveauOptions()} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 32]}>
+                        <Col span={24}>
                             <Form.Item name="telephone" label="Téléphone">
                                 <Input placeholder="Téléphone" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 32]}>
+                        <Col span={24}>
+                            <Form.Item name="dateInscription" label="Date inscription">
+                                <DatePicker placeholder="Date inscription" />
                             </Form.Item>
                         </Col>
                     </Row>

@@ -38,3 +38,18 @@ export type InscriptionLight = {
     statut: StatutInscription;
     ville: string;
 }
+
+export enum NiveauScolaire {
+    CP = "CP",
+    CE1 = "CE1",
+    CE2 = "CE2",
+    CM1 = "CM1",
+    CM2 = "CM2",
+    COLLEGE_6EME = "COLLEGE_6EME",
+    COLLEGE_5EME = "COLLEGE_5EME",
+    COLLEGE_4EME = "COLLEGE_4EME",
+    COLLEGE_3EME = "COLLEGE_3EME",
+    LYCEE_2ND = "LYCEE_2ND",
+    LYCEE_1ERE = "LYCEE_1ERE",
+    LYCEE_TERM = "LYCEE_TERM",
+}

@@ -1,8 +1,9 @@
-import { Button, Col, Collapse, DatePicker, Divider, Form, FormInstance, Input, Radio, Row } from "antd";
+import { Button, Col, Collapse, DatePicker, Divider, Form, FormInstance, Input, Radio, Row, Select } from "antd";
 import { FunctionComponent, useState } from "react";
 import { SignatureDto, StatutInscription } from "../../services/inscription";
 import { Eleve } from "../../services/eleve";
 import moment from "moment";
+import { getLibelleNiveauScolaire, getNiveauOptions } from "../common/commoninputs";
 
 export type EleveProps = {
     isReadOnly: boolean;
@@ -23,7 +24,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
                     <p><strong>Nom :</strong> {eleve.nom}</p>
                     <p><strong>Prénom :</strong> {eleve.prenom}</p>
                     <p><strong>Date de naissance :</strong> {moment(eleve.dateNaissance).format("DD.MM.YYYY")}</p>
-                    <p><strong>Niveau scolaire :</strong> {eleve.niveau}</p>
+                    <p><strong>Niveau scolaire :</strong> {getLibelleNiveauScolaire(eleve.niveau)}</p>
                     <Button onClick={() => handleEdit(index)}>Modifier</Button>
                     <Button className="m-left-10" onClick={() => handleDelete(index)} danger>Supprimer</Button>
                 </Panel>
@@ -115,7 +116,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
                         name="niveauScolaire"
                         rules={[{ required: true, message: "Veuillez saisir votre niveau scolaire" }]}
                     >
-                        <Input disabled={isReadOnly} />
+                        <Select disabled={isReadOnly} options={getNiveauOptions()} />
                     </Form.Item>
                 </Col>
             </Row>
