@@ -31,14 +31,14 @@ export const Administration: FunctionComponent = () => {
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
 
-    const prepareForExport = (dataSource: Inscription) => {
-        const { id, signature, ...rest } = dataSource;
+    const prepareForExport = (dataSource: InscriptionLight) => {
+        const { id, idInscription, ...rest } = dataSource;
         return rest as InscriptionForExport;
     }
 
     const exportData = () => {
         // Crée une feuille de calcul
-        /*if (dataSource) {
+        if (dataSource) {
             const inscriptionForExports: InscriptionForExport[] = [];
             // On ne garde que les champs intéressants pour l'export excel
             dataSource.forEach(inscription => {
@@ -53,7 +53,7 @@ export const Administration: FunctionComponent = () => {
 
             // Sauvegarde le fichier Excel
             XLSX.writeFile(wb, 'inscriptions.xlsx');
-        }*/
+        }
     }
 
     const onConfirmSuppression = () => {

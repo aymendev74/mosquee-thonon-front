@@ -15,6 +15,11 @@ export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
         key: 'prenom',
     },
     {
+        title: 'Niveau',
+        dataIndex: 'niveau',
+        key: 'niveau',
+    },
+    {
         title: 'Téléphone',
         dataIndex: 'telephone',
         key: 'telephone',

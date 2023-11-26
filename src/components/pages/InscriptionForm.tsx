@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row, Spin, Tabs, TabsProps, notification } from "antd";
+import { Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
@@ -23,6 +23,7 @@ export const InscriptionForm: FunctionComponent = () => {
     const [consentementOk, setConsentementOk] = useState(false);
     const [eleves, setEleves] = useState<Eleve[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
+    const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
 
     const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
@@ -41,6 +42,11 @@ export const InscriptionForm: FunctionComponent = () => {
         }
     };
 
+    const resetForm = () => {
+        form.resetFields();
+        setEleves([]);
+    }
+
     const tabItems: TabsProps['items'] = [
         {
             key: '1',
@@ -49,13 +55,13 @@ export const InscriptionForm: FunctionComponent = () => {
         },
         {
             key: '2',
-            label: 'Eleves',
+            label: 'Elèves',
             children: <Eleves isReadOnly={isReadOnly} form={form} eleves={eleves} setEleves={setEleves} />,
         },
         {
             key: '3',
             label: 'Tarif',
-            children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} />,
+            children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} />,
         }];
 
     const onFinish = async (inscription: Inscription) => {
@@ -67,9 +73,6 @@ export const InscriptionForm: FunctionComponent = () => {
         inscription.dateInscription = moment(inscription.dateInscription).format("DD.MM.YYYY");
         inscription.eleves = eleves;
         inscription.eleves.forEach(eleve => eleve.dateNaissance = (eleve.dateNaissance as Moment).format("DD.MM.YYYY"));
-        if (!inscription.statut) {
-            inscription.statut = StatutInscription.PROVISOIRE;
-        }
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
 
@@ -82,7 +85,8 @@ export const InscriptionForm: FunctionComponent = () => {
                 navigate("/administration");
             } else {
                 notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
-                form.resetFields();
+                setInscriptionSuccess(true);
+                resetForm();
             }
             resetApi();
         }
@@ -93,6 +97,7 @@ export const InscriptionForm: FunctionComponent = () => {
             loadedInscription.dateInscription = moment(loadedInscription.dateInscription, 'DD.MM.YYYY');
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, 'DD.MM.YYYY'));
             form.setFieldsValue(result);
+            setEleves(loadedInscription.eleves);
             resetApi();
         }
 
@@ -133,17 +138,29 @@ export const InscriptionForm: FunctionComponent = () => {
             <Form.Item name="signature" style={{ display: "none" }}>
                 <Input type="hidden" />
             </Form.Item>
-            <Spin spinning={isLoading} className="container-full-width" >
-                <Tabs defaultActiveKey="1" items={tabItems} />
+            {inscriptionSuccess && (<Result
+                status="success"
+                title="Inscription enregistré"
+                subTitle="Votre inscription a bien été enregistrée. Vous serez recontacté rapidement."
+                extra={[
+                    <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
+                        Nouvelle inscription
+                    </Button>]}
+            />)
+            }
+
+            {!inscriptionSuccess && (<><Spin spinning={isLoading} className="container-full-width" >
+                <Tabs centered defaultActiveKey="1" items={tabItems} />
             </Spin>
-            <Row gutter={[16, 32]}>
-                <Col span={24} className="centered-content m-top-15">
-                    <Form.Item>
-                        {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
-                        {!isAdmin && (<Button type="primary" htmlType="submit">S'inscrire</Button>)}
-                    </Form.Item>
-                </Col>
-            </Row>
+                <Row gutter={[16, 32]}>
+                    <Col span={24} className="centered-content m-top-15">
+                        <Form.Item>
+                            {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
+                            {!isAdmin && (<Button type="primary" htmlType="submit">S'inscrire</Button>)}
+                        </Form.Item>
+                    </Col>
+                </Row></>)
+            }
             <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
         </Form >
     );

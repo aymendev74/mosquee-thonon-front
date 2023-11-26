@@ -23,11 +23,8 @@ export type Inscription = {
     signature?: SignatureDto;
 }
 
-export type InscriptionForExport = Omit<Inscription, "id" | "signature">;
-
 export type InscriptionLight = {
     id: number;
-    dateInscription: Moment | string;
     idInscription: number;
     nom: string;
     prenom: string;
@@ -37,7 +34,10 @@ export type InscriptionLight = {
     mobile: string;
     statut: StatutInscription;
     ville: string;
+    dateInscription: Moment | string;
 }
+
+export type InscriptionForExport = Omit<InscriptionLight, "id" | "idInscription">;
 
 export enum NiveauScolaire {
     CP = "CP",

@@ -25,8 +25,12 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
                     <p><strong>Prénom :</strong> {eleve.prenom}</p>
                     <p><strong>Date de naissance :</strong> {moment(eleve.dateNaissance).format("DD.MM.YYYY")}</p>
                     <p><strong>Niveau scolaire :</strong> {getLibelleNiveauScolaire(eleve.niveau)}</p>
-                    <Button onClick={() => handleEdit(index)}>Modifier</Button>
-                    <Button className="m-left-10" onClick={() => handleDelete(index)} danger>Supprimer</Button>
+                    {
+                        !isReadOnly &&
+                        (<><Button onClick={() => handleEdit(index)}>Modifier</Button>
+                            <Button className="m-left-10" onClick={() => handleDelete(index)} danger>Supprimer</Button>
+                        </>)
+                    }
                 </Panel>
             ))}
         </Collapse>
@@ -77,8 +81,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
     };
 
     return (<>
-        <Button className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>
-
+        {!isReadOnly && (<Button className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
         {editingIndex != null && (<>
             <Row gutter={[16, 32]}>
                 <Col span={12}>
