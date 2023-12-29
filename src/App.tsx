@@ -4,12 +4,13 @@ import {
 } from '@ant-design/icons';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
-import { InscriptionForm } from './components/pages/InscriptionForm';
+import { CoursArabesForm } from './components/pages/CoursArabesForm';
 import { Authenticate } from './components/pages/Authenticate';
-import { Administration } from './components/pages/Administration';
+import { AdminCoursArabes } from './components/pages/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
 import { useAuth } from './hooks/UseAuth';
 import { ChangePassword } from './components/pages/ChangePasswordForm';
+import { AdhesionForm } from './components/pages/AdhesionForm';
 
 const { Header, Content, Footer } = Layout;
 
@@ -70,9 +71,10 @@ function App() {
         <div className="centered-content">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/inscription" element={<InscriptionForm />} />
+            <Route path="/cours" element={<CoursArabesForm />} />
+            <Route path="/adhesion" element={<AdhesionForm />} />
             <Route path="/login" element={<Authenticate />} />
-            <Route path="/administration" element={<Administration />} />
+            <Route path="/adminCours" element={<AdminCoursArabes />} />
             <Route path="/changePassword" element={<ChangePassword />} />
           </Routes>
         </div>

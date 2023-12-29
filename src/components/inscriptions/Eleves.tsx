@@ -4,15 +4,18 @@ import { SignatureDto, StatutInscription } from "../../services/inscription";
 import { Eleve } from "../../services/eleve";
 import moment from "moment";
 import { getLibelleNiveauScolaire, getNiveauOptions } from "../common/commoninputs";
+import { UserAddOutlined } from "@ant-design/icons";
 
 export type EleveProps = {
     isReadOnly: boolean;
     eleves: Eleve[];
     setEleves: React.Dispatch<React.SetStateAction<Eleve[]>>;
     form: FormInstance;
+    onPreviousStep: React.MouseEventHandler<HTMLElement>;
+    onNextStep: React.MouseEventHandler<HTMLElement>;
 }
 
-export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setEleves, form }) => {
+export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setEleves, form, onPreviousStep, onNextStep }) => {
     const [editingIndex, setEditingIndex] = useState<number | null>();
 
     const { Panel } = Collapse;
@@ -38,6 +41,11 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
 
     const handleAddClick = () => {
         setEditingIndex(eleves.length);
+        const nomRespLegal = form.getFieldValue(["responsableLegal", "nom"]);
+        // par défaut si nom responsable légal renseigné, on renseigne le nom de l'élève avec cette valeur
+        if (nomRespLegal) {
+            form.setFieldValue("nomEleve", nomRespLegal);
+        }
     };
 
     const handleEdit = (index: number) => {
@@ -81,7 +89,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
     };
 
     return (<>
-        {!isReadOnly && (<Button className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
+        {!isReadOnly && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
         {editingIndex != null && (<>
             <Row gutter={[16, 32]}>
                 <Col span={12}>
@@ -133,6 +141,10 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
 
         <ElevesList />
 
+        <div className="container-nav-bi">
+            <Button onClick={onPreviousStep}>Précédent</Button>
+            <Button onClick={onNextStep}>Suivant</Button>
+        </div>
     </>);
 
 }

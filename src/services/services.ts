@@ -5,9 +5,10 @@ import { ApiCallDefinition } from "../hooks/useApi";
 export const AUTHENTIFICATION_ENDPOINT = "user/auth";
 export const CHANGE_PASSWORD_ENDPOINT = "user/password";
 export const INSCRIPTION_ENDPOINT = "inscriptions";
+export const ADHESION_ENDPOINT = "adhesions";
 export const VALIDATION_ENDPOINT = "inscriptions/validation";
-export const INSCRIPTION_TARIFS = "tarifs-inscription";
-
+export const INSCRIPTION_TARIFS_ENDPOINT = "tarifs-inscription";
+export const TARIFS_ENDPOINT = "tarifs";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

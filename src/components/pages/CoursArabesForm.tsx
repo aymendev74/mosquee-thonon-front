@@ -1,6 +1,6 @@
-import { Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
+import { Badge, Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS } from "../../services/services";
+import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT } from "../../services/services";
 import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
 import moment, { Moment } from "moment";
 import useApi from "../../hooks/useApi";
@@ -12,8 +12,9 @@ import { Tarif } from "../inscriptions/Tarif";
 import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
+import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 
-export const InscriptionForm: FunctionComponent = () => {
+export const CoursArabesForm: FunctionComponent = () => {
 
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const location = useLocation();
@@ -24,6 +25,7 @@ export const InscriptionForm: FunctionComponent = () => {
     const [eleves, setEleves] = useState<Eleve[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
+    const [activeStep, setActiveStep] = useState<string>("1");
 
     const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
@@ -36,7 +38,7 @@ export const InscriptionForm: FunctionComponent = () => {
                 // Cas ou l'utilisateur arrive sur l'écran et ne saisit rien dans l'onglet responsable légal
                 responsableLegal = { adherent: false };
             }
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS, data: { responsableLegal, eleves } });
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { responsableLegal, eleves } });
         } else {
             setTarifInscription(undefined);
         }
@@ -47,22 +49,39 @@ export const InscriptionForm: FunctionComponent = () => {
         setEleves([]);
     }
 
+    const onPreviousStep = () => {
+        const newActiveStep = Number(activeStep) - 1;
+        setActiveStep(String(newActiveStep));
+    }
+
+    const onNextStep = () => {
+        const newActiveStep = Number(activeStep) + 1;
+        setActiveStep(String(newActiveStep));
+    }
+
+    const onStepChanged = (activeKey: string) => {
+        setActiveStep(activeKey);
+    }
+
     const tabItems: TabsProps['items'] = [
         {
-            key: '1',
-            label: 'Responsable légal',
-            children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} />,
+            key: "1",
+            label: <><InfoCircleOutlined />Responsable légal</>,
+            children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} onNextStep={onNextStep} />,
         },
         {
-            key: '2',
-            label: 'Elèves',
-            children: <Eleves isReadOnly={isReadOnly} form={form} eleves={eleves} setEleves={setEleves} />,
+            key: "2",
+            label: <><UserOutlined />Elèves</>,
+            children: <Eleves isReadOnly={isReadOnly} form={form} eleves={eleves} setEleves={setEleves} onPreviousStep={onPreviousStep}
+                onNextStep={onNextStep} />,
         },
         {
-            key: '3',
-            label: 'Tarif',
-            children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} />,
-        }];
+            key: "3",
+            label: <><EuroCircleOutlined />Tarif</>,
+            children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} isReadOnly={isReadOnly}
+                onPreviousStep={onPreviousStep} />,
+        }
+    ];
 
     const onFinish = async (inscription: Inscription) => {
         /*if (!isAdmin && !consentementOk) {
@@ -73,6 +92,8 @@ export const InscriptionForm: FunctionComponent = () => {
         inscription.dateInscription = moment(inscription.dateInscription).format("DD.MM.YYYY");
         inscription.eleves = eleves;
         inscription.eleves.forEach(eleve => eleve.dateNaissance = (eleve.dateNaissance as Moment).format("DD.MM.YYYY"));
+        inscription.responsableLegal.autorisationAutonomie = inscription.responsableLegal.autorisationAutonomie === "OUI" ? true : false;
+        inscription.responsableLegal.autorisationMedia = inscription.responsableLegal.autorisationMedia === "OUI" ? true : false;
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
 
@@ -96,13 +117,15 @@ export const InscriptionForm: FunctionComponent = () => {
             const loadedInscription = result as Inscription;
             loadedInscription.dateInscription = moment(loadedInscription.dateInscription, 'DD.MM.YYYY');
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, 'DD.MM.YYYY'));
+            loadedInscription.responsableLegal.autorisationAutonomie = loadedInscription.responsableLegal.autorisationAutonomie ? "OUI" : "NON";
+            loadedInscription.responsableLegal.autorisationMedia = loadedInscription.responsableLegal.autorisationMedia ? "OUI" : "NON";
             form.setFieldsValue(result);
             setEleves(loadedInscription.eleves);
             resetApi();
         }
 
         // Calcul tarif
-        if (result && apiCallDefinition?.url === INSCRIPTION_TARIFS) {
+        if (result && apiCallDefinition?.url === INSCRIPTION_TARIFS_ENDPOINT) {
             setTarifInscription(result);
             resetApi();
         }
@@ -122,8 +145,6 @@ export const InscriptionForm: FunctionComponent = () => {
     return (
         <Form
             name="basic"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
             onFinish={onFinish}
             autoComplete="off"
             className="container-form"
@@ -149,18 +170,13 @@ export const InscriptionForm: FunctionComponent = () => {
             />)
             }
 
-            {!inscriptionSuccess && (<><Spin spinning={isLoading} className="container-full-width" >
-                <Tabs centered defaultActiveKey="1" items={tabItems} />
-            </Spin>
-                <Row gutter={[16, 32]}>
-                    <Col span={24} className="centered-content m-top-15">
-                        <Form.Item>
-                            {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
-                            {!isAdmin && (<Button type="primary" htmlType="submit">S'inscrire</Button>)}
-                        </Form.Item>
-                    </Col>
-                </Row></>)
-            }
+            {!inscriptionSuccess && (
+                <>
+                    <Spin spinning={isLoading} className="container-full-width" >
+                        <Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={onStepChanged} />
+                    </Spin>
+                </>
+            )}
             <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
         </Form >
     );

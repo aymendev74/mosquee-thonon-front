@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { CrownOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { CrownOutlined, EuroCircleOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/UseAuth";
 
 export const MyMenu: FunctionComponent = () => {
@@ -11,10 +11,12 @@ export const MyMenu: FunctionComponent = () => {
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
             navigate("/");
-        } else if (menuInfo.key === "inscription") {
-            navigate("/inscription");
-        } else if (menuInfo.key === "administration") {
-            navigate("/administration");
+        } else if (menuInfo.key === "cours") {
+            navigate("/cours");
+        } else if (menuInfo.key === "adhesion") {
+            navigate("/adhesion");
+        } else if (menuInfo.key === "adminCours") {
+            navigate("/adminCours");
         }
     }
 
@@ -28,6 +30,7 @@ export const MyMenu: FunctionComponent = () => {
             key: "inscription",
             icon: <UserOutlined />,
             label: "Inscription",
+            children: [{ key: "cours", label: "Cours arabes", icon: <UserOutlined /> }, { key: "adhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
         }];
 
         if (loggedUser) {
@@ -35,7 +38,9 @@ export const MyMenu: FunctionComponent = () => {
                 key: "administration",
                 icon: <CrownOutlined />,
                 label: "Administration",
-                style: { background: "#06686E" }
+                style: { background: "#06686E" },
+                children: [{ key: "adminCours", label: "Cours arabes", icon: <UserOutlined /> },
+                { key: "adhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
             });
         }
         return menuItems;

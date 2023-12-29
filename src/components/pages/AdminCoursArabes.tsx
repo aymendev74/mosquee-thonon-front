@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import Table from "antd/es/table";
 import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, MenuProps, Row, Select, Spin, Tooltip, notification } from "antd";
-import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, DownOutlined, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
 import { columnsTableInscriptions } from "../common/tableDefinition";
 import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
 import moment from "moment";
 import { getNiveauOptions } from "../common/commoninputs";
 
-export const Administration: FunctionComponent = () => {
+export const AdminCoursArabes: FunctionComponent = () => {
 
     const [dataSource, setDataSource] = useState<InscriptionLight[]>();
     const { loggedUser } = useAuth();
@@ -68,9 +68,9 @@ export const Administration: FunctionComponent = () => {
                 if (e.key === CONSULTER_MENU_KEY) {
                     readOnly = true;
                 }
-                navigate("/inscription", { state: { isReadOnly: readOnly, id: selectedInscriptions[0].id, isAdmin: true } })
+                navigate("/inscription", { state: { isReadOnly: readOnly, id: selectedInscriptions[0].idInscription, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                setApiCallDefinition({ method: "POST", url: VALIDATION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
+                setApiCallDefinition({ method: "POST", url: VALIDATION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.idInscription) });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -99,9 +99,7 @@ export const Administration: FunctionComponent = () => {
         const statut = form.getFieldValue("statut");
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
-            console.log(dateInscription);
             dateInscription = dateInscription.format("DD.MM.YYYY");
-            console.log(dateInscription);
         }
         const niveau = form.getFieldValue("niveau");
         const searchCriteria = {
@@ -161,7 +159,7 @@ export const Administration: FunctionComponent = () => {
                         </Col>
                     </Row>
                     <div className="centered-content">
-                        <Button onClick={doSearch} style={{ marginRight: "10px" }}>Rechercher</Button>
+                        <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }}>Rechercher</Button>
                         <Tooltip title="Dernières inscriptions">
                             <Button icon={<ClockCircleOutlined />} shape="circle" onClick={() => { setModaleDernieresInscriptionOpen(true) }} />
                         </Tooltip>
@@ -225,7 +223,7 @@ export const Administration: FunctionComponent = () => {
                         <div className="menu-action-container">
                             <div className="label">Veuillez choisir une action à effectuer :</div>
                             <div className="bt-action"><DropdownMenu /></div>
-                            <Button onClick={exportData} disabled={!isInscriptionsSelected()}>Exporter</Button>
+                            <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()}>Exporter</Button>
                         </div>
                         <Row>
                             <Col span={24}>

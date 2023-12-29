@@ -5,3 +5,9 @@ export type TarifInscriptionDto = {
     tarifEleve: number;
     listeAttente: boolean;
 }
+
+export type TarifDto = {
+    id: number;
+    type: string;
+    montant: number;
+}

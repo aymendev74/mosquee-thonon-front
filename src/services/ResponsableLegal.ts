@@ -12,5 +12,10 @@ export type ResponsableLegal = {
     ville: string;
     idTarif: number;
     adherent: boolean;
+    autorisationAutonomie: boolean | string;
+    autorisationMedia: boolean | string;
+    nomAutre: string;
+    prenomAutre: string;
+    lienParente: string;
     signature?: SignatureDto;
 }
