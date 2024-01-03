@@ -6,7 +6,8 @@ export const AUTHENTIFICATION_ENDPOINT = "user/auth";
 export const CHANGE_PASSWORD_ENDPOINT = "user/password";
 export const INSCRIPTION_ENDPOINT = "inscriptions";
 export const ADHESION_ENDPOINT = "adhesions";
-export const VALIDATION_ENDPOINT = "inscriptions/validation";
+export const VALIDATION_INSCRIPTION_ENDPOINT = "inscriptions/validation";
+export const VALIDATION_ADHESION_ENDPOINT = "adhesions/validation";
 export const INSCRIPTION_TARIFS_ENDPOINT = "tarifs-inscription";
 export const TARIFS_ENDPOINT = "tarifs";
 

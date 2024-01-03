@@ -1,7 +1,7 @@
 import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Result, Row, Select } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
-import { Adhesion } from "../../services/adhesion";
+import { Adhesion, AdhesionLight } from "../../services/adhesion";
 import { useLocation } from "react-router-dom";
 import { onNumericFieldChanged } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
@@ -15,7 +15,9 @@ export const AdhesionForm: FunctionComponent = () => {
 
     const [form] = useForm();
     const location = useLocation();
+    const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
+    const isAdmin = location.state ? location.state.isAdmin : undefined;
     const [versementMensuelOptions, setVersementMensuelOptions] = useState<DefaultOptionType[]>();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [autreMontantVisible, setAutreMontantVisible] = useState<boolean>(false);
@@ -26,6 +28,9 @@ export const AdhesionForm: FunctionComponent = () => {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
         }*/
+        if (adhesion.dateInscription) {
+            adhesion.dateInscription = moment(adhesion.dateInscription).format("DD.MM.YYYY");
+        }
         adhesion.dateNaissance = moment(adhesion.dateNaissance).format("DD.MM.YYYY");
         setApiCallDefinition({ method: "POST", url: ADHESION_ENDPOINT, data: adhesion });
     };
@@ -51,11 +56,24 @@ export const AdhesionForm: FunctionComponent = () => {
             setVersementMensuelOptions(tarifOptions);
             resetApi();
         }
-        if (apiCallDefinition?.url === ADHESION_ENDPOINT && result) {
+        if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "POST" && result) {
             setInscriptionSuccess(true);
             resetApi();
         }
+        if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
+            const adhesion = result as Adhesion;
+            adhesion.dateInscription = moment(adhesion.dateInscription, 'DD.MM.YYYY');
+            adhesion.dateNaissance = moment(adhesion.dateNaissance, 'DD.MM.YYYY');
+            form.setFieldsValue(adhesion);
+            resetApi();
+        }
     }, [result]);
+
+    useEffect(() => {
+        if (id) {
+            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT + "/" + id });
+        }
+    }, []);
 
     return inscriptionSuccess ? (
         <Result
@@ -78,10 +96,10 @@ export const AdhesionForm: FunctionComponent = () => {
                 <Form.Item name="id" style={{ display: "none" }}>
                     <Input type="hidden" />
                 </Form.Item>
-                <Form.Item name="statut" style={{ display: "none" }}>
+                <Form.Item name="signature" style={{ display: "none" }}>
                     <Input type="hidden" />
                 </Form.Item>
-                <Form.Item name="signature" style={{ display: "none" }}>
+                <Form.Item name="dateInscription" style={{ display: "none" }}>
                     <Input type="hidden" />
                 </Form.Item>
                 <Row>
@@ -95,7 +113,7 @@ export const AdhesionForm: FunctionComponent = () => {
                             name="titre"
                             label="Titre"
                             rules={[{ required: true, message: "Veuillez saisir votre titre" }]}>
-                            <Select options={getCiviliteOptions()} />
+                            <Select disabled={isReadOnly} options={getCiviliteOptions()} />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -214,7 +232,7 @@ export const AdhesionForm: FunctionComponent = () => {
                             name="idTarif"
                             label="Je m'engage à verser mensuellement"
                             rules={[{ required: true, message: "Veuillez saisir votre versement mensuel" }]}>
-                            <Select options={versementMensuelOptions} onChange={onMontantChanged} />
+                            <Select disabled={isReadOnly} options={versementMensuelOptions} onChange={onMontantChanged} />
                         </Form.Item>
                     </Col>
                     {autreMontantVisible && <Col span={12}>
@@ -222,13 +240,14 @@ export const AdhesionForm: FunctionComponent = () => {
                             name="montantAutre"
                             label="Montant"
                             rules={[{ required: true, message: "Veuillez saisir le montant" }]}>
-                            <InputNumber />
+                            <InputNumber disabled={isReadOnly} />
                         </Form.Item>
                     </Col>
                     }
                 </Row>
                 <Row>
-                    <Button type="primary" htmlType="submit">Valider mon adhésion</Button>
+                    {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
+                    {!isAdmin && (<Button type="primary" htmlType="submit">Valider mon adhésion</Button>)}
                 </Row>
             </Form>
         );

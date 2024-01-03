@@ -16,5 +16,18 @@ export type Adhesion = {
     ville: string;
     montantAutre: number;
     statut: StatutInscription | boolean;
+    dateInscription: Moment | string;
     signature: SignatureDto;
 }
+
+export type AdhesionLight = {
+    id: number;
+    nom: string;
+    prenom: string;
+    ville: string;
+    montant: number;
+    statut: StatutInscription | boolean;
+    dateInscription: Moment | string;
+}
+
+export type AdhesionLightForExport = Omit<AdhesionLight, "id">;

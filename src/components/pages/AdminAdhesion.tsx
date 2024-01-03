@@ -1,28 +1,26 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Inscription, InscriptionForExport, InscriptionLight, StatutInscription } from "../../services/inscription";
-import { INSCRIPTION_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../services/services";
+import * as XLSX from 'xlsx';
+import { AdhesionLight, AdhesionLightForExport } from "../../services/adhesion";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
-import useApi from "../../hooks/useApi";
-import Table from "antd/es/table";
-import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, MenuProps, Row, Select, Spin, Tooltip, notification } from "antd";
-import { ClockCircleOutlined, DownOutlined, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
-import { columnsTableInscriptions } from "../common/tableDefinition";
-import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
+import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, InputNumber, MenuProps, Row, Select, Spin, Table, notification } from "antd";
+import { ADHESION_ENDPOINT, INSCRIPTION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../services/services";
+import { DownOutlined, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
+import { StatutInscription } from "../../services/inscription";
+import { columnsTableAdhesions } from "../common/tableDefinition";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
-import * as XLSX from 'xlsx';
-import moment from "moment";
-import { getNiveauOptions } from "../common/commoninputs";
+import useApi from "../../hooks/useApi";
 
-export const AdminCoursArabes: FunctionComponent = () => {
 
-    const [dataSource, setDataSource] = useState<InscriptionLight[]>();
+export const AdminAdhesion: FunctionComponent = () => {
+
+    const [dataSource, setDataSource] = useState<AdhesionLight[]>();
     const { loggedUser } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const { Panel } = Collapse;
     const [form] = Form.useForm();
-    const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
+    const [selectedAdhesions, setSelectedAdhesions] = useState<AdhesionLight[]>([]);
     const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
 
@@ -31,55 +29,55 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
 
-    const prepareForExport = (dataSource: InscriptionLight) => {
-        const { id, idInscription, ...rest } = dataSource;
-        return rest as InscriptionForExport;
+    const prepareForExport = (dataSource: AdhesionLight) => {
+        const { id, ...rest } = dataSource;
+        return rest as AdhesionLightForExport;
     }
 
     const exportData = () => {
         // Crée une feuille de calcul
         if (dataSource) {
-            const inscriptionForExports: InscriptionForExport[] = [];
+            const inscriptionForExports: AdhesionLightForExport[] = [];
             // On ne garde que les champs intéressants pour l'export excel
-            dataSource.forEach(inscription => {
-                inscriptionForExports.push(prepareForExport(inscription));
+            dataSource.forEach(adhesion => {
+                inscriptionForExports.push(prepareForExport(adhesion));
             });
 
             const ws = XLSX.utils.json_to_sheet(inscriptionForExports);
 
             // Crée un classeur
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Inscriptions');
+            XLSX.utils.book_append_sheet(wb, ws, 'Adhésions');
 
             // Sauvegarde le fichier Excel
-            XLSX.writeFile(wb, 'inscriptions.xlsx');
+            XLSX.writeFile(wb, 'adhesions.xlsx');
         }
     }
 
     const onConfirmSuppression = () => {
         setModaleConfirmSuppressionOpen(false);
-        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
+        setApiCallDefinition({ method: "DELETE", url: ADHESION_ENDPOINT, data: selectedAdhesions.map(adhesion => adhesion.id) });
     }
 
     const DropdownMenu = () => {
         const handleMenuClick = (e: any) => {
-            if (selectedInscriptions.length === 1 && [CONSULTER_MENU_KEY, MODIFIER_MENU_KEY].includes(e.key)) { // Consultation/Modification d'inscription
+            if (selectedAdhesions.length === 1 && [CONSULTER_MENU_KEY, MODIFIER_MENU_KEY].includes(e.key)) { // Consultation/Modification d'inscription
                 let readOnly: boolean = false;
                 if (e.key === CONSULTER_MENU_KEY) {
                     readOnly = true;
                 }
-                navigate("/cours", { state: { isReadOnly: readOnly, id: selectedInscriptions[0].idInscription, isAdmin: true } })
+                navigate("/adhesion", { state: { isReadOnly: readOnly, id: selectedAdhesions[0].id, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                setApiCallDefinition({ method: "POST", url: VALIDATION_INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.idInscription) });
+                setApiCallDefinition({ method: "POST", url: VALIDATION_ADHESION_ENDPOINT, data: selectedAdhesions.map(adhesion => adhesion.id) });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
         };
 
-        const items: MenuProps['items'] = [{ label: "Consulter", key: CONSULTER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
-        { label: "Modifier", key: MODIFIER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
-        { label: "Valider inscription", key: VALIDER_MENU_KEY, disabled: selectedInscriptions.length < 1 },
-        { label: "Supprimer", danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedInscriptions.length < 1 }];
+        const items: MenuProps['items'] = [{ label: "Consulter", key: CONSULTER_MENU_KEY, disabled: selectedAdhesions.length !== 1 },
+        { label: "Modifier", key: MODIFIER_MENU_KEY, disabled: selectedAdhesions.length !== 1 },
+        { label: "Valider adhésion", key: VALIDER_MENU_KEY, disabled: selectedAdhesions.length < 1 },
+        { label: "Supprimer", danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedAdhesions.length < 1 }];
 
         const menu: MenuProps = { items, onClick: handleMenuClick };
 
@@ -95,18 +93,17 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const doSearch = () => {
         const nom = form.getFieldValue("nom");
         const prenom = form.getFieldValue("prenom");
-        const telephone = form.getFieldValue("telephone");
         const statut = form.getFieldValue("statut");
+        const montant = form.getFieldValue("montant");
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
             dateInscription = dateInscription.format("DD.MM.YYYY");
         }
-        const niveau = form.getFieldValue("niveau");
         const searchCriteria = {
-            nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null,
-            statut: statut ?? null, dateInscription: dateInscription ?? null, niveau: niveau ?? null
+            nom: nom ?? null, prenom: prenom ?? null, statut: statut ?? null,
+            dateInscription: dateInscription ?? null, montant: montant ?? null
         }
-        setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
+        setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT, params: searchCriteria });
     }
 
     const SearchCollapse = () => {
@@ -129,15 +126,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="niveau" label="Niveau scolaire">
-                                <Select options={getNiveauOptions()} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <Form.Item name="telephone" label="Téléphone">
-                                <Input placeholder="Téléphone" />
+                            <Form.Item name="montant" label="Montant versement">
+                                <InputNumber placeholder="Montant versement" />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -153,16 +143,14 @@ export const AdminCoursArabes: FunctionComponent = () => {
                             <Form.Item name="statut" label="Statut">
                                 <Select placeholder="Statut" options={[
                                     { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                                    { value: StatutInscription.VALIDEE, label: "Validée" }
+                                    { value: StatutInscription.VALIDEE, label: "Validée" },
+                                    { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" },
                                 ]} allowClear />
                             </Form.Item>
                         </Col>
                     </Row>
                     <div className="centered-content">
                         <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }}>Rechercher</Button>
-                        <Tooltip title="Dernières inscriptions">
-                            <Button icon={<ClockCircleOutlined />} shape="circle" onClick={() => { setModaleDernieresInscriptionOpen(true) }} />
-                        </Tooltip>
                     </div>
                 </Panel>
             </Collapse>
@@ -170,34 +158,34 @@ export const AdminCoursArabes: FunctionComponent = () => {
     };
 
     useEffect(() => {
-        const fetchInscriptions = async () => {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+        const fetchAdhesions = async () => {
+            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT });
         }
-        fetchInscriptions();
+        fetchAdhesions();
     }, []);
 
     useEffect(() => {
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
+        if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
             setDataSource(result);
             resetApi();
         }
-        if (apiCallDefinition?.url === VALIDATION_INSCRIPTION_ENDPOINT && result) {
-            notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été validées", type: "success" });
+        if (apiCallDefinition?.url === VALIDATION_ADHESION_ENDPOINT && result) {
+            notification.open({ message: "Les " + (result as number[]).length + " adhésions sélectionnées ont été validées", type: "success" });
             // On reload toutes les inscriptions depuis la base
-            setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+            setSelectedAdhesions([]);
+            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT });
         }
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
+        if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
             notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été supprimées", type: "success" });
             // On reload toutes les inscriptions depuis la base
-            setSelectedInscriptions([]);
+            setSelectedAdhesions([]);
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
         }
     }, [result]);
 
     const rowSelection = {
-        onChange: (selectedRowKeys: React.Key[], selectedRows: InscriptionLight[]) => {
-            setSelectedInscriptions(selectedRows);
+        onChange: (selectedRowKeys: React.Key[], selectedRows: AdhesionLight[]) => {
+            setSelectedAdhesions(selectedRows);
         }
     };
 
@@ -227,20 +215,19 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         </div>
                         <Row>
                             <Col span={24}>
-                                <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                    columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id} />
+                                <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedAdhesions.map(adhesion => adhesion.id), ...rowSelection }}
+                                    columns={columnsTableAdhesions} dataSource={dataSource} rowKey={record => record.id} />
                             </Col>
                         </Row>
-                        {selectedInscriptions && selectedInscriptions.length > 0 && (<Row>
+                        {selectedAdhesions && selectedAdhesions.length > 0 && (<Row>
                             <Col span={24}>
                                 <Button onClick={exportData}>Exporter</Button>
                             </Col>
                         </Row>)}
                     </div>
                 </div>
-                <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
                 <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
-                    nbInscriptions={selectedInscriptions.length} onConfirm={onConfirmSuppression} />
+                    nbInscriptions={selectedAdhesions.length} onConfirm={onConfirmSuppression} />
             </Spin>
         </Form>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>

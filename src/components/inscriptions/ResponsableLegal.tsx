@@ -203,29 +203,6 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                 </Form.Item>
             </Col>
         </Row>
-        {
-            isAdmin &&
-            <>
-                <Row>
-                    <Col span={24}>
-                        <Divider orientation="left">Statut inscription</Divider>
-                    </Col>
-                </Row>
-                <Row gutter={[16, 32]}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Statut"
-                            name="statut"
-                        >
-                            <Radio.Group disabled={isReadOnly} >
-                                <Radio value={StatutInscription.PROVISOIRE}>Provisoire</Radio>
-                                <Radio value={StatutInscription.VALIDEE}>Validée</Radio>
-                            </Radio.Group>
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </>
-        }
         <div className="container-nav-mono">
             <Button onClick={onNextStep}>Suivant</Button>
         </div>

@@ -13,6 +13,7 @@ import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
 
 export const CoursArabesForm: FunctionComponent = () => {
 
@@ -38,6 +39,11 @@ export const CoursArabesForm: FunctionComponent = () => {
                 // Cas ou l'utilisateur arrive sur l'écran et ne saisit rien dans l'onglet responsable légal
                 responsableLegal = { adherent: false };
             }
+            // important, ici copier l'objet car sinon on modifie directement le formulaire
+            // effet de bord => le convertOuiNonToBoolean modifie la valeur de certains champs (boolean | string) 
+            // et du coup le mapping n'est plus bon dans le formulaire
+            responsableLegal = { ...responsableLegal }
+            convertOuiNonToBoolean(responsableLegal);
             setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { responsableLegal, eleves } });
         } else {
             setTarifInscription(undefined);
@@ -89,11 +95,12 @@ export const CoursArabesForm: FunctionComponent = () => {
             return;
         }*/
 
-        inscription.dateInscription = moment(inscription.dateInscription).format("DD.MM.YYYY");
+        if (inscription.dateInscription) {
+            inscription.dateInscription = moment(inscription.dateInscription).format("DD.MM.YYYY");
+        }
         inscription.eleves = eleves;
         inscription.eleves.forEach(eleve => eleve.dateNaissance = (eleve.dateNaissance as Moment).format("DD.MM.YYYY"));
-        inscription.responsableLegal.autorisationAutonomie = inscription.responsableLegal.autorisationAutonomie === "OUI" ? true : false;
-        inscription.responsableLegal.autorisationMedia = inscription.responsableLegal.autorisationMedia === "OUI" ? true : false;
+        convertOuiNonToBoolean(inscription.responsableLegal);
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
 
@@ -103,7 +110,7 @@ export const CoursArabesForm: FunctionComponent = () => {
             // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
             if (isAdmin) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/administration");
+                navigate("/adminCours");
             } else {
                 notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
                 setInscriptionSuccess(true);
@@ -117,9 +124,8 @@ export const CoursArabesForm: FunctionComponent = () => {
             const loadedInscription = result as Inscription;
             loadedInscription.dateInscription = moment(loadedInscription.dateInscription, 'DD.MM.YYYY');
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, 'DD.MM.YYYY'));
-            loadedInscription.responsableLegal.autorisationAutonomie = loadedInscription.responsableLegal.autorisationAutonomie ? "OUI" : "NON";
-            loadedInscription.responsableLegal.autorisationMedia = loadedInscription.responsableLegal.autorisationMedia ? "OUI" : "NON";
-            form.setFieldsValue(result);
+            convertBooleanToOuiNon(loadedInscription.responsableLegal);
+            form.setFieldsValue(loadedInscription);
             setEleves(loadedInscription.eleves);
             resetApi();
         }
@@ -153,10 +159,10 @@ export const CoursArabesForm: FunctionComponent = () => {
             <Form.Item name="id" style={{ display: "none" }}>
                 <Input type="hidden" />
             </Form.Item>
-            <Form.Item name="statut" style={{ display: "none" }}>
+            <Form.Item name="signature" style={{ display: "none" }}>
                 <Input type="hidden" />
             </Form.Item>
-            <Form.Item name="signature" style={{ display: "none" }}>
+            <Form.Item name="dateInscription" style={{ display: "none" }}>
                 <Input type="hidden" />
             </Form.Item>
             {inscriptionSuccess && (<Result

@@ -17,6 +17,8 @@ export const MyMenu: FunctionComponent = () => {
             navigate("/adhesion");
         } else if (menuInfo.key === "adminCours") {
             navigate("/adminCours");
+        } else if (menuInfo.key === "adminAdhesion") {
+            navigate("/adminAdhesion");
         }
     }
 
@@ -40,7 +42,7 @@ export const MyMenu: FunctionComponent = () => {
                 label: "Administration",
                 style: { background: "#06686E" },
                 children: [{ key: "adminCours", label: "Cours arabes", icon: <UserOutlined /> },
-                { key: "adhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
+                { key: "adminAdhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
             });
         }
         return menuItems;

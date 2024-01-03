@@ -5,6 +5,7 @@ import { Eleve } from "./eleve";
 export enum StatutInscription {
     PROVISOIRE = "PROVISOIRE",
     VALIDEE = "VALIDEE",
+    LISTE_ATTENTE = "LISTE_ATTENTE",
 }
 
 export type SignatureDto = {

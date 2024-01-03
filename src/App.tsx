@@ -11,6 +11,7 @@ import { MyMenu } from './components/MyMenu';
 import { useAuth } from './hooks/UseAuth';
 import { ChangePassword } from './components/pages/ChangePasswordForm';
 import { AdhesionForm } from './components/pages/AdhesionForm';
+import { AdminAdhesion } from './components/pages/AdminAdhesion';
 
 const { Header, Content, Footer } = Layout;
 
@@ -75,6 +76,7 @@ function App() {
             <Route path="/adhesion" element={<AdhesionForm />} />
             <Route path="/login" element={<Authenticate />} />
             <Route path="/adminCours" element={<AdminCoursArabes />} />
+            <Route path="/adminAdhesion" element={<AdminAdhesion />} />
             <Route path="/changePassword" element={<ChangePassword />} />
           </Routes>
         </div>
