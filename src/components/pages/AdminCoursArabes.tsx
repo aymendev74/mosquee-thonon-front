@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Inscription, InscriptionForExport, InscriptionLight, StatutInscription } from "../../services/inscription";
+import { Inscription, InscriptionForExport, InscriptionLight, NiveauScolaire, StatutInscription } from "../../services/inscription";
 import { INSCRIPTION_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
@@ -101,10 +101,10 @@ export const AdminCoursArabes: FunctionComponent = () => {
         if (dateInscription) {
             dateInscription = dateInscription.format("DD.MM.YYYY");
         }
-        const niveau = form.getFieldValue("niveau");
+        const niveaux = form.getFieldValue("niveau");
         const searchCriteria = {
             nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null,
-            statut: statut ?? null, dateInscription: dateInscription ?? null, niveau: niveau ?? null
+            statut: statut ?? null, dateInscription: dateInscription ?? null, niveaux: niveaux ?? null
         }
         setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
     }
@@ -130,7 +130,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="niveau" label="Niveau scolaire">
-                                <Select options={getNiveauOptions()} />
+                                <Select mode="tags" options={getNiveauOptions()} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -144,7 +144,9 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="dateInscription" label="Date inscription">
-                                <DatePicker placeholder="Date inscription" />
+                                <Tooltip title="Rechercher les inscription reçues à partir du" color="geekblue" key="dateInscription" >
+                                    <DatePicker placeholder="Date inscription" />
+                                </Tooltip>
                             </Form.Item>
                         </Col>
                     </Row>
@@ -231,11 +233,6 @@ export const AdminCoursArabes: FunctionComponent = () => {
                                     columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id} />
                             </Col>
                         </Row>
-                        {selectedInscriptions && selectedInscriptions.length > 0 && (<Row>
-                            <Col span={24}>
-                                <Button onClick={exportData}>Exporter</Button>
-                            </Col>
-                        </Row>)}
                     </div>
                 </div>
                 <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />

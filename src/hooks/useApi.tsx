@@ -23,6 +23,7 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
                 const responseData = await executeApiCall(apiCallDefinition!);
                 setResult(responseData);
             } catch (err) {
+                console.log(err);
                 setError(true);
                 const error = err as any;
                 if (error.response && error.response.data) {

@@ -16,7 +16,10 @@ export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";
 
 export const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<any> => {
     return AxiosInstance.request({
-        ...apiCallDefinition
+        ...apiCallDefinition,
+        paramsSerializer: {
+            indexes: null
+        }
     }).then(response => {
         return response.data;
     }).catch(function (error) {

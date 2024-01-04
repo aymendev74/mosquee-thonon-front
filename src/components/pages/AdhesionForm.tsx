@@ -1,25 +1,28 @@
-import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Result, Row, Select } from "antd";
+import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Radio, Result, Row, Select, notification } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion, AdhesionLight } from "../../services/adhesion";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { onNumericFieldChanged } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import { TarifDto } from "../../services/tarif";
 import moment from "moment";
+import { StatutInscription } from "../../services/inscription";
 
 
 export const AdhesionForm: FunctionComponent = () => {
 
+    const navigate = useNavigate();
     const [form] = useForm();
     const location = useLocation();
     const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
     const isAdmin = location.state ? location.state.isAdmin : undefined;
     const [versementMensuelOptions, setVersementMensuelOptions] = useState<DefaultOptionType[]>();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
+    const { result: resultTarifs } = useApi({ method: "GET", url: TARIFS_ENDPOINT, params: { application: "ADHESION" } });
     const [autreMontantVisible, setAutreMontantVisible] = useState<boolean>(false);
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
 
@@ -44,26 +47,33 @@ export const AdhesionForm: FunctionComponent = () => {
     }
 
     useEffect(() => {
-        setApiCallDefinition({ method: "GET", url: TARIFS_ENDPOINT, params: { application: "ADHESION" } });
-    }, []);
-
-
-    useEffect(() => {
-        if (apiCallDefinition?.url === TARIFS_ENDPOINT && result) {
-            const resultAsTarifs = result as TarifDto[];
+        if (resultTarifs) {
+            const resultAsTarifs = resultTarifs as TarifDto[];
             const tarifOptions: DefaultOptionType[] = [];
             resultAsTarifs.forEach(tarif => tarifOptions.push({ value: tarif.id, label: tarif.type === "FIXE" ? tarif.montant : "Autre" }));
             setVersementMensuelOptions(tarifOptions);
-            resetApi();
         }
+    }, [resultTarifs]);
+
+
+    useEffect(() => {
         if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "POST" && result) {
-            setInscriptionSuccess(true);
+            if (isAdmin) {
+                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+                navigate("/adminAdhesion");
+            } else {
+                setInscriptionSuccess(true);
+            }
             resetApi();
         }
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
             const adhesion = result as Adhesion;
+            console.log(adhesion);
             adhesion.dateInscription = moment(adhesion.dateInscription, 'DD.MM.YYYY');
             adhesion.dateNaissance = moment(adhesion.dateNaissance, 'DD.MM.YYYY');
+            if (adhesion.montantAutre) {
+                setAutreMontantVisible(true);
+            }
             form.setFieldsValue(adhesion);
             resetApi();
         }
@@ -245,6 +255,20 @@ export const AdhesionForm: FunctionComponent = () => {
                     </Col>
                     }
                 </Row>
+                {isAdmin && (<><Divider orientation="left">Statut</Divider>
+                    <Row gutter={[16, 32]}>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Statut adhésion"
+                                name="statut">
+                                <Radio.Group disabled={isReadOnly}>
+                                    <Radio value={StatutInscription.PROVISOIRE}>Provisoire</Radio>
+                                    <Radio value={StatutInscription.VALIDEE}>Validée</Radio>
+                                </Radio.Group>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </>)}
                 <Row>
                     {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
                     {!isAdmin && (<Button type="primary" htmlType="submit">Valider mon adhésion</Button>)}

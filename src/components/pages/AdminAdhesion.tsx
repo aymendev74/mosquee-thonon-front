@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import { AdhesionLight, AdhesionLightForExport } from "../../services/adhesion";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
-import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, InputNumber, MenuProps, Row, Select, Spin, Table, notification } from "antd";
+import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, InputNumber, MenuProps, Row, Select, Spin, Table, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, INSCRIPTION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../services/services";
 import { DownOutlined, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../services/inscription";
@@ -113,28 +113,36 @@ export const AdminAdhesion: FunctionComponent = () => {
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="prenom" label="Prénom">
-                                <Input placeholder="Prénom" />
+                                <Tooltip title="Prénom de l'élève" color="geekblue" key="prenomEleve">
+                                    <Input placeholder="Prénom" />
+                                </Tooltip>
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="nom" label="Nom">
-                                <Input placeholder="Nom" />
+                                <Tooltip title="Nom de l'élève" color="geekblue" key="nomEleve">
+                                    <Input placeholder="Nom" />
+                                </Tooltip>
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="montant" label="Montant versement">
-                                <InputNumber placeholder="Montant versement" />
+                            <Form.Item name="montant" label="Montant">
+                                <Tooltip title="Rechercher les ahdésions dont le montant est supérieur à" color="geekblue" key="montantVersement">
+                                    <InputNumber placeholder="Montant versement" />
+                                </Tooltip>
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <Form.Item name="dateInscription" label="Date inscription">
-                                <DatePicker placeholder="Date inscription" />
+                                <Tooltip title="Rechercher les ahdésions reçues à partir du" color="geekblue" key="dateInscription" >
+                                    <DatePicker placeholder="Date inscription" />
+                                </Tooltip>
                             </Form.Item>
                         </Col>
                     </Row>
@@ -143,8 +151,7 @@ export const AdminAdhesion: FunctionComponent = () => {
                             <Form.Item name="statut" label="Statut">
                                 <Select placeholder="Statut" options={[
                                     { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                                    { value: StatutInscription.VALIDEE, label: "Validée" },
-                                    { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" },
+                                    { value: StatutInscription.VALIDEE, label: "Validée" }
                                 ]} allowClear />
                             </Form.Item>
                         </Col>
@@ -219,11 +226,6 @@ export const AdminAdhesion: FunctionComponent = () => {
                                     columns={columnsTableAdhesions} dataSource={dataSource} rowKey={record => record.id} />
                             </Col>
                         </Row>
-                        {selectedAdhesions && selectedAdhesions.length > 0 && (<Row>
-                            <Col span={24}>
-                                <Button onClick={exportData}>Exporter</Button>
-                            </Col>
-                        </Row>)}
                     </div>
                 </div>
                 <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
