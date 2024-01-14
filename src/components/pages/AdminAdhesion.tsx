@@ -210,6 +210,7 @@ export const AdminAdhesion: FunctionComponent = () => {
             form={form}
         >
             <Spin spinning={isLoading}>
+                <h2>Administration des adhésions</h2>
                 <div className="d-flex">
                     <div className="filters-container">
                         <SearchCollapse />

@@ -108,6 +108,10 @@
   margin-bottom: 10px;
 }
 
+.fw-bold {
+  font-weight: bold;
+}
+
 .pad-10 {
   padding: 10px;
 }

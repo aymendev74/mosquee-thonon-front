@@ -217,6 +217,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
             form={form}
         >
             <Spin spinning={isLoading}>
+                <h2>Administration des inscriptions aux cours</h2>
                 <div className="d-flex">
                     <div className="filters-container">
                         <SearchCollapse />

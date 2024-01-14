@@ -12,6 +12,7 @@ import { useAuth } from './hooks/UseAuth';
 import { ChangePassword } from './components/pages/ChangePasswordForm';
 import { AdhesionForm } from './components/pages/AdhesionForm';
 import { AdminAdhesion } from './components/pages/AdminAdhesion';
+import { AdminTarifs } from './components/pages/AdminTarifs';
 
 const { Header, Content, Footer } = Layout;
 
@@ -77,6 +78,7 @@ function App() {
             <Route path="/login" element={<Authenticate />} />
             <Route path="/adminCours" element={<AdminCoursArabes />} />
             <Route path="/adminAdhesion" element={<AdminAdhesion />} />
+            <Route path="/adminTarif" element={<AdminTarifs />} />
             <Route path="/changePassword" element={<ChangePassword />} />
           </Routes>
         </div>

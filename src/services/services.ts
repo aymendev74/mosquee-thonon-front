@@ -10,6 +10,8 @@ export const VALIDATION_INSCRIPTION_ENDPOINT = "inscriptions/validation";
 export const VALIDATION_ADHESION_ENDPOINT = "adhesions/validation";
 export const INSCRIPTION_TARIFS_ENDPOINT = "tarifs-inscription";
 export const TARIFS_ENDPOINT = "tarifs";
+export const TARIFS_ADMIN_ENDPOINT = "tarifs-admin";
+export const PERIODES_ENDPOINT = "periodes";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

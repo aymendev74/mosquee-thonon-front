@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { CrownOutlined, EuroCircleOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/UseAuth";
 
 export const MyMenu: FunctionComponent = () => {
@@ -19,6 +19,8 @@ export const MyMenu: FunctionComponent = () => {
             navigate("/adminCours");
         } else if (menuInfo.key === "adminAdhesion") {
             navigate("/adminAdhesion");
+        } else if (menuInfo.key === "adminTarif") {
+            navigate("/adminTarif");
         }
     }
 
@@ -42,7 +44,8 @@ export const MyMenu: FunctionComponent = () => {
                 label: "Administration",
                 style: { background: "#06686E" },
                 children: [{ key: "adminCours", label: "Cours arabes", icon: <UserOutlined /> },
-                { key: "adminAdhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
+                { key: "adminAdhesion", label: "Adhésion", icon: <EuroCircleOutlined /> },
+                { key: "adminTarif", label: "Tarifs", icon: <DollarCircleOutlined /> },]
             });
         }
         return menuItems;
