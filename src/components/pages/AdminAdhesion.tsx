@@ -10,6 +10,10 @@ import { StatutInscription } from "../../services/inscription";
 import { columnsTableAdhesions } from "../common/tableDefinition";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import useApi from "../../hooks/useApi";
+import { InputNumberFormItem } from "../common/InputNumberFormItem";
+import { InputFormItem } from "../common/InputFormItem";
+import { DatePickerFormItem } from "../common/DatePickerFormItem";
+import { SelectFormItem } from "../common/SelectFormItem";
 
 
 export const AdminAdhesion: FunctionComponent = () => {
@@ -112,48 +116,38 @@ export const AdminAdhesion: FunctionComponent = () => {
                 <Panel header="Filtres de recherche" key="1">
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="prenom" label="Prénom">
-                                <Tooltip title="Prénom de l'élève" color="geekblue" key="prenomEleve">
-                                    <Input placeholder="Prénom" />
-                                </Tooltip>
-                            </Form.Item>
+                            <Tooltip title="Prénom de l'élève" color="geekblue" key="prenomEleve">
+                                <InputFormItem name="prenom" label="Prénom" placeholder="Prénom" />
+                            </Tooltip>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="nom" label="Nom">
-                                <Tooltip title="Nom de l'élève" color="geekblue" key="nomEleve">
-                                    <Input placeholder="Nom" />
-                                </Tooltip>
-                            </Form.Item>
+                            <Tooltip title="Nom de l'élève" color="geekblue" key="nomEleve">
+                                <InputFormItem name="nom" label="Nom" placeholder="Nom" />
+                            </Tooltip>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="montant" label="Montant">
-                                <Tooltip title="Rechercher les ahdésions dont le montant est supérieur à" color="geekblue" key="montantVersement">
-                                    <InputNumber placeholder="Montant versement" />
-                                </Tooltip>
-                            </Form.Item>
+                            <Tooltip title="Rechercher les ahdésions dont le montant est supérieur à" color="geekblue" key="montantVersement">
+                                <InputNumberFormItem name="montant" label="Montant" placeholder="Montant versement" />
+                            </Tooltip>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="dateInscription" label="Date inscription">
-                                <Tooltip title="Rechercher les ahdésions reçues à partir du" color="geekblue" key="dateInscription" >
-                                    <DatePicker placeholder="Date inscription" />
-                                </Tooltip>
-                            </Form.Item>
+                            <Tooltip title="Rechercher les ahdésions reçues à partir du" color="geekblue" key="dateInscription" >
+                                <DatePickerFormItem name="dateInscription" label="Date inscription" placeholder="Date inscription" />
+                            </Tooltip>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="statut" label="Statut">
-                                <Select placeholder="Statut" options={[
-                                    { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                                    { value: StatutInscription.VALIDEE, label: "Validée" }
-                                ]} allowClear />
-                            </Form.Item>
+                            <SelectFormItem name="statut" label="Statut" placeholder="Statut" options={[
+                                { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
+                                { value: StatutInscription.VALIDEE, label: "Validée" }
+                            ]} allowClear />
                         </Col>
                     </Row>
                     <div className="centered-content">

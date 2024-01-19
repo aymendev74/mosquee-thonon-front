@@ -13,6 +13,9 @@ import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
 import moment from "moment";
 import { getNiveauOptions } from "../common/commoninputs";
+import { InputFormItem } from "../common/InputFormItem";
+import { SelectFormItem } from "../common/SelectFormItem";
+import { DatePickerFormItem } from "../common/DatePickerFormItem";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -115,49 +118,37 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 <Panel header="Filtres de recherche" key="1">
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="prenom" label="Prénom">
-                                <Input placeholder="Prénom" />
-                            </Form.Item>
+                            <InputFormItem name="prenom" label="Prénom" placeholder="Prénom" />
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="nom" label="Nom">
-                                <Input placeholder="Nom" />
-                            </Form.Item>
+                            <InputFormItem name="nom" label="Nom" placeholder="Nom" />
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="niveau" label="Niveau scolaire">
-                                <Select mode="tags" options={getNiveauOptions()} />
-                            </Form.Item>
+                            <SelectFormItem name="niveau" label="Niveau scolaire" mode="tags" options={getNiveauOptions()} />
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="telephone" label="Téléphone">
-                                <Input placeholder="Téléphone" />
-                            </Form.Item>
+                            <InputFormItem name="telephone" label="Téléphone" placeholder="Téléphone" />
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="dateInscription" label="Date inscription">
-                                <Tooltip title="Rechercher les inscription reçues à partir du" color="geekblue" key="dateInscription" >
-                                    <DatePicker placeholder="Date inscription" />
-                                </Tooltip>
-                            </Form.Item>
+                            <Tooltip title="Rechercher les inscription reçues à partir du" color="geekblue" key="dateInscription" >
+                                <DatePickerFormItem name="dateInscription" label="Date inscription" placeholder="Date inscription" />
+                            </Tooltip>
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <Form.Item name="statut" label="Statut">
-                                <Select placeholder="Statut" options={[
-                                    { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                                    { value: StatutInscription.VALIDEE, label: "Validée" }
-                                ]} allowClear />
-                            </Form.Item>
+                            <SelectFormItem name="statut" label="Statut" placeholder="Statut" options={[
+                                { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
+                                { value: StatutInscription.VALIDEE, label: "Validée" }
+                            ]} allowClear />
                         </Col>
                     </Row>
                     <div className="centered-content">

@@ -3,6 +3,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { StatutInscription } from "../../services/inscription";
+import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
 
 export type TarifProps = {
     eleves: Eleve[];
@@ -32,15 +33,9 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                 {isAdmin && (<><Divider orientation="left">Statut</Divider>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <Form.Item
-                                label="Statut inscription"
-                                name="statut">
-                                <Radio.Group disabled={isReadOnly}>
-                                    <Radio value={StatutInscription.PROVISOIRE}>Provisoire</Radio>
-                                    <Radio value={StatutInscription.VALIDEE}>Validée</Radio>
-                                    <Radio value={StatutInscription.LISTE_ATTENTE}>Liste d'attente</Radio>
-                                </Radio.Group>
-                            </Form.Item>
+                            <RadioGroupFormItem label="Statut inscription" name="statut" radioOptions={[{ value: StatutInscription.PROVISOIRE, label: "Provisoire" },
+                            { value: StatutInscription.VALIDEE, label: "Validée" }, { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" }]}
+                                disabled={isReadOnly} />
                         </Col>
                     </Row>
                 </>)}

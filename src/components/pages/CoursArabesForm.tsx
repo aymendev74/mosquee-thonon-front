@@ -14,6 +14,7 @@ import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
+import { InputFormItem } from "../common/InputFormItem";
 
 export const CoursArabesForm: FunctionComponent = () => {
 
@@ -156,15 +157,9 @@ export const CoursArabesForm: FunctionComponent = () => {
             className="container-form"
             form={form}
         >
-            <Form.Item name="id" style={{ display: "none" }}>
-                <Input type="hidden" />
-            </Form.Item>
-            <Form.Item name="signature" style={{ display: "none" }}>
-                <Input type="hidden" />
-            </Form.Item>
-            <Form.Item name="dateInscription" style={{ display: "none" }}>
-                <Input type="hidden" />
-            </Form.Item>
+            <InputFormItem name="id" type="hidden" style={{ display: "none" }} />
+            <InputFormItem name="signature" style={{ display: "none" }} type="hidden" />
+            <InputFormItem name="dateInscription" style={{ display: "none" }} type="hidden" />
             {inscriptionSuccess && (<Result
                 status="success"
                 title="Inscription enregistré"

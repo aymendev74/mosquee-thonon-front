@@ -5,6 +5,9 @@ import { Eleve } from "../../services/eleve";
 import moment from "moment";
 import { getLibelleNiveauScolaire, getNiveauOptions } from "../common/commoninputs";
 import { UserAddOutlined } from "@ant-design/icons";
+import { InputFormItem } from "../common/InputFormItem";
+import { DatePickerFormItem } from "../common/DatePickerFormItem";
+import { SelectFormItem } from "../common/SelectFormItem";
 
 export type EleveProps = {
     isReadOnly: boolean;
@@ -93,42 +96,20 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
         {editingIndex != null && (<>
             <Row gutter={[16, 32]}>
                 <Col span={12}>
-                    <Form.Item
-                        label="Nom"
-                        name="nomEleve"
-                        rules={[{ required: true, message: "Veuillez saisir votre nom" }]}
-                    >
-                        <Input disabled={isReadOnly} />
-                    </Form.Item>
+                    <InputFormItem name="nomEleve" label="Nom" rules={[{ required: true, message: "Veuillez saisir votre nom" }]} disabled={isReadOnly} />
                 </Col>
                 <Col span={12}>
-                    <Form.Item
-                        label="Prénom"
-                        name="prenomEleve"
-                        rules={[{ required: true, message: "Veuillez saisir votre prénom" }]}
-                    >
-                        <Input disabled={isReadOnly} />
-                    </Form.Item>
+                    <InputFormItem label="Prénom" name="prenomEleve" rules={[{ required: true, message: "Veuillez saisir votre prénom" }]} disabled={isReadOnly} />
                 </Col>
             </Row>
             <Row gutter={[16, 32]}>
                 <Col span={12}>
-                    <Form.Item
-                        label="Date de naissance"
-                        name="dateNaissanceEleve"
-                        rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
-                    >
-                        <DatePicker placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
-                    </Form.Item>
+                    <DatePickerFormItem label="Date de naissance" name="dateNaissanceEleve" rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
+                        placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                 </Col>
                 <Col span={12}>
-                    <Form.Item
-                        label="Niveau scolaire"
-                        name="niveauScolaire"
-                        rules={[{ required: true, message: "Veuillez saisir votre niveau scolaire" }]}
-                    >
-                        <Select disabled={isReadOnly} options={getNiveauOptions()} />
-                    </Form.Item>
+                    <SelectFormItem label="Niveau scolaire" name="niveauScolaire"
+                        rules={[{ required: true, message: "Veuillez saisir votre niveau scolaire" }]} disabled={isReadOnly} options={getNiveauOptions()} />
                 </Col>
             </Row>
             <div className="centered-content pad-10">

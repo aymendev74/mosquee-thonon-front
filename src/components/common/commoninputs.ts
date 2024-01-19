@@ -1,5 +1,7 @@
 import { DefaultOptionType } from "antd/es/select"
 import { NiveauScolaire } from "../../services/inscription"
+import { NamePath } from "antd/es/form/interface";
+import { Rule } from "antd/es/form";
 
 export const getNiveauOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauScolaire.CP, label: "CP" }, { value: NiveauScolaire.CE1, label: "CE1" }, { value: NiveauScolaire.CE2, label: "CE2" },
@@ -36,4 +38,4 @@ export const getLibelleNiveauScolaire = (niveau: NiveauScolaire) => {
     } else {
         return "Inconnu";
     }
-}
+};

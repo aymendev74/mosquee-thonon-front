@@ -5,11 +5,7 @@ import { useAuth } from '../../hooks/UseAuth';
 import useApi from '../../hooks/useApi';
 import { AuthResponse } from '../../services/AuthResponse';
 import { useNavigate } from 'react-router-dom';
-
-type FieldType = {
-    username?: string;
-    password?: string;
-};
+import { InputFormItem } from '../common/InputFormItem';
 
 export const Authenticate: FunctionComponent = () => {
     const { login } = useAuth();
@@ -42,15 +38,8 @@ export const Authenticate: FunctionComponent = () => {
             autoComplete="off"
         >
             <Spin spinning={isLoading} >
-                <Form.Item<FieldType>
-                    label="Nom d'utilisateur"
-                    name="username"
-                    rules={[{ required: true, message: "Veuillez saisir votre nom d'utilisateur" }]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item<FieldType>
+                <InputFormItem label="Nom d'utilisateur" name="username" rules={[{ required: true, message: "Veuillez saisir votre nom d'utilisateur" }]} />
+                <Form.Item
                     label="Mot de passe"
                     name="password"
                     rules={[{ required: true, message: "Veuillez saisir votre mot de passe" }]}

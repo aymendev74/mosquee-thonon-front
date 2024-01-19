@@ -1,8 +1,12 @@
-import { Col, Divider, Form, InputNumber, Row, Tag } from "antd";
+import { Col, Divider, Row, Tag } from "antd";
 import { FunctionComponent } from "react";
 import { InputTarif } from "./InputTarif";
 
-export const InfosTarif: FunctionComponent = () => {
+export type InfosTarifProperties = {
+    readOnly: boolean;
+}
+
+export const InfosTarif: FunctionComponent<InfosTarifProperties> = ({ readOnly }) => {
 
     return (<>
         <Row gutter={[16, 32]}>
@@ -12,17 +16,17 @@ export const InfosTarif: FunctionComponent = () => {
         </Row>
 
         <div className="m-bottom-15 fw-bold">Adhérents</div>
-        <InputTarif labelNbEnfant="1 enfant" nameMontantBase="montantBase1EnfantAdherent" nameMontantEnfant="montantEnfant1EnfantAdherent" />
-        <InputTarif labelNbEnfant="2 enfants" nameMontantBase="montantBase2EnfantAdherent" nameMontantEnfant="montantEnfant2EnfantAdherent" />
-        <InputTarif labelNbEnfant="3 enfants" nameMontantBase="montantBase3EnfantAdherent" nameMontantEnfant="montantEnfant3EnfantAdherent" />
-        <InputTarif labelNbEnfant="4 enfants et +" nameMontantBase="montantBase4EnfantAdherent" nameMontantEnfant="montantEnfant4EnfantAdherent" />
+        <InputTarif labelNbEnfant="1 enfant" nameMontantBase="montantBase1EnfantAdherent" nameMontantEnfant="montantEnfant1EnfantAdherent" readOnly={readOnly} />
+        <InputTarif labelNbEnfant="2 enfants" nameMontantBase="montantBase2EnfantAdherent" nameMontantEnfant="montantEnfant2EnfantAdherent" readOnly={readOnly} />
+        <InputTarif labelNbEnfant="3 enfants" nameMontantBase="montantBase3EnfantAdherent" nameMontantEnfant="montantEnfant3EnfantAdherent" readOnly={readOnly} />
+        <InputTarif labelNbEnfant="4 enfants et +" nameMontantBase="montantBase4EnfantAdherent" nameMontantEnfant="montantEnfant4EnfantAdherent" readOnly={readOnly} />
 
 
         <div className="m-top-15 m-bottom-15 fw-bold">Non Adhérents</div>
-        <InputTarif labelNbEnfant="1 enfant" nameMontantBase="montantBase1Enfant" nameMontantEnfant="montantEnfant1Enfant" />
-        <InputTarif labelNbEnfant="2 enfants" nameMontantBase="montantBase2Enfant" nameMontantEnfant="montantEnfant2Enfant" />
-        <InputTarif labelNbEnfant="3 enfants" nameMontantBase="montantBase3Enfant" nameMontantEnfant="montantEnfant3Enfant" />
-        <InputTarif labelNbEnfant="4 enfants et +" nameMontantBase="montantBase4Enfant" nameMontantEnfant="montantEnfant4Enfant" />
+        <InputTarif labelNbEnfant="1 enfant" nameMontantBase="montantBase1Enfant" nameMontantEnfant="montantEnfant1Enfant" readOnly={readOnly} />
+        <InputTarif labelNbEnfant="2 enfants" nameMontantBase="montantBase2Enfant" nameMontantEnfant="montantEnfant2Enfant" readOnly={readOnly} />
+        <InputTarif labelNbEnfant="3 enfants" nameMontantBase="montantBase3Enfant" nameMontantEnfant="montantEnfant3Enfant" readOnly={readOnly} />
+        <InputTarif labelNbEnfant="4 enfants et +" nameMontantBase="montantBase4Enfant" nameMontantEnfant="montantEnfant4Enfant" readOnly={readOnly} />
 
     </>);
 }

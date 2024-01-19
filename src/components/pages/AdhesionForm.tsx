@@ -10,6 +10,11 @@ import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import { TarifDto } from "../../services/tarif";
 import moment from "moment";
 import { StatutInscription } from "../../services/inscription";
+import { InputNumberFormItem } from "../common/InputNumberFormItem";
+import { SelectFormItem } from "../common/SelectFormItem";
+import { InputFormItem } from "../common/InputFormItem";
+import { DatePickerFormItem } from "../common/DatePickerFormItem";
+import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
 
 
 export const AdhesionForm: FunctionComponent = () => {
@@ -119,43 +124,23 @@ export const AdhesionForm: FunctionComponent = () => {
                 </Row>
                 <Row gutter={[0, 32]}>
                     <Col span={6}>
-                        <Form.Item
-                            name="titre"
-                            label="Titre"
-                            rules={[{ required: true, message: "Veuillez saisir votre titre" }]}>
-                            <Select disabled={isReadOnly} options={getCiviliteOptions()} />
-                        </Form.Item>
+                        <SelectFormItem name="titre" label="Titre" rules={[{ required: true, message: "Veuillez saisir votre titre" }]}
+                            disabled={isReadOnly} options={getCiviliteOptions()} />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Nom"
-                            name={["nom"]}
-                            rules={[{ required: true, message: "Veuillez saisir votre nom" }]}
-                        >
-                            <Input disabled={isReadOnly} />
-                        </Form.Item>
+                        <InputFormItem label="Nom" name="nom" rules={[{ required: true, message: "Veuillez saisir votre nom" }]}
+                            disabled={isReadOnly} />
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            label="Prénom"
-                            name={["prenom"]}
-                            rules={[{ required: true, message: "Veuillez saisir votre prénom" }]}
-                        >
-                            <Input disabled={isReadOnly} />
-                        </Form.Item>
+                        <InputFormItem disabled={isReadOnly} label="Prénom" name="prenom" rules={[{ required: true, message: "Veuillez saisir votre prénom" }]} />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={24}>
-                        <Form.Item
-                            label="Date de naissance"
-                            name="dateNaissance"
-                            rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
-                        >
-                            <DatePicker placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
-                        </Form.Item>
+                        <DatePickerFormItem label="Date de naissance" name="dateNaissance" rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
+                            placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                     </Col>
                 </Row>
                 <Row>
@@ -165,70 +150,43 @@ export const AdhesionForm: FunctionComponent = () => {
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Numéro et rue"
-                            name={["numeroEtRue"]}
-                            rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]}
-                        >
-                            <Input disabled={isReadOnly} />
-                        </Form.Item>
+                        <InputFormItem label="Numéro et rue" name="numeroEtRue" rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]}
+                            disabled={isReadOnly} />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Code postal"
-                            name={["codePostal"]}
-                            rules={[{ required: true, message: "Veuillez saisir votre code postal" },
-                            { pattern: /^\d{5}$/, message: "Veuillez saisir un code postale valide", validateTrigger: "onSubmit" }]}
-                        >
-                            <Input disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
-                        </Form.Item>
+                        <InputFormItem label="Code postal" name={"codePostal"} rules={[{ required: true, message: "Veuillez saisir votre code postal" },
+                        { pattern: /^\d{5}$/, message: "Veuillez saisir un code postale valide", validateTrigger: "onSubmit" }]}
+                            disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            label="Ville"
-                            name={["ville"]}
-                            rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
-                        >
-                            <Input disabled={isReadOnly} />
-                        </Form.Item>
+                        <InputFormItem label="Ville" name="ville" rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
+                            disabled={isReadOnly} />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Téléphone fixe"
-                            name={["telephone"]}
+                        <InputFormItem label="Téléphone fixe" name="telephone"
                             rules={[{ required: true, message: "Veuillez saisir votre téléphone fixe" },
                             { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }
-                            ]}
-                        >
-                            <Input disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
-                        </Form.Item>
+                            ]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            label="Mobile"
-                            name={["mobile"]}
-                            rules={[{ required: true, message: "Veuillez saisir votre téléphone mobile" },
-                            { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]}
+
                         >
-                            <Input disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
+                            <InputFormItem label="Mobile" name="mobile"
+                                rules={[{ required: true, message: "Veuillez saisir votre téléphone mobile" },
+                                { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                         </Form.Item>
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <Form.Item
-                            label="E-mail"
-                            name={["email"]}
-                            rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" },
-                            { type: "email", message: "Veuillez saisir une adresse e-mail valide", validateTrigger: "onSubmit" }
-                            ]}
-                        >
-                            <Input disabled={isReadOnly} />
-                        </Form.Item>
+                        <InputFormItem label="E-mail" name="email" rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" },
+                        { type: "email", message: "Veuillez saisir une adresse e-mail valide", validateTrigger: "onSubmit" }
+                        ]} disabled={isReadOnly} />
                     </Col>
                 </Row>
                 <Row>
@@ -238,34 +196,20 @@ export const AdhesionForm: FunctionComponent = () => {
                 </Row>
                 <Row gutter={[0, 32]}>
                     <Col span={12}>
-                        <Form.Item
-                            name="idTarif"
-                            label="Je m'engage à verser mensuellement"
-                            rules={[{ required: true, message: "Veuillez saisir votre versement mensuel" }]}>
-                            <Select disabled={isReadOnly} options={versementMensuelOptions} onChange={onMontantChanged} />
-                        </Form.Item>
+                        <SelectFormItem name="idTarif" label="Je m'engage à verser mensuellement" rules={[{ required: true, message: "Veuillez saisir votre versement mensuel" }]}
+                            disabled={isReadOnly} options={versementMensuelOptions} onChange={onMontantChanged} />
                     </Col>
                     {autreMontantVisible && <Col span={12}>
-                        <Form.Item
-                            name="montantAutre"
-                            label="Montant"
-                            rules={[{ required: true, message: "Veuillez saisir le montant" }]}>
-                            <InputNumber disabled={isReadOnly} />
-                        </Form.Item>
+                        <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly}
+                            rules={[{ required: true, message: "Veuillez saisir le montant" }]} />
                     </Col>
                     }
                 </Row>
                 {isAdmin && (<><Divider orientation="left">Statut</Divider>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <Form.Item
-                                label="Statut adhésion"
-                                name="statut">
-                                <Radio.Group disabled={isReadOnly}>
-                                    <Radio value={StatutInscription.PROVISOIRE}>Provisoire</Radio>
-                                    <Radio value={StatutInscription.VALIDEE}>Validée</Radio>
-                                </Radio.Group>
-                            </Form.Item>
+                            <RadioGroupFormItem label="Statut adhésion" name="statut" disabled={isReadOnly} radioOptions={[{ value: StatutInscription.PROVISOIRE, label: "Provisoire" },
+                            { value: StatutInscription.VALIDEE, label: "Validée" }]} />
                         </Col>
                     </Row>
                 </>)}
