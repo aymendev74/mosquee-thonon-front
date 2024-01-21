@@ -8,7 +8,7 @@ import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import { TarifDto } from "../../services/tarif";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { StatutInscription } from "../../services/inscription";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
@@ -37,9 +37,9 @@ export const AdhesionForm: FunctionComponent = () => {
             return;
         }*/
         if (adhesion.dateInscription) {
-            adhesion.dateInscription = moment(adhesion.dateInscription).format("DD.MM.YYYY");
+            adhesion.dateInscription = (adhesion.dateInscription as Moment).format("DD.MM.YYYY");
         }
-        adhesion.dateNaissance = moment(adhesion.dateNaissance).format("DD.MM.YYYY");
+        adhesion.dateNaissance = (adhesion.dateNaissance as Moment).format("DD.MM.YYYY");
         setApiCallDefinition({ method: "POST", url: ADHESION_ENDPOINT, data: adhesion });
     };
 
@@ -102,7 +102,7 @@ export const AdhesionForm: FunctionComponent = () => {
         />) :
         (
             <Form
-                name="basic"
+                name="adhesion"
                 onFinish={onFinish}
                 autoComplete="off"
                 className="container-form"

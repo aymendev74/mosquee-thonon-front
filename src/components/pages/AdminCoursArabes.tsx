@@ -200,7 +200,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     return loggedUser ? (
         <Form
-            name="basic"
+            name="adminCours"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             autoComplete="off"

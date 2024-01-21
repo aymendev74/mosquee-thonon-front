@@ -92,6 +92,10 @@
   text-align: justify;
 }
 
+.form-errors {
+  color: red;
+}
+
 .m-top-15 {
   margin-top: 15px;
 }

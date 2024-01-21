@@ -31,7 +31,7 @@ export const ChangePassword: FunctionComponent = () => {
 
     return (
         <Form
-            name="basic"
+            name="changePassword"
             labelCol={{ span: 14 }}
             wrapperCol={{ span: 10 }}
             style={{ maxWidth: 600 }}

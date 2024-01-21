@@ -29,7 +29,7 @@ export const Authenticate: FunctionComponent = () => {
 
     return (
         <Form
-            name="basic"
+            name="authentication"
             labelCol={{ span: 10 }}
             wrapperCol={{ span: 14 }}
             style={{ maxWidth: 600 }}

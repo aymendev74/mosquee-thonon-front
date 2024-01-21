@@ -151,7 +151,7 @@ export const CoursArabesForm: FunctionComponent = () => {
 
     return (
         <Form
-            name="basic"
+            name="cours"
             onFinish={onFinish}
             autoComplete="off"
             className="container-form"

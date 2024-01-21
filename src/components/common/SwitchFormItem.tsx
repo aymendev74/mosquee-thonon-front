@@ -3,7 +3,7 @@ import { FunctionComponent } from "react";
 
 export type SwitchFormItemProps = SwitchProps & FormItemProps;
 
-export const SwitchFormItem: FunctionComponent<SwitchFormItemProps> = ({ name, label, ...rest }) => {
+export const SwitchFormItem: FunctionComponent<SwitchFormItemProps> = ({ name, label, required, ...rest }) => {
 
     return (
         <Form.Item name={name.split(".")} label={label}>

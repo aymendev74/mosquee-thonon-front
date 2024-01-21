@@ -1,10 +1,13 @@
-import { Button, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Tooltip, notification } from "antd";
-import { FunctionComponent, useEffect } from "react"
+import { Button, Col, Form, Modal, Row, Tooltip, notification } from "antd";
+import { FunctionComponent, useEffect, useState } from "react"
 import { PeriodeInfoDto } from "../../services/periode";
 import useApi from "../../hooks/useApi";
-import { PERIODES_ENDPOINT } from "../../services/services";
 import moment, { Moment } from "moment";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
+import { DatePickerFormItem } from "../common/DatePickerFormItem";
+import { InputFormItem } from "../common/InputFormItem";
+import _ from "lodash";
+import { PERIODES_ENDPOINT } from "../../services/services";
 
 
 export type ModalPeriodeProps = {
@@ -15,17 +18,37 @@ export type ModalPeriodeProps = {
 }
 
 export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOpen, isCreation, periode }) => {
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
+    const { result, setApiCallDefinition, resetApi } = useApi();
+    const [error, setError] = useState<string | undefined>();
     const [form] = Form.useForm();
+
     const close = () => {
         form.resetFields();
-        setOpen(false)
+        setOpen(false);
+        setError(undefined);
     };
     const onValider = () => {
-        const periodeToSave: PeriodeInfoDto = form.getFieldsValue();
-        periodeToSave.dateDebut = (periodeToSave.dateDebut as Moment).format("DD.MM.YYYY");
-        periodeToSave.dateFin = (periodeToSave.dateFin as Moment).format("DD.MM.YYYY");
-        setApiCallDefinition({ method: "POST", url: PERIODES_ENDPOINT, data: periodeToSave });
+        form.validateFields().then((values) => {
+            const periodeToSave = _.cloneDeep(values);
+            periodeToSave.dateDebut = periodeToSave.dateDebut.format("DD.MM.YYYY");
+            periodeToSave.dateFin = periodeToSave.dateFin.format("DD.MM.YYYY");
+            setError(undefined);
+            const today = moment();
+            let isError: boolean = false;
+            if (isCreation && !today.isBefore(moment(periodeToSave.dateDebut, "DD.MM.YYYY"))) {
+                setError("La date de début doit être dans le futur. Veuillez corriger");
+                isError = true;
+            }
+            if (!moment(periodeToSave.dateDebut, "DD.MM.YYYY").isBefore(moment(periodeToSave.dateFin, "DD.MM.YYYY"))) {
+                setError("La date de début doit être inférieur à la date de fin. Veuillez corriger");
+                isError = true;
+            }
+            if (!isError) {
+                setApiCallDefinition({ method: "POST", url: PERIODES_ENDPOINT, data: periodeToSave });
+            }
+        }).catch((errorInfo) => {
+            console.error("Validation failed:", errorInfo);
+        });
     }
 
     const getTitre = () => {
@@ -36,7 +59,6 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
         if (periode) {
             periode.dateDebut = moment(periode.dateDebut, "DD.MM.YYYY");
             periode.dateFin = moment(periode.dateFin, "DD.MM.YYYY");
-            console.log(periode);
             form.setFieldsValue(periode);
         }
     }, [periode]);
@@ -51,6 +73,7 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
             }
             notification.open({ message, type: "success" });
             close();
+            resetApi();
         }
     }, [result]);
 
@@ -58,29 +81,18 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
     return (<Modal title={getTitre()} open={open} width={600} onCancel={close}
         footer={<><Button onClick={close}>Annuler</Button><Button onClick={onValider} danger>Valider</Button></>}>
         <Form
-            name="basic"
+            name="periode"
             autoComplete="off"
             form={form}
         >
-            <Form.Item name="id" style={{ display: "none" }}>
-                <Input type="hidden" />
-            </Form.Item>
+            <InputFormItem name="id" formStyle={{ display: "none" }} type="hidden" />
+            <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
             <Row gutter={[16, 32]}>
                 <Col span={12}>
-                    <Form.Item
-                        label="Date début"
-                        name={"dateDebut"}
-                    >
-                        <DatePicker disabled={periode?.existInscription} />
-                    </Form.Item>
+                    <DatePickerFormItem label="Date début" name="dateDebut" disabled={periode?.existInscription} />
                 </Col>
                 <Col span={12}>
-                    <Form.Item
-                        label="Date fin"
-                        name="dateFin"
-                    >
-                        <DatePicker />
-                    </Form.Item>
+                    <DatePickerFormItem label="Date fin" name="dateFin" />
                 </Col>
             </Row>
             <Row gutter={[16, 32]}>
@@ -90,6 +102,9 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
                     </Tooltip>
                 </Col>
             </Row>
+            {error && (<div className="form-errors">
+                {error}
+            </div>)}
         </Form>
     </Modal>);
 

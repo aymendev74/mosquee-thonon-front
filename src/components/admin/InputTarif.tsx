@@ -17,10 +17,10 @@ export const InputTarif: FunctionComponent<InputTarifProperties> = ({ nameMontan
                 <Tag color="blue">{labelNbEnfant}</Tag>
             </Col>
             <Col span={4}>
-                <InputNumberFormItem name={nameMontantBase} label="Base" addonAfter="€" disabled={readOnly} />
+                <InputNumberFormItem name={nameMontantBase} label="Base" addonAfter="€" disabled={readOnly} rules={[{ required: true, message: "Veuillez saisir un montant" }]} />
             </Col>
             <Col span={4}>
-                <InputNumberFormItem name={nameMontantEnfant} label="Par enfant" addonAfter="€" disabled={readOnly} />
+                <InputNumberFormItem name={nameMontantEnfant} label="Par enfant" addonAfter="€" disabled={readOnly} rules={[{ required: true, message: "Veuillez saisir un montant" }]} />
             </Col>
         </Row>
     </>

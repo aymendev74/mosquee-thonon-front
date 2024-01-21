@@ -9,6 +9,7 @@ import { EditOutlined, EuroCircleTwoTone, PlusCircleOutlined } from "@ant-design
 import { InfosTarif } from "../admin/InfosTarif";
 import { ModalPeriode } from "../modals/ModalPeriode";
 import { SelectFormItem } from "../common/SelectFormItem";
+import { InfoTarifDto } from "../../services/tarif";
 
 export const AdminTarifs: FunctionComponent = () => {
 
@@ -26,7 +27,10 @@ export const AdminTarifs: FunctionComponent = () => {
         const fetchPeriodes = async () => {
             setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT });
         }
-        fetchPeriodes();
+        // On reload les périodes dès lors que la modal permettant leur modification se referme, afin récupérer les modifications
+        if (!modalPeriodeOpen) {
+            fetchPeriodes();
+        }
     }, [modalPeriodeOpen]);
 
     useEffect(() => {
@@ -40,17 +44,14 @@ export const AdminTarifs: FunctionComponent = () => {
         }
         if (apiCallDefinition?.url?.startsWith(TARIFS_ADMIN_ENDPOINT) && apiCallDefinition.method === "GET" && result) {
             setViewTarif(true);
-
             form.setFieldsValue(result);
         }
     }, [result]);
 
     const formatPeriodeLibelle = (periode: PeriodeInfoDto) => {
-        let libelle = moment(periode.dateDebut).format("DD.MM.YYYY");
-        if (periode.dateFin === "31.12.9999") {
-            libelle = libelle.concat(" - (En cours)");
-        } else {
-            libelle = libelle.concat(moment(periode.dateFin).format("DD.MM.YYYY"));
+        let libelle: string = (periode.dateDebut as string).concat(" - ").concat(periode.dateFin as string);
+        if (periode.active) {
+            libelle = libelle.concat(" (En cours)");
         }
         return <Tag color="blue">{libelle}</Tag>;
     }
@@ -62,6 +63,7 @@ export const AdminTarifs: FunctionComponent = () => {
     const onCreatePeriode = () => {
         setModalPeriodeOpen(true);
         setCreatePeriode(true);
+        setPeriodeToEdit(undefined);
     }
 
     const onModifierPeriode = () => {
@@ -70,8 +72,17 @@ export const AdminTarifs: FunctionComponent = () => {
         setPeriodeToEdit(periodesDto?.find(p => p.id === selectedIdPeriode));
     }
 
+    const onPeriodeSelected = (value: any) => {
+        setSelectedIdPeriode(value);
+        setViewTarif(false);
+    }
+
     const isSelectedPeriodeReadOnly = () => {
         return periodesDto?.find(p => p.id === selectedIdPeriode)?.existInscription ?? false;
+    }
+
+    const onFinish = (infoTarif: InfoTarifDto) => {
+        console.log(infoTarif);
     }
 
     return (<>
@@ -79,6 +90,7 @@ export const AdminTarifs: FunctionComponent = () => {
             name="basic"
             autoComplete="off"
             className="container-full-width"
+            onFinish={onFinish}
             form={form}
         >
             <h2>Administration des tarifs</h2>
@@ -89,7 +101,7 @@ export const AdminTarifs: FunctionComponent = () => {
             </Row>
             <Row gutter={[16, 32]}>
                 <Col span={6}>
-                    <SelectFormItem name="idPeriode" label="Période" options={periodesOptions} onChange={(value) => { setSelectedIdPeriode(value) }} />
+                    <SelectFormItem name="idPeriode" label="Période" options={periodesOptions} onChange={onPeriodeSelected} />
                 </Col>
                 <Col span={4}>
                     <Tooltip title="Modifier les données de la période sélectionnée" color="geekblue"><Button icon={<EditOutlined />}
@@ -105,6 +117,9 @@ export const AdminTarifs: FunctionComponent = () => {
                 </Col>
             </Row>
             {viewTarif && (<InfosTarif readOnly={isSelectedPeriodeReadOnly()} />)}
+            {viewTarif && !isSelectedPeriodeReadOnly() && (
+                (<Button type="primary" htmlType="submit">Enregistrer</Button>)
+            )}
             <ModalPeriode open={modalPeriodeOpen} setOpen={setModalPeriodeOpen} isCreation={createPeriode} periode={periodeToEdit} />
         </Form>
     </>);

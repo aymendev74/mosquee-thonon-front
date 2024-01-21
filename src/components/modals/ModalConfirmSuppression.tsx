@@ -11,7 +11,6 @@ export type ModaleConfirmSuppressionProps = {
 export const ModaleConfirmSuppression: FunctionComponent<ModaleConfirmSuppressionProps> = ({ open, setOpen, nbInscriptions, onConfirm }) => {
 
     const close = () => setOpen(false);
-
     return (<Modal title="Suppression inscriptions" open={open} width={400} onCancel={close}
         footer={<><Button onClick={close}>Annuler</Button><Button onClick={onConfirm} danger>Oui</Button></>} onOk={onConfirm}>
         <div>
@@ -19,5 +18,6 @@ export const ModaleConfirmSuppression: FunctionComponent<ModaleConfirmSuppressio
         </div>
         <strong>Attention, cette opération est définitive.</strong>
     </Modal>);
+
 
 }

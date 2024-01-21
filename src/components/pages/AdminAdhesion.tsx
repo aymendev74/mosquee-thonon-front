@@ -196,7 +196,7 @@ export const AdminAdhesion: FunctionComponent = () => {
 
     return loggedUser ? (
         <Form
-            name="basic"
+            name="adminAdhesion"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             autoComplete="off"
