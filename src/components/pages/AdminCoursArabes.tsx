@@ -16,6 +16,7 @@ import { getNiveauOptions } from "../common/commoninputs";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
+import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -102,7 +103,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         const statut = form.getFieldValue("statut");
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
-            dateInscription = dateInscription.format("DD.MM.YYYY");
+            dateInscription = dateInscription.format(APPLICATION_DATE_FORMAT);
         }
         const niveaux = form.getFieldValue("niveau");
         const searchCriteria = {

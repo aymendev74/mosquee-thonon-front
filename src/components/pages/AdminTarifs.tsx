@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Row, Select, Tag, Tooltip } from "antd";
+import { Button, Col, Divider, Form, Row, Select, Tag, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { PERIODES_ENDPOINT, TARIFS_ADMIN_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import useApi from "../../hooks/useApi";
@@ -46,6 +46,10 @@ export const AdminTarifs: FunctionComponent = () => {
             setViewTarif(true);
             form.setFieldsValue(result);
         }
+        if (apiCallDefinition?.url === TARIFS_ADMIN_ENDPOINT && apiCallDefinition.method === "POST" && result) {
+            notification.open({ message: "Les nouveaux tarifs ont bien été enregistrés", type: "success" });
+            form.setFieldsValue(result);
+        }
     }, [result]);
 
     const formatPeriodeLibelle = (periode: PeriodeInfoDto) => {
@@ -82,7 +86,7 @@ export const AdminTarifs: FunctionComponent = () => {
     }
 
     const onFinish = (infoTarif: InfoTarifDto) => {
-        console.log(infoTarif);
+        setApiCallDefinition({ method: "POST", url: TARIFS_ADMIN_ENDPOINT, data: infoTarif });
     }
 
     return (<>

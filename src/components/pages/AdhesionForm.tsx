@@ -3,7 +3,7 @@ import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion, AdhesionLight } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { onNumericFieldChanged } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, onNumericFieldChanged } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
@@ -37,9 +37,9 @@ export const AdhesionForm: FunctionComponent = () => {
             return;
         }*/
         if (adhesion.dateInscription) {
-            adhesion.dateInscription = (adhesion.dateInscription as Moment).format("DD.MM.YYYY");
+            adhesion.dateInscription = (adhesion.dateInscription as Moment).format(APPLICATION_DATE_FORMAT);
         }
-        adhesion.dateNaissance = (adhesion.dateNaissance as Moment).format("DD.MM.YYYY");
+        adhesion.dateNaissance = (adhesion.dateNaissance as Moment).format(APPLICATION_DATE_FORMAT);
         setApiCallDefinition({ method: "POST", url: ADHESION_ENDPOINT, data: adhesion });
     };
 
@@ -74,8 +74,8 @@ export const AdhesionForm: FunctionComponent = () => {
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
             const adhesion = result as Adhesion;
             console.log(adhesion);
-            adhesion.dateInscription = moment(adhesion.dateInscription, 'DD.MM.YYYY');
-            adhesion.dateNaissance = moment(adhesion.dateNaissance, 'DD.MM.YYYY');
+            adhesion.dateInscription = moment(adhesion.dateInscription, APPLICATION_DATE_FORMAT);
+            adhesion.dateNaissance = moment(adhesion.dateNaissance, APPLICATION_DATE_FORMAT);
             if (adhesion.montantAutre) {
                 setAutreMontantVisible(true);
             }
@@ -108,15 +108,9 @@ export const AdhesionForm: FunctionComponent = () => {
                 className="container-form"
                 form={form}
             >
-                <Form.Item name="id" style={{ display: "none" }}>
-                    <Input type="hidden" />
-                </Form.Item>
-                <Form.Item name="signature" style={{ display: "none" }}>
-                    <Input type="hidden" />
-                </Form.Item>
-                <Form.Item name="dateInscription" style={{ display: "none" }}>
-                    <Input type="hidden" />
-                </Form.Item>
+                <InputFormItem name="id" formStyle={{ display: "none" }} type="hidden" />
+                <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
+                <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
                 <Row>
                     <Col span={24}>
                         <Divider orientation="left">Identité</Divider>

@@ -14,6 +14,7 @@ import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
+import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 
 
 export const AdminAdhesion: FunctionComponent = () => {
@@ -101,7 +102,7 @@ export const AdminAdhesion: FunctionComponent = () => {
         const montant = form.getFieldValue("montant");
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
-            dateInscription = dateInscription.format("DD.MM.YYYY");
+            dateInscription = dateInscription.format(APPLICATION_DATE_FORMAT);
         }
         const searchCriteria = {
             nom: nom ?? null, prenom: prenom ?? null, statut: statut ?? null,

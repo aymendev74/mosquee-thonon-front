@@ -8,6 +8,7 @@ import { UserAddOutlined } from "@ant-design/icons";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
+import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 
 export type EleveProps = {
     isReadOnly: boolean;
@@ -29,7 +30,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
                 <Panel header={eleve.prenom} key={index}>
                     <p><strong>Nom :</strong> {eleve.nom}</p>
                     <p><strong>Prénom :</strong> {eleve.prenom}</p>
-                    <p><strong>Date de naissance :</strong> {moment(eleve.dateNaissance).format("DD.MM.YYYY")}</p>
+                    <p><strong>Date de naissance :</strong> {moment(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT)}</p>
                     <p><strong>Niveau scolaire :</strong> {getLibelleNiveauScolaire(eleve.niveau)}</p>
                     {
                         !isReadOnly &&
@@ -115,7 +116,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
             <div className="centered-content pad-10">
                 <Button onClick={() => setEditingIndex(null)}>Annuler</Button>
 
-                <Button className="m-left-10" onClick={ajouterEleve}>Enregistrer</Button>
+                <Button className="m-left-10" onClick={ajouterEleve} type="primary">Enregistrer</Button>
 
             </div>
         </>)}

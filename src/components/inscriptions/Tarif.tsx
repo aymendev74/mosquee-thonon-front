@@ -21,13 +21,20 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
         return adherent ? "adhérent" : "non adhérent"
     }
 
+    const getMontantTotalInscription = () => {
+        if (tarifInscription) {
+            return tarifInscription?.tarifBase + (tarifInscription?.tarifEleve * eleves.length);
+        }
+    }
+
     return !tarifInscription && !isAdmin ? (<div className="m-bottom-15">Pour obtenir un tarif, veuillez ajouter des élèves</div>)
         : (
             <>
                 <Divider orientation="left">Tarifs</Divider>
                 <div className="m-bottom-10">Votre tarif <strong> {getStatutAdherent()}</strong> pour <strong>{eleves.length} élève(s)</strong></div>
-                <div className="m-bottom-10">Tarif Base: {tarifInscription?.tarifBase ?? ""}</div>
-                <div className="m-bottom-10">Tarif par enfant: {tarifInscription?.tarifEleve ?? ""}</div>
+                <div className="m-bottom-10">Tarif Base: {tarifInscription?.tarifBase ?? ""} euros</div>
+                <div className="m-bottom-10">Tarif par enfant: {tarifInscription?.tarifEleve ?? ""} euros</div>
+                <div className="m-bottom-10 fw-bold">Total: {getMontantTotalInscription()} euros</div>
                 {!isAdmin && tarifInscription?.listeAttente && (<div className="m-bottom-10"><strong>Attention, le nombre d'élèves inscrits sur la période en cours a atteint
                     la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription.</strong></div>)}
                 {isAdmin && (<><Divider orientation="left">Statut</Divider>

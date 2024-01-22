@@ -8,6 +8,7 @@ import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { InputFormItem } from "../common/InputFormItem";
 import _ from "lodash";
 import { PERIODES_ENDPOINT } from "../../services/services";
+import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 
 
 export type ModalPeriodeProps = {
@@ -30,16 +31,16 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
     const onValider = () => {
         form.validateFields().then((values) => {
             const periodeToSave = _.cloneDeep(values);
-            periodeToSave.dateDebut = periodeToSave.dateDebut.format("DD.MM.YYYY");
-            periodeToSave.dateFin = periodeToSave.dateFin.format("DD.MM.YYYY");
+            periodeToSave.dateDebut = periodeToSave.dateDebut.format(APPLICATION_DATE_FORMAT);
+            periodeToSave.dateFin = periodeToSave.dateFin.format(APPLICATION_DATE_FORMAT);
             setError(undefined);
             const today = moment();
             let isError: boolean = false;
-            if (isCreation && !today.isBefore(moment(periodeToSave.dateDebut, "DD.MM.YYYY"))) {
+            if (isCreation && !today.isBefore(moment(periodeToSave.dateDebut, APPLICATION_DATE_FORMAT))) {
                 setError("La date de début doit être dans le futur. Veuillez corriger");
                 isError = true;
             }
-            if (!moment(periodeToSave.dateDebut, "DD.MM.YYYY").isBefore(moment(periodeToSave.dateFin, "DD.MM.YYYY"))) {
+            if (!moment(periodeToSave.dateDebut, APPLICATION_DATE_FORMAT).isBefore(moment(periodeToSave.dateFin, APPLICATION_DATE_FORMAT))) {
                 setError("La date de début doit être inférieur à la date de fin. Veuillez corriger");
                 isError = true;
             }
@@ -57,8 +58,8 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
 
     useEffect(() => {
         if (periode) {
-            periode.dateDebut = moment(periode.dateDebut, "DD.MM.YYYY");
-            periode.dateFin = moment(periode.dateFin, "DD.MM.YYYY");
+            periode.dateDebut = moment(periode.dateDebut, APPLICATION_DATE_FORMAT);
+            periode.dateFin = moment(periode.dateFin, APPLICATION_DATE_FORMAT);
             form.setFieldsValue(periode);
         }
     }, [periode]);

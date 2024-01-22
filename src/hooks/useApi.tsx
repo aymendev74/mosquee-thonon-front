@@ -3,7 +3,7 @@ import { executeApiCall } from '../services/services';
 
 export type ApiCallDefinition = {
     url?: string,
-    method?: string,
+    method?: "GET" | "POST" | "DELETE",
     data?: any,
     params?: any
 }

@@ -13,7 +13,7 @@ import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 
 export const CoursArabesForm: FunctionComponent = () => {
@@ -97,10 +97,10 @@ export const CoursArabesForm: FunctionComponent = () => {
         }*/
 
         if (inscription.dateInscription) {
-            inscription.dateInscription = moment(inscription.dateInscription).format("DD.MM.YYYY");
+            inscription.dateInscription = moment(inscription.dateInscription).format(APPLICATION_DATE_FORMAT);
         }
         inscription.eleves = eleves;
-        inscription.eleves.forEach(eleve => eleve.dateNaissance = (eleve.dateNaissance as Moment).format("DD.MM.YYYY"));
+        inscription.eleves.forEach(eleve => eleve.dateNaissance = (eleve.dateNaissance as Moment).format(APPLICATION_DATE_FORMAT));
         convertOuiNonToBoolean(inscription.responsableLegal);
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
@@ -123,8 +123,8 @@ export const CoursArabesForm: FunctionComponent = () => {
         // Load de l'inscription
         if (result && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
-            loadedInscription.dateInscription = moment(loadedInscription.dateInscription, 'DD.MM.YYYY');
-            loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, 'DD.MM.YYYY'));
+            loadedInscription.dateInscription = moment(loadedInscription.dateInscription, APPLICATION_DATE_FORMAT);
+            loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
             convertBooleanToOuiNon(loadedInscription.responsableLegal);
             form.setFieldsValue(loadedInscription);
             setEleves(loadedInscription.eleves);
@@ -137,6 +137,10 @@ export const CoursArabesForm: FunctionComponent = () => {
             resetApi();
         }
     }, [result]);
+
+    const onFinishFailed = () => {
+        notification.open({ message: "Veuillez contrôler le formulaire car il y a des erreurs dans votre saisie", type: "error" });
+    }
 
     useEffect(() => {
         if (id) {
@@ -153,13 +157,14 @@ export const CoursArabesForm: FunctionComponent = () => {
         <Form
             name="cours"
             onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
             autoComplete="off"
             className="container-form"
             form={form}
         >
-            <InputFormItem name="id" type="hidden" style={{ display: "none" }} />
-            <InputFormItem name="signature" style={{ display: "none" }} type="hidden" />
-            <InputFormItem name="dateInscription" style={{ display: "none" }} type="hidden" />
+            <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
+            <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
+            <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
             {inscriptionSuccess && (<Result
                 status="success"
                 title="Inscription enregistré"

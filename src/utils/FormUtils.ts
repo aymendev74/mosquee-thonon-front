@@ -16,3 +16,5 @@ export const convertBooleanToOuiNon = (responsableLegal: ResponsableLegal) => {
     responsableLegal.autorisationAutonomie = responsableLegal.autorisationAutonomie === true ? "OUI" : "NON";
     responsableLegal.autorisationMedia = responsableLegal.autorisationMedia === true ? "OUI" : "NON";
 }
+
+export const APPLICATION_DATE_FORMAT: string = "DD.MM.YYYY";
