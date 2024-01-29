@@ -130,3 +130,7 @@
   display: flex;
   justify-content: right;
 }
+
+.popover-content {
+  width: 250px;
+}

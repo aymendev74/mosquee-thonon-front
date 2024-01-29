@@ -1,4 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
+import ReactDOM from 'react-dom';
 import * as XLSX from 'xlsx';
 import { AdhesionLight, AdhesionLightForExport } from "../../services/adhesion";
 import { useAuth } from "../../hooks/UseAuth";
@@ -193,7 +194,7 @@ export const AdminAdhesion: FunctionComponent = () => {
 
     const isInscriptionsSelected = () => {
         return dataSource && dataSource.length > 0;
-    }
+    };
 
     return loggedUser ? (
         <Form

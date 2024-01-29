@@ -1,8 +1,10 @@
 import { ColumnsType } from "antd/es/table";
-import { Inscription, InscriptionLight, StatutInscription } from "../../services/inscription";
+import { InscriptionLight, StatutInscription } from "../../services/inscription";
 import { Tooltip } from "antd";
-import { CheckCircleTwoTone, PauseCircleTwoTone } from "@ant-design/icons";
+import { CheckCircleTwoTone, FilePdfTwoTone, PauseCircleTwoTone } from "@ant-design/icons";
 import { AdhesionLight } from "../../services/adhesion";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PdfAdhesion } from "../documents/PdfAdhesion";
 
 export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
     {
@@ -50,6 +52,10 @@ export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
     }
 ];
 
+const getFileName = (adhesion: AdhesionLight) => {
+    return "adhesion_" + adhesion.prenom + "_" + adhesion.nom;
+}
+
 export const columnsTableAdhesions: ColumnsType<AdhesionLight> = [
     {
         title: 'Nom',
@@ -82,5 +88,15 @@ export const columnsTableAdhesions: ColumnsType<AdhesionLight> = [
         render: (value, record, index) => {
             return record.dateInscription as string;
         }
-    }
+    },
+    {
+        title: "Fichier Pdf",
+        key: "pdf",
+        render: (value, record, index) => (<PDFDownloadLink document={<PdfAdhesion id={record.id} />} fileName={getFileName(record)}>
+            {({ blob, url, loading, error }) => {
+                return loading ? "Génération Pdf..." : <FilePdfTwoTone />
+            }
+            }
+        </PDFDownloadLink>)
+    },
 ];

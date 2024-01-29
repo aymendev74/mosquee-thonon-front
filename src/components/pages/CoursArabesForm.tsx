@@ -15,10 +15,11 @@ import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { APPLICATION_DATE_FORMAT, convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
+import { HttpStatusCode } from "axios";
 
 export const CoursArabesForm: FunctionComponent = () => {
 
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading, status } = useApi();
     const location = useLocation();
     const [form] = useForm();
     const navigate = useNavigate();
@@ -132,8 +133,13 @@ export const CoursArabesForm: FunctionComponent = () => {
         }
 
         // Calcul tarif
-        if (result && apiCallDefinition?.url === INSCRIPTION_TARIFS_ENDPOINT) {
-            setTarifInscription(result);
+        if (apiCallDefinition?.url === INSCRIPTION_TARIFS_ENDPOINT) {
+            if (result) {
+                setTarifInscription(result);
+                notification.open({ message: "Votre tarif a été mis à jour (voir l'onglet Tarif)", type: "success" });
+            } else if (status === HttpStatusCode.NoContent) { // No content (pas de tarif pour la période)
+                notification.open({ message: "Aucun tarif n'a été trouvé pour la période en cours", type: "error" });
+            }
             resetApi();
         }
     }, [result]);

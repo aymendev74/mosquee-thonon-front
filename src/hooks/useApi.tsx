@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { executeApiCall } from '../services/services';
+import { notification } from 'antd';
+
+
 
 export type ApiCallDefinition = {
     url?: string,
@@ -14,19 +17,21 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
     const [error, setError] = useState(false);
     const [errorResult, setErrorResult] = useState<string>();
     const [apiCallDefinition, setApiCallDefinition] = useState<ApiCallDefinition | undefined>(apiCallDef);
+    const [status, setStatus] = useState<number | undefined>();
 
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             setError(false);
             try {
-                const responseData = await executeApiCall(apiCallDefinition!);
-                setResult(responseData);
+                const apiCallResult = await executeApiCall(apiCallDefinition!);
+                setResult(apiCallResult.responseData);
+                setStatus(apiCallResult.status);
             } catch (err) {
-                console.log(err);
                 setError(true);
                 const error = err as any;
                 if (error.response && error.response.data) {
+                    // gestion spécifique de l'erreur via le composant appelant
                     setErrorResult(error.response.data);
                 }
             } finally {
@@ -44,9 +49,10 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
         setResult(undefined);
         setErrorResult(undefined);
         setApiCallDefinition(undefined);
+        setStatus(undefined);
     }
 
-    return { setApiCallDefinition, result, isLoading, error, errorResult, apiCallDefinition, resetApi };
+    return { setApiCallDefinition, result, isLoading, error, errorResult, apiCallDefinition, status, resetApi };
 };
 
 export default useApi;
