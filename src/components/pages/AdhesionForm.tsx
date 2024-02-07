@@ -199,11 +199,16 @@ export const AdhesionForm: FunctionComponent = () => {
                     </Col>
                     }
                 </Row>
-                {isAdmin && (<><Divider orientation="left">Statut</Divider>
+                {isAdmin && (<><Divider orientation="left">Administration</Divider>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
                             <RadioGroupFormItem label="Statut adhésion" name="statut" disabled={isReadOnly} radioOptions={[{ value: StatutInscription.PROVISOIRE, label: "Provisoire" },
                             { value: StatutInscription.VALIDEE, label: "Validée" }]} />
+                        </Col>
+                    </Row>
+                    <Row gutter={[16, 32]}>
+                        <Col span={12}>
+                            <InputFormItem label="Numéro de membre" name="noMembre" disabled={isReadOnly} />
                         </Col>
                     </Row>
                 </>)}

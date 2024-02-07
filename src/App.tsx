@@ -49,7 +49,7 @@ function App() {
           <Col span={8} style={{ marginTop: "5px" }}>
             <div className="d-flex">
               <div className="logo" />
-              <div className="logo-title">Association musulmane du Chablais</div>
+              <div className="logo-title hidden-xs">Association musulmane du Chablais</div>
             </div>
           </Col>
           <Col span={8}>

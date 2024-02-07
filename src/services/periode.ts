@@ -6,10 +6,17 @@ export type PeriodeDto = {
     dateDebut: Moment | string;
     dateFin: Moment | string;
     nbMaxInscription: number;
+    application: string;
     signature: SignatureDto;
 }
 
 export type PeriodeInfoDto = PeriodeDto & {
     existInscription: boolean;
     active: boolean;
+}
+
+export type PeriodeValidationResultDto = {
+    periode: PeriodeDto;
+    success: boolean;
+    errorCode: string;
 }

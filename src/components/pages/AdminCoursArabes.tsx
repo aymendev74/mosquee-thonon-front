@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import Table from "antd/es/table";
 import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, MenuProps, Row, Select, Spin, Tooltip, notification } from "antd";
-import { ClockCircleOutlined, DownOutlined, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
 import { columnsTableInscriptions } from "../common/tableDefinition";
 import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
@@ -80,10 +80,10 @@ export const AdminCoursArabes: FunctionComponent = () => {
             }
         };
 
-        const items: MenuProps['items'] = [{ label: "Consulter", key: CONSULTER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
-        { label: "Modifier", key: MODIFIER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
-        { label: "Valider inscription", key: VALIDER_MENU_KEY, disabled: selectedInscriptions.length < 1 },
-        { label: "Supprimer", danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedInscriptions.length < 1 }];
+        const items: MenuProps['items'] = [{ label: <><EyeTwoTone className="action-icon" />Consulter</>, key: CONSULTER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
+        { label: <><EditTwoTone className="action-icon" />Modifier</>, key: MODIFIER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
+        { label: <><CheckCircleTwoTone className="action-icon" />Valider inscription</>, key: VALIDER_MENU_KEY, disabled: selectedInscriptions.length < 1 },
+        { label: <><DeleteTwoTone className="action-icon" />Supprimer</>, danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedInscriptions.length < 1 }];
 
         const menu: MenuProps = { items, onClick: handleMenuClick };
 
@@ -153,7 +153,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         </Col>
                     </Row>
                     <div className="centered-content">
-                        <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }}>Rechercher</Button>
+                        <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
                         <Tooltip title="Dernières inscriptions">
                             <Button icon={<ClockCircleOutlined />} shape="circle" onClick={() => { setModaleDernieresInscriptionOpen(true) }} />
                         </Tooltip>
@@ -218,7 +218,9 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         <div className="menu-action-container">
                             <div className="label">Veuillez choisir une action à effectuer :</div>
                             <div className="bt-action"><DropdownMenu /></div>
-                            <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()}>Exporter</Button>
+                            <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
+                                <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
+                            </Tooltip>
                         </div>
                         <Row>
                             <Col span={24}>

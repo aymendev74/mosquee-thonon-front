@@ -6,7 +6,7 @@ import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, InputNumber, MenuProps, Row, Select, Spin, Table, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, INSCRIPTION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../services/services";
-import { DownOutlined, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../services/inscription";
 import { columnsTableAdhesions } from "../common/tableDefinition";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
@@ -80,10 +80,10 @@ export const AdminAdhesion: FunctionComponent = () => {
             }
         };
 
-        const items: MenuProps['items'] = [{ label: "Consulter", key: CONSULTER_MENU_KEY, disabled: selectedAdhesions.length !== 1 },
-        { label: "Modifier", key: MODIFIER_MENU_KEY, disabled: selectedAdhesions.length !== 1 },
-        { label: "Valider adhésion", key: VALIDER_MENU_KEY, disabled: selectedAdhesions.length < 1 },
-        { label: "Supprimer", danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedAdhesions.length < 1 }];
+        const items: MenuProps['items'] = [{ label: <><EyeTwoTone className="action-icon" />Consulter</>, key: CONSULTER_MENU_KEY, disabled: selectedAdhesions.length !== 1 },
+        { label: <><EditTwoTone className="action-icon" />Modifier</>, key: MODIFIER_MENU_KEY, disabled: selectedAdhesions.length !== 1 },
+        { label: <><CheckCircleTwoTone className="action-icon" />Valider adhésion</>, key: VALIDER_MENU_KEY, disabled: selectedAdhesions.length < 1 },
+        { label: <><DeleteTwoTone className="action-icon" />Supprimer</>, danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedAdhesions.length < 1 }];
 
         const menu: MenuProps = { items, onClick: handleMenuClick };
 
@@ -153,7 +153,7 @@ export const AdminAdhesion: FunctionComponent = () => {
                         </Col>
                     </Row>
                     <div className="centered-content">
-                        <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }}>Rechercher</Button>
+                        <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
                     </div>
                 </Panel>
             </Collapse>
@@ -215,7 +215,9 @@ export const AdminAdhesion: FunctionComponent = () => {
                         <div className="menu-action-container">
                             <div className="label">Veuillez choisir une action à effectuer :</div>
                             <div className="bt-action"><DropdownMenu /></div>
-                            <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()}>Exporter</Button>
+                            <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
+                                <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
+                            </Tooltip>
                         </div>
                         <Row>
                             <Col span={24}>

@@ -15,8 +15,10 @@ export type Adhesion = {
     codePostal: number;
     ville: string;
     montantAutre: number;
+    montant: number;
     statut: StatutInscription | boolean;
     dateInscription: Moment | string;
+    noMembre: number;
     signature: SignatureDto;
 }
 
