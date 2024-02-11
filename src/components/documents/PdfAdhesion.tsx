@@ -1,10 +1,8 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
 import { ADHESION_ENDPOINT } from '../../services/services';
 import { Adhesion } from '../../services/adhesion';
-import { Moment } from 'moment';
-import { APPLICATION_DATE_FORMAT } from '../../utils/FormUtils';
 
 export type PdfAdhesionProps = {
     id: number;

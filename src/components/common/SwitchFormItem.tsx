@@ -6,7 +6,7 @@ export type SwitchFormItemProps = SwitchProps & FormItemProps;
 export const SwitchFormItem: FunctionComponent<SwitchFormItemProps> = ({ name, label, required, ...rest }) => {
 
     return (
-        <Form.Item name={name.split(".")} label={label}>
+        <Form.Item name={name.split(".")} label={label} valuePropName="checked">
             <Switch {...rest} />
         </Form.Item>
     );

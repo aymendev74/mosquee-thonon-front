@@ -13,7 +13,7 @@ export type ResponsableLegalProps = {
     onNextStep: React.MouseEventHandler<HTMLElement>;
 }
 
-export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isReadOnly, isAdmin, doCalculTarif, onNextStep }) => {
+export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isReadOnly, doCalculTarif, onNextStep }) => {
 
     return (<>
         <InputFormItem name="responsableLegal.id" formStyle={{ display: "none" }} type="hidden" />

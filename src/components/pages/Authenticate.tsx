@@ -19,7 +19,7 @@ export const Authenticate: FunctionComponent = () => {
     useEffect(() => {
         if (result && login) {
             login(result as AuthResponse);
-            navigate("/administration");
+            navigate("/");
         }
         if (errorResult === ERROR_INVALID_CREDENTIALS) {
             notification.open({ message: "Vos identifiants sont incorrects", type: "error" });

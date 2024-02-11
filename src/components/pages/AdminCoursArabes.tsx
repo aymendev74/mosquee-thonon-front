@@ -62,7 +62,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const onConfirmSuppression = () => {
         setModaleConfirmSuppressionOpen(false);
-        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.id) });
+        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.idInscription) });
     }
 
     const DropdownMenu = () => {
@@ -148,7 +148,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         <Col span={24}>
                             <SelectFormItem name="statut" label="Statut" placeholder="Statut" options={[
                                 { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                                { value: StatutInscription.VALIDEE, label: "Validée" }
+                                { value: StatutInscription.VALIDEE, label: "Validée" },
+                                { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" }
                             ]} allowClear />
                         </Col>
                     </Row>

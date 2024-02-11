@@ -1,5 +1,4 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import ReactDOM from 'react-dom';
 import * as XLSX from 'xlsx';
 import { AdhesionLight, AdhesionLightForExport } from "../../services/adhesion";
 import { useAuth } from "../../hooks/UseAuth";
@@ -179,10 +178,10 @@ export const AdminAdhesion: FunctionComponent = () => {
             setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT });
         }
         if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
-            notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été supprimées", type: "success" });
+            notification.open({ message: "Les " + (result as number[]).length + " adhésions sélectionnées ont été supprimées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedAdhesions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT });
         }
     }, [result]);
 

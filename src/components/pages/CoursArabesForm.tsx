@@ -124,6 +124,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         // Load de l'inscription
         if (result && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
+            console.log(loadedInscription);
             loadedInscription.dateInscription = moment(loadedInscription.dateInscription, APPLICATION_DATE_FORMAT);
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
             convertBooleanToOuiNon(loadedInscription.responsableLegal);
@@ -168,28 +169,30 @@ export const CoursArabesForm: FunctionComponent = () => {
             className="container-form"
             form={form}
         >
-            <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
-            <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
-            <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
-            {inscriptionSuccess && (<Result
-                status="success"
-                title="Inscription enregistré"
-                subTitle="Votre inscription a bien été enregistrée. Vous serez recontacté rapidement."
-                extra={[
-                    <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
-                        Nouvelle inscription
-                    </Button>]}
-            />)
-            }
+            <Spin spinning={isLoading} size="large" tip="Enregistrement de votre inscription...">
+                <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
+                <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
+                <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
+                {inscriptionSuccess && (<Result
+                    status="success"
+                    title="Inscription enregistré"
+                    subTitle="Votre inscription a bien été enregistrée. Vous serez recontacté rapidement."
+                    extra={[
+                        <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
+                            Nouvelle inscription
+                        </Button>]}
+                />)
+                }
 
-            {!inscriptionSuccess && (
-                <>
-                    <Spin spinning={isLoading} className="container-full-width" >
-                        <Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={onStepChanged} />
-                    </Spin>
-                </>
-            )}
-            <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
+                {!inscriptionSuccess && (
+                    <>
+                        <Spin spinning={isLoading} className="container-full-width" >
+                            <Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={onStepChanged} />
+                        </Spin>
+                    </>
+                )}
+                <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
+            </Spin>
         </Form >
     );
 
