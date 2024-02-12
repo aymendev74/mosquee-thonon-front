@@ -1,9 +1,9 @@
 import { Button, Col, Collapse, DatePicker, Divider, Form, FormInstance, Input, Radio, Row, Select } from "antd";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { SignatureDto, StatutInscription } from "../../services/inscription";
 import { Eleve } from "../../services/eleve";
 import moment from "moment";
-import { getLibelleNiveauScolaire, getNiveauOptions } from "../common/commoninputs";
+import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions } from "../common/commoninputs";
 import { UserAddOutlined } from "@ant-design/icons";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
@@ -12,6 +12,7 @@ import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 
 export type EleveProps = {
     isReadOnly: boolean;
+    isAdmin: boolean;
     eleves: Eleve[];
     setEleves: React.Dispatch<React.SetStateAction<Eleve[]>>;
     form: FormInstance;
@@ -19,7 +20,7 @@ export type EleveProps = {
     onNextStep: React.MouseEventHandler<HTMLElement>;
 }
 
-export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setEleves, form, onPreviousStep, onNextStep }) => {
+export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, eleves, setEleves, form, onPreviousStep, onNextStep }) => {
     const [editingIndex, setEditingIndex] = useState<number | null>();
 
     const { Panel } = Collapse;
@@ -65,6 +66,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
         form.setFieldValue("prenomEleve", undefined);
         form.setFieldValue("dateNaissanceEleve", undefined);
         form.setFieldValue("niveauScolaire", undefined);
+        form.setFieldValue("niveauInterne", undefined);
     }
 
     const ajouterEleve = () => {
@@ -72,7 +74,8 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
         const prenom = form.getFieldValue("prenomEleve");
         const dateNaissance = form.getFieldValue("dateNaissanceEleve");
         const niveau = form.getFieldValue("niveauScolaire");
-        let newEleve: Eleve = { nom, prenom, dateNaissance, niveau };
+        const niveauInterne = form.getFieldValue("niveauInterne");
+        let newEleve: Eleve = { nom, prenom, dateNaissance, niveau, niveauInterne };
         if (eleves[editingIndex!] && eleves[editingIndex!].signature) {
             newEleve = { ...newEleve, signature: eleves[editingIndex!].signature }
         }
@@ -92,8 +95,14 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
         setEditingIndex(null);
     };
 
+    useEffect(() => {
+        if (!isReadOnly) {
+            setEditingIndex(0);
+        }
+    }, []);
+
     return (<>
-        {!isReadOnly && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
+        {!isReadOnly && editingIndex == null && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
         {editingIndex != null && (<>
             <Row gutter={[16, 32]}>
                 <Col span={12}>
@@ -108,13 +117,22 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, eleves, setE
                     <DatePickerFormItem label="Date de naissance" name="dateNaissanceEleve" rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
                         placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                 </Col>
+                {isAdmin ? (<Col span={12}>
+                    <SelectFormItem label="Niveau (interne)" name="niveauInterne"
+                        rules={[{ required: true, message: "Veuillez saisir le niveau interne" }]} disabled={isReadOnly} options={getNiveauInterneOptions()} />
+                </Col>) : (<Col span={12}>
+                    <SelectFormItem label="Niveau scolaire" name="niveauScolaire"
+                        rules={[{ required: true, message: "Veuillez saisir votre niveau scolaire" }]} disabled={isReadOnly} options={getNiveauOptions()} />
+                </Col>)}
+            </Row>
+            {isAdmin && (<Row gutter={[16, 32]}>
                 <Col span={12}>
                     <SelectFormItem label="Niveau scolaire" name="niveauScolaire"
                         rules={[{ required: true, message: "Veuillez saisir votre niveau scolaire" }]} disabled={isReadOnly} options={getNiveauOptions()} />
                 </Col>
-            </Row>
+            </Row>)}
             <div className="centered-content pad-10">
-                <Button onClick={() => setEditingIndex(null)}>Annuler</Button>
+                <Button onClick={() => { setEditingIndex(null); resetEmptyForm(); }}>Annuler</Button>
 
                 <Button className="m-left-10" onClick={ajouterEleve} type="primary">Enregistrer</Button>
 

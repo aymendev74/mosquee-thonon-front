@@ -80,7 +80,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         {
             key: "2",
             label: <><UserOutlined />Elèves</>,
-            children: <Eleves isReadOnly={isReadOnly} form={form} eleves={eleves} setEleves={setEleves} onPreviousStep={onPreviousStep}
+            children: <Eleves isReadOnly={isReadOnly} isAdmin={isAdmin} form={form} eleves={eleves} setEleves={setEleves} onPreviousStep={onPreviousStep}
                 onNextStep={onNextStep} />,
         },
         {
@@ -96,7 +96,10 @@ export const CoursArabesForm: FunctionComponent = () => {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
         }*/
-
+        console.log(inscription.responsableLegal);
+        if (inscription.responsableLegal.adherent == undefined) {
+            inscription.responsableLegal.adherent = false;
+        }
         if (inscription.dateInscription) {
             inscription.dateInscription = moment(inscription.dateInscription).format(APPLICATION_DATE_FORMAT);
         }
@@ -171,6 +174,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         >
             <Spin spinning={isLoading} size="large" tip="Enregistrement de votre inscription...">
                 <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
+                <InputFormItem name="noInscription" type="hidden" formStyle={{ display: "none" }} />
                 <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
                 <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
                 {inscriptionSuccess && (<Result

@@ -12,7 +12,7 @@ import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions"
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
 import moment from "moment";
-import { getNiveauOptions } from "../common/commoninputs";
+import { getNiveauInterneOptions, getNiveauOptions } from "../common/commoninputs";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
@@ -62,7 +62,11 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const onConfirmSuppression = () => {
         setModaleConfirmSuppressionOpen(false);
-        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.idInscription) });
+        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: getSelectedInscriptionDistinctIds() });
+    }
+
+    const getSelectedInscriptionDistinctIds = () => {
+        return Array.from(new Set(selectedInscriptions.map(inscription => inscription.idInscription)));
     }
 
     const DropdownMenu = () => {
@@ -74,7 +78,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 }
                 navigate("/cours", { state: { isReadOnly: readOnly, id: selectedInscriptions[0].idInscription, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                setApiCallDefinition({ method: "POST", url: VALIDATION_INSCRIPTION_ENDPOINT, data: selectedInscriptions.map(inscription => inscription.idInscription) });
+                setApiCallDefinition({ method: "POST", url: VALIDATION_INSCRIPTION_ENDPOINT, data: getSelectedInscriptionDistinctIds() });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -101,14 +105,17 @@ export const AdminCoursArabes: FunctionComponent = () => {
         const prenom = form.getFieldValue("prenom");
         const telephone = form.getFieldValue("telephone");
         const statut = form.getFieldValue("statut");
+        const noInscription = form.getFieldValue("noInscription");
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
             dateInscription = dateInscription.format(APPLICATION_DATE_FORMAT);
         }
         const niveaux = form.getFieldValue("niveau");
+        const niveauxInternes = form.getFieldValue("niveauInterne");
         const searchCriteria = {
             nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null,
-            statut: statut ?? null, dateInscription: dateInscription ?? null, niveaux: niveaux ?? null
+            statut: statut ?? null, dateInscription: dateInscription ?? null, niveaux: niveaux ?? null,
+            niveauxInternes: niveauxInternes ?? null, noInscription: noInscription ?? null
         }
         setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
     }
@@ -129,7 +136,17 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <SelectFormItem name="niveau" label="Niveau scolaire" mode="tags" options={getNiveauOptions()} />
+                            <InputFormItem name="noInscription" label="N° inscription" placeholder="N° inscription" />
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 32]}>
+                        <Col span={24}>
+                            <SelectFormItem name="niveau" label="Niveau scolaire (publique)" mode="tags" options={getNiveauOptions()} />
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 32]}>
+                        <Col span={24}>
+                            <SelectFormItem name="niveauInterne" label="Niveau interne" mode="tags" options={getNiveauInterneOptions()} />
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
@@ -233,7 +250,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 </div>
                 <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
                 <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
-                    nbInscriptions={selectedInscriptions.length} onConfirm={onConfirmSuppression} />
+                    nbInscriptions={getSelectedInscriptionDistinctIds().length} onConfirm={onConfirmSuppression} />
             </Spin>
         </Form>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>

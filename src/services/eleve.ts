@@ -1,5 +1,5 @@
 import { Moment } from "moment";
-import { NiveauScolaire, SignatureDto } from "./inscription";
+import { NiveauInterne, NiveauScolaire, SignatureDto } from "./inscription";
 
 export type Eleve = {
     id?: number;
@@ -7,6 +7,7 @@ export type Eleve = {
     prenom: string;
     dateNaissance: Moment | string;
     niveau: NiveauScolaire;
+    niveauInterne?: NiveauInterne;
     idTarif?: number;
     signature?: SignatureDto;
 }

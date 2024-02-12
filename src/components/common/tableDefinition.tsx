@@ -8,6 +8,11 @@ import { PdfAdhesion } from "../documents/PdfAdhesion";
 
 export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
     {
+        title: 'N° inscription',
+        dataIndex: 'noInscription',
+        key: 'noInscription',
+    },
+    {
         title: 'Nom',
         dataIndex: 'nom',
         key: 'nom',

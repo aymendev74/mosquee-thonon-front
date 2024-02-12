@@ -1,5 +1,5 @@
 import { DefaultOptionType } from "antd/es/select"
-import { NiveauScolaire } from "../../services/inscription"
+import { NiveauInterne, NiveauScolaire } from "../../services/inscription"
 import { NamePath } from "antd/es/form/interface";
 import { Rule } from "antd/es/form";
 
@@ -9,6 +9,11 @@ export const getNiveauOptions = (): DefaultOptionType[] => {
     { value: NiveauScolaire.COLLEGE_5EME, label: "5ème" }, { value: NiveauScolaire.COLLEGE_4EME, label: "4ème" }, { value: NiveauScolaire.COLLEGE_3EME, label: "3ème" },
     { value: NiveauScolaire.LYCEE_2ND, label: "2nd" }, { value: NiveauScolaire.LYCEE_1ERE, label: "1ère" }, { value: NiveauScolaire.LYCEE_TERM, label: "Terminal" }]
 };
+
+export const getNiveauInterneOptions = (): DefaultOptionType[] => {
+    return [{ value: NiveauInterne.CONFIRME, label: "Confirmé" }, { value: NiveauInterne.PREPARATOIRE, label: "Préparatoire" }, { value: NiveauInterne.SENIOR, label: "Sénior" },
+    { value: NiveauInterne.SUPERIEUR, label: "Supérieur" }]
+}
 
 export const getLibelleNiveauScolaire = (niveau: NiveauScolaire) => {
     if (niveau === NiveauScolaire.CP) {

@@ -54,3 +54,10 @@ export enum NiveauScolaire {
     LYCEE_1ERE = "LYCEE_1ERE",
     LYCEE_TERM = "LYCEE_TERM",
 }
+
+export enum NiveauInterne {
+    PREPARATOIRE = "PREPARATOIRE",
+    CONFIRME = "CONFIRME",
+    SUPERIEUR = "SUPERIEUR",
+    SENIOR = "SENIOR",
+}
