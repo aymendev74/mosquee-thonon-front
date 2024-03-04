@@ -1,10 +1,11 @@
 import { Moment } from "moment";
 import { SignatureDto } from "./inscription";
+import { Dayjs } from "dayjs";
 
 export type PeriodeDto = {
     id: number;
-    dateDebut: Moment | string;
-    dateFin: Moment | string;
+    dateDebut: Dayjs | string;
+    dateFin: Dayjs | string;
     nbMaxInscription: number;
     application: string;
     signature: SignatureDto;

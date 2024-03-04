@@ -1,6 +1,7 @@
 import { Moment } from "moment";
 import { ResponsableLegal } from "./ResponsableLegal";
 import { Eleve } from "./eleve";
+import { Dayjs } from "dayjs";
 
 export enum StatutInscription {
     PROVISOIRE = "PROVISOIRE",
@@ -18,7 +19,7 @@ export type SignatureDto = {
 export type Inscription = {
     id: number;
     statut: StatutInscription | boolean;
-    dateInscription: Moment | string;
+    dateInscription: Dayjs | string;
     responsableLegal: ResponsableLegal;
     eleves: Eleve[];
     signature?: SignatureDto;

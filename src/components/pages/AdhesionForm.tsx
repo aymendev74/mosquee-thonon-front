@@ -15,6 +15,7 @@ import { SelectFormItem } from "../common/SelectFormItem";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
+import dayjs from "dayjs";
 
 
 export const AdhesionForm: FunctionComponent = () => {
@@ -37,9 +38,9 @@ export const AdhesionForm: FunctionComponent = () => {
             return;
         }*/
         if (adhesion.dateInscription) {
-            adhesion.dateInscription = (adhesion.dateInscription as Moment).format(APPLICATION_DATE_FORMAT);
+            adhesion.dateInscription = dayjs(adhesion.dateInscription).format(APPLICATION_DATE_FORMAT);
         }
-        adhesion.dateNaissance = (adhesion.dateNaissance as Moment).format(APPLICATION_DATE_FORMAT);
+        adhesion.dateNaissance = dayjs(adhesion.dateNaissance).format(APPLICATION_DATE_FORMAT);
         setApiCallDefinition({ method: "POST", url: ADHESION_ENDPOINT, data: adhesion });
     };
 
@@ -74,8 +75,8 @@ export const AdhesionForm: FunctionComponent = () => {
         }
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
             const adhesion = result as Adhesion;
-            adhesion.dateInscription = moment(adhesion.dateInscription, APPLICATION_DATE_FORMAT);
-            adhesion.dateNaissance = moment(adhesion.dateNaissance, APPLICATION_DATE_FORMAT);
+            adhesion.dateInscription = dayjs(adhesion.dateInscription, APPLICATION_DATE_FORMAT);
+            adhesion.dateNaissance = dayjs(adhesion.dateNaissance, APPLICATION_DATE_FORMAT);
             if (adhesion.montantAutre) {
                 setAutreMontantVisible(true);
             }
@@ -105,7 +106,6 @@ export const AdhesionForm: FunctionComponent = () => {
                 name="adhesion"
                 onFinish={onFinish}
                 autoComplete="off"
-                className="container-form"
                 form={form}
             >
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">

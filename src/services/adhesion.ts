@@ -1,12 +1,13 @@
 import { Moment } from "moment";
 import { SignatureDto, StatutInscription } from "./inscription";
+import { Dayjs } from "dayjs";
 
 export type Adhesion = {
     id: number;
     titre: string;
     nom: string;
     prenom: string;
-    dateNaissance: Moment | string;
+    dateNaissance: Dayjs | string;
     idTarif: number;
     telephone: string;
     mobile: string;
@@ -17,7 +18,7 @@ export type Adhesion = {
     montantAutre: number;
     montant: number;
     statut: StatutInscription | boolean;
-    dateInscription: Moment | string;
+    dateInscription: Dayjs | string;
     noMembre: number;
     signature: SignatureDto;
 }
@@ -29,7 +30,7 @@ export type AdhesionLight = {
     ville: string;
     montant: number;
     statut: StatutInscription | boolean;
-    dateInscription: Moment | string;
+    dateInscription: Dayjs | string;
 }
 
 export type AdhesionLightForExport = Omit<AdhesionLight, "id">;

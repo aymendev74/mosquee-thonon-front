@@ -9,6 +9,7 @@ import { InputFormItem } from "../common/InputFormItem";
 import _ from "lodash";
 import { PERIODES_ENDPOINT, PERIODES_VALIDATION_ENDPOINT } from "../../services/services";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
+import dayjs from "dayjs";
 
 
 export type ModalPeriodeProps = {
@@ -60,8 +61,8 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
 
     useEffect(() => {
         if (periode) {
-            periode.dateDebut = moment(periode.dateDebut, APPLICATION_DATE_FORMAT);
-            periode.dateFin = moment(periode.dateFin, APPLICATION_DATE_FORMAT);
+            periode.dateDebut = dayjs(periode.dateDebut, APPLICATION_DATE_FORMAT);
+            periode.dateFin = dayjs(periode.dateFin, APPLICATION_DATE_FORMAT);
             form.setFieldsValue(periode);
         }
     }, [periode]);

@@ -54,7 +54,7 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
         setStatus(undefined);
     }
 
-    return { setApiCallDefinition, result, isLoading, error, errorResult, apiCallDefinition, status, resetApi };
+    return { setApiCallDefinition, result, isLoading, errorResult, apiCallDefinition, status, resetApi };
 };
 
 export default useApi;

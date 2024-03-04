@@ -16,6 +16,7 @@ import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-desig
 import { APPLICATION_DATE_FORMAT, convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 import { HttpStatusCode } from "axios";
+import dayjs from "dayjs";
 
 export const CoursArabesForm: FunctionComponent = () => {
 
@@ -101,10 +102,10 @@ export const CoursArabesForm: FunctionComponent = () => {
             inscription.responsableLegal.adherent = false;
         }
         if (inscription.dateInscription) {
-            inscription.dateInscription = moment(inscription.dateInscription).format(APPLICATION_DATE_FORMAT);
+            inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_FORMAT);
         }
         inscription.eleves = eleves;
-        inscription.eleves.forEach(eleve => eleve.dateNaissance = (eleve.dateNaissance as Moment).format(APPLICATION_DATE_FORMAT));
+        inscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT));
         convertOuiNonToBoolean(inscription.responsableLegal);
         setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
     };
@@ -128,8 +129,8 @@ export const CoursArabesForm: FunctionComponent = () => {
         if (result && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
             console.log(loadedInscription);
-            loadedInscription.dateInscription = moment(loadedInscription.dateInscription, APPLICATION_DATE_FORMAT);
-            loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = moment(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
+            loadedInscription.dateInscription = dayjs(loadedInscription.dateInscription, APPLICATION_DATE_FORMAT);
+            loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
             convertBooleanToOuiNon(loadedInscription.responsableLegal);
             form.setFieldsValue(loadedInscription);
             setEleves(loadedInscription.eleves);
