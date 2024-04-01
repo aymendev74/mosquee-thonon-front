@@ -107,6 +107,7 @@ export const AdhesionForm: FunctionComponent = () => {
                 onFinish={onFinish}
                 autoComplete="off"
                 form={form}
+                className="container-form"
             >
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
                     <InputFormItem name="id" formStyle={{ display: "none" }} type="hidden" />
