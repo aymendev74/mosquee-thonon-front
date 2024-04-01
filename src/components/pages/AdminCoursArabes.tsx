@@ -12,7 +12,7 @@ import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions"
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
 import moment from "moment";
-import { getNiveauInterneOptions, getNiveauOptions } from "../common/commoninputs";
+import { getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../common/commoninputs";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
@@ -163,11 +163,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <SelectFormItem name="statut" label="Statut" placeholder="Statut" options={[
-                                { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                                { value: StatutInscription.VALIDEE, label: "Validée" },
-                                { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" }
-                            ]} allowClear />
+                            <SelectFormItem name="statut" label="Statut" placeholder="Statut" options={getStatutInscriptionOptions()} allowClear />
                         </Col>
                     </Row>
                     <div className="centered-content">

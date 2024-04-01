@@ -13,6 +13,8 @@ export const TARIFS_ENDPOINT = "tarifs";
 export const TARIFS_ADMIN_ENDPOINT = "tarifs-admin";
 export const PERIODES_ENDPOINT = "periodes";
 export const PERIODES_VALIDATION_ENDPOINT = "periodes/validation";
+export const PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT = "params/reinscription-enabled";
+
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

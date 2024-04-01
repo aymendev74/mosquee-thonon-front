@@ -4,6 +4,8 @@ import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { StatutInscription } from "../../services/inscription";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
+import { SelectFormItem } from "../common/SelectFormItem";
+import { getStatutInscriptionOptions } from "../common/commoninputs";
 
 export type TarifProps = {
     eleves: Eleve[];
@@ -40,9 +42,7 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                 {isAdmin && (<><Divider orientation="left">Statut</Divider>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <RadioGroupFormItem label="Statut inscription" name="statut" radioOptions={[{ value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                            { value: StatutInscription.VALIDEE, label: "Validée" }, { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" }]}
-                                disabled={isReadOnly} />
+                            <SelectFormItem name="statut" label="Statut inscription" options={getStatutInscriptionOptions()} disabled={isReadOnly} />
                         </Col>
                     </Row>
                 </>)}

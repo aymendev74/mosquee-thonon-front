@@ -6,14 +6,14 @@ export type RadioValue = {
     label: string;
 };
 
-export type RadioGroupFormItem = RadioGroupProps & FormItemProps & {
+export type RadioGroupFormItemProps = RadioGroupProps & FormItemProps & {
     radioOptions: RadioValue[];
 };
 
-export const RadioGroupFormItem: FunctionComponent<RadioGroupFormItem> = ({ name, label, radioOptions, ...rest }) => {
+export const RadioGroupFormItem: FunctionComponent<RadioGroupFormItemProps> = ({ name, label, radioOptions, ...rest }) => {
 
     const createRadio = (option: RadioValue) => {
-        return <Radio value={option.value}>{option.label}</Radio>;
+        return <Radio key={option.value} value={option.value}>{option.label}</Radio>;
     }
 
     return (

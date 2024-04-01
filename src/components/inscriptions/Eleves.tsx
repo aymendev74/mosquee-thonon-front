@@ -61,6 +61,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
         form.setFieldValue("prenomEleve", eleves[index].prenom);
         form.setFieldValue("dateNaissanceEleve", eleves[index].dateNaissance);
         form.setFieldValue("niveauScolaire", eleves[index].niveau);
+        form.setFieldValue("niveauInterne", eleves[index].niveauInterne);
     };
 
     const resetEmptyForm = () => {

@@ -1,8 +1,7 @@
 import { Badge, Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT } from "../../services/services";
-import { Inscription, SignatureDto, StatutInscription } from "../../services/inscription";
-import moment, { Moment } from "moment";
+import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
+import { Inscription, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -28,7 +27,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     const [consentementOk, setConsentementOk] = useState(false);
     const [eleves, setEleves] = useState<Eleve[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
-    const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
+    const [inscriptionFinished, setInscriptionFinished] = useState<Inscription>();
     const [activeStep, setActiveStep] = useState<string>("1");
 
     const id = location.state ? location.state.id : undefined;
@@ -97,7 +96,6 @@ export const CoursArabesForm: FunctionComponent = () => {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
         }*/
-        console.log(inscription.responsableLegal);
         if (inscription.responsableLegal.adherent == undefined) {
             inscription.responsableLegal.adherent = false;
         }
@@ -119,14 +117,14 @@ export const CoursArabesForm: FunctionComponent = () => {
                 navigate("/adminCours");
             } else {
                 notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
-                setInscriptionSuccess(true);
+                setInscriptionFinished(result);
                 resetForm();
             }
             resetApi();
         }
 
         // Load de l'inscription
-        if (result && apiCallDefinition?.method === "GET") {
+        if (result && apiCallDefinition?.url?.startsWith(INSCRIPTION_ENDPOINT) && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
             console.log(loadedInscription);
             loadedInscription.dateInscription = dayjs(loadedInscription.dateInscription, APPLICATION_DATE_FORMAT);
@@ -147,6 +145,13 @@ export const CoursArabesForm: FunctionComponent = () => {
             }
             resetApi();
         }
+
+        // Check si fonctionnalité de réinscription prioritaire activée
+        if (apiCallDefinition?.url === PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT && result !== undefined) {
+            // setIsOnlyReinscriptionEnabled(result as boolean);
+            // A voir si cet appel sera nécessaire côté front, à priori pas...
+            resetApi();
+        }
     }, [result]);
 
     const onFinishFailed = () => {
@@ -154,15 +159,66 @@ export const CoursArabesForm: FunctionComponent = () => {
     }
 
     useEffect(() => {
+        // En mode admin on load l'inscription demandée
         if (id) {
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + "/" + id });
+        } else { // Sinon on va simplement vérifier si les réinscriptions prioritaires sont activées
+            setApiCallDefinition({ method: "GET", url: PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT })
         }
+
     }, []);
 
     useEffect(() => {
         calculTarif();
     }, [eleves.length]);
 
+    const getResult = () => {
+        if (inscriptionFinished?.statut === StatutInscription.REFUSE) {
+            return (<Result
+                status="error"
+                title="Inscription refusée"
+                subTitle="Votre inscription a été refusée car seules les réinscriptions sont actuellement autorisées. Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter l'AMC par e-mail : amcthonon@gmail.com"
+                extra={[
+                    <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
+                        Nouvelle inscription
+                    </Button>]}
+            />);
+        } else if (inscriptionFinished?.statut === StatutInscription.LISTE_ATTENTE) {
+            return (<Result
+                status="warning"
+                title="Inscription en liste d'attente"
+                subTitle="Votre inscription a été enregistrée, cependant vous avez été placée sur liste d'attente."
+                extra={[
+                    <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
+                        Nouvelle inscription
+                    </Button>]}
+            />);
+        } else {
+            return (<Result
+                status="success"
+                title="Inscription enregistré"
+                subTitle="Votre inscription a bien été enregistrée"
+                extra={[
+                    <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
+                        Nouvelle inscription
+                    </Button>]}
+            />);
+        }
+    }
+
+    const getFormContent = () => {
+        return inscriptionFinished ? getResult() : (<Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={onStepChanged} />);
+    }
+
+    const getLoadingTip = () => {
+        if (apiCallDefinition?.url === PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT) {
+            return "Initialisation de l'application...";
+        } else if (apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENDPOINT) {
+            return "Enregistrement de votre inscription en cours...";
+        } else {
+            return "Chargement...";
+        }
+    }
 
     return (
         <Form
@@ -173,29 +229,12 @@ export const CoursArabesForm: FunctionComponent = () => {
             className="container-form"
             form={form}
         >
-            <Spin spinning={isLoading} size="large" tip="Enregistrement de votre inscription...">
+            <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
                 <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
                 <InputFormItem name="noInscription" type="hidden" formStyle={{ display: "none" }} />
                 <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
                 <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
-                {inscriptionSuccess && (<Result
-                    status="success"
-                    title="Inscription enregistré"
-                    subTitle="Votre inscription a bien été enregistrée. Vous serez recontacté rapidement."
-                    extra={[
-                        <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
-                            Nouvelle inscription
-                        </Button>]}
-                />)
-                }
-
-                {!inscriptionSuccess && (
-                    <>
-                        <Spin spinning={isLoading} className="container-full-width" >
-                            <Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={onStepChanged} />
-                        </Spin>
-                    </>
-                )}
+                {getFormContent()}
                 <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
             </Spin>
         </Form >

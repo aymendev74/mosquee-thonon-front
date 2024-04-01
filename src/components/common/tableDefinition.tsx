@@ -1,7 +1,7 @@
 import { ColumnsType } from "antd/es/table";
 import { InscriptionLight, StatutInscription } from "../../services/inscription";
 import { Tooltip } from "antd";
-import { CheckCircleTwoTone, FilePdfTwoTone, PauseCircleTwoTone, WarningOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, WarningOutlined } from "@ant-design/icons";
 import { AdhesionLight } from "../../services/adhesion";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { PdfAdhesion } from "../documents/PdfAdhesion";
@@ -44,7 +44,8 @@ export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
         render: (value, record, index) => {
             if (value === StatutInscription.VALIDEE) return (<Tooltip title="Inscription validée" color="green"><CheckCircleTwoTone /></Tooltip>);
             else if (value === StatutInscription.PROVISOIRE) return (<Tooltip title="Inscription à valider" color="orange"><PauseCircleTwoTone /></Tooltip>);
-            else return (<Tooltip title="Liste d'attente" color="red"><WarningOutlined /></Tooltip>);
+            else if (value === StatutInscription.LISTE_ATTENTE) return (<Tooltip title="Liste d'attente" color="red"><WarningOutlined /></Tooltip>);
+            else return (<Tooltip title="Refusée" color="red"><StopOutlined /></Tooltip>);
         }
     },
     {

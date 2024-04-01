@@ -1,7 +1,5 @@
 import { DefaultOptionType } from "antd/es/select"
-import { NiveauInterne, NiveauScolaire } from "../../services/inscription"
-import { NamePath } from "antd/es/form/interface";
-import { Rule } from "antd/es/form";
+import { NiveauInterne, NiveauScolaire, StatutInscription } from "../../services/inscription"
 
 export const getNiveauOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauScolaire.CP, label: "CP" }, { value: NiveauScolaire.CE1, label: "CE1" }, { value: NiveauScolaire.CE2, label: "CE2" },
@@ -11,8 +9,19 @@ export const getNiveauOptions = (): DefaultOptionType[] => {
 };
 
 export const getNiveauInterneOptions = (): DefaultOptionType[] => {
-    return [{ value: NiveauInterne.CONFIRME, label: "Confirmé" }, { value: NiveauInterne.PREPARATOIRE, label: "Préparatoire" }, { value: NiveauInterne.SENIOR, label: "Sénior" },
-    { value: NiveauInterne.SUPERIEUR, label: "Supérieur" }]
+    return [{ value: NiveauInterne.P1, label: "P1" }, { value: NiveauInterne.P2, label: "P2" }, { value: NiveauInterne.N1_1, label: "N1-1" },
+    { value: NiveauInterne.N1_2, label: "N1-2" }, { value: NiveauInterne.N2_1, label: "N2-1" }, { value: NiveauInterne.N2_2, label: "N2-2" },
+    { value: NiveauInterne.N3_1, label: "N3-1" }, { value: NiveauInterne.N3_2, label: "N3-2" }, { value: NiveauInterne.N4_1, label: "N4-1" },
+    { value: NiveauInterne.N4_2, label: "N4-2" }]
+}
+
+export const getStatutInscriptionOptions = () => {
+    return [
+        { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
+        { value: StatutInscription.VALIDEE, label: "Validée" },
+        { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" },
+        { value: StatutInscription.REFUSE, label: "Refusée" }
+    ];
 }
 
 export const getLibelleNiveauScolaire = (niveau: NiveauScolaire) => {
