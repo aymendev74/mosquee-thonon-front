@@ -22,6 +22,12 @@
   justify-content: center;
 }
 
+.centered-content-v {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 /* Styles.css */
 /* Par défaut, le conteneur utilise 50% de la largeur de l'écran */
 .container-form {
@@ -112,6 +118,10 @@
   margin-left: 10px;
 }
 
+.m-right-10 {
+  margin-right: 10px;
+}
+
 .m-bottom-15 {
   margin-bottom: 15px;
 }
@@ -145,4 +155,9 @@
 
 .action-icon {
   margin-right: 8px;
+}
+
+.result-message {
+  font-weight: bolder;
+  font-size: large;
 }

@@ -177,7 +177,7 @@ export const CoursArabesForm: FunctionComponent = () => {
             return (<Result
                 status="error"
                 title="Inscription refusée"
-                subTitle="Votre inscription a été refusée car seules les réinscriptions sont actuellement autorisées. Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter l'AMC par e-mail : amcthonon@gmail.com"
+                subTitle={(<div className="result-message">Votre inscription a été refusée car seules les réinscriptions sont actuellement autorisées. Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter l'AMC par e-mail : amcthonon@gmail.com</div>)}
                 extra={[
                     <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
                         Nouvelle inscription
@@ -187,7 +187,7 @@ export const CoursArabesForm: FunctionComponent = () => {
             return (<Result
                 status="warning"
                 title="Inscription en liste d'attente"
-                subTitle="Votre inscription a été enregistrée, cependant vous avez été placée sur liste d'attente."
+                subTitle={(<div className="result-message">Votre inscription a été enregistrée, cependant vous avez été placée sur liste d'attente.</div>)}
                 extra={[
                     <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
                         Nouvelle inscription

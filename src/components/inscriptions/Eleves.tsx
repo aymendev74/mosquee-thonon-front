@@ -8,7 +8,7 @@ import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 export type EleveProps = {
     isReadOnly: boolean;
@@ -76,7 +76,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     const validateEleve = () => {
         const nom = form.getFieldValue("nomEleve");
         const prenom = form.getFieldValue("prenomEleve");
-        const dateNaissance = form.getFieldValue("dateNaissanceEleve");
+        const dateNaissance: Dayjs = form.getFieldValue("dateNaissanceEleve");
         const niveau = form.getFieldValue("niveauScolaire");
         const niveauInterne = form.getFieldValue("niveauInterne");
         if (!nom || !prenom || !dateNaissance || !niveau) {
@@ -94,6 +94,13 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
             }
             return undefined;
         }
+
+        const premierOctobreAnneCouranteMoins6Ans = dayjs().set("month", 9).set("date", 1).set("year", dayjs().year() - 6);
+        if (premierOctobreAnneCouranteMoins6Ans.isBefore(dateNaissance)) {
+            setError("Les élèves doivent être agés de 6 ans au minimum au 1er octobre");
+            return undefined;
+        }
+
         return { nom, prenom, dateNaissance, niveau, niveauInterne };
     }
 
@@ -169,7 +176,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
 
         <div className="container-nav-bi">
             <Button onClick={onPreviousStep}>Précédent</Button>
-            <Button onClick={onNextStep}>Suivant</Button>
+            <Button onClick={onNextStep} type="primary">Suivant</Button>
         </div>
     </>);
 

@@ -13,6 +13,7 @@ import { ChangePassword } from './components/pages/ChangePasswordForm';
 import { AdhesionForm } from './components/pages/AdhesionForm';
 import { AdminAdhesion } from './components/pages/AdminAdhesion';
 import { AdminTarifs } from './components/pages/AdminTarifs';
+import { FaireUnDon } from './components/pages/FaireUnDon';
 
 const { Header, Content, Footer } = Layout;
 
@@ -80,6 +81,7 @@ function App() {
             <Route path="/adminAdhesion" element={<AdminAdhesion />} />
             <Route path="/adminTarif" element={<AdminTarifs />} />
             <Route path="/changePassword" element={<ChangePassword />} />
+            <Route path="/don" element={<FaireUnDon />} />
           </Routes>
         </div>
       </Content>

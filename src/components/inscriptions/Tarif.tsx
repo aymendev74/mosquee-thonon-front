@@ -1,9 +1,7 @@
 import { Button, Col, Divider, Form, FormInstance, Radio, Row } from "antd";
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent } from "react";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
-import { StatutInscription } from "../../services/inscription";
-import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getStatutInscriptionOptions } from "../common/commoninputs";
 

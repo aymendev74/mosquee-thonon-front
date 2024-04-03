@@ -83,8 +83,8 @@ export const columnsTableAdhesions: ColumnsType<AdhesionLight> = [
         dataIndex: 'statut',
         key: 'statut',
         render: (value, record, index) => {
-            if (value === StatutInscription.VALIDEE) return (<Tooltip title="Inscription validée" color="green"><CheckCircleTwoTone /></Tooltip>);
-            else return (<Tooltip title="Inscription à valider" color="orange"><PauseCircleTwoTone /></Tooltip>);
+            if (value === StatutInscription.VALIDEE) return (<Tooltip title="Adhésion validée" color="green"><CheckCircleTwoTone /></Tooltip>);
+            else return (<Tooltip title="Adhésion à valider" color="orange"><PauseCircleTwoTone /></Tooltip>);
         }
     },
     {

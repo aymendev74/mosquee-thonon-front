@@ -52,11 +52,15 @@ export const AdhesionForm: FunctionComponent = () => {
         setAutreMontantVisible(option.label === "Autre");
     }
 
+    const formatMontant = (montant: number) => {
+        return montant + " €";
+    }
+
     useEffect(() => {
         if (resultTarifs) {
             const resultAsTarifs = resultTarifs as TarifDto[];
             const tarifOptions: DefaultOptionType[] = [];
-            resultAsTarifs.forEach(tarif => tarifOptions.push({ value: tarif.id, label: tarif.type === "FIXE" ? tarif.montant : "Autre" }));
+            resultAsTarifs.forEach(tarif => tarifOptions.push({ value: tarif.id, label: tarif.type === "FIXE" ? formatMontant(tarif.montant) : "Autre" }));
             setVersementMensuelOptions(tarifOptions);
         }
     }, [resultTarifs]);
@@ -95,7 +99,7 @@ export const AdhesionForm: FunctionComponent = () => {
         <Result
             status="success"
             title="Adhésion enregistrée"
-            subTitle="Votre adhésion a bien été enregistrée. Vous serez recontacté rapidement."
+            subTitle={(<div className="result-message">Votre adhésion a bien été enregistrée. Vous serez recontacté rapidement.</div>)}
             extra={[
                 <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
                     Nouvelle adhésion
@@ -190,13 +194,13 @@ export const AdhesionForm: FunctionComponent = () => {
                             <Divider orientation="left">Versement mensuel</Divider>
                         </Col>
                     </Row>
-                    <Row gutter={[0, 32]}>
+                    <Row gutter={[16, 32]}>
                         <Col span={12}>
                             <SelectFormItem name="idTarif" label="Je m'engage à verser mensuellement" rules={[{ required: true, message: "Veuillez saisir votre versement mensuel" }]}
                                 disabled={isReadOnly} options={versementMensuelOptions} onChange={onMontantChanged} />
                         </Col>
                         {autreMontantVisible && <Col span={12}>
-                            <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly}
+                            <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly} addonAfter="€"
                                 rules={[{ required: true, message: "Veuillez saisir le montant" }]} />
                         </Col>
                         }

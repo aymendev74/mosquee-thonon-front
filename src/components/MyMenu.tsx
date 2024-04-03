@@ -11,16 +11,8 @@ export const MyMenu: FunctionComponent = () => {
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
             navigate("/");
-        } else if (menuInfo.key === "cours") {
-            navigate("/cours");
-        } else if (menuInfo.key === "adhesion") {
-            navigate("/adhesion");
-        } else if (menuInfo.key === "adminCours") {
-            navigate("/adminCours");
-        } else if (menuInfo.key === "adminAdhesion") {
-            navigate("/adminAdhesion");
-        } else if (menuInfo.key === "adminTarif") {
-            navigate("/adminTarif");
+        } else {
+            navigate("/" + menuInfo.key);
         }
     }
 
@@ -35,6 +27,11 @@ export const MyMenu: FunctionComponent = () => {
             icon: <UserOutlined />,
             label: "Inscription",
             children: [{ key: "cours", label: "Cours arabes", icon: <UserOutlined /> }, { key: "adhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
+        },
+        {
+            key: "don",
+            icon: <DollarCircleOutlined />,
+            label: "Faire un don",
         }];
 
         if (loggedUser) {

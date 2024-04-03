@@ -125,7 +125,7 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
             </Col>
         </Row>
         <div className="container-nav-mono">
-            <Button onClick={onNextStep}>Suivant</Button>
+            <Button onClick={onNextStep} type="primary">Suivant</Button>
         </div>
     </>);
 
