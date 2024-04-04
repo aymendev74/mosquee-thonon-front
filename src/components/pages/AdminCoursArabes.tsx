@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { Inscription, InscriptionForExport, InscriptionLight, NiveauScolaire, StatutInscription } from "../../services/inscription";
-import { INSCRIPTION_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../services/services";
+import { INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
@@ -17,6 +17,9 @@ import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
+import { DefaultOptionType } from "antd/es/select";
+import { PeriodeInfoDto } from "../../services/periode";
+import { formatPeriodeLibelle, getPeriodeOptions } from "../common/CommonComponents";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -29,6 +32,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
     const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
+    const [periodesOptions, setPeriodesOptions] = useState<DefaultOptionType[]>();
 
     const CONSULTER_MENU_KEY = "1";
     const MODIFIER_MENU_KEY = "2";
@@ -106,6 +110,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         const telephone = form.getFieldValue("telephone");
         const statut = form.getFieldValue("statut");
         const noInscription = form.getFieldValue("noInscription");
+        const idPeriode = form.getFieldValue("idPeriode");
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
             dateInscription = dateInscription.format(APPLICATION_DATE_FORMAT);
@@ -115,7 +120,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         const searchCriteria = {
             nom: nom ?? null, prenom: prenom ?? null, telephone: telephone ?? null,
             statut: statut ?? null, dateInscription: dateInscription ?? null, niveaux: niveaux ?? null,
-            niveauxInternes: niveauxInternes ?? null, noInscription: noInscription ?? null
+            niveauxInternes: niveauxInternes ?? null, noInscription: noInscription ?? null, idPeriode: idPeriode ?? null
         }
         setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
     }
@@ -124,6 +129,11 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return (
             <Collapse defaultActiveKey={['1']}>
                 <Panel header="Filtres de recherche" key="1">
+                    <Row gutter={[0, 32]}>
+                        <Col span={24}>
+                            <SelectFormItem name="idPeriode" label="Période" options={periodesOptions} />
+                        </Col>
+                    </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
                             <InputFormItem name="prenom" label="Prénom" placeholder="Prénom" />
@@ -141,7 +151,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[0, 32]}>
                         <Col span={24}>
-                            <SelectFormItem name="niveau" label="Niveau scolaire (publique)" mode="tags" options={getNiveauOptions()} />
+                            <SelectFormItem name="niveau" label="Niveau scolaire" mode="tags" options={getNiveauOptions()} />
                         </Col>
                     </Row>
                     <Row gutter={[0, 32]}>
@@ -178,10 +188,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     };
 
     useEffect(() => {
-        const fetchInscriptions = async () => {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
-        }
-        fetchInscriptions();
+        setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT });
     }, []);
 
     useEffect(() => {
@@ -199,6 +206,10 @@ export const AdminCoursArabes: FunctionComponent = () => {
             notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été supprimées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+        }
+        if (apiCallDefinition?.url === PERIODES_ENDPOINT && result) {
+            setPeriodesOptions(getPeriodeOptions(result as PeriodeInfoDto[]));
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
         }
     }, [result]);

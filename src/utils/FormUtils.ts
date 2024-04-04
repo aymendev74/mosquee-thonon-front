@@ -1,5 +1,6 @@
 import { ResponsableLegal } from "../services/ResponsableLegal";
 import { Inscription } from "../services/inscription";
+import { PeriodeInfoDto } from "../services/periode";
 
 export const onNumericFieldChanged = (e: any) => {
     if (!["Backspace", "Tab", "End", "Home", "ArrowLeft", "ArrowRight"].includes(e.key) && isNaN(e.key)) {

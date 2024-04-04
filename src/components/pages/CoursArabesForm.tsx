@@ -35,18 +35,11 @@ export const CoursArabesForm: FunctionComponent = () => {
     const isAdmin = location.state ? location.state.isAdmin : undefined;
 
     const calculTarif = () => {
-        let responsableLegal = form.getFieldValue("responsableLegal");
+        let adherent = form.getFieldValue(["responsableLegal", "adherent"]);
         if (eleves.length > 0) {
-            if (!responsableLegal) {
-                // Cas ou l'utilisateur arrive sur l'écran et ne saisit rien dans l'onglet responsable légal
-                responsableLegal = { adherent: false };
-            }
-            // important, ici copier l'objet car sinon on modifie directement le formulaire
-            // effet de bord => le convertOuiNonToBoolean modifie la valeur de certains champs (boolean | string) 
-            // et du coup le mapping n'est plus bon dans le formulaire
-            responsableLegal = { ...responsableLegal }
-            convertOuiNonToBoolean(responsableLegal);
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { responsableLegal, eleves } });
+            const nbEleves = eleves.length;
+            const atDate = form.getFieldValue("dateInscription");
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves, atDate } });
         } else {
             setTarifInscription(undefined);
         }

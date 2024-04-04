@@ -10,6 +10,7 @@ import { InfosTarif } from "../admin/InfosTarif";
 import { ModalPeriode } from "../modals/ModalPeriode";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { InfoTarifDto } from "../../services/tarif";
+import { formatPeriodeLibelle, getPeriodeOptions } from "../common/CommonComponents";
 
 export const AdminTarifs: FunctionComponent = () => {
 
@@ -25,12 +26,9 @@ export const AdminTarifs: FunctionComponent = () => {
     const [openPopOver, setOpenPopOver] = useState<boolean>(false);
 
     useEffect(() => {
-        const fetchPeriodes = async () => {
-            setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT });
-        }
         // On reload les périodes dès lors que la modal permettant leur modification se referme, afin récupérer les modifications
         if (!modalPeriodeOpen) {
-            fetchPeriodes();
+            setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT });
         }
     }, [modalPeriodeOpen]);
 
@@ -38,9 +36,7 @@ export const AdminTarifs: FunctionComponent = () => {
         if (apiCallDefinition?.url === PERIODES_ENDPOINT && apiCallDefinition.method === "GET" && result) {
             const resultAsPeriodeDto = result as PeriodeInfoDto[];
             setPeriodesDto(resultAsPeriodeDto);
-            const periodesOptions: DefaultOptionType[] = [];
-            resultAsPeriodeDto.forEach(periode => periodesOptions.push({ value: periode.id, label: formatPeriodeLibelle(periode) }));
-            setPeriodesOptions(periodesOptions);
+            setPeriodesOptions(getPeriodeOptions(resultAsPeriodeDto));
             resetApi();
         }
         if (apiCallDefinition?.url?.startsWith(TARIFS_ADMIN_ENDPOINT) && result) {
@@ -62,14 +58,6 @@ export const AdminTarifs: FunctionComponent = () => {
             resetApi();
         }
     }, [result]);
-
-    const formatPeriodeLibelle = (periode: PeriodeInfoDto) => {
-        let libelle: string = (periode.dateDebut as string).concat(" - ").concat(periode.dateFin as string);
-        if (periode.active) {
-            libelle = libelle.concat(" (En cours)");
-        }
-        return <Tag color="blue">{libelle}</Tag>;
-    }
 
     const onEditTarif = () => {
         setApiCallDefinition({ method: "GET", url: TARIFS_ADMIN_ENDPOINT + "/" + selectedIdPeriode });
@@ -144,7 +132,7 @@ export const AdminTarifs: FunctionComponent = () => {
                         <Tooltip title="Créer une nouvelle période" color="geekblue">
                             <Button icon={<PlusCircleOutlined />} type="primary" className="m-left-10" onClick={onCreatePeriode}>Créer</Button>
                         </Tooltip>
-                        <Tooltip title="Consulter/Modifier les tarifs" color="geekblue">
+                        <Tooltip title="Consulter/Modifier les tarifs de la période sélectionnée" color="geekblue">
                             <Button icon={<EuroCircleTwoTone />} type="primary" className="m-left-10"
                                 disabled={!selectedIdPeriode} onClick={onEditTarif} />
                         </Tooltip>

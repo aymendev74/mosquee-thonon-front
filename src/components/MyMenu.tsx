@@ -30,7 +30,7 @@ export const MyMenu: FunctionComponent = () => {
         },
         {
             key: "don",
-            icon: <DollarCircleOutlined />,
+            icon: <EuroCircleOutlined />,
             label: "Faire un don",
         }];
 
