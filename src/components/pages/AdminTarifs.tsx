@@ -1,16 +1,15 @@
-import { Button, Col, Divider, Form, Popover, Row, Select, Spin, Tag, Tooltip, notification } from "antd";
+import { Button, Col, Divider, Form, Popover, Row, Select, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { PERIODES_ENDPOINT, TARIFS_ADMIN_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
+import { PERIODES_ENDPOINT, TARIFS_ADMIN_ENDPOINT } from "../../services/services";
 import useApi from "../../hooks/useApi";
 import { PeriodeInfoDto } from "../../services/periode";
 import { DefaultOptionType } from "antd/es/select";
-import moment from "moment";
 import { EditOutlined, EuroCircleTwoTone, PlusCircleOutlined } from "@ant-design/icons";
 import { InfosTarif } from "../admin/InfosTarif";
 import { ModalPeriode } from "../modals/ModalPeriode";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { InfoTarifDto } from "../../services/tarif";
-import { formatPeriodeLibelle, getPeriodeOptions } from "../common/CommonComponents";
+import { getPeriodeOptions } from "../common/CommonComponents";
 
 export const AdminTarifs: FunctionComponent = () => {
 

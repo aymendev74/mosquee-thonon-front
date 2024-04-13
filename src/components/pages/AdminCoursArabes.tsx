@@ -1,17 +1,16 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Inscription, InscriptionForExport, InscriptionLight, NiveauScolaire, StatutInscription } from "../../services/inscription";
+import { InscriptionForExport, InscriptionLight } from "../../services/inscription";
 import { INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import Table from "antd/es/table";
-import { Button, Col, Collapse, DatePicker, Dropdown, Form, Input, MenuProps, Row, Select, Spin, Tooltip, notification } from "antd";
+import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tooltip, notification } from "antd";
 import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
 import { columnsTableInscriptions } from "../common/tableDefinition";
 import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
-import moment from "moment";
 import { getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../common/commoninputs";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
@@ -19,7 +18,7 @@ import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import { PeriodeInfoDto } from "../../services/periode";
-import { formatPeriodeLibelle, getPeriodeOptions } from "../common/CommonComponents";
+import { getPeriodeOptions } from "../common/CommonComponents";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 

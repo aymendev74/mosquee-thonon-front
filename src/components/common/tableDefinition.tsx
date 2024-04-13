@@ -5,6 +5,8 @@ import { CheckCircleTwoTone, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, W
 import { AdhesionLight } from "../../services/adhesion";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { PdfAdhesion } from "../documents/PdfAdhesion";
+import dayjs, { Dayjs } from "dayjs";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../utils/FormUtils";
 
 export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
     {
@@ -53,7 +55,7 @@ export const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
         dataIndex: 'dateInscription',
         key: 'dateInscription',
         render: (value, record, index) => {
-            return record.dateInscription as string;
+            return dayjs(record.dateInscription, APPLICATION_DATE_TIME_FORMAT).format(APPLICATION_DATE_FORMAT);
         }
     }
 ];
@@ -92,7 +94,8 @@ export const columnsTableAdhesions: ColumnsType<AdhesionLight> = [
         dataIndex: 'dateInscription',
         key: 'dateInscription',
         render: (value, record, index) => {
-            return record.dateInscription as string;
+            console.log(record.dateInscription);
+            return dayjs(record.dateInscription, APPLICATION_DATE_TIME_FORMAT).format(APPLICATION_DATE_FORMAT);
         }
     },
     {

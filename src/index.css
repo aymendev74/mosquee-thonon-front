@@ -161,3 +161,25 @@
   font-weight: bolder;
   font-size: large;
 }
+
+.message-scroll-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.message-scroll {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll-left 30s linear infinite;
+  color: red;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}

@@ -1,7 +1,6 @@
-import { Button, Col, Collapse, DatePicker, Divider, Form, FormInstance, Input, Radio, Row, Select } from "antd";
+import { Button, Col, Collapse, FormInstance, Row } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Eleve } from "../../services/eleve";
-import moment from "moment";
 import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions } from "../common/commoninputs";
 import { UserAddOutlined } from "@ant-design/icons";
 import { InputFormItem } from "../common/InputFormItem";

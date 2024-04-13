@@ -17,5 +17,6 @@ export type ResponsableLegal = {
     nomAutre: string;
     prenomAutre: string;
     lienParente: string;
+    telephoneAutre: string;
     signature?: SignatureDto;
 }

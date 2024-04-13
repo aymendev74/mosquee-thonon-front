@@ -1,14 +1,13 @@
-import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Radio, Result, Row, Select, Spin, notification } from "antd";
+import { Button, Col, Divider, Form, Result, Row, Spin, notification } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
-import { Adhesion, AdhesionLight } from "../../services/adhesion";
+import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, onNumericFieldChanged } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, onNumericFieldChanged, validatePhoneNumber } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import { TarifDto } from "../../services/tarif";
-import moment, { Moment } from "moment";
 import { StatutInscription } from "../../services/inscription";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
@@ -38,7 +37,7 @@ export const AdhesionForm: FunctionComponent = () => {
             return;
         }*/
         if (adhesion.dateInscription) {
-            adhesion.dateInscription = dayjs(adhesion.dateInscription).format(APPLICATION_DATE_FORMAT);
+            adhesion.dateInscription = dayjs(adhesion.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
         }
         adhesion.dateNaissance = dayjs(adhesion.dateNaissance).format(APPLICATION_DATE_FORMAT);
         setApiCallDefinition({ method: "POST", url: ADHESION_ENDPOINT, data: adhesion });
@@ -79,7 +78,7 @@ export const AdhesionForm: FunctionComponent = () => {
         }
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
             const adhesion = result as Adhesion;
-            adhesion.dateInscription = dayjs(adhesion.dateInscription, APPLICATION_DATE_FORMAT);
+            adhesion.dateInscription = dayjs(adhesion.dateInscription, APPLICATION_DATE_TIME_FORMAT);
             adhesion.dateNaissance = dayjs(adhesion.dateNaissance, APPLICATION_DATE_FORMAT);
             if (adhesion.montantAutre) {
                 setAutreMontantVisible(true);
@@ -94,6 +93,11 @@ export const AdhesionForm: FunctionComponent = () => {
             setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT + "/" + id });
         }
     }, []);
+
+    const validatePhoneNumbers = (_: any, value: any) => {
+        const { telephone, mobile } = form.getFieldsValue();
+        return validatePhoneNumber(mobile, telephone);
+    };
 
     return inscriptionSuccess ? (
         <Result
@@ -168,7 +172,7 @@ export const AdhesionForm: FunctionComponent = () => {
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
                             <InputFormItem label="Téléphone fixe" name="telephone"
-                                rules={[{ required: true, message: "Veuillez saisir votre téléphone fixe" },
+                                rules={[{ validator: validatePhoneNumbers },
                                 { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }
                                 ]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                         </Col>
@@ -177,7 +181,7 @@ export const AdhesionForm: FunctionComponent = () => {
 
                             >
                                 <InputFormItem label="Mobile" name="mobile"
-                                    rules={[{ required: true, message: "Veuillez saisir votre téléphone mobile" },
+                                    rules={[{ validator: validatePhoneNumbers },
                                     { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                             </Form.Item>
                         </Col>

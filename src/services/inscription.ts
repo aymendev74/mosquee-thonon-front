@@ -1,4 +1,3 @@
-import { Moment } from "moment";
 import { ResponsableLegal } from "./ResponsableLegal";
 import { Eleve } from "./eleve";
 import { Dayjs } from "dayjs";
@@ -31,13 +30,13 @@ export type InscriptionLight = {
     idInscription: number;
     nom: string;
     prenom: string;
-    dateNaissance: Moment | string;
+    dateNaissance: Dayjs | string;
     niveau: string;
     telephone: string;
     mobile: string;
     statut: StatutInscription;
     ville: string;
-    dateInscription: Moment | string;
+    dateInscription: Dayjs | string;
 }
 
 export type InscriptionForExport = Omit<InscriptionLight, "id" | "idInscription">;

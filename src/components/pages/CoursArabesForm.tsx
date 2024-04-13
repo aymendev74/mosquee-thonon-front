@@ -12,7 +12,7 @@ import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { APPLICATION_DATE_FORMAT, convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 import { HttpStatusCode } from "axios";
 import dayjs from "dayjs";
@@ -28,6 +28,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     const [eleves, setEleves] = useState<Eleve[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [inscriptionFinished, setInscriptionFinished] = useState<Inscription>();
+    const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
     const [activeStep, setActiveStep] = useState<string>("1");
 
     const id = location.state ? location.state.id : undefined;
@@ -68,7 +69,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         {
             key: "1",
             label: <><InfoCircleOutlined />Responsable légal</>,
-            children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} onNextStep={onNextStep} />,
+            children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} onNextStep={onNextStep} form={form} />,
         },
         {
             key: "2",
@@ -93,7 +94,7 @@ export const CoursArabesForm: FunctionComponent = () => {
             inscription.responsableLegal.adherent = false;
         }
         if (inscription.dateInscription) {
-            inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_FORMAT);
+            inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
         }
         inscription.eleves = eleves;
         inscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT));
@@ -120,7 +121,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         if (result && apiCallDefinition?.url?.startsWith(INSCRIPTION_ENDPOINT) && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
             console.log(loadedInscription);
-            loadedInscription.dateInscription = dayjs(loadedInscription.dateInscription, APPLICATION_DATE_FORMAT);
+            loadedInscription.dateInscription = dayjs(loadedInscription.dateInscription, APPLICATION_DATE_TIME_FORMAT);
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
             convertBooleanToOuiNon(loadedInscription.responsableLegal);
             form.setFieldsValue(loadedInscription);
@@ -141,8 +142,7 @@ export const CoursArabesForm: FunctionComponent = () => {
 
         // Check si fonctionnalité de réinscription prioritaire activée
         if (apiCallDefinition?.url === PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT && result !== undefined) {
-            // setIsOnlyReinscriptionEnabled(result as boolean);
-            // A voir si cet appel sera nécessaire côté front, à priori pas...
+            setIsOnlyReinscriptionEnabled(result);
             resetApi();
         }
     }, [result]);
@@ -213,6 +213,17 @@ export const CoursArabesForm: FunctionComponent = () => {
         }
     }
 
+    const getMessageReinscriptionPrioritaire = () => {
+        return (
+            <div className="message-scroll-container">
+                <div className="message-scroll">
+                    Actuellement, seules les réinscriptions sont autorisées. Vous pouvez vous inscrire pour l'année prochaine, uniquement si vous étiez déjà inscrit pendant
+                    la dernière année scolaire. Les inscriptions pour les nouveaux élèves seront ouvertes ultérieurement.
+                </div>
+            </div>
+        );
+    };
+
     return (
         <Form
             name="cours"
@@ -227,6 +238,7 @@ export const CoursArabesForm: FunctionComponent = () => {
                 <InputFormItem name="noInscription" type="hidden" formStyle={{ display: "none" }} />
                 <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
                 <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
+                {isOnlyReinscriptionEnabled && getMessageReinscriptionPrioritaire()}
                 {getFormContent()}
                 <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
             </Spin>
