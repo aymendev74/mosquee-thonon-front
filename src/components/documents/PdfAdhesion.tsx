@@ -24,8 +24,8 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     header: {
-        flexDirection: 'row-reverse',
-        marginBottom: 15,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     logo: {
         width: 50,
@@ -39,6 +39,15 @@ const styles = StyleSheet.create({
         marginTop: 15,
         marginBottom: 25,
         textDecoration: "underline",
+    },
+    association: {
+        textAlign: 'center',
+        marginBottom: 25,
+        fontSize: 18,
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: "bold",
     },
     memberNumberContainer: {
         width: "40%",
@@ -69,6 +78,14 @@ const styles = StyleSheet.create({
     formElement: {
         marginBottom: 5,
     },
+    conditions: {
+        fontSize: 9,
+        marginBottom: 120,
+    },
+    adresse: {
+        fontSize: 8,
+        textAlign: 'center',
+    }
 });
 
 export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
@@ -106,6 +123,9 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
             <Document>
                 <Page size="A4" style={styles.page}>
                     <View style={styles.header}>
+                        <View style={styles.association}>
+                            <Text>Association musulmane du chablais</Text>
+                        </View>
                         <Image style={styles.logo} src="./logo_mosquee_thonon.png" />
                     </View>
                     <View style={styles.memberNumberContainer}>
@@ -132,7 +152,8 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
                         <Text>{`E-mail : ${adhesion.email}`}</Text>
                     </View>
                     <View style={[styles.formElement, { marginBottom: 20 }]}>
-                        <Text>{`Tél: ${adhesion.telephone}`}    {`Mobile: ${adhesion.mobile}`}</Text>
+                        {adhesion.telephone && (<Text>{`Tél. fixe: ${adhesion.telephone}`}</Text>)}
+                        {adhesion.mobile && (<Text>{`Tel. Mobile: ${adhesion.mobile}`}</Text>)}
                     </View>
                     <View style={styles.formElement}>
                         <Text>Je certifie sur l'honneur l'exactitude des informations ci-dessus.</Text>
@@ -150,10 +171,16 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
                         <Text style={styles.date}>Date: ____/____/____</Text>
                         <Text style={styles.signature}>Signature: ____________</Text>
                     </View>
-                    <View style={[styles.formElement, { fontSize: "9" }]}>
+                    <View style={styles.conditions}>
                         <Text>(1) Disponible sur demande à l'AMC</Text>
                         <Text>(2) Le règlement est affiché à l'intérieur des locaux de l'AMC</Text>
                         <Text>(3) Le montant de la cotisation mensuel est libre</Text>
+                    </View>
+                    <View style={styles.adresse}>
+                        <Text>Association musulmane du chablais</Text>
+                        <Text>5, rue des epinanches</Text>
+                        <Text>74200 THONON LES BAINS</Text>
+                        <Text>Tel/Fax: 0450706478</Text>
                     </View>
                 </Page>
             </Document>

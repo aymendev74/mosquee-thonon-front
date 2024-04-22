@@ -1,0 +1,3 @@
+export enum ParamName {
+    REINSCRIPTION_ENABLED = "REINSCRIPTION_ENABLED",
+}

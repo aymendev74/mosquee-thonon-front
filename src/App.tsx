@@ -14,6 +14,7 @@ import { AdhesionForm } from './components/pages/AdhesionForm';
 import { AdminAdhesion } from './components/pages/AdminAdhesion';
 import { AdminTarifs } from './components/pages/AdminTarifs';
 import { FaireUnDon } from './components/pages/FaireUnDon';
+import { Parametres } from './components/pages/Parametres';
 
 const { Header, Content, Footer } = Layout;
 
@@ -82,6 +83,7 @@ function App() {
             <Route path="/adminTarif" element={<AdminTarifs />} />
             <Route path="/changePassword" element={<ChangePassword />} />
             <Route path="/don" element={<FaireUnDon />} />
+            <Route path="/parametres" element={<Parametres />} />
           </Routes>
         </div>
       </Content>

@@ -5,16 +5,20 @@ import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../services/services";
-import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../services/inscription";
-import { columnsTableAdhesions } from "../common/tableDefinition";
+import { getFileNameAdhesion } from "../common/tableDefinition";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import useApi from "../../hooks/useApi";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
-import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../utils/FormUtils";
+import { PdfAdhesion } from "../documents/PdfAdhesion";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import dayjs from "dayjs";
+import { ColumnsType } from "antd/es/table";
 
 
 export const AdminAdhesion: FunctionComponent = () => {
@@ -28,6 +32,7 @@ export const AdminAdhesion: FunctionComponent = () => {
     const [selectedAdhesions, setSelectedAdhesions] = useState<AdhesionLight[]>([]);
     const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
+    const [renderedPdfAdhesionIds, setRenderedPdfAdhesionsIds] = useState<number[]>([]);
 
     const CONSULTER_MENU_KEY = "1";
     const MODIFIER_MENU_KEY = "2";
@@ -194,6 +199,55 @@ export const AdminAdhesion: FunctionComponent = () => {
     const isInscriptionsSelected = () => {
         return dataSource && dataSource.length > 0;
     };
+
+    const renderPdf = (idAdhesion: number) => {
+        return renderedPdfAdhesionIds.includes(idAdhesion);
+    };
+
+    const columnsTableAdhesions: ColumnsType<AdhesionLight> = [
+        {
+            title: 'Nom',
+            dataIndex: 'nom',
+            key: 'nom',
+        },
+        {
+            title: 'Prénom',
+            dataIndex: 'prenom',
+            key: 'prenom',
+        },
+        {
+            title: 'Montant versement',
+            dataIndex: 'montant',
+            key: 'montant',
+        },
+        {
+            title: 'Statut',
+            dataIndex: 'statut',
+            key: 'statut',
+            render: (value, record, index) => {
+                if (value === StatutInscription.VALIDEE) return (<Tooltip title="Adhésion validée" color="green"><CheckCircleTwoTone /></Tooltip>);
+                else return (<Tooltip title="Adhésion à valider" color="orange"><PauseCircleTwoTone /></Tooltip>);
+            }
+        },
+        {
+            title: 'Date inscription',
+            dataIndex: 'dateInscription',
+            key: 'dateInscription',
+            render: (value, record, index) => {
+                return dayjs(record.dateInscription, APPLICATION_DATE_TIME_FORMAT).format(APPLICATION_DATE_FORMAT);
+            }
+        },
+        {
+            title: "Fichier Pdf",
+            key: "pdf",
+            render: (value, record, index) => renderPdf(record.id) ? (<PDFDownloadLink document={<PdfAdhesion id={record.id} />} fileName={getFileNameAdhesion(record)}>
+                {({ blob, url, loading, error }) => {
+                    return loading ? "Génération Pdf..." : <FilePdfTwoTone />
+                }
+                }
+            </PDFDownloadLink>) : <Button type="primary" onClick={() => setRenderedPdfAdhesionsIds([...renderedPdfAdhesionIds, record.id])}>Générer Pdf</Button>
+        },
+    ]
 
     return loggedUser ? (
         <Form

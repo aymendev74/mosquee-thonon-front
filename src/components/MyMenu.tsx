@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/UseAuth";
 
 export const MyMenu: FunctionComponent = () => {
@@ -42,7 +42,8 @@ export const MyMenu: FunctionComponent = () => {
                 style: { background: "#06686E" },
                 children: [{ key: "adminCours", label: "Cours arabes", icon: <UserOutlined /> },
                 { key: "adminAdhesion", label: "Adhésion", icon: <EuroCircleOutlined /> },
-                { key: "adminTarif", label: "Tarifs", icon: <DollarCircleOutlined /> },]
+                { key: "adminTarif", label: "Tarifs", icon: <DollarCircleOutlined /> },
+                { key: "parametres", label: "Paramètres", icon: <SettingOutlined /> },]
             });
         }
         return menuItems;

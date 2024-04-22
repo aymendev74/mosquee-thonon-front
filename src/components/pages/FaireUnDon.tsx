@@ -37,7 +37,6 @@ export const FaireUnDon: FunctionComponent = () => {
         };
 
         const onError = async (err: any) => {
-            console.log(err);
             setError(true);
         };
 

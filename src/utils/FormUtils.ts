@@ -1,7 +1,6 @@
 import { ResponsableLegal } from "../services/ResponsableLegal";
 
 export const onNumericFieldChanged = (e: any) => {
-    console.log(isNaN(parseInt(e.key)));
     if (!["Backspace", "Tab", "End", "Home", "ArrowLeft", "ArrowRight", "Delete"].includes(e.key) && isNaN(parseInt(e.key))) {
         e.preventDefault();
     }

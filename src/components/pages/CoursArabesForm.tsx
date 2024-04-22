@@ -120,7 +120,6 @@ export const CoursArabesForm: FunctionComponent = () => {
         // Load de l'inscription
         if (result && apiCallDefinition?.url?.startsWith(INSCRIPTION_ENDPOINT) && apiCallDefinition?.method === "GET") {
             const loadedInscription = result as Inscription;
-            console.log(loadedInscription);
             loadedInscription.dateInscription = dayjs(loadedInscription.dateInscription, APPLICATION_DATE_TIME_FORMAT);
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
             convertBooleanToOuiNon(loadedInscription.responsableLegal);
@@ -170,7 +169,9 @@ export const CoursArabesForm: FunctionComponent = () => {
             return (<Result
                 status="error"
                 title="Inscription refusée"
-                subTitle={(<div className="result-message">Votre inscription a été refusée car seules les réinscriptions sont actuellement autorisées. Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter l'AMC par e-mail : amcthonon@gmail.com</div>)}
+                subTitle={(<div className="result-message">Votre inscription a été refusée car seules les réinscriptions sont actuellement autorisées. Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter l'AMC par e-mail : amcthonon@gmail.com<br />
+                    Un mail récpitulatif vous a été envoyé à l'adresse e-mail indiquée.
+                </div>)}
                 extra={[
                     <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
                         Nouvelle inscription
@@ -180,7 +181,9 @@ export const CoursArabesForm: FunctionComponent = () => {
             return (<Result
                 status="warning"
                 title="Inscription en liste d'attente"
-                subTitle={(<div className="result-message">Votre inscription a été enregistrée, cependant vous avez été placée sur liste d'attente.</div>)}
+                subTitle={(<div className="result-message">Votre inscription a été enregistrée, cependant vous avez été placée sur liste d'attente.<br />
+                    Un mail récpitulatif vous a été envoyé à l'adresse e-mail indiquée.
+                </div>)}
                 extra={[
                     <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
                         Nouvelle inscription
@@ -190,7 +193,9 @@ export const CoursArabesForm: FunctionComponent = () => {
             return (<Result
                 status="success"
                 title="Inscription enregistré"
-                subTitle="Votre inscription a bien été enregistrée"
+                subTitle={<div className="result-message">Votre inscription a bien été enregistrée.<br />
+                    Un mail récpitulatif vous a été envoyé à l'adresse e-mail indiquée.
+                </div>}
                 extra={[
                     <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
                         Nouvelle inscription

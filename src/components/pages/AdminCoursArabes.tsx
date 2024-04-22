@@ -1,24 +1,26 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { InscriptionForExport, InscriptionLight } from "../../services/inscription";
+import { InscriptionForExport, InscriptionLight, StatutInscription } from "../../services/inscription";
 import { INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../services/services";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
-import Table from "antd/es/table";
+import Table, { ColumnsType } from "antd/es/table";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tooltip, notification } from "antd";
-import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, SearchOutlined } from "@ant-design/icons";
-import { columnsTableInscriptions } from "../common/tableDefinition";
-import { ModaleDerniersInscription } from "../modals/ModalDernieresInscriptions";
+import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined, StopOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
 import { getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../common/commoninputs";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
-import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import { PeriodeInfoDto } from "../../services/periode";
 import { getPeriodeOptions } from "../common/CommonComponents";
+import dayjs from "dayjs";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PdfInscriptionCours } from "../documents/PdfInscriptionCours";
+import { getFileNameInscription } from "../common/tableDefinition";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -29,9 +31,9 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const { Panel } = Collapse;
     const [form] = Form.useForm();
     const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
-    const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
     const [periodesOptions, setPeriodesOptions] = useState<DefaultOptionType[]>();
+    const [renderedPdfInscriptionsIds, setRenderedPdfInscriptionsIds] = useState<number[]>([]);
 
     const CONSULTER_MENU_KEY = "1";
     const MODIFIER_MENU_KEY = "2";
@@ -177,9 +179,6 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     </Row>
                     <div className="centered-content">
                         <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
-                        <Tooltip title="Dernières inscriptions">
-                            <Button icon={<ClockCircleOutlined />} shape="circle" onClick={() => { setModaleDernieresInscriptionOpen(true) }} />
-                        </Tooltip>
                     </div>
                 </Panel>
             </Collapse>
@@ -221,7 +220,73 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const isInscriptionsSelected = () => {
         return dataSource && dataSource.length > 0;
-    }
+    };
+
+    const renderPdf = (idInscription: number) => {
+        return renderedPdfInscriptionsIds.includes(idInscription);
+    };
+
+    const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
+        {
+            title: 'N° inscription',
+            dataIndex: 'noInscription',
+            key: 'noInscription',
+        },
+        {
+            title: 'Nom',
+            dataIndex: 'nom',
+            key: 'nom',
+        },
+        {
+            title: 'Prénom',
+            dataIndex: 'prenom',
+            key: 'prenom',
+        },
+        {
+            title: 'Niveau',
+            dataIndex: 'niveau',
+            key: 'niveau',
+        },
+        {
+            title: 'Téléphone',
+            dataIndex: 'telephone',
+            key: 'telephone',
+        },
+        {
+            title: 'Ville',
+            dataIndex: 'ville',
+            key: 'ville',
+        },
+        {
+            title: 'Statut',
+            dataIndex: 'statut',
+            key: 'statut',
+            render: (value, record, index) => {
+                if (value === StatutInscription.VALIDEE) return (<Tooltip title="Inscription validée" color="green"><CheckCircleTwoTone /></Tooltip>);
+                else if (value === StatutInscription.PROVISOIRE) return (<Tooltip title="Inscription à valider" color="orange"><PauseCircleTwoTone /></Tooltip>);
+                else if (value === StatutInscription.LISTE_ATTENTE) return (<Tooltip title="Liste d'attente" color="red"><WarningOutlined /></Tooltip>);
+                else return (<Tooltip title="Refusée" color="red"><StopOutlined /></Tooltip>);
+            }
+        },
+        {
+            title: 'Date inscription',
+            dataIndex: 'dateInscription',
+            key: 'dateInscription',
+            render: (value, record, index) => {
+                return dayjs(record.dateInscription, APPLICATION_DATE_TIME_FORMAT).format(APPLICATION_DATE_FORMAT);
+            }
+        },
+        {
+            title: "Fichier Pdf",
+            key: "pdf",
+            render: (value, record, index) => renderPdf(record.idInscription) ? (<PDFDownloadLink document={<PdfInscriptionCours id={record.idInscription} />} fileName={getFileNameInscription(record)}>
+                {({ blob, url, loading, error }) => {
+                    return loading ? "Génération Pdf..." : <FilePdfTwoTone />
+                }
+                }
+            </PDFDownloadLink>) : <Button type="primary" onClick={() => setRenderedPdfInscriptionsIds([...renderedPdfInscriptionsIds, record.idInscription])}>Générer Pdf</Button>
+        },
+    ];
 
     return loggedUser ? (
         <Form
@@ -254,7 +319,6 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         </Row>
                     </div>
                 </div>
-                <ModaleDerniersInscription open={modaleDernieresInscriptionOpen} setOpen={setModaleDernieresInscriptionOpen} />
                 <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
                     nbInscriptions={getSelectedInscriptionDistinctIds().length} onConfirm={onConfirmSuppression} />
             </Spin>

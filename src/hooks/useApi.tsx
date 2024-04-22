@@ -25,7 +25,6 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
             setError(false);
             try {
                 const apiCallResult = await executeApiCall(apiCallDefinition!);
-                console.log(apiCallResult);
                 setResult(apiCallResult.responseData);
                 setStatus(apiCallResult.status);
             } catch (err) {
@@ -41,7 +40,6 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
 
         }
         if (apiCallDefinition) {
-            console.log(apiCallDefinition);
             fetchData();
         }
     }, [apiCallDefinition]);

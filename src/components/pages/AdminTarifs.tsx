@@ -53,7 +53,6 @@ export const AdminTarifs: FunctionComponent = () => {
             } else {
                 form.setFieldsValue(result);
             }
-            console.log("resetAPI");
             resetApi();
         }
     }, [result]);
@@ -88,7 +87,6 @@ export const AdminTarifs: FunctionComponent = () => {
     }
 
     const onFinish = (infoTarif: InfoTarifDto) => {
-        console.log("onFinish");
         setApiCallDefinition({ method: "POST", url: TARIFS_ADMIN_ENDPOINT, data: infoTarif });
     }
 
