@@ -49,4 +49,4 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         
     - name: Update ReactJS App
-      run: scp -r -o StrictHostKeyChecking=no build/* ubuntu@51.68.174.20:/var/www/mosquee-thonon/
+      run: scp -r -o StrictHostKeyChecking=no /build/* ubuntu@51.68.174.20:/var/www/mosquee-thonon/
