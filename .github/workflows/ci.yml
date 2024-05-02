@@ -29,7 +29,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: mosqueethononfront
-        path: build
+        path: /build
 
   deploy:
 
