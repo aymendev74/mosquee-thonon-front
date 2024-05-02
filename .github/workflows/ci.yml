@@ -29,7 +29,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: mosqueethononfront
-        path: ./build
+        path: build
 
   deploy:
 
@@ -49,6 +49,4 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         
     - name: Update ReactJS App
-      run: |
-        ls
-        scp -r -o StrictHostKeyChecking=no build/* ubuntu@51.68.174.20:/var/www/mosquee-thonon/
+      run: scp -r -o StrictHostKeyChecking=no * ubuntu@51.68.174.20:/var/www/mosquee-thonon/
