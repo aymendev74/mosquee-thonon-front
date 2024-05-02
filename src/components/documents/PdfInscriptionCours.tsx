@@ -190,7 +190,7 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
                         <View key={index} style={styles.row}>
                             <Text style={styles.cell}>{eleve.nom}</Text>
                             <Text style={styles.cell}>{eleve.prenom}</Text>
-                            <Text style={styles.cell}>{dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT)}</Text>
+                            <Text style={styles.cell}>{dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}</Text>
                             <Text style={styles.cell}>{getLibelleNiveauScolaire(eleve.niveau)}</Text>
                             <Text style={styles.cell}></Text>
                         </View>
