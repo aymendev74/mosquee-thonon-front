@@ -51,4 +51,4 @@ jobs:
     - name: Update ReactJS App
       run: |
         ls
-        scp -r -o StrictHostKeyChecking=no /build/* ubuntu@51.68.174.20:/var/www/mosquee-thonon/
+        scp -r -o StrictHostKeyChecking=no build/* ubuntu@51.68.174.20:/var/www/mosquee-thonon/
