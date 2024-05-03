@@ -22,6 +22,9 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Set API URL
+      run: echo "REACT_APP_API_URL=${{ secrets.BASE_URL_API }}" >> $GITHUB_ENV
+        
     - name: Build React app
       run: npm run build
       
@@ -49,4 +52,4 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         
     - name: Update ReactJS App
-      run: scp -r -o StrictHostKeyChecking=no * ubuntu@${{ secrets.SSH_PRIVATE_KEY }}:/var/www/mosquee-thonon/
+      run: scp -r -o StrictHostKeyChecking=no * ubuntu@${{ secrets.TARGET_SERVER_IP }}:/var/www/mosquee-thonon/
