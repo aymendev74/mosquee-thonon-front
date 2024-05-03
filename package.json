@@ -32,8 +32,8 @@
     "@react-pdf/pdfkit": "3.0.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "cross-env REACT_APP_BASE_URL_API=http://localhost:8080/api/v1/ react-scripts start",
+    "build": "cross-env REACT_APP_BASE_URL_API=http://localhost:8080/api/v1/ react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -50,6 +50,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "cross-env": "^7.0.3"
   }
 }
