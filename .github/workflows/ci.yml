@@ -23,7 +23,7 @@ jobs:
       run: npm install
 
     - name: Set API URL
-      run: echo "REACT_APP_API_URL=${{ env.BASE_URL_API }}" >> $GITHUB_ENV
+      run: echo "REACT_APP_API_URL=${{ secrets.BASE_URL_API }}" >> $GITHUB_ENV
         
     - name: Build React app
       run: npm run build
