@@ -23,10 +23,15 @@ jobs:
       run: npm install
 
     - name: Set API URL
-      run: echo "REACT_APP_API_URL=${{ secrets.BASE_URL_API }}" >> $GITHUB_ENV
+      run: |        
+        if [ "${{ vars.ENV }}" = "PRODUCTION" ]; then
+          echo "BUILD_ENV=build" >> $GITHUB_ENV
+        else
+          echo "BUILD_ENV=build:staging" >> $GITHUB_ENV
+        fi
         
     - name: Build React app
-      run: npm run build
+      run: npm run ${{ env.BUILD_ENV }}
       
     - name: Upload artifact
       uses: actions/upload-artifact@v2
