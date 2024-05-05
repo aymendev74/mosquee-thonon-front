@@ -1,9 +1,9 @@
-import { Button, Col, Divider, Form, Result, Row, Spin, notification } from "antd";
+import { Button, Checkbox, Col, Divider, Form, Result, Row, Spin, notification } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, onNumericFieldChanged, validatePhoneNumber } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementLibelle, onNumericFieldChanged } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
@@ -30,12 +30,13 @@ export const AdhesionForm: FunctionComponent = () => {
     const { result: resultTarifs } = useApi({ method: "GET", url: TARIFS_ENDPOINT, params: { application: "ADHESION" } });
     const [autreMontantVisible, setAutreMontantVisible] = useState<boolean>(false);
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
+    const [consentementChecked, setConsentementChecked] = useState(false);
 
     const onFinish = async (adhesion: Adhesion) => {
-        /*if (!isAdmin && !consentementOk) {
+        if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
-        }*/
+        }
         if (adhesion.dateInscription) {
             adhesion.dateInscription = dayjs(adhesion.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
         }
@@ -93,11 +94,6 @@ export const AdhesionForm: FunctionComponent = () => {
             setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT + "/" + id });
         }
     }, []);
-
-    const validatePhoneNumbers = (_: any, value: any) => {
-        const { telephone, mobile } = form.getFieldsValue();
-        return validatePhoneNumber(mobile, telephone);
-    };
 
     return inscriptionSuccess ? (
         <Result
@@ -171,19 +167,9 @@ export const AdhesionForm: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <InputFormItem label="Téléphone fixe" name="telephone"
-                                rules={[{ validator: validatePhoneNumbers },
-                                { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }
-                                ]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-
-                            >
-                                <InputFormItem label="Mobile" name="mobile"
-                                    rules={[{ validator: validatePhoneNumbers },
-                                    { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
-                            </Form.Item>
+                            <InputFormItem label="Tél. mobile" name="mobile"
+                                rules={[{ required: true, message: "Veuillez saisir un numéro de téléphone" },
+                                { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
                         </Col>
                     </Row>
                     <Row gutter={[16, 32]}>
@@ -222,9 +208,18 @@ export const AdhesionForm: FunctionComponent = () => {
                             </Col>
                         </Row>
                     </>)}
+                    <Row gutter={[16, 32]}>
+                        <Col span={24}>
+                            {!isAdmin && (
+                                <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
+                                    {getConsentementLibelle()}
+                                </Checkbox>
+                            )}
+                        </Col>
+                    </Row>
                     <Row>
-                        {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
-                        {!isAdmin && (<Button type="primary" htmlType="submit">Valider mon adhésion</Button>)}
+                        {isAdmin && !isReadOnly && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Enregistrer</Button>)}
+                        {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Valider mon adhésion</Button>)}
                     </Row>
                 </Spin>
             </Form>

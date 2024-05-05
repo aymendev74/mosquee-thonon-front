@@ -22,6 +22,8 @@ export type Inscription = {
     dateInscription: Dayjs | string;
     responsableLegal: ResponsableLegal;
     eleves: Eleve[];
+    anneeScolaire: string;
+    montantTotal: number;
     signature?: SignatureDto;
 }
 

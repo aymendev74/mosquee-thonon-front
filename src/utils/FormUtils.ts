@@ -16,12 +16,8 @@ export const convertBooleanToOuiNon = (responsableLegal: ResponsableLegal) => {
     responsableLegal.autorisationMedia = responsableLegal.autorisationMedia === true ? "OUI" : "NON";
 }
 
-export const validatePhoneNumber = (mobile: string, telephone: string) => {
-    if (!telephone && !mobile) {
-        return Promise.reject('Veuillez saisir au moins un numéro de téléphone');
-    }
-    return Promise.resolve();
-};
+export const getConsentementLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours." +
+    " Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.";
 
 export const APPLICATION_DATE_FORMAT: string = "DD.MM.YYYY";
 export const APPLICATION_DATE_TIME_FORMAT: string = "DD.MM.YYYY HH:mm:ss.SSS";

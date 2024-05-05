@@ -33,6 +33,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
                     <p><strong>Prénom :</strong> {eleve.prenom}</p>
                     <p><strong>Date de naissance :</strong> {dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT)}</p>
                     <p><strong>Niveau scolaire :</strong> {getLibelleNiveauScolaire(eleve.niveau)}</p>
+                    {(isAdmin) && <p><strong>Niveau interne :</strong> {eleve.niveauInterne}</p>}
                     {
                         !isReadOnly &&
                         (<><Button onClick={() => handleEdit(index)}>Modifier</Button>

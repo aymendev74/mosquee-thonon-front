@@ -24,7 +24,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     const [form] = useForm();
     const navigate = useNavigate();
     const [modalRGPDOpen, setModalRGPDOpen] = useState(false);
-    const [consentementOk, setConsentementOk] = useState(false);
+    const [consentementChecked, setConsentementChecked] = useState(false);
     const [eleves, setEleves] = useState<Eleve[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [inscriptionFinished, setInscriptionFinished] = useState<Inscription>();
@@ -81,15 +81,15 @@ export const CoursArabesForm: FunctionComponent = () => {
             key: "3",
             label: <><EuroCircleOutlined />Tarif</>,
             children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} isReadOnly={isReadOnly}
-                onPreviousStep={onPreviousStep} />,
+                onPreviousStep={onPreviousStep} consentementChecked={consentementChecked} setConsentementChecked={setConsentementChecked} />,
         }
     ];
 
     const onFinish = async (inscription: Inscription) => {
-        /*if (!isAdmin && !consentementOk) {
+        if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
-        }*/
+        }
         if (inscription.responsableLegal.adherent == undefined) {
             inscription.responsableLegal.adherent = false;
         }
@@ -243,6 +243,7 @@ export const CoursArabesForm: FunctionComponent = () => {
                 <InputFormItem name="noInscription" type="hidden" formStyle={{ display: "none" }} />
                 <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
                 <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
+                <InputFormItem name="anneeScolaire" formStyle={{ display: "none" }} type="hidden" />
                 {isOnlyReinscriptionEnabled && getMessageReinscriptionPrioritaire()}
                 {getFormContent()}
                 <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />

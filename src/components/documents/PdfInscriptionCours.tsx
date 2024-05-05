@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     },
     detailsCadreAdmin: {
         margin: "5 0",
+        fontWeight: 'bold',
     },
     titreInfos: {
         textAlign: "center",
@@ -165,15 +166,14 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
                     </View>
                     <View style={styles.title}>
                         <Text>FICHE D'INSCRIPTION AUX COURS D'ARABE</Text>
-                        <Text>ANNEE SCOLAIRE ____________________</Text>
+                        <Text>ANNEE SCOLAIRE {inscription.anneeScolaire}</Text>
                     </View>
                     <View style={styles.cadreAdminContainer}>
                         <View style={styles.titreCadreAdmin}>
                             <Text>Cadre réservé à l'administration</Text>
                         </View>
                         <View>
-                            <Text style={styles.detailsCadreAdmin}>Niveau: _________ Classe: _________ Enseignant: _____________________________</Text>
-                            <Text style={styles.detailsCadreAdmin}>Paiement: ____________________________ Divers: ______________________________</Text>
+                            <Text style={styles.detailsCadreAdmin}>Tarif: {inscription.montantTotal} euros                  Divers: ______________________________</Text>
                         </View>
                     </View>
                     <View style={styles.titreInfos}>
@@ -192,7 +192,7 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
                             <Text style={styles.cell}>{eleve.prenom}</Text>
                             <Text style={styles.cell}>{dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}</Text>
                             <Text style={styles.cell}>{getLibelleNiveauScolaire(eleve.niveau)}</Text>
-                            <Text style={styles.cell}></Text>
+                            <Text style={styles.cell}>{eleve.niveauInterne}</Text>
                         </View>
                     ))}
                     <View style={styles.autorisationEnfant}>
@@ -205,11 +205,10 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
                     <View>
                         <Text style={styles.formElement}>Nom et prénom: <Text style={styles.bold}>{inscription.responsableLegal.nom} {inscription.responsableLegal.prenom}</Text></Text>
                         <View style={styles.formElement}>
-                            {inscription.responsableLegal.telephone && (<Text>Tél fixe: <Text style={styles.bold}>{inscription.responsableLegal.telephone}</Text></Text>)}
                             {inscription.responsableLegal.mobile && (<Text>Tél mobile: <Text style={styles.bold}>{inscription.responsableLegal.mobile}</Text></Text>)}
                         </View>
                         <Text style={styles.formElement}>
-                            Adresse: <Text style={styles.bold}>{inscription.responsableLegal.numeroEtRue} {inscription.responsableLegal.codePostal} {inscription.responsableLegal.ville}</Text>
+                            Adresse: <Text style={styles.bold}>{inscription.responsableLegal.numeroEtRue}, {inscription.responsableLegal.codePostal} {inscription.responsableLegal.ville}</Text>
                         </Text>
                         <Text style={styles.formElement}>
                             Email: <Text style={styles.bold}>{inscription.responsableLegal.email}</Text>

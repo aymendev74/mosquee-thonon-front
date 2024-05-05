@@ -28,11 +28,11 @@ export const MyMenu: FunctionComponent = () => {
             label: "Inscription",
             children: [{ key: "cours", label: "Cours arabes", icon: <UserOutlined /> }, { key: "adhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
         },
-        {
+        /*{
             key: "don",
             icon: <EuroCircleOutlined />,
             label: "Faire un don",
-        }];
+        }*/];
 
         if (loggedUser) {
             menuItems.push({

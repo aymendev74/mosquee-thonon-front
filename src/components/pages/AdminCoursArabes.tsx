@@ -9,7 +9,7 @@ import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tooltip, n
 import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined, StopOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
-import { getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../common/commoninputs";
+import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../common/commoninputs";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
@@ -246,6 +246,14 @@ export const AdminCoursArabes: FunctionComponent = () => {
             title: 'Niveau',
             dataIndex: 'niveau',
             key: 'niveau',
+            render: (value, record, index) => {
+                return getLibelleNiveauScolaire(value);
+            }
+        },
+        {
+            title: 'Niveau interne',
+            dataIndex: 'niveauInterne',
+            key: 'niveauInterne',
         },
         {
             title: 'Téléphone',

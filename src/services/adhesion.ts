@@ -9,7 +9,6 @@ export type Adhesion = {
     prenom: string;
     dateNaissance: Dayjs | string;
     idTarif: number;
-    telephone: string;
     mobile: string;
     email: string;
     numeroEtRue: string;

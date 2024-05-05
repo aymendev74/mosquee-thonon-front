@@ -1,4 +1,4 @@
-import { Button, Col, Divider, FormInstance, Row } from "antd";
+import { Button, Checkbox, Col, Divider, FormInstance, Row } from "antd";
 import { FunctionComponent } from "react";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
@@ -12,9 +12,11 @@ export type TarifProps = {
     isAdmin: boolean;
     isReadOnly: boolean;
     onPreviousStep: React.MouseEventHandler<HTMLElement>;
+    consentementChecked: boolean;
+    setConsentementChecked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription, form, isAdmin, isReadOnly, onPreviousStep }) => {
+export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription, form, isAdmin, isReadOnly, onPreviousStep, consentementChecked, setConsentementChecked }) => {
 
     const getStatutAdherent = () => {
         const adherent = form.getFieldValue(["responsableLegal", "adherent"]);
@@ -31,10 +33,8 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
         : (
             <>
                 <Divider orientation="left">Tarifs</Divider>
-                <div className="m-bottom-10">Votre tarif <strong> {getStatutAdherent()}</strong> pour <strong>{eleves.length} élève(s)</strong></div>
-                <div className="m-bottom-10">Tarif Base: {tarifInscription?.tarifBase ?? ""} euros</div>
-                <div className="m-bottom-10">Tarif par enfant: {tarifInscription?.tarifEleve ?? ""} euros</div>
-                <div className="m-bottom-10 fw-bold">Total: {getMontantTotalInscription()} euros</div>
+                <div className="m-bottom-10">Votre tarif annuel : <strong>{getMontantTotalInscription()} euros.</strong></div>
+                <div className="m-bottom-10">Ce tarif a été calculé en prenant en compte votre statut (adhérent ou non) et le nombre d'élèves à inscrire.</div>
                 {!isAdmin && tarifInscription?.listeAttente && (<div className="m-bottom-10"><strong>Attention, le nombre d'élèves inscrits sur la période en cours a atteint
                     la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription.</strong></div>)}
                 {isAdmin && (<><Divider orientation="left">Statut</Divider>
@@ -44,10 +44,20 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                         </Col>
                     </Row>
                 </>)}
+                <Row gutter={[16, 32]}>
+                    <Col span={24}>
+                        {!isAdmin && (
+                            <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
+                                En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours.
+                                Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.
+                            </Checkbox>
+                        )}
+                    </Col>
+                </Row>
                 <div className="container-nav-bi">
-                    <Button onClick={onPreviousStep}>Précédent</Button>
-                    {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
-                    {!isAdmin && (<Button type="primary" htmlType="submit">Valider mon inscription</Button>)}
+                    <Button style={{ marginTop: 30 }} onClick={onPreviousStep}>Précédent</Button>
+                    {isAdmin && !isReadOnly && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Enregistrer</Button>)}
+                    {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Valider mon inscription</Button>)}
                 </div>
             </>);
 

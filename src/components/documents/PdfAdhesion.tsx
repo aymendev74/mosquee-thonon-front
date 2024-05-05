@@ -3,6 +3,7 @@ import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/
 import useApi from '../../hooks/useApi';
 import { ADHESION_ENDPOINT } from '../../services/services';
 import { Adhesion } from '../../services/adhesion';
+import { getConsentementLibelle } from '../../utils/FormUtils';
 
 export type PdfAdhesionProps = {
     id: number;
@@ -80,12 +81,37 @@ const styles = StyleSheet.create({
     },
     conditions: {
         fontSize: 9,
-        marginBottom: 120,
+        marginBottom: 100,
     },
     adresse: {
         fontSize: 8,
         textAlign: 'center',
-    }
+    },
+    bold: {
+        fontWeight: "bold",
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 10,
+        marginRight: 10,
+        marginBottom: 30,
+    },
+    checkbox: {
+        width: 10,
+        height: 10,
+        borderWidth: 1,
+        borderColor: 'black',
+        marginRight: 5,
+    },
+    checkmark: {
+        position: "relative",
+        marginLeft: 5,
+        fontSize: 8,
+    },
+    label: {
+        fontSize: 12,
+    },
 });
 
 export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
@@ -130,42 +156,45 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
                     </View>
                     <View style={styles.memberNumberContainer}>
                         <View style={styles.memberNumber}>
-                            <Text>{`N° de membre: ${adhesion.noMembre}`}</Text>
+                            <Text>N° de membre:<Text style={styles.bold}>{adhesion.noMembre}</Text></Text>
                         </View>
                     </View>
                     <View>
                         <Text style={styles.title}>AMC - Fiche Adhérent</Text>
                     </View>
                     <View style={[styles.formElement, { marginBottom: 20 }]}>
-                        <Text>{getSoussigneLibelle()} {getEtatCivil()} {adhesion.nom} {adhesion.prenom} </Text>
+                        <Text>{getSoussigneLibelle()} <Text style={styles.bold}>{getEtatCivil()} {adhesion.nom} {adhesion.prenom}</Text></Text>
                     </View>
                     <View style={styles.formElement}>
-                        <Text>{`Adresse : ${adhesion.numeroEtRue}`}</Text>
+                        <Text>Adresse : <Text style={styles.bold}>{adhesion.numeroEtRue}</Text></Text>
                     </View>
                     <View style={styles.formElement}>
-                        <Text>{`Code postal : ${adhesion.codePostal}`}</Text>
+                        <Text>Code postal : <Text style={styles.bold}>{adhesion.codePostal}</Text></Text>
                     </View>
                     <View style={styles.formElement}>
-                        <Text>{`Ville : ${adhesion.ville}`}</Text>
+                        <Text>Ville : <Text style={styles.bold}>{adhesion.ville}</Text></Text>
                     </View>
                     <View style={styles.formElement}>
-                        <Text>{`E-mail : ${adhesion.email}`}</Text>
+                        <Text>E-mail : <Text style={styles.bold}>{adhesion.email}</Text></Text>
                     </View>
                     <View style={[styles.formElement, { marginBottom: 20 }]}>
-                        {adhesion.telephone && (<Text>{`Tél. fixe: ${adhesion.telephone}`}</Text>)}
-                        {adhesion.mobile && (<Text>{`Tel. Mobile: ${adhesion.mobile}`}</Text>)}
+                        {adhesion.mobile && (<Text>Tél. Mobile: <Text style={styles.bold}>{adhesion.mobile}</Text></Text>)}
                     </View>
                     <View style={styles.formElement}>
                         <Text>Je certifie sur l'honneur l'exactitude des informations ci-dessus.</Text>
                     </View>
                     <View style={styles.formElement}>
-                        <Text>Je sollicite mon admission comme membre de l'association musulmane du chablais (AMC)</Text>
+                        <Text style={styles.bold}>Je sollicite mon admission comme membre de l'association musulmane du chablais (AMC)</Text>
                     </View>
                     <View style={[styles.formElement, { fontWeight: "bold" }]}>
                         <Text>{`Je m'engage à verser mensuellement la somme de ${getMontant()} euros`}</Text>
                     </View>
                     <View style={[styles.formElement, { fontWeight: "bold", marginBottom: 20 }]}>
                         <Text>De ce fait, je m'engage à respecter ses statuts(1), son règlement intérieur(2) et à verser ma cotisation(3) régulièrement</Text>
+                    </View>
+                    <View style={styles.checkboxContainer}>
+                        <View style={styles.checkbox} />
+                        <Text style={styles.label}>{getConsentementLibelle()}</Text>
                     </View>
                     <View style={styles.dateSignatureContainer}>
                         <Text style={styles.date}>Date: ____/____/____</Text>

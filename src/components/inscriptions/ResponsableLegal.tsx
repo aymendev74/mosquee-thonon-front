@@ -1,6 +1,6 @@
 import { Button, Col, Divider, Row } from "antd";
 import { FunctionComponent } from "react";
-import { onNumericFieldChanged, validatePhoneNumber } from "../../utils/FormUtils";
+import { onNumericFieldChanged } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
@@ -15,12 +15,6 @@ export type ResponsableLegalProps = {
 }
 
 export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isReadOnly, doCalculTarif, onNextStep, form }) => {
-
-    const validatePhoneNumbers = (_: any, value: any) => {
-        const telephone = form.getFieldValue(["responsableLegal", "telephone"]);
-        const mobile = form.getFieldValue(["responsableLegal", "mobile"]);
-        return validatePhoneNumber(mobile, telephone);
-    };
 
     return (<>
         <InputFormItem name="responsableLegal.id" formStyle={{ display: "none" }} type="hidden" />
@@ -67,12 +61,7 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
         </Row>
         <Row gutter={[16, 32]}>
             <Col span={12}>
-                <InputFormItem label="Téléphone fixe" name="responsableLegal.telephone" rules={[{ validator: validatePhoneNumbers },
-                { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }
-                ]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
-            </Col>
-            <Col span={12}>
-                <InputFormItem label="Mobile" name="responsableLegal.mobile" rules={[{ validator: validatePhoneNumbers },
+                <InputFormItem label="Tél. mobile" name="responsableLegal.mobile" rules={[{ required: true, message: "Veuillez saisir un numéro de téléphone" },
                 { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]}
                     disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
             </Col>
@@ -108,7 +97,7 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                     disabled={isReadOnly} />
             </Col>
             <Col span={12}>
-                <InputFormItem label="Téléphone" name="responsableLegal.telephoneAutre" rules={[{ required: true, message: "Veuillez saisir un numéro de téléphone valide" },
+                <InputFormItem label="Tél. mobile" name="responsableLegal.telephoneAutre" rules={[{ required: true, message: "Veuillez saisir un numéro de téléphone" },
                 { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]}
                     disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
             </Col>

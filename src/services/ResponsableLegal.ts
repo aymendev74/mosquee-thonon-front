@@ -4,7 +4,6 @@ export type ResponsableLegal = {
     id: number;
     nom: string;
     prenom: string;
-    telephone: string;
     mobile: string;
     email: string;
     numeroEtRue: string;
