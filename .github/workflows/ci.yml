@@ -22,16 +22,11 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Set API URL
-      run: |        
-        if [ "${{ vars.ENV }}" = "PRODUCTION" ]; then
-          echo "BUILD_ENV=build" >> $GITHUB_ENV
-        else
-          echo "BUILD_ENV=build:staging" >> $GITHUB_ENV
-        fi
-        
+    - name: Setup Environment properties
+      run: echo "${{ vars.ENV_FILE }}" > .env
+      
     - name: Build React app
-      run: npm run ${{ env.BUILD_ENV }}
+      run: npm run build
       
     - name: Upload artifact
       uses: actions/upload-artifact@v2
