@@ -27,11 +27,11 @@ export const Parametres: FunctionComponent = () => {
     }, []);
 
     useEffect(() => {
-        if (apiCallDefinition?.url === PARAM_ENDPOINT && result) {
+        if (apiCallDefinition?.url === PARAM_ENDPOINT && apiCallDefinition?.method === "GET" && result) {
             form.setFieldsValue(result);
             resetApi();
         }
-        if (apiCallDefinition?.url === PARAM_ENDPOINT) {
+        if (apiCallDefinition?.url === PARAM_ENDPOINT && apiCallDefinition?.method === "POST") {
             notification.open({ message: "Les paramètres de l'application ont bien été enregistrés", type: "success" });
             resetApi();
         }
