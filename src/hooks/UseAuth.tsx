@@ -29,6 +29,7 @@ export const AuthProvider = (props: any) => {
 
   const logout = () => {
     sessionStorage.removeItem("token");
+    sessionStorage.removeItem("loggedUser");
     setLoggedUser(undefined);
     navigate("/");
   };
