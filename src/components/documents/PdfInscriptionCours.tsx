@@ -4,7 +4,7 @@ import useApi from '../../hooks/useApi';
 import { INSCRIPTION_ENDPOINT } from '../../services/services';
 import { Inscription } from '../../services/inscription';
 import dayjs from 'dayjs';
-import { APPLICATION_DATE_FORMAT } from '../../utils/FormUtils';
+import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { getLibelleNiveauScolaire } from '../common/commoninputs';
 
 export type PdfInscriptionCoursProps = {
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         padding: 10,
         fontFamily: "Open Sans",
-        fontSize: 11,
+        fontSize: 10,
     },
     header: {
         flexDirection: 'row',
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         height: 50,
     },
     title: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: 'bold',
         fontFamily: "Open Sans",
         textAlign: 'center',
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     association: {
         textAlign: 'center',
         marginBottom: 25,
-        fontSize: 16,
+        fontSize: 15,
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     titreInfos: {
         textAlign: "center",
         fontWeight: 'bold',
-        fontSize: 13,
+        fontSize: 12,
         textDecoration: "underline",
         marginTop: 10,
         marginBottom: 15,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
         padding: 15,
-        marginBottom: 10
+        marginBottom: 5
     },
     signature: {
         marginRight: 10,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     },
     headerCell: {
         fontWeight: 'bold',
-        fontSize: 10,
+        fontSize: 9,
     },
     autorisationEnfant: {
         fontWeight: 'bold',
@@ -121,8 +121,30 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     adresse: {
-        fontSize: 8,
+        fontSize: 7,
         textAlign: 'center',
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 10,
+        marginRight: 10,
+        marginBottom: 30,
+    },
+    checkbox: {
+        width: 10,
+        height: 10,
+        borderWidth: 1,
+        borderColor: 'black',
+        marginRight: 5,
+    },
+    checkmark: {
+        position: "relative",
+        marginLeft: 5,
+        fontSize: 8,
+    },
+    labelConsentement: {
+        fontSize: 8
     }
 });
 
@@ -184,7 +206,7 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
                         <Text style={[styles.cell, styles.headerCell]}>Prénom</Text>
                         <Text style={[styles.cell, styles.headerCell]}>Date de naissance</Text>
                         <Text style={[styles.cell, styles.headerCell]}>Niveau scolaire</Text>
-                        <Text style={[styles.cell, styles.headerCell]}>Réservé admin</Text>
+                        <Text style={[styles.cell, styles.headerCell]}>Niveau interne</Text>
                     </View>
                     {inscription.eleves.map((eleve, index) => (
                         <View key={index} style={styles.row}>
@@ -223,6 +245,10 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
                             Je certifie sur l'honneur que toute information donnée ci-dessus est exacte et je m'engage à respecter les conditions d'inscription
                             et le règlement intérieur de l'école, dont je dispose d'une copie.
                         </Text>
+                    </View>
+                    <View style={styles.checkboxContainer}>
+                        <View style={styles.checkbox} />
+                        <Text style={styles.labelConsentement}>{getConsentementInscriptionCoursLibelle()}</Text>
                     </View>
                     <View style={styles.dateSignatureContainer}>
                         <Text style={styles.date}>Date: ____/____/____</Text>

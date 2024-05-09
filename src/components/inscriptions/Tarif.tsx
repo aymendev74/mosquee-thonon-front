@@ -4,6 +4,7 @@ import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getStatutInscriptionOptions } from "../common/commoninputs";
+import { getConsentementInscriptionCoursLibelle } from "../../utils/FormUtils";
 
 export type TarifProps = {
     eleves: Eleve[];
@@ -48,8 +49,7 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                     <Col span={24}>
                         {!isAdmin && (
                             <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
-                                En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours.
-                                Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.
+                                {getConsentementInscriptionCoursLibelle()}
                             </Checkbox>
                         )}
                     </Col>

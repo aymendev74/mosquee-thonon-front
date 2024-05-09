@@ -3,7 +3,7 @@ import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementLibelle, onNumericFieldChanged } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, onNumericFieldChanged } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
@@ -212,7 +212,7 @@ export const AdhesionForm: FunctionComponent = () => {
                         <Col span={24}>
                             {!isAdmin && (
                                 <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
-                                    {getConsentementLibelle()}
+                                    {getConsentementAdhesionLibelle()}
                                 </Checkbox>
                             )}
                         </Col>

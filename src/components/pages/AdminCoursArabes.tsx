@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { PdfInscriptionCours } from "../documents/PdfInscriptionCours";
 import { getFileNameInscription } from "../common/tableDefinition";
+import { AdminSearchFilter } from "../common/AdminSearchFilter";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -28,7 +29,6 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const { loggedUser } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
-    const { Panel } = Collapse;
     const [form] = Form.useForm();
     const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
@@ -126,62 +126,21 @@ export const AdminCoursArabes: FunctionComponent = () => {
         setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
     }
 
-    const SearchCollapse = () => {
+    const SearchCollapse: FunctionComponent = () => {
         return (
-            <Collapse defaultActiveKey={['1']}>
-                <Panel header="Filtres de recherche" key="1">
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <SelectFormItem name="idPeriode" label="Période" options={periodesOptions} />
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <InputFormItem name="prenom" label="Prénom" placeholder="Prénom" />
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <InputFormItem name="nom" label="Nom" placeholder="Nom" />
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <InputFormItem name="noInscription" label="N° inscription" placeholder="N° inscription" />
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <SelectFormItem name="niveau" label="Niveau scolaire" mode="tags" options={getNiveauOptions()} />
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <SelectFormItem name="niveauInterne" label="Niveau interne" mode="tags" options={getNiveauInterneOptions()} />
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <InputFormItem name="telephone" label="Téléphone" placeholder="Téléphone" />
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <Tooltip title="Rechercher les inscription reçues à partir du" color="geekblue" key="dateInscription" >
-                                <DatePickerFormItem name="dateInscription" label="Date inscription" placeholder="Date inscription" />
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <SelectFormItem name="statut" label="Statut" placeholder="Statut" options={getStatutInscriptionOptions()} allowClear />
-                        </Col>
-                    </Row>
-                    <div className="centered-content">
-                        <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
-                    </div>
-                </Panel>
-            </Collapse>
+            <AdminSearchFilter doSearch={doSearch} inputFilters={[
+                { name: "idPeriode", libelle: "Période", inputType: "Select", selectOptions: periodesOptions },
+                { name: "prenom", libelle: "Prénom", inputType: "InputText" },
+                { name: "nom", libelle: "Nom", inputType: "InputText" },
+                { name: "noInscription", libelle: "N° inscription", inputType: "InputText" },
+                { name: "niveau", libelle: "Niveau", inputType: "SelectTags", selectOptions: getNiveauOptions() },
+                { name: "niveauInterne", libelle: "Niveau interne", inputType: "SelectTags", selectOptions: getNiveauInterneOptions() },
+                { name: "telephone", libelle: "Téléphone", inputType: "InputText" },
+                { name: "dateInscription", libelle: "Date adhésion", inputType: "Date", tooltip: "Rechercher les inscription reçues à partir du" },
+                {
+                    name: "statut", libelle: "Statut", inputType: "Select", selectOptions: getStatutInscriptionOptions()
+                },
+            ]} />
         );
     };
 
@@ -191,6 +150,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     useEffect(() => {
         if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
+            console.log(result);
             setDataSource(result);
             resetApi();
         }
@@ -257,7 +217,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         },
         {
             title: 'Téléphone',
-            dataIndex: 'telephone',
+            dataIndex: 'mobile',
             key: 'telephone',
         },
         {

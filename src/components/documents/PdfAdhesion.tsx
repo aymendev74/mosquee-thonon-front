@@ -3,7 +3,7 @@ import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/
 import useApi from '../../hooks/useApi';
 import { ADHESION_ENDPOINT } from '../../services/services';
 import { Adhesion } from '../../services/adhesion';
-import { getConsentementLibelle } from '../../utils/FormUtils';
+import { getConsentementAdhesionLibelle } from '../../utils/FormUtils';
 
 export type PdfAdhesionProps = {
     id: number;
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         fontSize: 8,
     },
-    label: {
-        fontSize: 12,
+    labelConsentement: {
+        fontSize: 9,
     },
 });
 
@@ -194,7 +194,7 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
                     </View>
                     <View style={styles.checkboxContainer}>
                         <View style={styles.checkbox} />
-                        <Text style={styles.label}>{getConsentementLibelle()}</Text>
+                        <Text style={styles.labelConsentement}>{getConsentementAdhesionLibelle()}</Text>
                     </View>
                     <View style={styles.dateSignatureContainer}>
                         <Text style={styles.date}>Date: ____/____/____</Text>

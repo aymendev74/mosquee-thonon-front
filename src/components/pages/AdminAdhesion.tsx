@@ -19,6 +19,7 @@ import { PdfAdhesion } from "../documents/PdfAdhesion";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
+import { AdminSearchFilter } from "../common/AdminSearchFilter";
 
 
 export const AdminAdhesion: FunctionComponent = () => {
@@ -118,49 +119,18 @@ export const AdminAdhesion: FunctionComponent = () => {
 
     const SearchCollapse = () => {
         return (
-            <Collapse defaultActiveKey={['1']}>
-                <Panel header="Filtres de recherche" key="1">
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <Tooltip title="Prénom de l'élève" color="geekblue" key="prenomEleve">
-                                <InputFormItem name="prenom" label="Prénom" placeholder="Prénom" />
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <Tooltip title="Nom de l'élève" color="geekblue" key="nomEleve">
-                                <InputFormItem name="nom" label="Nom" placeholder="Nom" />
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <Tooltip title="Rechercher les ahdésions dont le montant est supérieur à" color="geekblue" key="montantVersement">
-                                <InputNumberFormItem name="montant" label="Montant" placeholder="Montant versement" />
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <Tooltip title="Rechercher les ahdésions reçues à partir du" color="geekblue" key="dateInscription" >
-                                <DatePickerFormItem name="dateInscription" label="Date inscription" placeholder="Date inscription" />
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={24}>
-                            <SelectFormItem name="statut" label="Statut" placeholder="Statut" options={[
-                                { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
-                                { value: StatutInscription.VALIDEE, label: "Validée" }
-                            ]} allowClear />
-                        </Col>
-                    </Row>
-                    <div className="centered-content">
-                        <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
-                    </div>
-                </Panel>
-            </Collapse>
+            <AdminSearchFilter doSearch={doSearch} inputFilters={[
+                { name: "prenom", libelle: "Prénom", inputType: "InputText" },
+                { name: "nom", libelle: "Nom", inputType: "InputText" },
+                { name: "montant", libelle: "Montant", inputType: "InputNumber", tooltip: "Rechercher les ahdésions dont le montant est supérieur à" },
+                { name: "dateInscription", libelle: "Date adhésion", inputType: "Date", tooltip: "Rechercher les ahdésions reçues à partir du" },
+                {
+                    name: "statut", libelle: "Statut", inputType: "Select", selectOptions: [
+                        { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
+                        { value: StatutInscription.VALIDEE, label: "Validée" }
+                    ]
+                },
+            ]} />
         );
     };
 
