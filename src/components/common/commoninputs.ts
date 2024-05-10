@@ -5,7 +5,8 @@ export const getNiveauOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauScolaire.CP, label: "CP" }, { value: NiveauScolaire.CE1, label: "CE1" }, { value: NiveauScolaire.CE2, label: "CE2" },
     { value: NiveauScolaire.CM1, label: "CM1" }, { value: NiveauScolaire.CM2, label: "CM2" }, { value: NiveauScolaire.COLLEGE_6EME, label: "6ème" },
     { value: NiveauScolaire.COLLEGE_5EME, label: "5ème" }, { value: NiveauScolaire.COLLEGE_4EME, label: "4ème" }, { value: NiveauScolaire.COLLEGE_3EME, label: "3ème" },
-    { value: NiveauScolaire.LYCEE_2ND, label: "2nd" }, { value: NiveauScolaire.LYCEE_1ERE, label: "1ère" }, { value: NiveauScolaire.LYCEE_TERM, label: "Terminal" }]
+    { value: NiveauScolaire.LYCEE_2ND, label: "2nd" }, { value: NiveauScolaire.LYCEE_1ERE, label: "1ère" }, { value: NiveauScolaire.LYCEE_TERM, label: "Terminal" },
+    { value: NiveauScolaire.AUTRE, label: "Autre" }]
 };
 
 export const getNiveauInterneOptions = (): DefaultOptionType[] => {
@@ -49,6 +50,8 @@ export const getLibelleNiveauScolaire = (niveau: NiveauScolaire) => {
         return "1ère";
     } else if (niveau === NiveauScolaire.LYCEE_TERM) {
         return "Terminal";
+    } else if (niveau === NiveauScolaire.AUTRE) {
+        return "Autre";
     } else {
         return "Inconnu";
     }

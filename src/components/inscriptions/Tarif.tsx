@@ -35,7 +35,7 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
             <>
                 <Divider orientation="left">Tarifs</Divider>
                 <div className="m-bottom-10">Votre tarif annuel : <strong>{getMontantTotalInscription()} euros.</strong></div>
-                <div className="m-bottom-10">Ce tarif a été calculé en prenant en compte votre statut (adhérent ou non) et le nombre d'élèves à inscrire.</div>
+                <div className="m-bottom-10">Ce tarif a été calculé en prenant en compte votre statut (<strong>{getStatutAdherent()}</strong>) et le nombre d'élèves à inscrire.</div>
                 {!isAdmin && tarifInscription?.listeAttente && (<div className="m-bottom-10"><strong>Attention, le nombre d'élèves inscrits sur la période en cours a atteint
                     la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription.</strong></div>)}
                 {isAdmin && (<><Divider orientation="left">Statut</Divider>

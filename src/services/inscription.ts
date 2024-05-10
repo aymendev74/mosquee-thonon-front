@@ -34,6 +34,7 @@ export type InscriptionLight = {
     prenom: string;
     dateNaissance: Dayjs | string;
     niveau: string;
+    niveauInterne: string;
     telephone: string;
     mobile: string;
     statut: StatutInscription;
@@ -56,6 +57,7 @@ export enum NiveauScolaire {
     LYCEE_2ND = "LYCEE_2ND",
     LYCEE_1ERE = "LYCEE_1ERE",
     LYCEE_TERM = "LYCEE_TERM",
+    AUTRE = "AUTRE",
 }
 
 export enum NiveauInterne {
