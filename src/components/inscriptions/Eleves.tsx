@@ -136,6 +136,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     }, []);
 
     return (<>
+        <div className="m-bottom-15">Veuillez renseigner les informations concernant les élèves à inscrire. Vous pouvez modifier les informations à tout moment en sélectionnant l'élève dans la liste ci-dessous et en cliquant sur "Modifier".</div>
         {!isReadOnly && editingIndex == null && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
         {editingIndex != null && (<>
             <Row gutter={[16, 32]}>

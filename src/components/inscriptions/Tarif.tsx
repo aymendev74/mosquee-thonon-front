@@ -57,7 +57,7 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                 <div className="container-nav-bi">
                     <Button style={{ marginTop: 30 }} onClick={onPreviousStep}>Précédent</Button>
                     {isAdmin && !isReadOnly && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Enregistrer</Button>)}
-                    {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Valider mon inscription</Button>)}
+                    {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit" disabled={!tarifInscription}>Valider mon inscription</Button>)}
                 </div>
             </>);
 
