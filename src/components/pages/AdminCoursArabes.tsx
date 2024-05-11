@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
-import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tooltip, notification } from "antd";
+import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
 import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined, StopOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
@@ -256,6 +256,18 @@ export const AdminCoursArabes: FunctionComponent = () => {
         },
     ];
 
+    const getNbDistinctsInscription = () => {
+        return new Set(dataSource?.map(inscription => inscription.idInscription)).size;
+    }
+
+    const formatTotal = (total: number) => {
+        if (total > 0) {
+            return (<Tag color="geekblue">Total sélection : <strong>{total} élève(s)</strong> (<strong>{getNbDistinctsInscription()} inscription(s)</strong>)</Tag>);
+        } else {
+            return (<Tag color="geekblue">Total sélection : <strong>{total}</strong></Tag>);
+        }
+    }
+
     return loggedUser ? (
         <Form
             name="adminCours"
@@ -282,7 +294,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         <Row>
                             <Col span={24}>
                                 <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                    columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id} />
+                                    columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
+                                    pagination={{ showTotal: formatTotal }} />
                             </Col>
                         </Row>
                     </div>

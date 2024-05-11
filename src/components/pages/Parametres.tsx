@@ -53,12 +53,12 @@ export const Parametres: FunctionComponent = () => {
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
-                    <Col span={24}>
+                    <Col span={8}>
                         <SwitchFormItem name="reinscriptionPrioritaire" label="Activer/Désactiver les réinscriptions prioritaires" />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
-                    <Col span={24}>
+                    <Col span={8}>
                         <InputFormItem name="anneeScolaire" label="Activer/Désactiver les réinscriptions prioritaires" />
                     </Col>
                 </Row>

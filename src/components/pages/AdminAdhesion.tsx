@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import { AdhesionLight, AdhesionLightForExport } from "../../services/adhesion";
 import { useAuth } from "../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
-import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tooltip, notification } from "antd";
+import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../services/services";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../services/inscription";
@@ -219,6 +219,14 @@ export const AdminAdhesion: FunctionComponent = () => {
         },
     ]
 
+    const formatTotal = (total: number) => {
+        if (total > 0) {
+            return (<Tag color="geekblue">Total sélection : <strong>{total} adhésion(s)</strong></Tag>);
+        } else {
+            return (<Tag color="geekblue">Total sélection : <strong>{total}</strong></Tag>);
+        }
+    }
+
     return loggedUser ? (
         <Form
             name="adminAdhesion"
@@ -245,7 +253,8 @@ export const AdminAdhesion: FunctionComponent = () => {
                         <Row>
                             <Col span={24}>
                                 <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedAdhesions.map(adhesion => adhesion.id), ...rowSelection }}
-                                    columns={columnsTableAdhesions} dataSource={dataSource} rowKey={record => record.id} />
+                                    columns={columnsTableAdhesions} dataSource={dataSource} rowKey={record => record.id}
+                                    pagination={{ showTotal: formatTotal }} />
                             </Col>
                         </Row>
                     </div>
