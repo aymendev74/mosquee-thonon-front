@@ -17,7 +17,8 @@ export const convertBooleanToOuiNon = (responsableLegal: ResponsableLegal) => {
 }
 
 export const getConsentementInscriptionCoursLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours." +
-    " Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.";
+    " Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com." +
+    " Vous vous engagez également à respecter le règlement intérieur de l'école, disponible sur demande auprès des membres de l'association et également affiché dans les locaux.";
 
 export const getConsentementAdhesionLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre adhésion à l'association." +
     " Vos données seront conservées pendant toute la durée de votre adhésion et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.";
