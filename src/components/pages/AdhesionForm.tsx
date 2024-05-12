@@ -191,7 +191,7 @@ export const AdhesionForm: FunctionComponent = () => {
                         </Col>
                         {autreMontantVisible && <Col span={12}>
                             <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly} addonAfter="€"
-                                rules={[{ required: true, message: "Veuillez saisir le montant" }]} />
+                                rules={[{ required: true, message: "Veuillez saisir le montant" }]} min={1} />
                         </Col>
                         }
                     </Row>
