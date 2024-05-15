@@ -5,10 +5,10 @@ export type InputFormItemProps = InputProps & FormItemProps & {
     formStyle?: React.CSSProperties;
 };
 
-export const InputFormItem: FunctionComponent<InputFormItemProps> = ({ name, label, rules, formStyle, ...rest }) => {
+export const InputFormItem: FunctionComponent<InputFormItemProps> = ({ name, label, rules, formStyle, required, ...rest }) => {
 
     return (
-        <Form.Item name={name.split(".")} label={label} rules={rules} style={formStyle} >
+        <Form.Item name={name.split(".")} label={label} rules={rules} style={formStyle} required={required}>
             <Input {...rest} />
         </Form.Item>
     );

@@ -1,6 +1,6 @@
 import { Button, Col, Divider, Row } from "antd";
 import { FunctionComponent } from "react";
-import { onNumericFieldChanged } from "../../utils/FormUtils";
+import { validateCodePostal, validateEmail, validatePhoneNumber } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
@@ -10,11 +10,21 @@ export type ResponsableLegalProps = {
     isReadOnly: boolean;
     isAdmin: boolean;
     doCalculTarif: () => void;
-    onNextStep: React.MouseEventHandler<HTMLElement>;
+    onNextStep: () => void;
     form: FormInstance;
 }
 
 export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isReadOnly, doCalculTarif, onNextStep, form }) => {
+
+    const validateAndNextStep = async () => {
+        try {
+            await form.validateFields();
+            // Si valide on peut passer à l'étape suivante
+            onNextStep();
+        } catch (errorInfo) {
+            console.log('Validation failed:', errorInfo);
+        }
+    };
 
     return (<>
         <InputFormItem name="responsableLegal.id" formStyle={{ display: "none" }} type="hidden" />
@@ -51,9 +61,8 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
         </Row>
         <Row gutter={[16, 32]}>
             <Col span={12}>
-                <InputFormItem label="Code postal" name="responsableLegal.codePostal"
-                    rules={[{ required: true, message: "Veuillez saisir votre code postal" },
-                    { pattern: /^\d{5}$/, message: "Veuillez saisir un code postale valide", validateTrigger: "onSubmit" }]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
+                <InputFormItem label="Code postal" name="responsableLegal.codePostal" required
+                    rules={[{ validator: validateCodePostal }]} disabled={isReadOnly} />
             </Col>
             <Col span={12}>
                 <InputFormItem label="Ville" name="responsableLegal.ville" rules={[{ required: true, message: "Veuillez saisir votre ville" }]} disabled={isReadOnly} />
@@ -61,16 +70,13 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
         </Row>
         <Row gutter={[16, 32]}>
             <Col span={12}>
-                <InputFormItem label="Tél. mobile" name="responsableLegal.mobile" rules={[{ required: true, message: "Veuillez saisir un numéro de téléphone" },
-                { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]}
-                    disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
+                <InputFormItem label="Tél. mobile" name="responsableLegal.mobile" rules={[{ validator: validatePhoneNumber }]} required
+                    disabled={isReadOnly} />
             </Col>
         </Row>
         <Row gutter={[16, 32]}>
             <Col span={12}>
-                <InputFormItem label="E-mail" name="responsableLegal.email" rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" },
-                { type: "email", message: "Veuillez saisir une adresse e-mail valide", validateTrigger: "onSubmit" }
-                ]} disabled={isReadOnly} />
+                <InputFormItem label="E-mail" name="responsableLegal.email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
             </Col>
         </Row>
         <Row gutter={[16, 32]}>
@@ -97,9 +103,8 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                     disabled={isReadOnly} />
             </Col>
             <Col span={12}>
-                <InputFormItem label="Tél. mobile" name="responsableLegal.telephoneAutre" rules={[{ required: true, message: "Veuillez saisir un numéro de téléphone" },
-                { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]}
-                    disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
+                <InputFormItem label="Tél. mobile" name="responsableLegal.telephoneAutre" rules={[{ validator: validatePhoneNumber }]}
+                    disabled={isReadOnly} required />
             </Col>
         </Row >
         <Row>
@@ -126,7 +131,7 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
             </Col>
         </Row>
         <div className="container-nav-mono">
-            <Button onClick={onNextStep} type="primary">Suivant</Button>
+            <Button onClick={validateAndNextStep} type="primary">Suivant</Button>
         </div>
     </>);
 

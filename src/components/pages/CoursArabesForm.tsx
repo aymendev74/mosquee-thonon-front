@@ -61,8 +61,21 @@ export const CoursArabesForm: FunctionComponent = () => {
         setActiveStep(String(newActiveStep));
     }
 
-    const onStepChanged = (activeKey: string) => {
-        setActiveStep(activeKey);
+    const handleTabChange = async (activeKey: string) => {
+        try {
+            if (activeKey === "2" || activeKey === "3") {
+                // si on veut passer à l'étape "élèves" ou "tarif", on lance la validation du formulaire (responsable légal)            
+                await form.validateFields();
+                if (activeKey === "3" && eleves.length === 0) {
+                    // Si on veut aller sur l'étape "tarif", et qu'on a pas saisie d'élèves, alors impossible
+                    notification.open({ message: "Veuillez ajouter des élèves avant de pouvoir visualiser votre tarif", type: "warning" });
+                    throw new Error("Pas d'élèves saisis, impossible de visualiser les tarifs");
+                }
+            }
+            setActiveStep(activeKey);
+        } catch (errorInfo) {
+            console.log('Validation failed:', errorInfo);
+        }
     }
 
     const tabItems: TabsProps['items'] = [
@@ -205,7 +218,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     }
 
     const getFormContent = () => {
-        return inscriptionFinished ? getResult() : (<Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={onStepChanged} />);
+        return inscriptionFinished ? getResult() : (<Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={handleTabChange} type="card" />);
     }
 
     const getLoadingTip = () => {

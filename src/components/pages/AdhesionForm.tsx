@@ -3,7 +3,7 @@ import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, onNumericFieldChanged } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateEmail, validatePhoneNumber } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
@@ -156,9 +156,7 @@ export const AdhesionForm: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <InputFormItem label="Code postal" name={"codePostal"} rules={[{ required: true, message: "Veuillez saisir votre code postal" },
-                            { pattern: /^\d{5}$/, message: "Veuillez saisir un code postale valide", validateTrigger: "onSubmit" }]}
-                                disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
+                            <InputFormItem label="Code postal" name={"codePostal"} rules={[{ validator: validateCodePostal }]} disabled={isReadOnly} required />
                         </Col>
                         <Col span={12}>
                             <InputFormItem label="Ville" name="ville" rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
@@ -168,15 +166,12 @@ export const AdhesionForm: FunctionComponent = () => {
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
                             <InputFormItem label="Tél. mobile" name="mobile"
-                                rules={[{ required: true, message: "Veuillez saisir un numéro de téléphone" },
-                                { pattern: /^\d{10}$/, message: "Veuillez saisir un numéro de téléphone valide", validateTrigger: "onSubmit" }]} disabled={isReadOnly} onKeyDown={onNumericFieldChanged} />
+                                rules={[{ validator: validatePhoneNumber }]} disabled={isReadOnly} />
                         </Col>
                     </Row>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <InputFormItem label="E-mail" name="email" rules={[{ required: true, message: "Veuillez saisir votre adresse e-mail" },
-                            { type: "email", message: "Veuillez saisir une adresse e-mail valide", validateTrigger: "onSubmit" }
-                            ]} disabled={isReadOnly} />
+                            <InputFormItem label="E-mail" name="email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
                         </Col>
                     </Row>
                     <Row>
@@ -186,13 +181,15 @@ export const AdhesionForm: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <SelectFormItem name="idTarif" label="Je m'engage à verser mensuellement" rules={[{ required: true, message: "Veuillez saisir votre versement mensuel" }]}
+                            <SelectFormItem name="idTarif" label="Je m'engage à verser mensuellement" rules={[{
+                                required: true, message: "Veuillez saisir votre versement mensuel"
+                            }]}
                                 disabled={isReadOnly} options={versementMensuelOptions} onChange={onMontantChanged} />
                         </Col>
-                        {autreMontantVisible && <Col span={12}>
+                        {autreMontantVisible && (<Col span={12}>
                             <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly} addonAfter="€"
                                 rules={[{ required: true, message: "Veuillez saisir le montant" }]} min={1} />
-                        </Col>
+                        </Col>)
                         }
                     </Row>
                     {isAdmin && (<><Divider orientation="left">Administration</Divider>

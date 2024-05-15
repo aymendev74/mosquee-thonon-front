@@ -1,4 +1,4 @@
-import { Button, Col, Collapse, FormInstance, Row } from "antd";
+import { Button, Col, Collapse, FormInstance, Row, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Eleve } from "../../services/eleve";
 import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions } from "../common/commoninputs";
@@ -15,8 +15,8 @@ export type EleveProps = {
     eleves: Eleve[];
     setEleves: React.Dispatch<React.SetStateAction<Eleve[]>>;
     form: FormInstance;
-    onPreviousStep: React.MouseEventHandler<HTMLElement>;
-    onNextStep: React.MouseEventHandler<HTMLElement>;
+    onPreviousStep: () => void;
+    onNextStep: () => void;
 }
 
 export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, eleves, setEleves, form, onPreviousStep, onNextStep }) => {
@@ -36,7 +36,8 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
                     {(isAdmin) && <p><strong>Niveau interne :</strong> {eleve.niveauInterne}</p>}
                     {
                         !isReadOnly &&
-                        (<><Button onClick={() => handleEdit(index)}>Modifier</Button>
+                        (<>
+                            <Button onClick={() => handleEdit(index)}>Modifier</Button>
                             <Button className="m-left-10" onClick={() => handleDelete(index)} danger>Supprimer</Button>
                         </>)
                     }
@@ -129,6 +130,14 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
         setEditingIndex(null);
     };
 
+    const handleNextStep = () => {
+        if (eleves.length > 0) {
+            onNextStep();
+        } else {
+            notification.open({ message: "Veuillez ajouter des élèves avant d'aller à l'étape suivante", type: "warning" });
+        }
+    }
+
     useEffect(() => {
         if (!isReadOnly) {
             setEditingIndex(0);
@@ -177,7 +186,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
 
         <div className="container-nav-bi">
             <Button onClick={onPreviousStep}>Précédent</Button>
-            <Button onClick={onNextStep} type="primary">Suivant</Button>
+            <Button onClick={handleNextStep} type="primary">Suivant</Button>
         </div>
     </>);
 

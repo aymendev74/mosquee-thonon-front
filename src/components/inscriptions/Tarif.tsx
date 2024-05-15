@@ -12,7 +12,7 @@ export type TarifProps = {
     form: FormInstance;
     isAdmin: boolean;
     isReadOnly: boolean;
-    onPreviousStep: React.MouseEventHandler<HTMLElement>;
+    onPreviousStep: () => void;
     consentementChecked: boolean;
     setConsentementChecked: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -30,35 +30,34 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
         }
     }
 
-    return !tarifInscription && !isAdmin ? (<div className="m-bottom-15">Pour obtenir un tarif, veuillez ajouter des élèves</div>)
-        : (
-            <>
-                <Divider orientation="left">Tarifs</Divider>
-                <div className="m-bottom-10">Votre tarif annuel : <strong>{getMontantTotalInscription()} euros.</strong></div>
-                <div className="m-bottom-10">Ce tarif a été calculé en prenant en compte votre statut (<strong>{getStatutAdherent()}</strong>) et le nombre d'élèves à inscrire.</div>
-                {!isAdmin && tarifInscription?.listeAttente && (<div className="m-bottom-10"><strong>Attention, le nombre d'élèves inscrits sur la période en cours a atteint
-                    la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription.</strong></div>)}
-                {isAdmin && (<><Divider orientation="left">Statut</Divider>
-                    <Row gutter={[16, 32]}>
-                        <Col span={12}>
-                            <SelectFormItem name="statut" label="Statut inscription" options={getStatutInscriptionOptions()} disabled={isReadOnly} />
-                        </Col>
-                    </Row>
-                </>)}
+    return (
+        <>
+            <Divider orientation="left">Tarifs</Divider>
+            <div className="m-bottom-10">Votre tarif annuel : <strong>{getMontantTotalInscription()} euros.</strong></div>
+            <div className="m-bottom-10">Ce tarif a été calculé en prenant en compte votre statut (<strong>{getStatutAdherent()}</strong>) et le nombre d'élèves à inscrire.</div>
+            {!isAdmin && tarifInscription?.listeAttente && (<div className="m-bottom-10"><strong>Attention, le nombre d'élèves inscrits sur la période en cours a atteint
+                la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription.</strong></div>)}
+            {isAdmin && (<><Divider orientation="left">Statut</Divider>
                 <Row gutter={[16, 32]}>
-                    <Col span={24}>
-                        {!isAdmin && (
-                            <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
-                                {getConsentementInscriptionCoursLibelle()}
-                            </Checkbox>
-                        )}
+                    <Col span={12}>
+                        <SelectFormItem name="statut" label="Statut inscription" options={getStatutInscriptionOptions()} disabled={isReadOnly} />
                     </Col>
                 </Row>
-                <div className="container-nav-bi">
-                    <Button style={{ marginTop: 30 }} onClick={onPreviousStep}>Précédent</Button>
-                    {isAdmin && !isReadOnly && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Enregistrer</Button>)}
-                    {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit" disabled={!tarifInscription}>Valider mon inscription</Button>)}
-                </div>
-            </>);
+            </>)}
+            <Row gutter={[16, 32]}>
+                <Col span={24}>
+                    {!isAdmin && (
+                        <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
+                            {getConsentementInscriptionCoursLibelle()}
+                        </Checkbox>
+                    )}
+                </Col>
+            </Row>
+            <div className="container-nav-bi">
+                <Button style={{ marginTop: 30 }} onClick={onPreviousStep}>Précédent</Button>
+                {isAdmin && !isReadOnly && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Enregistrer</Button>)}
+                {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit" disabled={!tarifInscription}>Valider mon inscription</Button>)}
+            </div>
+        </>);
 
 }
