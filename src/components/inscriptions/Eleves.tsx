@@ -96,7 +96,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
             return undefined;
         }
 
-        const premierOctobreAnneCouranteMoins6Ans = dayjs().set("month", 9).set("date", 1).set("year", dayjs().year() - 6);
+        const premierOctobreAnneCouranteMoins6Ans = dayjs().set("month", 9).set("date", 1).add(-6, "year");
         if (premierOctobreAnneCouranteMoins6Ans.isBefore(dateNaissance)) {
             setError("Les élèves doivent être agés de 6 ans au minimum au 1er octobre");
             return undefined;

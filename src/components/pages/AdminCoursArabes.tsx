@@ -106,15 +106,10 @@ export const AdminCoursArabes: FunctionComponent = () => {
     };
 
     const doSearch = () => {
-        const nom = form.getFieldValue("nom");
-        const prenom = form.getFieldValue("prenom");
-        const telephone = form.getFieldValue("telephone");
-        const statut = form.getFieldValue("statut");
-        const noInscription = form.getFieldValue("noInscription");
-        const idPeriode = form.getFieldValue("idPeriode");
+        const { nom, prenom, telephone, statut, noInscription, idPeriode } = form.getFieldsValue();
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
-            dateInscription = dateInscription.format(APPLICATION_DATE_FORMAT);
+            dateInscription = dayjs(dateInscription).format(APPLICATION_DATE_FORMAT);
         }
         const niveaux = form.getFieldValue("niveau");
         const niveauxInternes = form.getFieldValue("niveauInterne");
@@ -136,7 +131,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 { name: "niveau", libelle: "Niveau", inputType: "SelectTags", selectOptions: getNiveauOptions() },
                 { name: "niveauInterne", libelle: "Niveau interne", inputType: "SelectTags", selectOptions: getNiveauInterneOptions() },
                 { name: "telephone", libelle: "Téléphone", inputType: "InputText" },
-                { name: "dateInscription", libelle: "Date adhésion", inputType: "Date", tooltip: "Rechercher les inscription reçues à partir du" },
+                { name: "dateInscription", libelle: "Date inscription", inputType: "Date", tooltip: "Rechercher les inscription reçues à partir du" },
                 {
                     name: "statut", libelle: "Statut", inputType: "Select", selectOptions: getStatutInscriptionOptions()
                 },
@@ -150,7 +145,6 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     useEffect(() => {
         if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
-            console.log(result);
             setDataSource(result);
             resetApi();
         }

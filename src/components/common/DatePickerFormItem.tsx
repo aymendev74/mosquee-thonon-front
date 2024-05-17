@@ -9,7 +9,7 @@ export const DatePickerFormItem: FunctionComponent<DatePickerFormItemProps> = ({
 
     return (
         <Form.Item name={name.split(".")} label={label} rules={rules}>
-            <DatePicker format={APPLICATION_DATE_FORMAT} placeholder={APPLICATION_DATE_FORMAT} {...rest} />
+            <DatePicker format={APPLICATION_DATE_FORMAT} {...rest} />
         </Form.Item>
     );
 }

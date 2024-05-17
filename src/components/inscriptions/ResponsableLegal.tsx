@@ -16,7 +16,7 @@ export type ResponsableLegalProps = {
 
 export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isReadOnly, doCalculTarif, onNextStep, form }) => {
 
-    const validateAndNextStep = async () => {
+    const handleNextStep = async () => {
         try {
             await form.validateFields();
             // Si valide on peut passer à l'étape suivante
@@ -131,7 +131,7 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
             </Col>
         </Row>
         <div className="container-nav-mono">
-            <Button onClick={validateAndNextStep} type="primary">Suivant</Button>
+            <Button onClick={handleNextStep} type="primary">Suivant</Button>
         </div>
     </>);
 

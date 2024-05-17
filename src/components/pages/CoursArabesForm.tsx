@@ -1,6 +1,6 @@
 import { Badge, Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
+import { CHECK_COHERENCE_INSCRIPTION_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
 import { Inscription, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -12,10 +12,11 @@ import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, convertBooleanToOuiNon, convertOuiNonToBoolean } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, convertBooleanToOuiNon, convertTypesBeforeBackend } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 import { HttpStatusCode } from "axios";
 import dayjs from "dayjs";
+import _ from "lodash";
 
 export const CoursArabesForm: FunctionComponent = () => {
 
@@ -29,6 +30,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [inscriptionFinished, setInscriptionFinished] = useState<Inscription>();
     const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
+    const [codeIncoherence, setCodeIncoherence] = useState<string>();
     const [activeStep, setActiveStep] = useState<string>("1");
 
     const id = location.state ? location.state.id : undefined;
@@ -39,7 +41,10 @@ export const CoursArabesForm: FunctionComponent = () => {
         let adherent = form.getFieldValue(["responsableLegal", "adherent"]);
         if (eleves.length > 0) {
             const nbEleves = eleves.length;
-            const atDate = form.getFieldValue("dateInscription");
+            let atDate = form.getFieldValue("dateInscription");
+            if (atDate) {
+                atDate = dayjs(atDate).format(APPLICATION_DATE_FORMAT);
+            }
             setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves, atDate } });
         } else {
             setTarifInscription(undefined);
@@ -51,20 +56,10 @@ export const CoursArabesForm: FunctionComponent = () => {
         setEleves([]);
     }
 
-    const onPreviousStep = () => {
-        const newActiveStep = Number(activeStep) - 1;
-        setActiveStep(String(newActiveStep));
-    }
-
-    const onNextStep = () => {
-        const newActiveStep = Number(activeStep) + 1;
-        setActiveStep(String(newActiveStep));
-    }
-
     const handleTabChange = async (activeKey: string) => {
         try {
             if (activeKey === "2" || activeKey === "3") {
-                // si on veut passer à l'étape "élèves" ou "tarif", on lance la validation du formulaire (responsable légal)            
+                // si on veut passer à l'étape "élèves" ou "tarif", on lance la validation du formulaire (responsable légal)
                 await form.validateFields();
                 if (activeKey === "3" && eleves.length === 0) {
                     // Si on veut aller sur l'étape "tarif", et qu'on a pas saisie d'élèves, alors impossible
@@ -78,20 +73,30 @@ export const CoursArabesForm: FunctionComponent = () => {
         }
     }
 
+    const onPreviousStep = () => {
+        const newActiveStep = Number(activeStep) - 1;
+        handleTabChange(String(newActiveStep));
+    }
+
+    const onNextStep = () => {
+        const newActiveStep = Number(activeStep) + 1;
+        handleTabChange(String(newActiveStep));
+    }
+
     const tabItems: TabsProps['items'] = [
         {
-            key: "1",
+            key: COURS_KEY_STEP_RESP_LEGAL,
             label: <><InfoCircleOutlined />Responsable légal</>,
             children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} onNextStep={onNextStep} form={form} />,
         },
         {
-            key: "2",
+            key: COURS_KEY_STEP_ELEVES,
             label: <><UserOutlined />Elèves</>,
             children: <Eleves isReadOnly={isReadOnly} isAdmin={isAdmin} form={form} eleves={eleves} setEleves={setEleves} onPreviousStep={onPreviousStep}
                 onNextStep={onNextStep} />,
         },
         {
-            key: "3",
+            key: COURS_KEY_STEP_TARIF,
             label: <><EuroCircleOutlined />Tarif</>,
             children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} isReadOnly={isReadOnly}
                 onPreviousStep={onPreviousStep} consentementChecked={consentementChecked} setConsentementChecked={setConsentementChecked} />,
@@ -103,16 +108,13 @@ export const CoursArabesForm: FunctionComponent = () => {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
         }
-        if (inscription.responsableLegal.adherent == undefined) {
-            inscription.responsableLegal.adherent = false;
+        const inscriptionDeepCopy = _.cloneDeep(inscription);
+        if (inscriptionDeepCopy.responsableLegal.adherent == undefined) {
+            inscriptionDeepCopy.responsableLegal.adherent = false;
         }
-        if (inscription.dateInscription) {
-            inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
-        }
-        inscription.eleves = eleves;
-        inscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT));
-        convertOuiNonToBoolean(inscription.responsableLegal);
-        setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
+        inscriptionDeepCopy.eleves = _.cloneDeep(eleves);
+        convertTypesBeforeBackend(inscriptionDeepCopy);
+        setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_INSCRIPTION_ENDPOINT, data: inscriptionDeepCopy });
     };
 
     useEffect(() => {
@@ -157,7 +159,29 @@ export const CoursArabesForm: FunctionComponent = () => {
             setIsOnlyReinscriptionEnabled(result);
             resetApi();
         }
+
+        // Check cohérence inscription avant enregistrement
+        if (apiCallDefinition?.url === CHECK_COHERENCE_INSCRIPTION_ENDPOINT) {
+            console.log(result);
+            setCodeIncoherence(result);
+            resetApi();
+        }
     }, [result]);
+
+    useEffect(() => {
+        console.log(codeIncoherence);
+        if (codeIncoherence === "ELEVE_ALREADY_EXISTS") {
+            notification.open({ message: "Au moins un élève saisi figure déjà dans une autre demande d'inscription sur la même période", type: "error" });
+            setCodeIncoherence(undefined);
+        } else if (codeIncoherence === "NO_INCOHERENCE") {
+            const inscription: Inscription = _.cloneDeep(form.getFieldsValue());
+            inscription.eleves = _.cloneDeep(eleves);
+            convertTypesBeforeBackend(inscription);
+            setCodeIncoherence(undefined);
+            console.log(inscription);
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
+        }
+    }, [codeIncoherence])
 
     const onFinishFailed = () => {
         notification.open({ message: "Veuillez contrôler le formulaire car il y a des erreurs dans votre saisie", type: "error" });

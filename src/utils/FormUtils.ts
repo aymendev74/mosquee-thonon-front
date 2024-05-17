@@ -1,8 +1,11 @@
+import dayjs from "dayjs";
 import { ResponsableLegal } from "../services/ResponsableLegal";
+import { Inscription } from "../services/inscription";
 
 export const convertOuiNonToBoolean = (responsableLegal: ResponsableLegal) => {
     responsableLegal.autorisationAutonomie = responsableLegal.autorisationAutonomie === "OUI" ? true : false;
     responsableLegal.autorisationMedia = responsableLegal.autorisationMedia === "OUI" ? true : false;
+    responsableLegal.adherent = responsableLegal.adherent ?? false;
 }
 
 export const convertBooleanToOuiNon = (responsableLegal: ResponsableLegal) => {
@@ -34,6 +37,24 @@ export const validateEmail = (_: any, value: any) => {
     return Promise.resolve();
 };
 
+export const validateMajorite = (_: any, date: dayjs.Dayjs) => {
+    const datePlus18ans = date.add(18, "year");
+    if (datePlus18ans.isAfter(dayjs())) {
+        return Promise.reject('Vous devez être majeur pour devenir adhérent');
+    }
+    return Promise.resolve();
+};
+
+export const convertTypesBeforeBackend = (inscription: Inscription) => {
+    if (inscription.dateInscription) {
+        inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
+    }
+    if (inscription.eleves) {
+        inscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT));
+    }
+    convertOuiNonToBoolean(inscription.responsableLegal);
+}
+
 export const getConsentementInscriptionCoursLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours." +
     " Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com." +
     " Vous vous engagez également à respecter le règlement intérieur de l'école, disponible sur demande auprès des membres de l'association et également affiché dans les locaux.";
@@ -44,3 +65,7 @@ export const getConsentementAdhesionLibelle = () => "En soumettant ce formulaire
 
 export const APPLICATION_DATE_FORMAT: string = "DD.MM.YYYY";
 export const APPLICATION_DATE_TIME_FORMAT: string = "DD.MM.YYYY HH:mm:ss.SSS";
+
+export const COURS_KEY_STEP_RESP_LEGAL = "1";
+export const COURS_KEY_STEP_ELEVES = "2";
+export const COURS_KEY_STEP_TARIF = "3";

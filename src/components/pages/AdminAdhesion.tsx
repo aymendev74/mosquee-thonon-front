@@ -102,10 +102,7 @@ export const AdminAdhesion: FunctionComponent = () => {
     };
 
     const doSearch = () => {
-        const nom = form.getFieldValue("nom");
-        const prenom = form.getFieldValue("prenom");
-        const statut = form.getFieldValue("statut");
-        const montant = form.getFieldValue("montant");
+        const { nom, prenom, statut, montant } = form.getFieldsValue();
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
             dateInscription = dateInscription.format(APPLICATION_DATE_FORMAT);

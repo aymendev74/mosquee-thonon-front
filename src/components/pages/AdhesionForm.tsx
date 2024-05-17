@@ -3,7 +3,7 @@ import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateEmail, validatePhoneNumber } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateEmail, validateMajorite, validatePhoneNumber } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
@@ -139,7 +139,9 @@ export const AdhesionForm: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[16, 32]}>
                         <Col span={24}>
-                            <DatePickerFormItem label="Date de naissance" name="dateNaissance" rules={[{ required: true, message: "Veuillez saisir votre date de naissance" }]}
+                            <DatePickerFormItem label="Date de naissance" name="dateNaissance" rules={[{ required: true, message: "Veuillez saisir votre date de naissance" },
+                            { validator: validateMajorite }
+                            ]}
                                 placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                         </Col>
                     </Row>
