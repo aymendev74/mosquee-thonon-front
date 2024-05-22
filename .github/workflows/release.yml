@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Branche de release (par ex. 1.x)'
+        description: 'Branche de release (préciser uniquement la version majeure)'
         required: true
 
 permissions:
@@ -27,11 +27,12 @@ jobs:
         run: |
           git config --global user.name "Aymen"
           git config --global user.email "aymen330d@hotmail.fr"
-          RELEASE_BRANCHE="release-${{ github.event.inputs.release_version }}"
+          RELEASE_VERSION="${{ github.event.inputs.release_version }}.0.0"
+          RELEASE_BRANCHE="release-$RELEASE_VERSION"
           git checkout -b $RELEASE_BRANCHE
-          npm version ${{ github.event.inputs.release_version }} --no-git-tag-version
+          npm version $RELEASE_VERSION --no-git-tag-version
           git add package.json
-          git commit -m "release branche created ==> ${{ github.event.inputs.release_version }}"
+          git commit -m "release branche created ==> $$RELEASE_VERSION"
           git push origin $RELEASE_BRANCHE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
