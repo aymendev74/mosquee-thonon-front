@@ -32,7 +32,7 @@ jobs:
           git checkout -b $RELEASE_BRANCHE
           npm version $RELEASE_VERSION --no-git-tag-version
           git add package.json
-          git commit -m "release branche created ==> $$RELEASE_VERSION"
+          git commit -m "release branche created ==> $RELEASE_VERSION"
           git push origin $RELEASE_BRANCHE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
