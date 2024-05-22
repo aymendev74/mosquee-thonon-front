@@ -30,7 +30,7 @@ jobs:
           RELEASE_BRANCHE="release-${{ github.event.inputs.release_version }}"
           git checkout -b $RELEASE_BRANCHE
           npm version ${{ github.event.inputs.version }} --no-git-tag-version
-          git add pom.xml
+          git add package.json
           git commit -m "release branche created ==> ${{ github.event.inputs.release_version }}"
           git push origin $RELEASE_BRANCHE
         env:
