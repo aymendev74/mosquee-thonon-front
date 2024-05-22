@@ -12,8 +12,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
+    steps:    
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ github.ref }} # branche sur laquelle on a déclenché le workflow
+          
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
