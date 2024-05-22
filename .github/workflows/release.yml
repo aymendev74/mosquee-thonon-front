@@ -10,7 +10,7 @@ permissions:
 
 env:
   RELEASE_VERSION: "${{ github.event.inputs.release_version }}.0.0"
-  RELEASE_BRANCHE: "release-$RELEASE_VERSION"
+  RELEASE_BRANCHE: "release-${{ github.event.inputs.release_version }}.0.0"
 
 jobs:
   create-release-branch:
@@ -42,4 +42,4 @@ jobs:
       - name: Create first Tag
         run: |
           git tag $RELEASE_VERSION
-          git push origin RELEASE_VERSION # on pousse le nouveau tag          
+          git push origin $RELEASE_VERSION # on pousse le nouveau tag          
