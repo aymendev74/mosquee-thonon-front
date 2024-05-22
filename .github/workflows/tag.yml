@@ -28,7 +28,7 @@ jobs:
         run: |
           git config --global user.name "Aymen"
           git config --global user.email "aymen330d@hotmail.fr"
-          mvn versions:set -DnewVersion=${{ github.event.inputs.tag_version }}  
+          npm version ${{ github.event.inputs.tag_version }} --no-git-tag-version
           git add package.json
           git commit -m "tag created ==> ${{ github.event.inputs.tag_version }}"
           git tag ${{ github.event.inputs.tag_version }}
