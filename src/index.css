@@ -17,6 +17,10 @@
   justify-content: center;
 }
 
+.content {
+  padding-top: 15px;
+}
+
 .centered-content {
   display: flex;
   justify-content: center;

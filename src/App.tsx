@@ -71,7 +71,7 @@ function App() {
           </Col>
         </Row>
       </Header>
-      <Content style={{ padding: '50px', minHeight: "600px" }}>
+      <Content className="content">
         <div className="centered-content">
           <Routes>
             <Route path="/" element={<Home />} />
