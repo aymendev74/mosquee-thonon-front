@@ -61,12 +61,7 @@ function App() {
             {loggedUser ? (
               <DropdownAuthUser />
             ) : (
-              <Link to="/login"><Button
-                type="primary"
-                icon={<LoginOutlined />}
-              >
-                Connexion
-              </Button></Link>
+              <></>
             )}
           </Col>
         </Row>

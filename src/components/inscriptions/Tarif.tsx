@@ -5,6 +5,7 @@ import { TarifInscriptionDto } from "../../services/tarif";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getStatutInscriptionOptions } from "../common/commoninputs";
 import { getConsentementInscriptionCoursLibelle } from "../../utils/FormUtils";
+import { SwitchFormItem } from "../common/SwitchFormItem";
 
 export type TarifProps = {
     eleves: Eleve[];
@@ -41,6 +42,13 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
                         <SelectFormItem name="statut" label="Statut inscription" options={getStatutInscriptionOptions()} disabled={isReadOnly} />
+                    </Col>
+                </Row>
+            </>)}
+            {isAdmin && (<><Divider orientation="left">Renvoi du mail de confirmation</Divider>
+                <Row gutter={[16, 32]}>
+                    <Col span={12}>
+                        <SwitchFormItem name="sendMailConfirmation" label="Renvoi automatique du mail de confirmation" disabled={isReadOnly} />
                     </Col>
                 </Row>
             </>)}
