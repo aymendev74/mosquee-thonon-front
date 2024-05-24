@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
+import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/UseAuth";
 
 export const MyMenu: FunctionComponent = () => {
@@ -49,6 +49,6 @@ export const MyMenu: FunctionComponent = () => {
         return menuItems;
     }
 
-    return (<Menu theme="dark" mode="horizontal" onClick={onMenuClicked}
+    return (<Menu theme="dark" mode="horizontal" onClick={onMenuClicked} overflowedIndicator={<MenuOutlined />}
         items={getMenuItems()} />);
 }

@@ -16,6 +16,10 @@ export type SignatureDto = {
     visaModification: string;
 }
 
+export type InscriptionSaveCriteria = {
+    sendMailConfirmation: boolean;
+}
+
 export type Inscription = {
     id: number;
     statut: StatutInscription | boolean;
