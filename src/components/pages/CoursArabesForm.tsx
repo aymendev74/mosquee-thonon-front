@@ -1,7 +1,7 @@
 import { Badge, Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { CHECK_COHERENCE_INSCRIPTION_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
-import { Inscription, StatutInscription } from "../../services/inscription";
+import { Inscription, InscriptionSaveCriteria, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -17,6 +17,8 @@ import { InputFormItem } from "../common/InputFormItem";
 import { HttpStatusCode } from "axios";
 import dayjs from "dayjs";
 import _ from "lodash";
+
+type CoursArabeFormValues = Inscription & InscriptionSaveCriteria;
 
 export const CoursArabesForm: FunctionComponent = () => {
 
@@ -162,24 +164,24 @@ export const CoursArabesForm: FunctionComponent = () => {
 
         // Check cohérence inscription avant enregistrement
         if (apiCallDefinition?.url === CHECK_COHERENCE_INSCRIPTION_ENDPOINT) {
-            console.log(result);
             setCodeIncoherence(result);
             resetApi();
         }
     }, [result]);
 
     useEffect(() => {
-        console.log(codeIncoherence);
         if (codeIncoherence === "ELEVE_ALREADY_EXISTS") {
             notification.open({ message: "Au moins un élève saisi figure déjà dans une autre demande d'inscription sur la même période", type: "error" });
             setCodeIncoherence(undefined);
         } else if (codeIncoherence === "NO_INCOHERENCE") {
-            const inscription: Inscription = _.cloneDeep(form.getFieldsValue());
-            inscription.eleves = _.cloneDeep(eleves);
-            convertTypesBeforeBackend(inscription);
+            let { sendMailConfirmation, ...rest } = _.cloneDeep(form.getFieldsValue());
+            if (!isAdmin) { // si pas en mode admin, l'envoi du mail est systématique
+                sendMailConfirmation = true;
+            }
+            rest.eleves = _.cloneDeep(eleves);
+            convertTypesBeforeBackend(rest);
             setCodeIncoherence(undefined);
-            console.log(inscription);
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: inscription });
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: rest, params: { sendMailConfirmation } });
         }
     }, [codeIncoherence])
 
