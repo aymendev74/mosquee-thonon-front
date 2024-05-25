@@ -45,6 +45,13 @@ export const validateMajorite = (_: any, date: dayjs.Dayjs) => {
     return Promise.resolve();
 };
 
+export const validateMontantMinAdhesion = (_: any, value: number) => {
+    if (value < 15) {
+        return Promise.reject('Le montant de votre cotisation ne peut être inférieur à 15 euros.');
+    }
+    return Promise.resolve();
+};
+
 export const convertTypesBeforeBackend = (inscription: Inscription) => {
     if (inscription.dateInscription) {
         inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);

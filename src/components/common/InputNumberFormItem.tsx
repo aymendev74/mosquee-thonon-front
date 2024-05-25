@@ -4,10 +4,10 @@ import { FunctionComponent } from "react";
 
 export type InputNumberFormItemProps = InputNumberProps & FormItemProps;
 
-export const InputNumberFormItem: FunctionComponent<InputNumberFormItemProps> = ({ name, label, rules, initialValue, ...rest }) => {
+export const InputNumberFormItem: FunctionComponent<InputNumberFormItemProps> = ({ name, label, rules, initialValue, required, ...rest }) => {
 
     return (
-        <Form.Item name={name?.split(".")} label={label} rules={rules} initialValue={initialValue}>
+        <Form.Item name={name?.split(".")} label={label} rules={rules} initialValue={initialValue} required={required}>
             <InputNumber {...rest} />
         </Form.Item>
     );
