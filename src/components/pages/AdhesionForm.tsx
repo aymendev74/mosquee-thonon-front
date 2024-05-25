@@ -3,7 +3,7 @@ import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateEmail, validateMajorite, validatePhoneNumber } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
@@ -167,7 +167,7 @@ export const AdhesionForm: FunctionComponent = () => {
                     </Row>
                     <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <InputFormItem label="Tél. mobile" name="mobile"
+                            <InputFormItem label="Tél. mobile" name="mobile" required
                                 rules={[{ validator: validatePhoneNumber }]} disabled={isReadOnly} />
                         </Col>
                     </Row>
@@ -190,7 +190,7 @@ export const AdhesionForm: FunctionComponent = () => {
                         </Col>
                         {autreMontantVisible && (<Col span={12}>
                             <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly} addonAfter="€"
-                                rules={[{ required: true, message: "Veuillez saisir le montant" }]} min={1} />
+                                rules={[{ validator: validateMontantMinAdhesion }, { required: true, message: "Veuillez saisir le montant de votre cotisation" }]} min={1} />
                         </Col>)
                         }
                     </Row>
