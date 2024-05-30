@@ -152,6 +152,7 @@ export const CoursArabesForm: FunctionComponent = () => {
                 notification.open({ message: "Votre tarif a été mis à jour (voir l'onglet Tarif)", type: "success" });
             } else if (status === HttpStatusCode.NoContent) { // No content (pas de tarif pour la période)
                 notification.open({ message: "Aucun tarif n'a été trouvé pour la période en cours", type: "error" });
+                setTarifInscription(undefined);
             }
             resetApi();
         }
