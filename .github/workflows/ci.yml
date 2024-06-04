@@ -10,6 +10,11 @@ on:
       - master
       - 'release-*'
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environnement de déploiement (staging | production)'
+        required: true
+        default: 'staging'
 
 jobs:
   build:
@@ -32,7 +37,12 @@ jobs:
       run: npm install
 
     - name: Setup Environment properties
-      run: echo "${{ vars.ENV_FILE }}" > .env
+      run: |
+        if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+          echo "${{ vars.ENV_FILE_PRODUCTION }}" > .env
+        else
+          echo "${{ vars.ENV_FILE_STAGING }}" > .env
+        fi
       
     - name: Build React app
       run: npm run build
@@ -61,4 +71,4 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         
     - name: Update ReactJS App
-      run: scp -r -o StrictHostKeyChecking=no * ubuntu@${{ secrets.TARGET_SERVER_IP }}:/var/www/mosquee-thonon/
+      run: scp -r -o StrictHostKeyChecking=no * ubuntu@${{ secrets.TARGET_SERVER_IP }}:/var/www/mosquee-thonon/${{ github.event.inputs.environment }}
