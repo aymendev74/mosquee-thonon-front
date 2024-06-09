@@ -1,10 +1,10 @@
-import { Button, Col, Divider, Form, Row, Spin, notification } from "antd";
+import { Button, Col, Divider, Form, Row, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, PARAM_ENDPOINT } from "../../services/services";
-import useApi from "../../hooks/useApi";
-import { SwitchFormItem } from "../common/SwitchFormItem";
-import { ParamDto, ParamName } from "../../services/parametres";
-import { InputFormItem } from "../common/InputFormItem";
+import { PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, PARAM_ENDPOINT } from "../../../services/services";
+import useApi from "../../../hooks/useApi";
+import { SwitchFormItem } from "../../common/SwitchFormItem";
+import { ParamDto, ParamName } from "../../../services/parametres";
+import { InputFormItem } from "../../common/InputFormItem";
 
 export const Parametres: FunctionComponent = () => {
 
@@ -59,7 +59,9 @@ export const Parametres: FunctionComponent = () => {
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={8}>
-                        <InputFormItem name="anneeScolaire" label="Activer/Désactiver les réinscriptions prioritaires" />
+                        <Tooltip color="geekblue" title="Cette information apparaît notamment sur les formulaire pdf des inscriptions">
+                            <InputFormItem name="anneeScolaire" label="Période scolaire en cours" />
+                        </Tooltip>
                     </Col>
                 </Row>
                 <Button type="primary" htmlType="submit">Enregistrer</Button>

@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Row } from "antd";
+import { Button, Col, Divider, Row, Tooltip } from "antd";
 import { FunctionComponent } from "react";
 import { validateCodePostal, validateEmail, validatePhoneNumber } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
@@ -81,7 +81,9 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
         </Row>
         <Row gutter={[16, 32]}>
             <Col span={12}>
-                <SwitchFormItem label="Je suis adhérent" name="responsableLegal.adherent" disabled={isReadOnly} onChange={() => doCalculTarif()} />
+                <Tooltip color="geekblue" title="En étant adhérent, vous bénéficiez d'un tarif préférentiel pour les cours d'arabes">
+                    <SwitchFormItem label="Je suis adhérent" name="responsableLegal.adherent" disabled={isReadOnly} onChange={() => doCalculTarif()} />
+                </Tooltip>
             </Col>
         </Row>
         <Row>
