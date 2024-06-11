@@ -1,7 +1,7 @@
 import { Button, Form, Input, Spin, notification } from 'antd';
 import { FunctionComponent, useEffect } from 'react';
-import { CHANGE_PASSWORD_ENDPOINT, ERROR_INVALID_OLD_PASSWORD } from '../../services/services';
-import useApi from '../../hooks/useApi';
+import { CHANGE_PASSWORD_ENDPOINT, ERROR_INVALID_OLD_PASSWORD } from '../../../services/services';
+import useApi from '../../../hooks/useApi';
 import { useForm } from 'antd/es/form/Form';
 
 type FieldType = {

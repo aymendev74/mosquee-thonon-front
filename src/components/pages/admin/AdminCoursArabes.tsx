@@ -1,27 +1,27 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { InscriptionForExport, InscriptionLight, StatutInscription } from "../../services/inscription";
-import { INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../services/services";
-import { useAuth } from "../../hooks/UseAuth";
+import { InscriptionForExport, InscriptionLight, StatutInscription } from "../../../services/inscription";
+import { INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../../services/services";
+import { useAuth } from "../../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
-import useApi from "../../hooks/useApi";
+import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
 import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined, StopOutlined, WarningOutlined } from "@ant-design/icons";
-import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
+import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
-import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../common/commoninputs";
-import { InputFormItem } from "../common/InputFormItem";
-import { SelectFormItem } from "../common/SelectFormItem";
-import { DatePickerFormItem } from "../common/DatePickerFormItem";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../utils/FormUtils";
+import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
+import { InputFormItem } from "../../common/InputFormItem";
+import { SelectFormItem } from "../../common/SelectFormItem";
+import { DatePickerFormItem } from "../../common/DatePickerFormItem";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
-import { PeriodeInfoDto } from "../../services/periode";
-import { getPeriodeOptions } from "../common/CommonComponents";
+import { PeriodeInfoDto } from "../../../services/periode";
+import { getPeriodeOptions } from "../../common/CommonComponents";
 import dayjs from "dayjs";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { PdfInscriptionCours } from "../documents/PdfInscriptionCours";
-import { getFileNameInscription } from "../common/tableDefinition";
-import { AdminSearchFilter } from "../common/AdminSearchFilter";
+import { PdfInscriptionCours } from "../../documents/PdfInscriptionCours";
+import { getFileNameInscription } from "../../common/tableDefinition";
+import { AdminSearchFilter } from "../../common/AdminSearchFilter";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
