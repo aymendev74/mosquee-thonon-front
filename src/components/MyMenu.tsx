@@ -16,38 +16,58 @@ export const MyMenu: FunctionComponent = () => {
         }
     }
 
-    const getMenuItems = () => {
+    const getPublicMenuItems = () => {
         const menuItems: MenuProps["items"] = [{
             key: "home",
             icon: <HomeOutlined />,
             label: "Accueil",
         },
         {
-            key: "inscription",
+            key: "cours",
             icon: <UserOutlined />,
-            label: "Inscription",
-            children: [{ key: "cours", label: "Cours arabes", icon: <UserOutlined /> }, { key: "adhesion", label: "Adhésion", icon: <EuroCircleOutlined /> }]
+            label: "Cours arabes",
+        },
+        {
+            key: "adhesion",
+            icon: <EuroCircleOutlined />,
+            label: "Adhésion",
         },
         /*{
             key: "don",
             icon: <EuroCircleOutlined />,
             label: "Faire un don",
         }*/];
-
-        if (loggedUser) {
-            menuItems.push({
-                key: "administration",
-                icon: <CrownOutlined />,
-                label: "Administration",
-                style: { background: "#06686E" },
-                children: [{ key: "adminCours", label: "Cours arabes", icon: <UserOutlined /> },
-                { key: "adminAdhesion", label: "Adhésion", icon: <EuroCircleOutlined /> },
-                { key: "adminTarif", label: "Tarifs", icon: <DollarCircleOutlined /> },
-                { key: "parametres", label: "Paramètres", icon: <SettingOutlined /> },]
-            });
-        }
         return menuItems;
+    };
+
+    const getAdminMenuItems = () => {
+        const menuItems: MenuProps["items"] = [{
+            key: "adminCours",
+            icon: <UserOutlined />,
+            label: "Cours arabes",
+        },
+        {
+            key: "adminAdhesion",
+            icon: <EuroCircleOutlined />,
+            label: "Adhésion",
+        },
+        {
+            key: "adminTarif",
+            icon: <DollarCircleOutlined />,
+            label: "Tarifs",
+        },
+        {
+            key: "parametres",
+            icon: <SettingOutlined />,
+            label: "Paramètres",
+        }];
+        return menuItems;
+    };
+
+    const getMenuItems = () => {
+        return loggedUser ? getAdminMenuItems() : getPublicMenuItems();
     }
+
 
     return (<Menu theme="dark" mode="horizontal" onClick={onMenuClicked} overflowedIndicator={<MenuOutlined />}
         items={getMenuItems()} />);

@@ -1,25 +1,25 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import * as XLSX from 'xlsx';
-import { AdhesionLight, AdhesionLightForExport } from "../../services/adhesion";
-import { useAuth } from "../../hooks/UseAuth";
+import { AdhesionLight, AdhesionLightForExport } from "../../../services/adhesion";
+import { useAuth } from "../../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
-import { ADHESION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../services/services";
+import { ADHESION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../../services/services";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
-import { StatutInscription } from "../../services/inscription";
-import { getFileNameAdhesion } from "../common/tableDefinition";
-import { ModaleConfirmSuppression } from "../modals/ModalConfirmSuppression";
-import useApi from "../../hooks/useApi";
-import { InputNumberFormItem } from "../common/InputNumberFormItem";
-import { InputFormItem } from "../common/InputFormItem";
-import { DatePickerFormItem } from "../common/DatePickerFormItem";
-import { SelectFormItem } from "../common/SelectFormItem";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../utils/FormUtils";
-import { PdfAdhesion } from "../documents/PdfAdhesion";
+import { StatutInscription } from "../../../services/inscription";
+import { getFileNameAdhesion } from "../../common/tableDefinition";
+import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
+import useApi from "../../../hooks/useApi";
+import { InputNumberFormItem } from "../../common/InputNumberFormItem";
+import { InputFormItem } from "../../common/InputFormItem";
+import { DatePickerFormItem } from "../../common/DatePickerFormItem";
+import { SelectFormItem } from "../../common/SelectFormItem";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
+import { PdfAdhesion } from "../../documents/PdfAdhesion";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
-import { AdminSearchFilter } from "../common/AdminSearchFilter";
+import { AdminSearchFilter } from "../../common/AdminSearchFilter";
 
 
 export const AdminAdhesion: FunctionComponent = () => {

@@ -1,11 +1,11 @@
 import { Button, Form, Input, Spin, notification } from 'antd';
 import { FunctionComponent, useEffect } from 'react';
-import { AUTHENTIFICATION_ENDPOINT, ERROR_INVALID_CREDENTIALS } from '../../services/services';
-import { useAuth } from '../../hooks/UseAuth';
-import useApi from '../../hooks/useApi';
-import { AuthResponse } from '../../services/AuthResponse';
+import { AUTHENTIFICATION_ENDPOINT, ERROR_INVALID_CREDENTIALS } from '../../../services/services';
+import { useAuth } from '../../../hooks/UseAuth';
+import useApi from '../../../hooks/useApi';
+import { AuthResponse } from '../../../services/AuthResponse';
 import { useNavigate } from 'react-router-dom';
-import { InputFormItem } from '../common/InputFormItem';
+import { InputFormItem } from '../../common/InputFormItem';
 
 export const Authenticate: FunctionComponent = () => {
     const { login } = useAuth();
@@ -19,7 +19,7 @@ export const Authenticate: FunctionComponent = () => {
     useEffect(() => {
         if (result && login) {
             login(result as AuthResponse);
-            navigate("/");
+            navigate("/admin");
         }
         if (errorResult === ERROR_INVALID_CREDENTIALS) {
             notification.open({ message: "Vos identifiants sont incorrects", type: "error" });

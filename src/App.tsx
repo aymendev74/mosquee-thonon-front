@@ -5,16 +5,17 @@ import {
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { CoursArabesForm } from './components/pages/CoursArabesForm';
-import { Authenticate } from './components/pages/Authenticate';
-import { AdminCoursArabes } from './components/pages/AdminCoursArabes';
+import { Authenticate } from './components/pages/admin/Authenticate';
+import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
 import { useAuth } from './hooks/UseAuth';
-import { ChangePassword } from './components/pages/ChangePasswordForm';
+import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
 import { AdhesionForm } from './components/pages/AdhesionForm';
-import { AdminAdhesion } from './components/pages/AdminAdhesion';
-import { AdminTarifs } from './components/pages/AdminTarifs';
+import { AdminAdhesion } from './components/pages/admin/AdminAdhesion';
+import { AdminTarifs } from './components/pages/admin/AdminTarifs';
 import { FaireUnDon } from './components/pages/FaireUnDon';
-import { Parametres } from './components/pages/Parametres';
+import { Parametres } from './components/pages/admin/Parametres';
+import { HomeAdmin } from './components/pages/admin/HomeAdmin';
 
 const { Header, Content, Footer } = Layout;
 
@@ -73,6 +74,7 @@ function App() {
             <Route path="/cours" element={<CoursArabesForm />} />
             <Route path="/adhesion" element={<AdhesionForm />} />
             <Route path="/login" element={<Authenticate />} />
+            <Route path="/admin" element={<HomeAdmin />} />
             <Route path="/adminCours" element={<AdminCoursArabes />} />
             <Route path="/adminAdhesion" element={<AdminAdhesion />} />
             <Route path="/adminTarif" element={<AdminTarifs />} />
