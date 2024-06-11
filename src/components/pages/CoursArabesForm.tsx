@@ -47,7 +47,7 @@ export const CoursArabesForm: FunctionComponent = () => {
             if (atDate) {
                 atDate = dayjs(atDate).format(APPLICATION_DATE_FORMAT);
             }
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves, atDate } });
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves, atDate, isAdmin } });
         } else {
             setTarifInscription(undefined);
         }

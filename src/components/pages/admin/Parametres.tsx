@@ -12,13 +12,12 @@ export const Parametres: FunctionComponent = () => {
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
 
     const onFinish = (values: any) => {
-        const reinscriptionPrioritaire: boolean = form.getFieldValue("reinscriptionPrioritaire");
-        const anneeScolaire = form.getFieldValue("anneeScolaire");
+        const { reinscriptionPrioritaire, anneeScolaire, inscriptionEnabled } = form.getFieldsValue();
         const params: ParamDto[] = [
             { name: ParamName.REINSCRIPTION_ENABLED, value: reinscriptionPrioritaire ? reinscriptionPrioritaire.toString() : "false" },
-            { name: ParamName.ANNEE_SCOLAIRE, value: anneeScolaire }
+            { name: ParamName.ANNEE_SCOLAIRE, value: anneeScolaire },
+            { name: ParamName.INSCRIPTION_ENABLED, value: inscriptionEnabled ? inscriptionEnabled.toString() : "false" }
         ];
-        params
         setApiCallDefinition({ method: "POST", url: PARAM_ENDPOINT, data: params });
     }
 
@@ -37,6 +36,18 @@ export const Parametres: FunctionComponent = () => {
         }
     }, [result]);
 
+    function onInscriptionEnabledChange(checked: boolean): void {
+        if (!checked) {
+            form.setFieldValue("reinscriptionPrioritaire", false);
+        }
+    }
+
+    function onReinscriptionChanged(checked: boolean): void {
+        if (checked) {
+            form.setFieldValue("inscriptionEnabled", true);
+        }
+    }
+
     return (<>
         <Form
             name="basic"
@@ -49,12 +60,23 @@ export const Parametres: FunctionComponent = () => {
                 <h2>Paramètres de l'application</h2>
                 <Row gutter={[16, 32]}>
                     <Col span={24}>
-                        <Divider orientation="left">Réinscriptions prioritaires</Divider>
+                        <Divider orientation="left">Paramètres</Divider>
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={8}>
-                        <SwitchFormItem name="reinscriptionPrioritaire" label="Activer/Désactiver les réinscriptions prioritaires" />
+                        <Tooltip color="geekblue" title="Ce paramètre permet de désactiver temporairement toutes les inscriptions. 
+                        Ainsi, même si une période est active avec ses tarifs, le système ne renvoit pas de tarif et personne ne peut donc s'incrire">
+                            <SwitchFormItem name="inscriptionEnabled" label="Activer/Désactiver les inscriptions" onChange={onInscriptionEnabledChange} />
+                        </Tooltip>
+                    </Col>
+                </Row>
+                <Row gutter={[16, 32]}>
+                    <Col span={8}>
+                        <Tooltip color="geekblue" title="Ce paramètre permet d'activer les réinscriptions. Lorsqu'il est activé,
+                        seuls les élèves inscrits pendant la dernière période scolaire sont autorisés à se réinscrire">
+                            <SwitchFormItem name="reinscriptionPrioritaire" label="Activer/Désactiver les réinscriptions prioritaires" onChange={onReinscriptionChanged} />
+                        </Tooltip>
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
