@@ -10,9 +10,6 @@ import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, E
 import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
 import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
-import { InputFormItem } from "../../common/InputFormItem";
-import { SelectFormItem } from "../../common/SelectFormItem";
-import { DatePickerFormItem } from "../../common/DatePickerFormItem";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import { PeriodeInfoDto } from "../../../services/periode";
@@ -40,21 +37,53 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
 
-    const prepareForExport = (dataSource: InscriptionLight) => {
-        const { id, idInscription, ...rest } = dataSource;
-        return rest as InscriptionForExport;
+    type ColumnHeadersType = Partial<Record<keyof InscriptionLight, string>>;
+
+    const prepareForExport = (dataSource: any) => {
+        // Mapping des champs de l'objet aux noms des colonnes du fichier excel
+        const columnHeaders: ColumnHeadersType = {
+            nom: "Nom élève",
+            prenom: "Prénom élève",
+            dateNaissance: "Date naissance",
+            niveau: "Niveau publique",
+            niveauInterne: "Niveau interne",
+            nomResponsableLegal: "Nom responsable légal",
+            prenomResponsableLegal: "Prénom responsable légal",
+            mobile: "Tél. responsable légal",
+            nomContactUrgence: "Nom autre contact",
+            prenomContactUrgence: "Prénom autre contact",
+            mobileContactUrgence: "Tél. autre contact",
+            ville: "Ville",
+            noInscription: "Numéro inscription",
+            autorisationAutonomie: "Autorisation à rentrer seul",
+            autorisationMedia: "Autorisation photos/vidéos",
+            dateInscription: "Date d'inscription",
+        };
+
+        const transformValue = (key: keyof InscriptionLight, value: any): string => {
+            if (typeof value === 'boolean') {
+                return value ? 'OUI' : 'NON';
+            }
+            return value;
+        };
+
+        return dataSource.map((row: any) => {
+            const formattedRow: { [key: string]: string } = {};
+            for (const key in columnHeaders) {
+                if (columnHeaders.hasOwnProperty(key)) {
+                    const typedKey = key as keyof InscriptionLight;
+                    formattedRow[columnHeaders[typedKey] as string] = transformValue(typedKey, row[typedKey]);
+                }
+            }
+            return formattedRow;
+        });
     }
 
     const exportData = () => {
-        // Crée une feuille de calcul
         if (dataSource) {
-            const inscriptionForExports: InscriptionForExport[] = [];
-            // On ne garde que les champs intéressants pour l'export excel
-            dataSource.forEach(inscription => {
-                inscriptionForExports.push(prepareForExport(inscription));
-            });
+            const formattedData = prepareForExport(dataSource);
 
-            const ws = XLSX.utils.json_to_sheet(inscriptionForExports);
+            const ws = XLSX.utils.json_to_sheet(formattedData);
 
             // Crée un classeur
             const wb = XLSX.utils.book_new();

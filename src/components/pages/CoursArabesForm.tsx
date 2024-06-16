@@ -182,7 +182,7 @@ export const CoursArabesForm: FunctionComponent = () => {
             rest.eleves = _.cloneDeep(eleves);
             convertTypesBeforeBackend(rest);
             setCodeIncoherence(undefined);
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: rest, params: { sendMailConfirmation } });
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
         }
     }, [codeIncoherence])
 
