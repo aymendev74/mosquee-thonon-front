@@ -36,14 +36,21 @@ export type InscriptionLight = {
     idInscription: number;
     nom: string;
     prenom: string;
+    nomResponsableLegal: string;
+    prenomResponsableLegal: string;
+    nomContactUrgence: string;
+    prenomContactUrgence: string;
     dateNaissance: Dayjs | string;
     niveau: string;
     niveauInterne: string;
-    telephone: string;
     mobile: string;
+    mobileContactUrgence: string
+    autorisationAutonomie: boolean,
+    autorisationMedia: boolean,
     statut: StatutInscription;
     ville: string;
     dateInscription: Dayjs | string;
+    noInscription: string;
 }
 
 export type InscriptionForExport = Omit<InscriptionLight, "id" | "idInscription">;
