@@ -124,7 +124,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_INSCRIPTION_ENDPOINT, data: inscriptionDeepCopy });
     };
 
-    const isInscriptionFerme = (inscriptionEnabledFromDate: string) => {
+    const isInscriptionFerme = (inscriptionEnabledFromDate: string | Dayjs) => {
         if (!inscriptionEnabledFromDate) {
             return true;
         }
@@ -173,7 +173,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         if (apiCallDefinition?.url === PARAM_ENDPOINT && result !== undefined) {
             const resultAsParamsDto = result as ParamsDto;
             setIsOnlyReinscriptionEnabled(resultAsParamsDto.reinscriptionPrioritaire);
-            setIsInscriptionsFermees(isInscriptionFerme(String(resultAsParamsDto.inscriptionEnabledFromDate)));
+            setIsInscriptionsFermees(isInscriptionFerme(resultAsParamsDto.inscriptionEnabledFromDate));
             resetApi();
         }
 
