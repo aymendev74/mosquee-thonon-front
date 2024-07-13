@@ -1,6 +1,6 @@
 import { Badge, Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { CHECK_COHERENCE_INSCRIPTION_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
+import { CHECK_COHERENCE_INSCRIPTION_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
 import { Inscription, InscriptionSaveCriteria, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,10 +15,14 @@ import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-desig
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, convertBooleanToOuiNon, convertTypesBeforeBackend } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 import { HttpStatusCode } from "axios";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import _ from "lodash";
+import { ParamsDto } from "../../services/parametres";
 
-type CoursArabeFormValues = Inscription & InscriptionSaveCriteria;
+enum TypeMessageDefilant {
+    REINSCRIPTION_PRIORITAIRE = "REINSCRIPTION_PRIORITAIRE",
+    INSCRIPTIONS_FERMEES = "INSCRIPTIONS_FERMEES"
+}
 
 export const CoursArabesForm: FunctionComponent = () => {
 
@@ -32,6 +36,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [inscriptionFinished, setInscriptionFinished] = useState<Inscription>();
     const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
+    const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
     const [codeIncoherence, setCodeIncoherence] = useState<string>();
     const [activeStep, setActiveStep] = useState<string>("1");
 
@@ -119,6 +124,13 @@ export const CoursArabesForm: FunctionComponent = () => {
         setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_INSCRIPTION_ENDPOINT, data: inscriptionDeepCopy });
     };
 
+    const isInscriptionFerme = (inscriptionEnabledFromDate: string) => {
+        if (!inscriptionEnabledFromDate) {
+            return true;
+        }
+        return dayjs(inscriptionEnabledFromDate, APPLICATION_DATE_FORMAT).isAfter(dayjs());
+    }
+
     useEffect(() => {
         // Sauvegarde de l'inscription
         if (result && apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENDPOINT && (result as Inscription).id) {
@@ -157,9 +169,11 @@ export const CoursArabesForm: FunctionComponent = () => {
             resetApi();
         }
 
-        // Check si fonctionnalité de réinscription prioritaire activée
-        if (apiCallDefinition?.url === PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT && result !== undefined) {
-            setIsOnlyReinscriptionEnabled(result);
+        // Check si fonctionnalité de réinscription prioritaire activée ou si inscriptions fermées
+        if (apiCallDefinition?.url === PARAM_ENDPOINT && result !== undefined) {
+            const resultAsParamsDto = result as ParamsDto;
+            setIsOnlyReinscriptionEnabled(resultAsParamsDto.reinscriptionPrioritaire);
+            setIsInscriptionsFermees(isInscriptionFerme(String(resultAsParamsDto.inscriptionEnabledFromDate)));
             resetApi();
         }
 
@@ -195,7 +209,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         if (id) {
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + "/" + id });
         } else { // Sinon on va simplement vérifier si les réinscriptions prioritaires sont activées
-            setApiCallDefinition({ method: "GET", url: PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT })
+            setApiCallDefinition({ method: "GET", url: PARAM_ENDPOINT })
         }
 
     }, []);
@@ -258,37 +272,41 @@ export const CoursArabesForm: FunctionComponent = () => {
         }
     }
 
-    const getMessageReinscriptionPrioritaire = () => {
+    const getMessageDefilant = (type: TypeMessageDefilant) => {
+        const message = type === TypeMessageDefilant.REINSCRIPTION_PRIORITAIRE ?
+            "Actuellement, seules les réinscriptions sont autorisées. Vous pouvez vous inscrire pour l'année prochaine, uniquement si vous étiez déjà inscrit pendant "
+            + "la dernière année scolaire. Les inscriptions pour les nouveaux élèves seront ouvertes ultérieurement."
+            : "Il n'y a plus aucune place disponible pour la prochaine période scolaire, les inscriptions sont fermées."
         return (
             <div className="message-scroll-container">
                 <div className="message-scroll">
-                    Actuellement, seules les réinscriptions sont autorisées. Vous pouvez vous inscrire pour l'année prochaine, uniquement si vous étiez déjà inscrit pendant
-                    la dernière année scolaire. Les inscriptions pour les nouveaux élèves seront ouvertes ultérieurement.
+                    {message}
                 </div>
             </div>
         );
-    };
+    }
 
-    return (
-        <Form
-            name="cours"
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-            className="container-form"
-            form={form}
-        >
-            <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
-                <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
-                <InputFormItem name="noInscription" type="hidden" formStyle={{ display: "none" }} />
-                <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
-                <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
-                <InputFormItem name="anneeScolaire" formStyle={{ display: "none" }} type="hidden" />
-                {isOnlyReinscriptionEnabled && getMessageReinscriptionPrioritaire()}
-                {getFormContent()}
-                <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
-            </Spin>
-        </Form >
-    );
+    return isInscriptionsFermees ? getMessageDefilant(TypeMessageDefilant.INSCRIPTIONS_FERMEES) :
+        (
+            <Form
+                name="cours"
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                autoComplete="off"
+                className="container-form"
+                form={form}
+            >
+                <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
+                    <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
+                    <InputFormItem name="noInscription" type="hidden" formStyle={{ display: "none" }} />
+                    <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
+                    <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
+                    <InputFormItem name="anneeScolaire" formStyle={{ display: "none" }} type="hidden" />
+                    {isOnlyReinscriptionEnabled && getMessageDefilant(TypeMessageDefilant.REINSCRIPTION_PRIORITAIRE)}
+                    {getFormContent()}
+                    <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
+                </Spin>
+            </Form >
+        );
 
 }
