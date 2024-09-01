@@ -4,10 +4,11 @@ import { ApiCallDefinition } from "../hooks/useApi";
 
 export const AUTHENTIFICATION_ENDPOINT = "user/auth";
 export const CHANGE_PASSWORD_ENDPOINT = "user/password";
-export const INSCRIPTION_ENDPOINT = "inscriptions";
+export const INSCRIPTION_ENFANT_ENDPOINT = "inscriptions-enfants";
+export const INSCRIPTION_ADULTE_ENDPOINT = "inscriptions-adultes";
 export const ADHESION_ENDPOINT = "adhesions";
-export const VALIDATION_INSCRIPTION_ENDPOINT = "inscriptions/validation";
-export const CHECK_COHERENCE_INSCRIPTION_ENDPOINT = "inscriptions/incoherences";
+export const VALIDATION_INSCRIPTION_ENDPOINT = "inscriptions-enfants/validation";
+export const CHECK_COHERENCE_INSCRIPTION_ENDPOINT = "inscriptions-enfants/incoherences";
 export const VALIDATION_ADHESION_ENDPOINT = "adhesions/validation";
 export const INSCRIPTION_TARIFS_ENDPOINT = "tarifs-inscription";
 export const TARIFS_ENDPOINT = "tarifs";

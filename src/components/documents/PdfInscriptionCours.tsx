@@ -1,8 +1,8 @@
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
-import { INSCRIPTION_ENDPOINT } from '../../services/services';
-import { Inscription } from '../../services/inscription';
+import { INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
+import { InscriptionEnfant } from '../../services/inscription';
 import dayjs from 'dayjs';
 import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { getLibelleNiveauScolaire } from '../common/commoninputs';
@@ -150,11 +150,11 @@ const styles = StyleSheet.create({
 
 export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = ({ id }) => {
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
-    const [inscription, setInscription] = useState<Inscription | undefined>();
+    const [inscription, setInscription] = useState<InscriptionEnfant | undefined>();
 
     useEffect(() => {
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
-            const inscription = result as Inscription;
+            const inscription = result as InscriptionEnfant;
             setInscription(inscription);
             resetApi();
         }
@@ -162,7 +162,7 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
 
     useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT + "/" + id });
         }
     }, []);
 

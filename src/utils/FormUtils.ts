@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { ResponsableLegal } from "../services/ResponsableLegal";
-import { Inscription } from "../services/inscription";
+import { InscriptionEnfant } from "../services/inscription";
 
 export const convertOuiNonToBoolean = (responsableLegal: ResponsableLegal) => {
     responsableLegal.autorisationAutonomie = responsableLegal.autorisationAutonomie === "OUI" ? true : false;
@@ -40,7 +40,7 @@ export const validateEmail = (_: any, value: any) => {
 export const validateMajorite = (_: any, date: dayjs.Dayjs) => {
     const datePlus18ans = date.add(18, "year");
     if (datePlus18ans.isAfter(dayjs())) {
-        return Promise.reject('Vous devez être majeur pour devenir adhérent');
+        return Promise.reject('Vous devez être majeur');
     }
     return Promise.resolve();
 };
@@ -52,7 +52,7 @@ export const validateMontantMinAdhesion = (_: any, value: number) => {
     return Promise.resolve();
 };
 
-export const convertTypesBeforeBackend = (inscription: Inscription) => {
+export const convertTypesBeforeBackend = (inscription: InscriptionEnfant) => {
     if (inscription.dateInscription) {
         inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
     }

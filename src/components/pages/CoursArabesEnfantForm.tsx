@@ -1,7 +1,7 @@
 import { Badge, Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { CHECK_COHERENCE_INSCRIPTION_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
-import { Inscription, InscriptionSaveCriteria, StatutInscription } from "../../services/inscription";
+import { CHECK_COHERENCE_INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
+import { InscriptionEnfant, InscriptionSaveCriteria, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -24,7 +24,7 @@ enum TypeMessageDefilant {
     INSCRIPTIONS_FERMEES = "INSCRIPTIONS_FERMEES"
 }
 
-export const CoursArabesForm: FunctionComponent = () => {
+export const CoursArabesEnfantForm: FunctionComponent = () => {
 
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading, status } = useApi();
     const location = useLocation();
@@ -34,7 +34,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [eleves, setEleves] = useState<Eleve[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
-    const [inscriptionFinished, setInscriptionFinished] = useState<Inscription>();
+    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfant>();
     const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
     const [codeIncoherence, setCodeIncoherence] = useState<string>();
@@ -110,7 +110,7 @@ export const CoursArabesForm: FunctionComponent = () => {
         }
     ];
 
-    const onFinish = async (inscription: Inscription) => {
+    const onFinish = async (inscription: InscriptionEnfant) => {
         if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
@@ -133,7 +133,7 @@ export const CoursArabesForm: FunctionComponent = () => {
 
     useEffect(() => {
         // Sauvegarde de l'inscription
-        if (result && apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENDPOINT && (result as Inscription).id) {
+        if (result && apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENFANT_ENDPOINT && (result as InscriptionEnfant).id) {
             // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
             if (isAdmin) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
@@ -147,8 +147,8 @@ export const CoursArabesForm: FunctionComponent = () => {
         }
 
         // Load de l'inscription
-        if (result && apiCallDefinition?.url?.startsWith(INSCRIPTION_ENDPOINT) && apiCallDefinition?.method === "GET") {
-            const loadedInscription = result as Inscription;
+        if (result && apiCallDefinition?.url?.startsWith(INSCRIPTION_ENFANT_ENDPOINT) && apiCallDefinition?.method === "GET") {
+            const loadedInscription = result as InscriptionEnfant;
             loadedInscription.dateInscription = dayjs(loadedInscription.dateInscription, APPLICATION_DATE_TIME_FORMAT);
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
             convertBooleanToOuiNon(loadedInscription.responsableLegal);
@@ -196,7 +196,7 @@ export const CoursArabesForm: FunctionComponent = () => {
             rest.eleves = _.cloneDeep(eleves);
             convertTypesBeforeBackend(rest);
             setCodeIncoherence(undefined);
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
         }
     }, [codeIncoherence])
 
@@ -207,7 +207,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     useEffect(() => {
         // En mode admin on load l'inscription demandée
         if (id) {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT + "/" + id });
         } else { // Sinon on va simplement vérifier si les réinscriptions prioritaires sont activées
             setApiCallDefinition({ method: "GET", url: PARAM_ENDPOINT })
         }
@@ -265,7 +265,7 @@ export const CoursArabesForm: FunctionComponent = () => {
     const getLoadingTip = () => {
         if (apiCallDefinition?.url === PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT) {
             return "Initialisation de l'application...";
-        } else if (apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENDPOINT) {
+        } else if (apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENFANT_ENDPOINT) {
             return "Enregistrement de votre inscription en cours...";
         } else {
             return "Chargement...";

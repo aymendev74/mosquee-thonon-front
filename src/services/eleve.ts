@@ -2,6 +2,11 @@ import { Moment } from "moment";
 import { NiveauInterne, NiveauScolaire, SignatureDto } from "./inscription";
 import { Dayjs } from "dayjs";
 
+export enum Sexe {
+    MASCULIN = "M",
+    FEMININ = "F",
+}
+
 export type Eleve = {
     id?: number;
     nom: string;
@@ -11,4 +16,5 @@ export type Eleve = {
     niveauInterne?: NiveauInterne;
     idTarif?: number;
     signature?: SignatureDto;
+    sexe?: Sexe;
 }

@@ -4,9 +4,9 @@ import {
 } from '@ant-design/icons';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
-import { CoursArabesForm } from './components/pages/CoursArabesForm';
+import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm';
 import { Authenticate } from './components/pages/admin/Authenticate';
-import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
+import { AdminCoursArabesEnfant } from './components/pages/admin/AdminCoursArabesEnfant';
 import { MyMenu } from './components/MyMenu';
 import { useAuth } from './hooks/UseAuth';
 import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
@@ -16,6 +16,7 @@ import { AdminTarifs } from './components/pages/admin/AdminTarifs';
 import { FaireUnDon } from './components/pages/FaireUnDon';
 import { Parametres } from './components/pages/admin/Parametres';
 import { HomeAdmin } from './components/pages/admin/HomeAdmin';
+import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm';
 
 const { Header, Content, Footer } = Layout;
 
@@ -71,11 +72,12 @@ function App() {
         <div className="centered-content">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/cours" element={<CoursArabesForm />} />
+            <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
+            <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
             <Route path="/adhesion" element={<AdhesionForm />} />
             <Route path="/login" element={<Authenticate />} />
             <Route path="/admin" element={<HomeAdmin />} />
-            <Route path="/adminCours" element={<AdminCoursArabes />} />
+            <Route path="/adminCoursEnfants" element={<AdminCoursArabesEnfant />} />
             <Route path="/adminAdhesion" element={<AdminAdhesion />} />
             <Route path="/adminTarif" element={<AdminTarifs />} />
             <Route path="/changePassword" element={<ChangePassword />} />

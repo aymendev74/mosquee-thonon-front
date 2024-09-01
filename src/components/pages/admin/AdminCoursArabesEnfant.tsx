@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { InscriptionForExport, InscriptionLight, StatutInscription } from "../../../services/inscription";
-import { INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../../services/services";
+import { InscriptionForExport, InscriptionEnfantLight, StatutInscription } from "../../../services/inscription";
+import { INSCRIPTION_ENFANT_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../../services/services";
 import { useAuth } from "../../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
@@ -9,7 +9,7 @@ import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Toolt
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
-import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
+import { getLibelleNiveauScolaire, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import { PeriodeInfoDto } from "../../../services/periode";
@@ -20,14 +20,14 @@ import { PdfInscriptionCours } from "../../documents/PdfInscriptionCours";
 import { getFileNameInscription } from "../../common/tableDefinition";
 import { AdminSearchFilter } from "../../common/AdminSearchFilter";
 
-export const AdminCoursArabes: FunctionComponent = () => {
+export const AdminCoursArabesEnfant: FunctionComponent = () => {
 
-    const [dataSource, setDataSource] = useState<InscriptionLight[]>();
+    const [dataSource, setDataSource] = useState<InscriptionEnfantLight[]>();
     const { loggedUser } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = Form.useForm();
-    const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
+    const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionEnfantLight[]>([]);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
     const [periodesOptions, setPeriodesOptions] = useState<DefaultOptionType[]>();
     const [renderedPdfInscriptionsIds, setRenderedPdfInscriptionsIds] = useState<number[]>([]);
@@ -37,7 +37,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
 
-    type ColumnHeadersType = Partial<Record<keyof InscriptionLight, string>>;
+    type ColumnHeadersType = Partial<Record<keyof InscriptionEnfantLight, string>>;
 
     const prepareForExport = (dataSource: any) => {
         // Mapping des champs de l'objet aux noms des colonnes du fichier excel
@@ -61,7 +61,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
             dateInscription: "Date d'inscription",
         };
 
-        const transformValue = (key: keyof InscriptionLight, value: any): string => {
+        const transformValue = (key: keyof InscriptionEnfantLight, value: any): string => {
             if (typeof value === 'boolean') {
                 return value ? 'OUI' : 'NON';
             }
@@ -71,7 +71,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return dataSource.map((row: any) => {
             const formattedRow: { [key: string]: string } = {};
             for (const key in columnHeaders) {
-                const typedKey = key as keyof InscriptionLight;
+                const typedKey = key as keyof InscriptionEnfantLight;
                 formattedRow[columnHeaders[typedKey] as string] = transformValue(typedKey, row[typedKey]);
             }
             return formattedRow;
@@ -95,7 +95,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const onConfirmSuppression = () => {
         setModaleConfirmSuppressionOpen(false);
-        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: getSelectedInscriptionDistinctIds() });
+        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENFANT_ENDPOINT, data: getSelectedInscriptionDistinctIds() });
     }
 
     const getSelectedInscriptionDistinctIds = () => {
@@ -146,7 +146,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
             statut: statut ?? null, dateInscription: dateInscription ?? null, niveaux: niveaux ?? null,
             niveauxInternes: niveauxInternes ?? null, noInscription: noInscription ?? null, idPeriode: idPeriode ?? null
         }
-        setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
+        setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT, params: searchCriteria });
     }
 
     const SearchCollapse: FunctionComponent = () => {
@@ -157,7 +157,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 { name: "nom", libelle: "Nom", inputType: "InputText" },
                 { name: "noInscription", libelle: "N° inscription", inputType: "InputText" },
                 { name: "niveau", libelle: "Niveau", inputType: "SelectTags", selectOptions: getNiveauOptions() },
-                { name: "niveauInterne", libelle: "Niveau interne", inputType: "SelectTags", selectOptions: getNiveauInterneOptions() },
+                { name: "niveauInterne", libelle: "Niveau interne", inputType: "SelectTags", selectOptions: getNiveauInterneEnfantOptions() },
                 { name: "telephone", libelle: "Téléphone", inputType: "InputText" },
                 { name: "dateInscription", libelle: "Date inscription", inputType: "Date", tooltip: "Rechercher les inscription reçues à partir du" },
                 {
@@ -172,7 +172,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     }, []);
 
     useEffect(() => {
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
+        if (apiCallDefinition?.url === INSCRIPTION_ENFANT_ENDPOINT && apiCallDefinition.method === "GET" && result) {
             setDataSource(result);
             resetApi();
         }
@@ -180,22 +180,22 @@ export const AdminCoursArabes: FunctionComponent = () => {
             notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été validées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT });
         }
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
+        if (apiCallDefinition?.url === INSCRIPTION_ENFANT_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
             notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été supprimées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT });
         }
         if (apiCallDefinition?.url === PERIODES_ENDPOINT && result) {
             setPeriodesOptions(getPeriodeOptions(result as PeriodeInfoDto[]));
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT });
         }
     }, [result]);
 
     const rowSelection = {
-        onChange: (selectedRowKeys: React.Key[], selectedRows: InscriptionLight[]) => {
+        onChange: (selectedRowKeys: React.Key[], selectedRows: InscriptionEnfantLight[]) => {
             setSelectedInscriptions(selectedRows);
         }
     };
@@ -208,7 +208,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return renderedPdfInscriptionsIds.includes(idInscription);
     };
 
-    const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
+    const columnsTableInscriptions: ColumnsType<InscriptionEnfantLight> = [
         {
             title: 'N° inscription',
             dataIndex: 'noInscription',

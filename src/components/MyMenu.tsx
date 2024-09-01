@@ -26,6 +26,16 @@ export const MyMenu: FunctionComponent = () => {
             key: "cours",
             icon: <UserOutlined />,
             label: "Cours arabes",
+            children: [
+                {
+                    key: "coursAdultes",
+                    label: "Adultes",
+                },
+                {
+                    key: "coursEnfants",
+                    label: "Enfants",
+                }
+            ],
         },
         {
             key: "adhesion",

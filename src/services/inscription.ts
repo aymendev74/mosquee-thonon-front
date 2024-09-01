@@ -20,7 +20,7 @@ export type InscriptionSaveCriteria = {
     sendMailConfirmation: boolean;
 }
 
-export type Inscription = {
+export type InscriptionEnfant = {
     id: number;
     statut: StatutInscription | boolean;
     dateInscription: Dayjs | string;
@@ -31,7 +31,7 @@ export type Inscription = {
     signature?: SignatureDto;
 }
 
-export type InscriptionLight = {
+export type InscriptionEnfantLight = {
     id: number;
     idInscription: number;
     nom: string;
@@ -54,7 +54,7 @@ export type InscriptionLight = {
     email: string;
 }
 
-export type InscriptionForExport = Omit<InscriptionLight, "id" | "idInscription">;
+export type InscriptionForExport = Omit<InscriptionEnfantLight, "id" | "idInscription">;
 
 export enum NiveauScolaire {
     CP = "CP",
@@ -83,4 +83,31 @@ export enum NiveauInterne {
     N3_2 = "N3_2",
     N4_1 = "N4_1",
     N4_2 = "N4_2",
+    DEBUTANT = "DEBUTANT",
+    INTERMEDIAIRE = "INTERMEDIAIRE",
+    AVANCE = "AVANCE",
+}
+
+export type InscriptionAdulte = {
+    id: number;
+    idEleve: number;
+    idResponsableLegal: number;
+    nom: string;
+    prenom: string;
+    email: string;
+    dateNaissance: Dayjs | string;
+    idTarif: number;
+    mobile: string;
+    numeroEtRue: string;
+    codePostal: number;
+    ville: string;
+    statut: StatutInscription;
+    dateInscription: Dayjs | string;
+    montant: number;
+    signature: SignatureDto;
+    signatureEleve: SignatureDto;
+    signatureResponsableLegal: SignatureDto;
+    anneeScolaire: string;
+    montantTotal: number;
+    niveauInterne: NiveauInterne;
 }
