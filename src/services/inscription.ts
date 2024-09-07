@@ -51,6 +51,7 @@ export type InscriptionLight = {
     ville: string;
     dateInscription: Dayjs | string;
     noInscription: string;
+    email: string;
 }
 
 export type InscriptionForExport = Omit<InscriptionLight, "id" | "idInscription">;
