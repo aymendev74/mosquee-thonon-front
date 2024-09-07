@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
-import { CheckCircleTwoTone, ClockCircleOutlined, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined, StopOutlined, WarningOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
 import { getLibelleNiveauScolaire, getNiveauInterneOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
@@ -50,6 +50,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
             nomResponsableLegal: "Nom responsable légal",
             prenomResponsableLegal: "Prénom responsable légal",
             mobile: "Tél. responsable légal",
+            email: "E-mail",
             nomContactUrgence: "Nom autre contact",
             prenomContactUrgence: "Prénom autre contact",
             mobileContactUrgence: "Tél. autre contact",
@@ -70,10 +71,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return dataSource.map((row: any) => {
             const formattedRow: { [key: string]: string } = {};
             for (const key in columnHeaders) {
-                if (columnHeaders.hasOwnProperty(key)) {
-                    const typedKey = key as keyof InscriptionLight;
-                    formattedRow[columnHeaders[typedKey] as string] = transformValue(typedKey, row[typedKey]);
-                }
+                const typedKey = key as keyof InscriptionLight;
+                formattedRow[columnHeaders[typedKey] as string] = transformValue(typedKey, row[typedKey]);
             }
             return formattedRow;
         });
