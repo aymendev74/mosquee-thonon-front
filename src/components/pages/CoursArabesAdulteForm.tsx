@@ -14,6 +14,8 @@ import dayjs from "dayjs";
 import { Sexe } from "../../services/eleve";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getNiveauInterneAdulteOptions } from "../common/commoninputs";
+import { SwitchFormItem } from "../common/SwitchFormItem";
+import { rest } from "lodash";
 
 
 export const CoursArabesAdulteForm: FunctionComponent = () => {
@@ -22,22 +24,26 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
     const [form] = useForm();
     const location = useLocation();
     const id = location.state ? location.state.id : undefined;
-    const isReadOnly = location.state ? location.state.isReadOnly : undefined;
-    const isAdmin = location.state ? location.state.isAdmin : undefined;
+    const isReadOnly = location.state ? location.state.isReadOnly : false;
+    const isAdmin = location.state ? location.state.isAdmin : false;
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
 
     const onFinish = async (inscription: InscriptionAdulte) => {
-        if (!isAdmin && !consentementChecked) {
-            notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
-            return;
-        }
         if (inscription.dateInscription) {
             inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
         }
         inscription.dateNaissance = dayjs(inscription.dateNaissance).format(APPLICATION_DATE_FORMAT);
-        setApiCallDefinition({ method: "POST", url: INSCRIPTION_ADULTE_ENDPOINT, data: inscription });
+        let { sendMailConfirmation, ...rest } = { ...inscription }
+        if (!isAdmin && !consentementChecked) {
+            notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
+            return;
+        }
+        if (!isAdmin) { // En mode non admin, on envoie systématiquement le mail de confirmation
+            sendMailConfirmation = true;
+        }
+        setApiCallDefinition({ method: "POST", url: INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
     };
 
     useEffect(() => {
@@ -87,6 +93,7 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
                     <InputFormItem name="id" formStyle={{ display: "none" }} type="hidden" />
                     <InputFormItem name="idEleve" formStyle={{ display: "none" }} type="hidden" />
+                    <InputFormItem name="idResponsableLegal" formStyle={{ display: "none" }} type="hidden" />
                     <InputFormItem name="signatureEleve" formStyle={{ display: "none" }} type="hidden" />
                     <InputFormItem name="signatureResponsableLegal" formStyle={{ display: "none" }} type="hidden" />
                     <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
@@ -160,7 +167,14 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                                 { value: StatutInscription.VALIDEE, label: "Validée" }]} />
                             </Col>
                         </Row>
-                    </>)}
+                        <Divider orientation="left">Renvoi du mail de confirmation</Divider>
+                        <Row gutter={[16, 32]}>
+                            <Col span={12}>
+                                <SwitchFormItem name="sendMailConfirmation" label="Renvoi automatique du mail de confirmation" disabled={isReadOnly} />
+                            </Col>
+                        </Row>
+                    </>
+                    )}
                     <Row gutter={[16, 32]}>
                         <Col span={24}>
                             {!isAdmin && (
@@ -175,6 +189,6 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                         {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Valider mon inscription</Button>)}
                     </Row>
                 </Spin>
-            </Form>
+            </Form >
         );
 }

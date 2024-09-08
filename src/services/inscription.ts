@@ -31,7 +31,7 @@ export type InscriptionEnfant = {
     signature?: SignatureDto;
 }
 
-export type InscriptionEnfantLight = {
+export type InscriptionLight = {
     id: number;
     idInscription: number;
     nom: string;
@@ -53,8 +53,6 @@ export type InscriptionEnfantLight = {
     noInscription: string;
     email: string;
 }
-
-export type InscriptionForExport = Omit<InscriptionEnfantLight, "id" | "idInscription">;
 
 export enum NiveauScolaire {
     CP = "CP",
@@ -110,4 +108,8 @@ export type InscriptionAdulte = {
     anneeScolaire: string;
     montantTotal: number;
     niveauInterne: NiveauInterne;
+} & {
+    sendMailConfirmation: boolean;
 }
+
+export type TypeInscription = "ADULTE" | "ENFANT";

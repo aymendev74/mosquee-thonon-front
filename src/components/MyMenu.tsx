@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
+import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/UseAuth";
 
 export const MyMenu: FunctionComponent = () => {
@@ -11,6 +11,9 @@ export const MyMenu: FunctionComponent = () => {
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
             navigate("/");
+        } else if (menuInfo.key === "adminCoursAdultes" || menuInfo.key === "adminCoursEnfants") {
+            const application = menuInfo.key === "adminCoursAdultes" ? "COURS_ADULTE" : "COURS_ENFANT";
+            navigate("/adminCours", { state: { application } });
         } else {
             navigate("/" + menuInfo.key);
         }
@@ -30,10 +33,12 @@ export const MyMenu: FunctionComponent = () => {
                 {
                     key: "coursAdultes",
                     label: "Adultes",
+                    icon: <UserOutlined />,
                 },
                 {
                     key: "coursEnfants",
                     label: "Enfants",
+                    icon: <TeamOutlined />,
                 }
             ],
         },
@@ -55,6 +60,18 @@ export const MyMenu: FunctionComponent = () => {
             key: "adminCours",
             icon: <UserOutlined />,
             label: "Cours arabes",
+            children: [
+                {
+                    key: "adminCoursAdultes",
+                    label: "Adultes",
+                    icon: <UserOutlined />,
+                },
+                {
+                    key: "adminCoursEnfants",
+                    label: "Enfants",
+                    icon: <TeamOutlined />,
+                }
+            ]
         },
         {
             key: "adminAdhesion",

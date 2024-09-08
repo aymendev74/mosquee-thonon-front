@@ -27,7 +27,7 @@ export const AdminTarifs: FunctionComponent = () => {
     useEffect(() => {
         // On reload les périodes dès lors que la modal permettant leur modification se referme, afin récupérer les modifications
         if (!modalPeriodeOpen) {
-            setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application: "COURS_ENFANT" } });
         }
     }, [modalPeriodeOpen]);
 

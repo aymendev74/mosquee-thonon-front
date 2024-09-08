@@ -6,7 +6,7 @@ import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm';
 import { Authenticate } from './components/pages/admin/Authenticate';
-import { AdminCoursArabesEnfant } from './components/pages/admin/AdminCoursArabesEnfant';
+import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
 import { useAuth } from './hooks/UseAuth';
 import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
@@ -77,7 +77,7 @@ function App() {
             <Route path="/adhesion" element={<AdhesionForm />} />
             <Route path="/login" element={<Authenticate />} />
             <Route path="/admin" element={<HomeAdmin />} />
-            <Route path="/adminCoursEnfants" element={<AdminCoursArabesEnfant />} />
+            <Route path="/adminCours" element={<AdminCoursArabes />} />
             <Route path="/adminAdhesion" element={<AdminAdhesion />} />
             <Route path="/adminTarif" element={<AdminTarifs />} />
             <Route path="/changePassword" element={<ChangePassword />} />
