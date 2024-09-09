@@ -194,6 +194,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     }, []);
 
     useEffect(() => {
+        const type = application === "COURS_ENFANT" ? "ENFANT" : "ADULTE";
         if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
             setDataSource(result);
             resetApi();
@@ -202,17 +203,16 @@ export const AdminCoursArabes: FunctionComponent = () => {
             notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été validées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
         }
         if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
             notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été supprimées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
         }
         if (apiCallDefinition?.url === PERIODES_ENDPOINT && result) {
             setPeriodesOptions(getPeriodeOptions(result as PeriodeInfoDto[]));
-            const type = application === "COURS_ENFANT" ? "ENFANT" : "ADULTE";
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
         }
     }, [result]);

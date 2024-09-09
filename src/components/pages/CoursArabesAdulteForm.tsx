@@ -50,7 +50,7 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         if (apiCallDefinition?.url === INSCRIPTION_ADULTE_ENDPOINT && apiCallDefinition.method === "POST" && result) {
             if (isAdmin) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/adminCoursArabesAdulte");
+                navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
             } else {
                 setInscriptionSuccess(true);
                 form.resetFields();

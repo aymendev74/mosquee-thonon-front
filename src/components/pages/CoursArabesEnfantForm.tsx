@@ -137,7 +137,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
             if (isAdmin) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/adminCours");
+                navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
             } else {
                 notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
                 setInscriptionFinished(result);
