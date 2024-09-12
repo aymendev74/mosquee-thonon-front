@@ -132,13 +132,19 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     }
 
     useEffect(() => {
+        console.log("useEffect");
         // Sauvegarde de l'inscription
-        if (result && apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENFANT_ENDPOINT && (result as InscriptionEnfant).id) {
+        if (result && ((apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENFANT_ENDPOINT)
+            || (apiCallDefinition?.method === "PUT" && apiCallDefinition.url?.startsWith(INSCRIPTION_ENFANT_ENDPOINT)))
+        ) {
+            console.log("If-----");
             // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
             if (isAdmin) {
+                console.log("Admin");
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
                 navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
             } else {
+                console.log("Non adm");
                 notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
                 setInscriptionFinished(result);
                 resetForm();
@@ -196,7 +202,11 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             rest.eleves = _.cloneDeep(eleves);
             convertTypesBeforeBackend(rest);
             setCodeIncoherence(undefined);
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            if (id) {
+                setApiCallDefinition({ method: "PUT", url: INSCRIPTION_ENFANT_ENDPOINT + "/" + id, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            } else {
+                setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            }
         }
     }, [codeIncoherence])
 

@@ -43,11 +43,16 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         if (!isAdmin) { // En mode non admin, on envoie systématiquement le mail de confirmation
             sendMailConfirmation = true;
         }
-        setApiCallDefinition({ method: "POST", url: INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+
+        if (id) {
+            setApiCallDefinition({ method: "PUT", url: INSCRIPTION_ADULTE_ENDPOINT + "/" + id, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+        } else {
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+        }
     };
 
     useEffect(() => {
-        if (apiCallDefinition?.url === INSCRIPTION_ADULTE_ENDPOINT && apiCallDefinition.method === "POST" && result) {
+        if ((apiCallDefinition?.method === "POST" || apiCallDefinition?.method === "PUT") && result) {
             if (isAdmin) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
                 navigate("/adminCours", { state: { application: "COURS_ADULTE" } });

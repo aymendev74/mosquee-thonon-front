@@ -6,7 +6,7 @@ import { notification } from 'antd';
 
 export type ApiCallDefinition = {
     url?: string,
-    method?: "GET" | "POST" | "DELETE",
+    method?: "GET" | "POST" | "DELETE" | "PUT" | "PATCH",
     data?: any,
     params?: any
 }

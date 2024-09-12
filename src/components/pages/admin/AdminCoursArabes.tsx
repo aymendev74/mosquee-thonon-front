@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { InscriptionLight, StatutInscription } from "../../../services/inscription";
+import { InscriptionLight, InscriptionPatchDto, StatutInscription } from "../../../services/inscription";
 import { INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../../services/services";
 import { useAuth } from "../../../hooks/UseAuth";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -120,7 +120,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
                 navigate(path, { state: { isReadOnly: readOnly, id: selectedInscriptions[0].idInscription, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                setApiCallDefinition({ method: "POST", url: VALIDATION_INSCRIPTION_ENDPOINT, data: getSelectedInscriptionDistinctIds() });
+                const patchInscription: InscriptionPatchDto = { ids: getSelectedInscriptionDistinctIds(), statut: StatutInscription.VALIDEE };
+                setApiCallDefinition({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: patchInscription });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -199,14 +200,14 @@ export const AdminCoursArabes: FunctionComponent = () => {
             setDataSource(result);
             resetApi();
         }
-        if (apiCallDefinition?.url === VALIDATION_INSCRIPTION_ENDPOINT && result) {
-            notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été validées", type: "success" });
+        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "PATCH" && result) {
+            notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
         }
         if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
-            notification.open({ message: "Les " + (result as number[]).length + " inscriptions sélectionnées ont été supprimées", type: "success" });
+            notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });

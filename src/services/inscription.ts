@@ -87,14 +87,10 @@ export enum NiveauInterne {
 }
 
 export type InscriptionAdulte = {
-    id: number;
-    idEleve: number;
-    idResponsableLegal: number;
     nom: string;
     prenom: string;
     email: string;
     dateNaissance: Dayjs | string;
-    idTarif: number;
     mobile: string;
     numeroEtRue: string;
     codePostal: number;
@@ -102,9 +98,6 @@ export type InscriptionAdulte = {
     statut: StatutInscription;
     dateInscription: Dayjs | string;
     montant: number;
-    signature: SignatureDto;
-    signatureEleve: SignatureDto;
-    signatureResponsableLegal: SignatureDto;
     anneeScolaire: string;
     montantTotal: number;
     niveauInterne: NiveauInterne;
@@ -113,3 +106,8 @@ export type InscriptionAdulte = {
 }
 
 export type TypeInscription = "ADULTE" | "ENFANT";
+
+export type InscriptionPatchDto = {
+    ids: number[];
+    statut?: StatutInscription;
+}
