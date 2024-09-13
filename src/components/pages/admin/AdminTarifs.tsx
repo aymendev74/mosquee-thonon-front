@@ -1,6 +1,6 @@
 import { Button, Col, Divider, Form, Popover, Row, Select, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { PERIODES_ENDPOINT, TARIFS_ADMIN_ENDPOINT } from "../../../services/services";
+import { ApiCallbacks, buildUrlWithParams, handleApiCall, PERIODES_ENDPOINT, TARIFS_ADMIN_ENDPOINT, TARIFS_ADMIN_GET_ENDPOINT } from "../../../services/services";
 import useApi from "../../../hooks/useApi";
 import { PeriodeInfoDto } from "../../../services/periode";
 import { DefaultOptionType } from "antd/es/select";
@@ -31,19 +31,21 @@ export const AdminTarifs: FunctionComponent = () => {
         }
     }, [modalPeriodeOpen]);
 
-    useEffect(() => {
-        if (apiCallDefinition?.url === PERIODES_ENDPOINT && apiCallDefinition.method === "GET" && result) {
+    const apiCallbacks: ApiCallbacks = {
+        [`GET:${PERIODES_ENDPOINT}`]: (result: any) => {
             const resultAsPeriodeDto = result as PeriodeInfoDto[];
             setPeriodesDto(resultAsPeriodeDto);
             setPeriodesOptions(getPeriodeOptions(resultAsPeriodeDto));
             resetApi();
-        }
-        if (apiCallDefinition?.url?.startsWith(TARIFS_ADMIN_ENDPOINT) && result) {
+        },
+        [`POST:${TARIFS_ADMIN_ENDPOINT}`]: (result: any) => {
             setViewTarif(true);
-            if (apiCallDefinition?.url === TARIFS_ADMIN_ENDPOINT && apiCallDefinition.method === "POST" && result) {
-                notification.open({ message: "Les nouveaux tarifs ont bien été enregistrés", type: "success" });
-                form.setFieldsValue(result);
-            } else if (!apiCallDefinition.url.endsWith(selectedIdPeriode)) {
+            notification.open({ message: "Les nouveaux tarifs ont bien été enregistrés", type: "success" });
+            form.setFieldsValue(result);
+        },
+        [`GET:${TARIFS_ADMIN_GET_ENDPOINT}`]: (result: any) => {
+            setViewTarif(true);
+            if (!apiCallDefinition?.url.endsWith(selectedIdPeriode)) {
                 // Si l'appel ne vas pas rechercher les tarifs de la période sélectionnée c'est que le user demande la copie des
                 // tarifs de la période active
                 const resultAsInfoTarifDto = result as InfoTarifDto;
@@ -51,14 +53,26 @@ export const AdminTarifs: FunctionComponent = () => {
                 form.setFieldsValue({ idPeriode: selectedIdPeriode, ...rest });
                 notification.open({ message: "Les tarifs de la période sélectionnée ont bien été copiés", type: "success" });
             } else {
+                console.log(result);
                 form.setFieldsValue(result);
             }
             resetApi();
         }
+    };
+
+
+    useEffect(() => {
+        const { method, url } = { ...apiCallDefinition };
+        if (method && url) {
+            const callBack = handleApiCall(method, url, apiCallbacks);
+            if (callBack) {
+                callBack(result);
+            }
+        }
     }, [result]);
 
     const onEditTarif = () => {
-        setApiCallDefinition({ method: "GET", url: TARIFS_ADMIN_ENDPOINT + "/" + selectedIdPeriode });
+        setApiCallDefinition({ method: "GET", url: buildUrlWithParams(TARIFS_ADMIN_GET_ENDPOINT, { id: selectedIdPeriode }) });
     }
 
     const onCreatePeriode = () => {

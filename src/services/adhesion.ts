@@ -17,7 +17,6 @@ export type Adhesion = {
     montantAutre: number;
     montant: number;
     statut: StatutInscription | boolean;
-    dateInscription: Dayjs | string;
     noMembre: number;
     signature: SignatureDto;
 }

@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { InscriptionLight, InscriptionPatchDto, StatutInscription } from "../../../services/inscription";
-import { INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, PERIODES_ENDPOINT, VALIDATION_INSCRIPTION_ENDPOINT } from "../../../services/services";
+import { ApiCallbacks, handleApiCall, INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT } from "../../../services/services";
 import { useAuth } from "../../../hooks/UseAuth";
 import { useLocation, useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
@@ -24,6 +24,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const location = useLocation();
     const application = location.state.application; // ADULTE ou ENFANT
+    const type = application === "COURS_ENFANT" ? "ENFANT" : "ADULTE";
     const [dataSource, setDataSource] = useState<InscriptionLight[]>();
     const { loggedUser } = useAuth();
     const navigate = useNavigate();
@@ -194,27 +195,36 @@ export const AdminCoursArabes: FunctionComponent = () => {
         setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
     }, []);
 
-    useEffect(() => {
-        const type = application === "COURS_ENFANT" ? "ENFANT" : "ADULTE";
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
+    const apiCallbacks: ApiCallbacks = {
+        [`GET:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
             setDataSource(result);
             resetApi();
-        }
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "PATCH" && result) {
+        },
+        [`PATCH:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
             notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
-        }
-        if (apiCallDefinition?.url === INSCRIPTION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
+        },
+        [`DELETE:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
             notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
-        }
-        if (apiCallDefinition?.url === PERIODES_ENDPOINT && result) {
+        },
+        [`GET:${PERIODES_ENDPOINT}`]: (result: any) => {
             setPeriodesOptions(getPeriodeOptions(result as PeriodeInfoDto[]));
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
+        }
+    };
+
+    useEffect(() => {
+        const { method, url } = { ...apiCallDefinition };
+        if (method && url) {
+            const callBack = handleApiCall(method, url, apiCallbacks);
+            if (callBack) {
+                callBack(result);
+            }
         }
     }, [result]);
 

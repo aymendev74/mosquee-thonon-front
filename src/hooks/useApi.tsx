@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { executeApiCall } from '../services/services';
 import { notification } from 'antd';
 
-
+export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
 
 export type ApiCallDefinition = {
-    url?: string,
-    method?: "GET" | "POST" | "DELETE" | "PUT" | "PATCH",
+    url: string,
+    method: HttpMethod,
     data?: any,
     params?: any
 }

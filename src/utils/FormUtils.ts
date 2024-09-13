@@ -53,9 +53,6 @@ export const validateMontantMinAdhesion = (_: any, value: number) => {
 };
 
 export const convertTypesBeforeBackend = (inscription: InscriptionEnfant) => {
-    if (inscription.dateInscription) {
-        inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
-    }
     if (inscription.eleves) {
         inscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT));
     }

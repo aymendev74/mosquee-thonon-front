@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
-import { ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
+import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, NEW_ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import { TarifDto } from "../../services/tarif";
 import { StatutInscription } from "../../services/inscription";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
@@ -37,11 +37,12 @@ export const AdhesionForm: FunctionComponent = () => {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
         }
-        if (adhesion.dateInscription) {
-            adhesion.dateInscription = dayjs(adhesion.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
-        }
         adhesion.dateNaissance = dayjs(adhesion.dateNaissance).format(APPLICATION_DATE_FORMAT);
-        setApiCallDefinition({ method: "POST", url: ADHESION_ENDPOINT, data: adhesion });
+        if (id) {
+            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }), data: adhesion });
+        } else {
+            setApiCallDefinition({ method: "POST", url: NEW_ADHESION_ENDPOINT, data: adhesion });
+        }
     };
 
     const getCiviliteOptions = () => {
@@ -65,21 +66,19 @@ export const AdhesionForm: FunctionComponent = () => {
         }
     }, [resultTarifs]);
 
-
-    useEffect(() => {
-        if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "POST" && result) {
-            if (isAdmin) {
-                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/adminAdhesion");
-            } else {
-                setInscriptionSuccess(true);
-                form.resetFields();
-            }
-            resetApi();
-        }
-        if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
+    const apiCallbacks: ApiCallbacks = {
+        [`PUT:${ADHESION_ENDPOINT}`]: (result: any) => {
+            notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+            navigate("/adminAdhesion");
+            resetApi()
+        },
+        [`POST:${NEW_ADHESION_ENDPOINT}`]: (result: any) => {
+            setInscriptionSuccess(true);
+            form.resetFields();
+            resetApi()
+        },
+        [`GET:${ADHESION_ENDPOINT}`]: (result: any) => {
             const adhesion = result as Adhesion;
-            adhesion.dateInscription = dayjs(adhesion.dateInscription, APPLICATION_DATE_TIME_FORMAT);
             adhesion.dateNaissance = dayjs(adhesion.dateNaissance, APPLICATION_DATE_FORMAT);
             if (adhesion.montantAutre) {
                 setAutreMontantVisible(true);
@@ -87,11 +86,21 @@ export const AdhesionForm: FunctionComponent = () => {
             form.setFieldsValue(adhesion);
             resetApi();
         }
+    };
+
+    useEffect(() => {
+        const { method, url } = { ...apiCallDefinition };
+        if (method && url) {
+            const callBack = handleApiCall(method, url, apiCallbacks);
+            if (callBack) {
+                callBack(result);
+            }
+        }
     }, [result]);
 
     useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }) });
         }
     }, []);
 
@@ -114,9 +123,6 @@ export const AdhesionForm: FunctionComponent = () => {
                 className="container-form"
             >
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
-                    <InputFormItem name="id" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
                     <Row>
                         <Col span={24}>
                             <Divider orientation="left">Identité</Divider>

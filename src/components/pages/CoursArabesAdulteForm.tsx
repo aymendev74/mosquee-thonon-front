@@ -5,7 +5,7 @@ import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, getConsentementInscriptionCoursLibelle, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
 import useApi from "../../hooks/useApi";
-import { ADHESION_ENDPOINT, INSCRIPTION_ADULTE_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
+import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import { InscriptionAdulte, StatutInscription } from "../../services/inscription";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
@@ -31,9 +31,6 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
     const [consentementChecked, setConsentementChecked] = useState(false);
 
     const onFinish = async (inscription: InscriptionAdulte) => {
-        if (inscription.dateInscription) {
-            inscription.dateInscription = dayjs(inscription.dateInscription).format(APPLICATION_DATE_TIME_FORMAT);
-        }
         inscription.dateNaissance = dayjs(inscription.dateNaissance).format(APPLICATION_DATE_FORMAT);
         let { sendMailConfirmation, ...rest } = { ...inscription }
         if (!isAdmin && !consentementChecked) {
@@ -45,35 +42,44 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         }
 
         if (id) {
-            setApiCallDefinition({ method: "PUT", url: INSCRIPTION_ADULTE_ENDPOINT + "/" + id, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
         } else {
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+        }
+    };
+
+    const apiCallbacks: ApiCallbacks = {
+        [`PUT:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
+            notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+            navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
+            resetApi()
+        },
+        [`POST:${NEW_INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
+            setInscriptionSuccess(true);
+            form.resetFields();
+            resetApi()
+        },
+        [`GET:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
+            const inscription = result as InscriptionAdulte;
+            inscription.dateNaissance = dayjs(inscription.dateNaissance, APPLICATION_DATE_FORMAT);
+            form.setFieldsValue(inscription);
+            resetApi();
         }
     };
 
     useEffect(() => {
-        if ((apiCallDefinition?.method === "POST" || apiCallDefinition?.method === "PUT") && result) {
-            if (isAdmin) {
-                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
-            } else {
-                setInscriptionSuccess(true);
-                form.resetFields();
+        const { method, url } = { ...apiCallDefinition };
+        if (method && url) {
+            const callBack = handleApiCall(method, url, apiCallbacks);
+            if (callBack) {
+                callBack(result);
             }
-            resetApi();
-        }
-        if (apiCallDefinition?.method === "GET" && result) { // load de l'inscription
-            const inscription = result as InscriptionAdulte;
-            inscription.dateInscription = dayjs(inscription.dateInscription, APPLICATION_DATE_TIME_FORMAT);
-            inscription.dateNaissance = dayjs(inscription.dateNaissance, APPLICATION_DATE_FORMAT);
-            form.setFieldsValue(inscription);
-            resetApi();
         }
     }, [result]);
 
     useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ADULTE_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }) });
         }
     }, []);
 
@@ -96,13 +102,6 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                 className="container-form"
             >
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
-                    <InputFormItem name="id" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="idEleve" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="idResponsableLegal" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="signatureEleve" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="signatureResponsableLegal" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
                     <Row>
                         <Col span={24}>
                             <Divider orientation="left">Identité</Divider>

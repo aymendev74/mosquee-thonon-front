@@ -23,7 +23,6 @@ export type InscriptionSaveCriteria = {
 export type InscriptionEnfant = {
     id: number;
     statut: StatutInscription | boolean;
-    dateInscription: Dayjs | string;
     responsableLegal: ResponsableLegal;
     eleves: Eleve[];
     anneeScolaire: string;
@@ -96,7 +95,6 @@ export type InscriptionAdulte = {
     codePostal: number;
     ville: string;
     statut: StatutInscription;
-    dateInscription: Dayjs | string;
     montant: number;
     anneeScolaire: string;
     montantTotal: number;

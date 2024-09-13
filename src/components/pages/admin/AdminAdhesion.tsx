@@ -4,16 +4,12 @@ import { AdhesionLight, AdhesionLightForExport } from "../../../services/adhesio
 import { useAuth } from "../../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
-import { ADHESION_ENDPOINT, VALIDATION_ADHESION_ENDPOINT } from "../../../services/services";
+import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCall } from "../../../services/services";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../../services/inscription";
 import { getFileNameAdhesion } from "../../common/tableDefinition";
 import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
 import useApi from "../../../hooks/useApi";
-import { InputNumberFormItem } from "../../common/InputNumberFormItem";
-import { InputFormItem } from "../../common/InputFormItem";
-import { DatePickerFormItem } from "../../common/DatePickerFormItem";
-import { SelectFormItem } from "../../common/SelectFormItem";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
 import { PdfAdhesion } from "../../documents/PdfAdhesion";
 import { PDFDownloadLink } from "@react-pdf/renderer";
@@ -79,7 +75,7 @@ export const AdminAdhesion: FunctionComponent = () => {
                 }
                 navigate("/adhesion", { state: { isReadOnly: readOnly, id: selectedAdhesions[0].id, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                setApiCallDefinition({ method: "POST", url: VALIDATION_ADHESION_ENDPOINT, data: selectedAdhesions.map(adhesion => adhesion.id) });
+                setApiCallDefinition({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { ids: selectedAdhesions.map(adhesion => adhesion.id), statut: StatutInscription.VALIDEE } });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -111,7 +107,7 @@ export const AdminAdhesion: FunctionComponent = () => {
             nom: nom ?? null, prenom: prenom ?? null, statut: statut ?? null,
             dateInscription: dateInscription ?? null, montant: montant ?? null
         }
-        setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT, params: searchCriteria });
+        setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT, params: searchCriteria });
     }
 
     const SearchCollapse = () => {
@@ -133,27 +129,37 @@ export const AdminAdhesion: FunctionComponent = () => {
 
     useEffect(() => {
         const fetchAdhesions = async () => {
-            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
         }
         fetchAdhesions();
     }, []);
 
-    useEffect(() => {
-        if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "GET" && result) {
+    const apiCallbacks: ApiCallbacks = {
+        [`GET:${ADHESION_SEARCH_ENDPOINT}`]: (result: any) => {
             setDataSource(result);
             resetApi();
-        }
-        if (apiCallDefinition?.url === VALIDATION_ADHESION_ENDPOINT && result) {
+        },
+        [`PATCH:${ADHESION_SEARCH_ENDPOINT}`]: (result: any) => {
             notification.open({ message: "Les " + (result as number[]).length + " adhésions sélectionnées ont été validées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedAdhesions([]);
-            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT });
-        }
-        if (apiCallDefinition?.url === ADHESION_ENDPOINT && apiCallDefinition.method === "DELETE" && result) {
+            setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+        },
+        [`DELETE:${ADHESION_SEARCH_ENDPOINT}`]: (result: any) => {
             notification.open({ message: "Les " + (result as number[]).length + " adhésions sélectionnées ont été supprimées", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedAdhesions([]);
-            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT });
+            setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+        }
+    };
+
+    useEffect(() => {
+        const { method, url } = { ...apiCallDefinition };
+        if (method && url) {
+            const callBack = handleApiCall(method, url, apiCallbacks);
+            if (callBack) {
+                callBack(result);
+            }
         }
     }, [result]);
 

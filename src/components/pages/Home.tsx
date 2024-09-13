@@ -10,7 +10,6 @@ export const Home: FunctionComponent = () => (
             Pour ce faire, veuillez remplir le formulaire en accédant au menu dédié ou en cliquant <a href="/cours">ici</a>.<br />
             Vous pouvez également devenir adhérent de l'association, en vous inscrivant via le menu dédié ou en cliquant <a href="/adhesion">ici</a>.<br />
             Vous serez recontactez ultérieurement pour finaliser votre inscription/adhésion.<br /><br />
-            Enfin, vous pouvez également faire un don afin de soutenir financièrement l'association, en passant par le menu dédié.<br /><br />
         </p>
     </div>
 );

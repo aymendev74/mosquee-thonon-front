@@ -1,7 +1,7 @@
-import { Badge, Button, Col, Form, Input, Result, Row, Spin, Tabs, TabsProps, notification } from "antd";
+import { Button, Form, Result, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { CHECK_COHERENCE_INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT } from "../../services/services";
-import { InscriptionEnfant, InscriptionSaveCriteria, StatutInscription } from "../../services/inscription";
+import { ApiCallbacks, buildUrlWithParams, CHECK_COHERENCE_INSCRIPTION_ENDPOINT, CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, handleApiCall, INSCRIPTION_ENFANT_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, NEW_INSCRIPTION_ENFANT_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
+import { InscriptionEnfant, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -13,7 +13,6 @@ import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, convertBooleanToOuiNon, convertTypesBeforeBackend } from "../../utils/FormUtils";
-import { InputFormItem } from "../common/InputFormItem";
 import { HttpStatusCode } from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import _ from "lodash";
@@ -121,7 +120,11 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         }
         inscriptionDeepCopy.eleves = _.cloneDeep(eleves);
         convertTypesBeforeBackend(inscriptionDeepCopy);
-        setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_INSCRIPTION_ENDPOINT, data: inscriptionDeepCopy });
+        if (id) {
+            setApiCallDefinition({ method: "POST", url: buildUrlWithParams(CHECK_COHERENCE_INSCRIPTION_ENDPOINT, { id }), data: inscriptionDeepCopy });
+        } else {
+            setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, data: inscriptionDeepCopy });
+        }
     };
 
     const isInscriptionFerme = (inscriptionEnabledFromDate: string | Dayjs) => {
@@ -131,40 +134,32 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         return dayjs(inscriptionEnabledFromDate, APPLICATION_DATE_FORMAT).isAfter(dayjs());
     }
 
-    useEffect(() => {
-        console.log("useEffect");
-        // Sauvegarde de l'inscription
-        if (result && ((apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENFANT_ENDPOINT)
-            || (apiCallDefinition?.method === "PUT" && apiCallDefinition.url?.startsWith(INSCRIPTION_ENFANT_ENDPOINT)))
-        ) {
-            console.log("If-----");
-            // Si sauvegarde ok on confirme à l'utilisateur sauf si c'est l'administrateur
-            if (isAdmin) {
-                console.log("Admin");
-                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
-            } else {
-                console.log("Non adm");
-                notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
-                setInscriptionFinished(result);
-                resetForm();
-            }
-            resetApi();
-        }
+    const checkCoherenceApiCallBack = (result: any) => {
+        setCodeIncoherence(result);
+        resetApi();
+    }
 
-        // Load de l'inscription
-        if (result && apiCallDefinition?.url?.startsWith(INSCRIPTION_ENFANT_ENDPOINT) && apiCallDefinition?.method === "GET") {
+    const apiCallbacks: ApiCallbacks = {
+        [`PUT:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
+            notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+            navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
+            resetApi();
+        },
+        [`POST:${NEW_INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
+            notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
+            setInscriptionFinished(result);
+            resetForm();
+            resetApi();
+        },
+        [`GET:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
             const loadedInscription = result as InscriptionEnfant;
-            loadedInscription.dateInscription = dayjs(loadedInscription.dateInscription, APPLICATION_DATE_TIME_FORMAT);
             loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
             convertBooleanToOuiNon(loadedInscription.responsableLegal);
             form.setFieldsValue(loadedInscription);
             setEleves(loadedInscription.eleves);
             resetApi();
-        }
-
-        // Calcul tarif
-        if (apiCallDefinition?.url === INSCRIPTION_TARIFS_ENDPOINT) {
+        },
+        [`POST:${INSCRIPTION_TARIFS_ENDPOINT}`]: (result: any) => {
             if (result) {
                 setTarifInscription(result);
                 notification.open({ message: "Votre tarif a été mis à jour (voir l'onglet Tarif)", type: "success" });
@@ -173,20 +168,24 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
                 setTarifInscription(undefined);
             }
             resetApi();
-        }
-
-        // Check si fonctionnalité de réinscription prioritaire activée ou si inscriptions fermées
-        if (apiCallDefinition?.url === PARAM_ENDPOINT && result !== undefined) {
+        },
+        [`GET:${PARAM_ENDPOINT}`]: (result: any) => {
             const resultAsParamsDto = result as ParamsDto;
             setIsOnlyReinscriptionEnabled(resultAsParamsDto.reinscriptionPrioritaire);
             setIsInscriptionsFermees(isInscriptionFerme(resultAsParamsDto.inscriptionEnabledFromDate));
             resetApi();
-        }
+        },
+        [`POST:${CHECK_COHERENCE_INSCRIPTION_ENDPOINT}`]: checkCoherenceApiCallBack,
+        [`POST:${CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT}`]: checkCoherenceApiCallBack,
+    };
 
-        // Check cohérence inscription avant enregistrement
-        if (apiCallDefinition?.url === CHECK_COHERENCE_INSCRIPTION_ENDPOINT) {
-            setCodeIncoherence(result);
-            resetApi();
+    useEffect(() => {
+        const { method, url } = { ...apiCallDefinition };
+        if (method && url) {
+            const callBack = handleApiCall(method, url, apiCallbacks);
+            if (callBack) {
+                callBack(result);
+            }
         }
     }, [result]);
 
@@ -203,9 +202,9 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             convertTypesBeforeBackend(rest);
             setCodeIncoherence(undefined);
             if (id) {
-                setApiCallDefinition({ method: "PUT", url: INSCRIPTION_ENFANT_ENDPOINT + "/" + id, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }), data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
             } else {
-                setApiCallDefinition({ method: "POST", url: INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+                setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
             }
         }
     }, [codeIncoherence])
@@ -217,7 +216,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     useEffect(() => {
         // En mode admin on load l'inscription demandée
         if (id) {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }) });
         } else { // Sinon on va simplement vérifier si les réinscriptions prioritaires sont activées
             setApiCallDefinition({ method: "GET", url: PARAM_ENDPOINT })
         }
@@ -307,11 +306,6 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
                 form={form}
             >
                 <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
-                    <InputFormItem name="id" type="hidden" formStyle={{ display: "none" }} />
-                    <InputFormItem name="noInscription" type="hidden" formStyle={{ display: "none" }} />
-                    <InputFormItem name="signature" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="dateInscription" formStyle={{ display: "none" }} type="hidden" />
-                    <InputFormItem name="anneeScolaire" formStyle={{ display: "none" }} type="hidden" />
                     {isOnlyReinscriptionEnabled && getMessageDefilant(TypeMessageDefilant.REINSCRIPTION_PRIORITAIRE)}
                     {getFormContent()}
                     <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
