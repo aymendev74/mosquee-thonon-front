@@ -178,6 +178,16 @@
   color: red;
 }
 
+.adm-insc-enfant-h2 {
+  border-bottom: 3px solid #00bcd4;
+  color: #00bcd4;
+}
+
+.adm-insc-adulte-h2 {
+  border-bottom: 3px solid #ff9800;
+  color: #ff9800;
+}
+
 @keyframes scroll-left {
   0% {
     transform: translateX(100%);

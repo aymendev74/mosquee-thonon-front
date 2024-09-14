@@ -51,7 +51,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             if (atDate) {
                 atDate = dayjs(atDate).format(APPLICATION_DATE_FORMAT);
             }
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves, atDate, isAdmin } });
+            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves, atDate } });
         } else {
             setTarifInscription(undefined);
         }
@@ -202,9 +202,9 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             convertTypesBeforeBackend(rest);
             setCodeIncoherence(undefined);
             if (id) {
-                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }), data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }), data: rest, params: { sendMailConfirmation } });
             } else {
-                setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+                setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation } });
             }
         }
     }, [codeIncoherence])

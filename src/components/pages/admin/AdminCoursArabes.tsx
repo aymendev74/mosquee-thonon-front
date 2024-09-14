@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
-import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, WarningOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
 import * as XLSX from 'xlsx';
 import { getLibelleNiveauScolaire, getNiveauInterneAdulteOptions, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
@@ -39,6 +39,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const MODIFIER_MENU_KEY = "2";
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
+    const icon = type === "ENFANT" ? <TeamOutlined /> : <UserOutlined />;
 
     type ColumnHeadersType = Partial<Record<keyof InscriptionLight, string>>;
 
@@ -193,7 +194,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     useEffect(() => {
         setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
-    }, []);
+    }, [type]);
 
     const apiCallbacks: ApiCallbacks = {
         [`GET:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
@@ -341,7 +342,9 @@ export const AdminCoursArabes: FunctionComponent = () => {
             form={form}
         >
             <Spin spinning={isLoading}>
-                <h2>Administration des inscriptions aux cours</h2>
+                <h2 className={type === "ENFANT" ? "adm-insc-enfant-h2" : "adm-insc-adulte-h2"}>
+                    {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
+                </h2>
                 <div className="d-flex">
                     <div className="filters-container">
                         <SearchCollapse />

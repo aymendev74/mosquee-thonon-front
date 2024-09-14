@@ -42,9 +42,9 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         }
 
         if (id) {
-            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: rest, params: { sendMailConfirmation } });
         } else {
-            setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation, isAdmin: isAdmin } });
+            setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation } });
         }
     };
 
