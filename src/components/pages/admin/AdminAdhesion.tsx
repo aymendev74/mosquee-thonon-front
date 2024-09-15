@@ -5,7 +5,7 @@ import { useAuth } from "../../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCall } from "../../../services/services";
-import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EuroCircleOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../../services/inscription";
 import { getFileNameAdhesion } from "../../common/tableDefinition";
 import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
@@ -27,7 +27,6 @@ export const AdminAdhesion: FunctionComponent = () => {
     const { Panel } = Collapse;
     const [form] = Form.useForm();
     const [selectedAdhesions, setSelectedAdhesions] = useState<AdhesionLight[]>([]);
-    const [modaleDernieresInscriptionOpen, setModaleDernieresInscriptionOpen] = useState<boolean>(false);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
     const [renderedPdfAdhesionIds, setRenderedPdfAdhesionsIds] = useState<number[]>([]);
 
@@ -239,8 +238,10 @@ export const AdminAdhesion: FunctionComponent = () => {
             className="container-full-width"
             form={form}
         >
+            <h2 className="adhesion-title">
+                <EuroCircleOutlined /> Administration des adhésions
+            </h2>
             <Spin spinning={isLoading}>
-                <h2>Administration des adhésions</h2>
                 <div className="d-flex">
                     <div className="filters-container">
                         <SearchCollapse />

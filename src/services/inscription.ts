@@ -1,5 +1,5 @@
 import { ResponsableLegal } from "./ResponsableLegal";
-import { Eleve } from "./eleve";
+import { Eleve, Sexe } from "./eleve";
 import { Dayjs } from "dayjs";
 
 export enum StatutInscription {
@@ -99,6 +99,7 @@ export type InscriptionAdulte = {
     anneeScolaire: string;
     montantTotal: number;
     niveauInterne: NiveauInterne;
+    sexe: Sexe;
 } & {
     sendMailConfirmation: boolean;
 }

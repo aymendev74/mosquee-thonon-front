@@ -81,6 +81,7 @@
 
 .container-full-width {
   width: 100%;
+  margin-left: 20px;
 }
 
 .filters-container {
@@ -94,7 +95,6 @@
 
 .logo-title {
   color: white;
-  font-family: "Poppins", "sans-serif";
   font-weight: 600;
   font-size: large;
 }
@@ -105,8 +105,6 @@
 }
 
 .home {
-  font-family: "Poppins", "sans-serif";
-  font-weight: 200;
   font-size: large;
   text-align: justify;
 }
@@ -178,14 +176,29 @@
   color: red;
 }
 
-.adm-insc-enfant-h2 {
-  border-bottom: 3px solid #00bcd4;
-  color: #00bcd4;
+.insc-enfant-title {
+  border-bottom: 3px solid #4FC3F7;
+  color: #4FC3F7;
 }
 
-.adm-insc-adulte-h2 {
-  border-bottom: 3px solid #ff9800;
-  color: #ff9800;
+.insc-adulte-title {
+  border-bottom: 3px solid #1A73E8;
+  color: #1A73E8;
+}
+
+.admin-tarif-title {
+  border-bottom: 3px solid orange;
+  color: orange;
+}
+
+.admin-param-title {
+  border-bottom: 3px solid orange;
+  color: orange;
+}
+
+.adhesion-title {
+  border-bottom: 3px solid orange;
+  color: orange;
 }
 
 @keyframes scroll-left {

@@ -1,8 +1,5 @@
-import { Layout, Button, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
-import {
-  LoginOutlined,
-} from '@ant-design/icons';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Layout, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm';
 import { Authenticate } from './components/pages/admin/Authenticate';
@@ -39,7 +36,7 @@ function App() {
 
     return (
       <Dropdown menu={menu}>
-        <Avatar style={{ backgroundColor: "#06686E", verticalAlign: "middle", cursor: "pointer" }} size="large">
+        <Avatar style={{ backgroundColor: "orange", verticalAlign: "middle", cursor: "pointer", color: "black" }} size="large">
           {loggedUser}
         </Avatar>
       </Dropdown>

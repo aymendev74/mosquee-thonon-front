@@ -7,7 +7,7 @@ import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { InputFormItem } from "../common/InputFormItem";
 import _ from "lodash";
-import { PERIODES_ENDPOINT, PERIODES_VALIDATION_ENDPOINT } from "../../services/services";
+import { ApiCallbacks, buildUrlWithParams, handleApiCall, PERIODES_ENDPOINT, PERIODES_EXISTING_ENDPOINT, PERIODES_EXISTING_VALIDATION_ENDPOINT, PERIODES_VALIDATION_ENDPOINT } from "../../services/services";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 import dayjs from "dayjs";
 
@@ -35,21 +35,14 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
             periodeToSave.dateDebut = periodeToSave.dateDebut.format(APPLICATION_DATE_FORMAT);
             periodeToSave.dateFin = periodeToSave.dateFin.format(APPLICATION_DATE_FORMAT);
             if (!periodeToSave.application) {
-                periodeToSave.application = "COURS";
+                periodeToSave.application = "COURS_ENFANT";
             }
             setError(undefined);
-            setApiCallDefinition({ method: "POST", url: PERIODES_VALIDATION_ENDPOINT, data: periodeToSave });
-            /*if (isCreation && !today.isBefore(moment(periodeToSave.dateDebut, APPLICATION_DATE_FORMAT))) {
-                setError("La date de début doit être dans le futur. Veuillez corriger");
-                isError = true;
+            if (isCreation) {
+                setApiCallDefinition({ method: "POST", url: PERIODES_VALIDATION_ENDPOINT, data: periodeToSave });
+            } else {
+                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(PERIODES_EXISTING_VALIDATION_ENDPOINT, { id: periode?.id }), data: periodeToSave });
             }
-            if (!moment(periodeToSave.dateDebut, APPLICATION_DATE_FORMAT).isBefore(moment(periodeToSave.dateFin, APPLICATION_DATE_FORMAT))) {
-                setError("La date de début doit être inférieur à la date de fin. Veuillez corriger");
-                isError = true;
-            }
-            if (!isError) {
-                setApiCallDefinition({ method: "POST", url: PERIODES_ENDPOINT, data: periodeToSave });
-            }*/
         }).catch((errorInfo) => {
             console.error("Validation failed:", errorInfo);
         });
@@ -77,25 +70,43 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
         }
     }
 
-    useEffect(() => {
-        if (apiCallDefinition?.url === PERIODES_ENDPOINT && result) {
-            let message;
-            if (isCreation) {
-                message = "La période a bien été créée";
-            } else {
-                message = "La période a bien été modifiée";
-            }
-            notification.open({ message, type: "success" });
+    const apiCallbacks: ApiCallbacks = {
+        [`PUT:${PERIODES_EXISTING_ENDPOINT}`]: (result: any) => {
+            notification.open({ message: "La période a bien été modifiée", type: "success" });
             close();
             resetApi();
-        }
-        if (apiCallDefinition?.url === PERIODES_VALIDATION_ENDPOINT && result) {
+        },
+        [`POST:${PERIODES_ENDPOINT}`]: (result: any) => {
+            notification.open({ message: "La période a bien été créée", type: "success" });
+            close();
+            resetApi();
+        },
+        [`POST:${PERIODES_VALIDATION_ENDPOINT}`]: (result: any) => {
             const resultAsValidationResult = result as PeriodeValidationResultDto;
             if (resultAsValidationResult.success) {
                 setApiCallDefinition({ method: "POST", url: PERIODES_ENDPOINT, data: resultAsValidationResult.periode });
             } else {
                 setError(getErrorLabel(resultAsValidationResult.errorCode));
                 resetApi();
+            }
+        },
+        [`PUT:${PERIODES_EXISTING_VALIDATION_ENDPOINT}`]: (result: any) => {
+            const resultAsValidationResult = result as PeriodeValidationResultDto;
+            if (resultAsValidationResult.success) {
+                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(PERIODES_EXISTING_ENDPOINT, { id: periode?.id }), data: resultAsValidationResult.periode });
+            } else {
+                setError(getErrorLabel(resultAsValidationResult.errorCode));
+                resetApi();
+            }
+        }
+    };
+
+    useEffect(() => {
+        const { method, url } = { ...apiCallDefinition };
+        if (method && url) {
+            const callBack = handleApiCall(method, url, apiCallbacks);
+            if (callBack) {
+                callBack(result);
             }
         }
     }, [result]);

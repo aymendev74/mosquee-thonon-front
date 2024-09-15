@@ -1,7 +1,7 @@
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
-import { INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
+import { buildUrlWithParams, INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
 import { InscriptionEnfant } from '../../services/inscription';
 import dayjs from 'dayjs';
 import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
@@ -162,7 +162,7 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
 
     useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENFANT_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id: id }) });
         }
     }, []);
 

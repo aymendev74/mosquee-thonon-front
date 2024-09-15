@@ -8,6 +8,7 @@ import { InputFormItem } from "../../common/InputFormItem";
 import dayjs from "dayjs";
 import { APPLICATION_DATE_FORMAT } from "../../../utils/FormUtils";
 import { DatePickerFormItem } from "../../common/DatePickerFormItem";
+import { SettingOutlined } from "@ant-design/icons";
 
 export const Parametres: FunctionComponent = () => {
 
@@ -76,7 +77,7 @@ export const Parametres: FunctionComponent = () => {
             form={form}
         >
             <Spin spinning={isLoading}>
-                <h2>Paramètres de l'application</h2>
+                <h2 className="admin-param-title"><SettingOutlined /> Paramètres de l'application</h2>
                 <Row gutter={[16, 32]}>
                     <Col span={24}>
                         <Divider orientation="left">Paramètres</Divider>

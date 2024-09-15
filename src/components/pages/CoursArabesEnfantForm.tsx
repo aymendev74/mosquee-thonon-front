@@ -11,7 +11,7 @@ import { Tarif } from "../inscriptions/Tarif";
 import { Eleves } from "../inscriptions/Eleves";
 import { Eleve } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
-import { EuroCircleOutlined, InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { EuroCircleOutlined, InfoCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, convertBooleanToOuiNon, convertTypesBeforeBackend } from "../../utils/FormUtils";
 import { HttpStatusCode } from "axios";
 import dayjs, { Dayjs } from "dayjs";
@@ -305,6 +305,9 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
                 className="container-form"
                 form={form}
             >
+                <h2 className="insc-enfant-title">
+                    <TeamOutlined /> Inscription aux cours arabes pour enfants
+                </h2>
                 <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
                     {isOnlyReinscriptionEnabled && getMessageDefilant(TypeMessageDefilant.REINSCRIPTION_PRIORITAIRE)}
                     {getFormContent()}

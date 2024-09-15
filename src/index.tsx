@@ -23,6 +23,8 @@ root.render(
       theme={{
         token: {
           borderRadius: 15,
+
+          fontFamily: 'Roboto, sans-serif',
         },
       }}
       locale={frFR}

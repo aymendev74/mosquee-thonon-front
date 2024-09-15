@@ -19,7 +19,9 @@ export const TARIFS_ENDPOINT = "tarifs";
 export const TARIFS_ADMIN_ENDPOINT = "tarifs-admin";
 export const TARIFS_ADMIN_GET_ENDPOINT = "tarifs-admin/{id}";
 export const PERIODES_ENDPOINT = "periodes";
+export const PERIODES_EXISTING_ENDPOINT = "periodes/{id}";
 export const PERIODES_VALIDATION_ENDPOINT = "periodes/validation";
+export const PERIODES_EXISTING_VALIDATION_ENDPOINT = "periodes/{id}/validation";
 export const PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT = "params/reinscription-enabled";
 export const PARAM_ENDPOINT = "params";
 

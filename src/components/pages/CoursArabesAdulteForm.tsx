@@ -16,6 +16,7 @@ import { SelectFormItem } from "../common/SelectFormItem";
 import { getNiveauInterneAdulteOptions } from "../common/commoninputs";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import { rest } from "lodash";
+import { UserOutlined } from "@ant-design/icons";
 
 
 export const CoursArabesAdulteForm: FunctionComponent = () => {
@@ -101,6 +102,9 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                 form={form}
                 className="container-form"
             >
+                <h2 className="insc-adulte-title">
+                    <UserOutlined /> Inscription aux cours arabes pour adultes
+                </h2>
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
                     <Row>
                         <Col span={24}>

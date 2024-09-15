@@ -342,7 +342,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
             form={form}
         >
             <Spin spinning={isLoading}>
-                <h2 className={type === "ENFANT" ? "adm-insc-enfant-h2" : "adm-insc-adulte-h2"}>
+                <h2 className={type === "ENFANT" ? "insc-enfant-title" : "insc-adulte-title"}>
                     {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
                 </h2>
                 <div className="d-flex">

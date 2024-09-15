@@ -1,7 +1,7 @@
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
-import { ADHESION_ENDPOINT } from '../../services/services';
+import { ADHESION_ENDPOINT, buildUrlWithParams } from '../../services/services';
 import { Adhesion } from '../../services/adhesion';
 import { getConsentementAdhesionLibelle } from '../../utils/FormUtils';
 
@@ -128,7 +128,7 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
 
     useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: ADHESION_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }) });
         }
     }, []);
 

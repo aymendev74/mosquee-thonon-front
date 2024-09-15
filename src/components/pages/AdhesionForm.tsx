@@ -15,6 +15,7 @@ import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
 import dayjs from "dayjs";
+import { EuroCircleOutlined } from "@ant-design/icons";
 
 
 export const AdhesionForm: FunctionComponent = () => {
@@ -122,6 +123,9 @@ export const AdhesionForm: FunctionComponent = () => {
                 form={form}
                 className="container-form"
             >
+                <h2 className="adhesion-title">
+                    <EuroCircleOutlined /> Devenir adhérent de l'AMC
+                </h2>
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
                     <Row>
                         <Col span={24}>
