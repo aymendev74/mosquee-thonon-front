@@ -16,9 +16,10 @@ import { PeriodeInfoDto } from "../../../services/periode";
 import { getPeriodeOptions } from "../../common/CommonComponents";
 import dayjs from "dayjs";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { PdfInscriptionCours } from "../../documents/PdfInscriptionCours";
+import { PdfInscriptionCoursEnfant } from "../../documents/PdfInscriptionCoursEnfant";
 import { getFileNameInscription } from "../../common/tableDefinition";
 import { AdminSearchFilter, InputSearchFieldDef } from "../../common/AdminSearchFilter";
+import { PdfInscriptionCoursArabeAdulte } from "../../documents/PdfInscriptionCoursArabeAdulte";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -243,11 +244,16 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return renderedPdfInscriptionsIds.includes(idInscription);
     };
 
-    const getPdf = (record: InscriptionLight) => {
-        if (application === "COURS_ADULTE") {
-            return (<></>);
+    const getDocumentContent = (idInscription: number) => {
+        if (type === "ENFANT") {
+            return <PdfInscriptionCoursEnfant id={idInscription} />;
+        } else {
+            return <PdfInscriptionCoursArabeAdulte id={idInscription} />;
         }
-        return renderPdf(record.idInscription) ? (<PDFDownloadLink document={<PdfInscriptionCours id={record.idInscription} />} fileName={getFileNameInscription(record)}>
+    }
+
+    const getPdf = (record: InscriptionLight) => {
+        return renderPdf(record.idInscription) ? (<PDFDownloadLink document={getDocumentContent(record.idInscription)} fileName={getFileNameInscription(record)}>
             {({ blob, url, loading, error }) => {
                 return loading ? "Génération Pdf..." : <FilePdfTwoTone />
             }

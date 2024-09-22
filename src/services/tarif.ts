@@ -1,9 +1,13 @@
 import { ResponsableLegal } from "./ResponsableLegal";
 
 export type TarifInscriptionDto = {
+    // enfant
     tarifBase: number;
     tarifEleve: number;
     listeAttente: boolean;
+
+    // adulte
+    tarif: number;
 }
 
 export type TarifDto = {

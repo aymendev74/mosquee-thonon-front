@@ -95,7 +95,6 @@ export type InscriptionAdulte = {
     codePostal: number;
     ville: string;
     statut: StatutInscription;
-    montant: number;
     anneeScolaire: string;
     montantTotal: number;
     niveauInterne: NiveauInterne;

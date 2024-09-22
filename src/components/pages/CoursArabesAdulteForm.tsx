@@ -1,11 +1,11 @@
-import { Button, Checkbox, Col, Divider, Form, Result, Row, Spin, notification } from "antd";
+import { Button, Checkbox, Col, Divider, Form, Popover, Result, Row, Spin, notification } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, getConsentementInscriptionCoursLibelle, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
 import useApi from "../../hooks/useApi";
-import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
+import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
 import { InscriptionAdulte, StatutInscription } from "../../services/inscription";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
@@ -16,7 +16,9 @@ import { SelectFormItem } from "../common/SelectFormItem";
 import { getNiveauInterneAdulteOptions } from "../common/commoninputs";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import { rest } from "lodash";
-import { UserOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { TarifInscriptionDto } from "../../services/tarif";
+import { HttpStatusCode } from "axios";
 
 
 export const CoursArabesAdulteForm: FunctionComponent = () => {
@@ -27,9 +29,10 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
     const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : false;
     const isAdmin = location.state ? location.state.isAdmin : false;
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading, status } = useApi();
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
+    const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
 
     const onFinish = async (inscription: InscriptionAdulte) => {
         inscription.dateNaissance = dayjs(inscription.dateNaissance).format(APPLICATION_DATE_FORMAT);
@@ -49,6 +52,16 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         }
     };
 
+    const tarifInscriptionApiCallBack = (result: any) => {
+        if (result) {
+            setTarifInscription(result);
+        } else if (status === HttpStatusCode.NoContent) { // No content (pas de tarif pour la période)
+            notification.open({ message: "Aucun tarif n'a été trouvé pour la période en cours", type: "error" });
+            setTarifInscription(undefined);
+        }
+        resetApi();
+    }
+
     const apiCallbacks: ApiCallbacks = {
         [`PUT:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
             notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
@@ -64,8 +77,10 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
             const inscription = result as InscriptionAdulte;
             inscription.dateNaissance = dayjs(inscription.dateNaissance, APPLICATION_DATE_FORMAT);
             form.setFieldsValue(inscription);
-            resetApi();
-        }
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, { id }) });
+        },
+        [`GET:${NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
+        [`GET:${INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
     };
 
     useEffect(() => {
@@ -81,8 +96,18 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
     useEffect(() => {
         if (id) {
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }) });
+        } else {
+            setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT });
         }
     }, []);
+
+    const NiveauHelpContent = (
+        <div>
+            <p><b>Débutant :</b> Aucune ou très peu de connaissances.</p>
+            <p><b>Intermédiaire :</b> Connaissances de bases, notamment l'alphabet</p>
+            <p><b>Avancé :</b> Connaissances approfondies, sait lire et parler</p>
+        </div>
+    );
 
     return inscriptionSuccess ? (
         <Result
@@ -127,14 +152,20 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                             ]}
                                 placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                         </Col>
-                    </Row>
-                    <Row gutter={[16, 32]}>
-                        <RadioGroupFormItem label="Sexe" name="sexe" disabled={isReadOnly} radioOptions={[{ value: Sexe.MASCULIN, label: "Masculin" },
-                        { value: Sexe.FEMININ, label: "Féminin" }]} />
-                    </Row>
-                    <Row gutter={[16, 32]}>
                         <Col span={12}>
-                            <SelectFormItem label="Niveau" name="niveauInterne" disabled={isReadOnly} options={getNiveauInterneAdulteOptions()} />
+                            <RadioGroupFormItem label="Sexe" name="sexe" disabled={isReadOnly} radioOptions={[{ value: Sexe.MASCULIN, label: "Masculin" },
+                            { value: Sexe.FEMININ, label: "Féminin" }]} />
+                        </Col>
+                    </Row>
+                    <Row gutter={[16, 32]}>
+                        <Col span={10}>
+                            <SelectFormItem label="Niveau" name="niveauInterne" disabled={isReadOnly} options={getNiveauInterneAdulteOptions()}
+                                rules={[{ required: true, message: "Veuillez saisir votre niveau" }]} />
+                        </Col>
+                        <Col span={3}>
+                            <Popover content={NiveauHelpContent} title="Comment choisir votre niveau ?" trigger="click">
+                                <QuestionCircleOutlined style={{ color: '#1890ff', fontSize: '20px' }} />
+                            </Popover>
                         </Col>
                     </Row>
                     <Row>
@@ -168,6 +199,14 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                             <InputFormItem label="E-mail" name="email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
                         </Col>
                     </Row>
+                    {
+                        tarifInscription && tarifInscription.tarif > 0 && (
+                            <>
+                                <Divider orientation="left">Tarif</Divider>
+                                <div className="m-bottom-10">Votre tarif annuel : <strong>{tarifInscription.tarif} euros.</strong></div>
+                            </>
+                        )
+                    }
                     {isAdmin && (<><Divider orientation="left">Administration</Divider>
                         <Row gutter={[16, 32]}>
                             <Col span={12}>
@@ -186,9 +225,11 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                     <Row gutter={[16, 32]}>
                         <Col span={24}>
                             {!isAdmin && (
-                                <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
-                                    {getConsentementInscriptionCoursLibelle()}
-                                </Checkbox>
+                                <div className="m-top-30">
+                                    <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
+                                        {getConsentementInscriptionCoursLibelle()}
+                                    </Checkbox>
+                                </div>
                             )}
                         </Col>
                     </Row>

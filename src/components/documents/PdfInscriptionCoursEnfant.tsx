@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = ({ id }) => {
+export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursProps> = ({ id }) => {
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const [inscription, setInscription] = useState<InscriptionEnfant | undefined>();
 

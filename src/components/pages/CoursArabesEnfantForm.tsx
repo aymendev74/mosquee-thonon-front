@@ -1,6 +1,6 @@
 import { Button, Form, Result, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { ApiCallbacks, buildUrlWithParams, CHECK_COHERENCE_INSCRIPTION_ENDPOINT, CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, handleApiCall, INSCRIPTION_ENFANT_ENDPOINT, INSCRIPTION_TARIFS_ENDPOINT, NEW_INSCRIPTION_ENFANT_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
+import { ApiCallbacks, buildUrlWithParams, CHECK_COHERENCE_INSCRIPTION_ENDPOINT, CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, handleApiCall, INSCRIPTION_ENFANT_ENDPOINT, NEW_INSCRIPTION_ENFANT_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, TARIFS_ENDPOINT, NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT } from "../../services/services";
 import { InscriptionEnfant, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -47,11 +47,11 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         let adherent = form.getFieldValue(["responsableLegal", "adherent"]);
         if (eleves.length > 0) {
             const nbEleves = eleves.length;
-            let atDate = form.getFieldValue("dateInscription");
-            if (atDate) {
-                atDate = dayjs(atDate).format(APPLICATION_DATE_FORMAT);
+            if (id) {
+                setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT, { id }), data: { adherent: adherent ?? false, nbEleves } });
+            } else {
+                setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves } });
             }
-            setApiCallDefinition({ method: "POST", url: INSCRIPTION_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves, atDate } });
         } else {
             setTarifInscription(undefined);
         }
@@ -139,6 +139,17 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         resetApi();
     }
 
+    const tarifInscriptionApiCallBack = (result: any) => {
+        if (result) {
+            setTarifInscription(result);
+            notification.open({ message: "Votre tarif a été mis à jour (voir l'onglet Tarif)", type: "success" });
+        } else if (status === HttpStatusCode.NoContent) { // No content (pas de tarif pour la période)
+            notification.open({ message: "Aucun tarif n'a été trouvé pour la période en cours", type: "error" });
+            setTarifInscription(undefined);
+        }
+        resetApi();
+    }
+
     const apiCallbacks: ApiCallbacks = {
         [`PUT:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
             notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
@@ -159,16 +170,8 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             setEleves(loadedInscription.eleves);
             resetApi();
         },
-        [`POST:${INSCRIPTION_TARIFS_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                setTarifInscription(result);
-                notification.open({ message: "Votre tarif a été mis à jour (voir l'onglet Tarif)", type: "success" });
-            } else if (status === HttpStatusCode.NoContent) { // No content (pas de tarif pour la période)
-                notification.open({ message: "Aucun tarif n'a été trouvé pour la période en cours", type: "error" });
-                setTarifInscription(undefined);
-            }
-            resetApi();
-        },
+        [`GET:${NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
+        [`GET:${INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
         [`GET:${PARAM_ENDPOINT}`]: (result: any) => {
             const resultAsParamsDto = result as ParamsDto;
             setIsOnlyReinscriptionEnabled(resultAsParamsDto.reinscriptionPrioritaire);

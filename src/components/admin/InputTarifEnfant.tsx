@@ -11,7 +11,7 @@ export type InputTarifProperties = {
 
 export const InputTarif: FunctionComponent<InputTarifProperties> = ({ nameMontantBase, nameMontantEnfant, labelNbEnfant, readOnly }) => {
 
-    return (<>
+    return (
         <Row gutter={[16, 32]}>
             <Col span={2}>
                 <Tag color="blue">{labelNbEnfant}</Tag>
@@ -23,7 +23,6 @@ export const InputTarif: FunctionComponent<InputTarifProperties> = ({ nameMontan
                 <InputNumberFormItem name={nameMontantEnfant} label="Par enfant" addonAfter="€" disabled={readOnly} rules={[{ required: true, message: "Veuillez saisir un montant" }]} />
             </Col>
         </Row>
-    </>
     );
 
 }
