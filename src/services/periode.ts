@@ -1,23 +1,31 @@
-import { Moment } from "moment";
-import { SignatureDto } from "./inscription";
 import { Dayjs } from "dayjs";
 
-export type PeriodeDto = {
-    id: number;
-    dateDebut: Dayjs | string;
-    dateFin: Dayjs | string;
+export type PeriodeDto<T extends Dayjs | string, U extends Dayjs | number> = {
+    dateDebut: T;
+    dateFin: T;
+    anneeDebut: U;
+    anneeFin: U;
     nbMaxInscription: number;
     application: string;
-    signature: SignatureDto;
 }
 
-export type PeriodeInfoDto = PeriodeDto & {
+export type PeriodeDtoFront = PeriodeDto<Dayjs, Dayjs>;
+export type PeriodeDtoBack = PeriodeDto<string, number>;
+
+export type PeriodeInfoDto = {
+    id: number,
+    dateDebut: string;
+    dateFin: string;
+    anneeDebut: number;
+    anneeFin: number;
+    nbMaxInscription: number;
+    application: string;
     existInscription: boolean;
     active: boolean;
 }
 
 export type PeriodeValidationResultDto = {
-    periode: PeriodeDto;
+    periode: PeriodeDtoBack;
     success: boolean;
     errorCode: string;
 }

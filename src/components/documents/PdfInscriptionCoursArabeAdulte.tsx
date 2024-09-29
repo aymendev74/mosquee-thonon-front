@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from 'react';
-import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
 import { buildUrlWithParams, INSCRIPTION_ADULTE_ENDPOINT } from '../../services/services';
 import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
@@ -10,14 +10,6 @@ import dayjs from 'dayjs';
 export type PdfInscriptionCoursArabeAdulteProps = {
     id: number;
 };
-
-Font.register({
-    family: 'Roboto',
-    fonts: [
-        { src: './polices/roboto/Roboto-Regular.ttf' },
-        { src: './polices/roboto/Roboto-Bold.ttf', fontWeight: "bold" }
-    ]
-});
 
 const styles = StyleSheet.create({
     page: {

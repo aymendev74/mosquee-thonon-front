@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from 'react';
-import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
 import { buildUrlWithParams, INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
 import { InscriptionEnfant } from '../../services/inscription';
@@ -10,14 +10,6 @@ import { getLibelleNiveauScolaire } from '../common/commoninputs';
 export type PdfInscriptionCoursProps = {
     id: number;
 };
-
-Font.register({
-    family: 'Open Sans',
-    fonts: [
-        { src: './polices/open-sans/OpenSans-Regular.ttf' },
-        { src: './polices/open-sans/OpenSans-Bold.ttf', fontWeight: "bold" }
-    ]
-});
 
 const styles = StyleSheet.create({
     page: {

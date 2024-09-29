@@ -9,10 +9,20 @@ import 'dayjs/locale/fr';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import frFR from 'antd/locale/fr_FR';
+import { Font } from '@react-pdf/renderer';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Europe/Paris");
+
+// react-pdf
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    { src: './polices/roboto/Roboto-Regular.ttf' },
+    { src: './polices/roboto/Roboto-Bold.ttf', fontWeight: "bold" }
+  ]
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

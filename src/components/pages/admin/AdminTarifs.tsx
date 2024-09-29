@@ -198,7 +198,7 @@ export const AdminTarifs: FunctionComponent = () => {
                     </Tooltip>
                     )
                 )}
-                <ModalPeriode open={modalPeriodeOpen} setOpen={setModalPeriodeOpen} isCreation={createPeriode} periode={periodeToEdit} />
+                <ModalPeriode open={modalPeriodeOpen} setOpen={setModalPeriodeOpen} isCreation={createPeriode} periode={periodeToEdit} application={application} />
             </Spin>
         </Form >
     </>);
