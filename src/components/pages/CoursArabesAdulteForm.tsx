@@ -3,10 +3,10 @@ import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, getConsentementInscriptionCoursLibelle, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, getConsentementInscriptionCoursLibelle, prepareInscriptionAdulteBeforeForm, prepareInscriptionAdulteBeforeSave, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
-import { InscriptionAdulte, StatutInscription } from "../../services/inscription";
+import { InscriptionAdulte, InscriptionAdulteBack, InscriptionAdulteFront, StatutInscription } from "../../services/inscription";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
@@ -34,9 +34,9 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
 
-    const onFinish = async (inscription: InscriptionAdulte) => {
-        inscription.dateNaissance = dayjs(inscription.dateNaissance).format(APPLICATION_DATE_FORMAT);
-        let { sendMailConfirmation, ...rest } = { ...inscription }
+    const onFinish = async (inscription: InscriptionAdulteFront) => {
+        const inscriptionToSave = prepareInscriptionAdulteBeforeSave(inscription);
+        let sendMailConfirmation = inscription.sendMailConfirmation;
         if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
@@ -46,9 +46,9 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         }
 
         if (id) {
-            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: rest, params: { sendMailConfirmation } });
+            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: inscriptionToSave, params: { sendMailConfirmation } });
         } else {
-            setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: rest, params: { sendMailConfirmation } });
+            setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: inscriptionToSave, params: { sendMailConfirmation } });
         }
     };
 
@@ -74,9 +74,8 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
             resetApi()
         },
         [`GET:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
-            const inscription = result as InscriptionAdulte;
-            inscription.dateNaissance = dayjs(inscription.dateNaissance, APPLICATION_DATE_FORMAT);
-            form.setFieldsValue(inscription);
+            const inscriptionFormValues: InscriptionAdulteFront = prepareInscriptionAdulteBeforeForm(result as InscriptionAdulteBack);
+            form.setFieldsValue(inscriptionFormValues);
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, { id }) });
         },
         [`GET:${NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,

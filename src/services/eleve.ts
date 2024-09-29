@@ -1,5 +1,5 @@
 import { Moment } from "moment";
-import { NiveauInterne, NiveauScolaire, SignatureDto } from "./inscription";
+import { NiveauInterne, NiveauScolaire } from "./inscription";
 import { Dayjs } from "dayjs";
 
 export enum Sexe {
@@ -7,14 +7,15 @@ export enum Sexe {
     FEMININ = "F",
 }
 
-export type Eleve = {
+export type Eleve<T extends Dayjs | string> = {
     id?: number;
     nom: string;
     prenom: string;
-    dateNaissance: Dayjs | string;
+    dateNaissance: T;
     niveau: NiveauScolaire;
     niveauInterne?: NiveauInterne;
-    idTarif?: number;
-    signature?: SignatureDto;
     sexe?: Sexe;
 }
+
+export type EleveFront = Eleve<Dayjs>;
+export type EleveBack = Eleve<string>;

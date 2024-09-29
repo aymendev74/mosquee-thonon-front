@@ -2,7 +2,7 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
 import { buildUrlWithParams, INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
-import { InscriptionEnfant } from '../../services/inscription';
+import { InscriptionEnfantBack } from '../../services/inscription';
 import dayjs from 'dayjs';
 import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { getLibelleNiveauScolaire } from '../common/commoninputs';
@@ -142,11 +142,11 @@ const styles = StyleSheet.create({
 
 export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursProps> = ({ id }) => {
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
-    const [inscription, setInscription] = useState<InscriptionEnfant | undefined>();
+    const [inscription, setInscription] = useState<InscriptionEnfantBack | undefined>();
 
     useEffect(() => {
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
-            const inscription = result as InscriptionEnfant;
+            const inscription = result as InscriptionEnfantBack;
             setInscription(inscription);
             resetApi();
         }
@@ -204,7 +204,7 @@ export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursPro
                         <View key={index} style={styles.row}>
                             <Text style={styles.cell}>{eleve.nom}</Text>
                             <Text style={styles.cell}>{eleve.prenom}</Text>
-                            <Text style={styles.cell}>{dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}</Text>
+                            <Text style={styles.cell}>{eleve.dateNaissance}</Text>
                             <Text style={styles.cell}>{getLibelleNiveauScolaire(eleve.niveau)}</Text>
                             <Text style={styles.cell}>{eleve.niveauInterne}</Text>
                         </View>

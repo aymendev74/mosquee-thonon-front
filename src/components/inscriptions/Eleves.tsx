@@ -1,6 +1,6 @@
 import { Button, Col, Collapse, FormInstance, Row, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { Eleve } from "../../services/eleve";
+import { EleveFront } from "../../services/eleve";
 import { getLibelleNiveauScolaire, getNiveauInterneEnfantOptions, getNiveauOptions } from "../common/commoninputs";
 import { UserAddOutlined } from "@ant-design/icons";
 import { InputFormItem } from "../common/InputFormItem";
@@ -12,8 +12,8 @@ import dayjs, { Dayjs } from "dayjs";
 export type EleveProps = {
     isReadOnly: boolean;
     isAdmin: boolean;
-    eleves: Eleve[];
-    setEleves: React.Dispatch<React.SetStateAction<Eleve[]>>;
+    eleves: EleveFront[];
+    setEleves: React.Dispatch<React.SetStateAction<EleveFront[]>>;
     form: FormInstance;
     onPreviousStep: () => void;
     onNextStep: () => void;
@@ -106,18 +106,16 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     }
 
     const ajouterEleve = () => {
-        let newEleve: Eleve | undefined = validateEleve();
+        let newEleve: EleveFront | undefined = validateEleve();
         if (!newEleve) {
             return;
         }
         let updatedEleves = [...eleves];
-        if (updatedEleves[editingIndex!]) {
-            newEleve = { ...newEleve, idTarif: updatedEleves[editingIndex!].idTarif ?? undefined, signature: eleves[editingIndex!].signature ?? undefined };
-        }
         if (updatedEleves[editingIndex!]) { // Si l'élève existe déjà, on le supprime pour le rajouter
             updatedEleves.splice(editingIndex!, 1);
         }
         updatedEleves = [...updatedEleves, newEleve];
+        console.log(updatedEleves);
         setEleves(updatedEleves);
         setEditingIndex(null);
         resetEmptyForm();

@@ -9,26 +9,21 @@ export enum StatutInscription {
     REFUSE = "REFUSE",
 }
 
-export type SignatureDto = {
-    dateCreation: string;
-    visaCreation: string;
-    dateModification: string;
-    visaModification: string;
-}
-
 export type InscriptionSaveCriteria = {
     sendMailConfirmation: boolean;
 }
 
-export type InscriptionEnfant = {
+export type InscriptionEnfant<T extends Dayjs | string, U extends string | boolean> = {
     id: number;
     statut: StatutInscription | boolean;
-    responsableLegal: ResponsableLegal;
-    eleves: Eleve[];
+    responsableLegal: ResponsableLegal<U>;
+    eleves: Eleve<T>[];
     anneeScolaire: string;
     montantTotal: number;
-    signature?: SignatureDto;
 }
+
+export type InscriptionEnfantFront = InscriptionEnfant<Dayjs, string>;
+export type InscriptionEnfantBack = InscriptionEnfant<string, boolean>;
 
 export type InscriptionLight = {
     id: number;
@@ -39,7 +34,7 @@ export type InscriptionLight = {
     prenomResponsableLegal: string;
     nomContactUrgence: string;
     prenomContactUrgence: string;
-    dateNaissance: Dayjs | string;
+    dateNaissance: string;
     niveau: string;
     niveauInterne: string;
     mobile: string;
@@ -48,7 +43,7 @@ export type InscriptionLight = {
     autorisationMedia: boolean,
     statut: StatutInscription;
     ville: string;
-    dateInscription: Dayjs | string;
+    dateInscription: string;
     noInscription: string;
     email: string;
 }
@@ -85,11 +80,11 @@ export enum NiveauInterne {
     AVANCE = "AVANCE",
 }
 
-export type InscriptionAdulte = {
+export type InscriptionAdulte<T extends Dayjs | string> = {
     nom: string;
     prenom: string;
     email: string;
-    dateNaissance: Dayjs | string;
+    dateNaissance: T;
     mobile: string;
     numeroEtRue: string;
     codePostal: number;
@@ -102,6 +97,9 @@ export type InscriptionAdulte = {
 } & {
     sendMailConfirmation: boolean;
 }
+
+export type InscriptionAdulteFront = InscriptionAdulte<Dayjs>;
+export type InscriptionAdulteBack = InscriptionAdulte<string>;
 
 export type TypeInscription = "ADULTE" | "ENFANT";
 

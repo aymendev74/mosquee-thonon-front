@@ -1,7 +1,7 @@
 import { Button, Form, Result, Spin, Tabs, TabsProps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { ApiCallbacks, buildUrlWithParams, CHECK_COHERENCE_INSCRIPTION_ENDPOINT, CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, handleApiCall, INSCRIPTION_ENFANT_ENDPOINT, NEW_INSCRIPTION_ENFANT_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, TARIFS_ENDPOINT, NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT } from "../../services/services";
-import { InscriptionEnfant, StatutInscription } from "../../services/inscription";
+import { InscriptionEnfantBack, InscriptionEnfantFront, StatutInscription } from "../../services/inscription";
 import useApi from "../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -9,10 +9,10 @@ import { ModaleRGPD } from "../modals/ModalRGPD";
 import { ResponsableLegal } from "../inscriptions/ResponsableLegal";
 import { Tarif } from "../inscriptions/Tarif";
 import { Eleves } from "../inscriptions/Eleves";
-import { Eleve } from "../../services/eleve";
+import { EleveFront } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { EuroCircleOutlined, InfoCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, convertBooleanToOuiNon, convertTypesBeforeBackend } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, prepareInscriptionEnfantBeforeForm, prepareInscriptionEnfantBeforeSave } from "../../utils/FormUtils";
 import { HttpStatusCode } from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import _ from "lodash";
@@ -31,9 +31,9 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     const navigate = useNavigate();
     const [modalRGPDOpen, setModalRGPDOpen] = useState(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
-    const [eleves, setEleves] = useState<Eleve[]>([]);
+    const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
-    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfant>();
+    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantFront>();
     const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
     const [codeIncoherence, setCodeIncoherence] = useState<string>();
@@ -47,10 +47,12 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         let adherent = form.getFieldValue(["responsableLegal", "adherent"]);
         if (eleves.length > 0) {
             const nbEleves = eleves.length;
+            console.log(nbEleves);
+            console.log(adherent);
             if (id) {
-                setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT, { id }), data: { adherent: adherent ?? false, nbEleves } });
+                setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT, { id }), params: { adherent: adherent ?? false, nbEleves } });
             } else {
-                setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, data: { adherent: adherent ?? false, nbEleves } });
+                setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, params: { adherent: adherent ?? false, nbEleves } });
             }
         } else {
             setTarifInscription(undefined);
@@ -109,7 +111,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         }
     ];
 
-    const onFinish = async (inscription: InscriptionEnfant) => {
+    const onFinish = async (inscription: InscriptionEnfantFront) => {
         if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
@@ -119,11 +121,11 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             inscriptionDeepCopy.responsableLegal.adherent = false;
         }
         inscriptionDeepCopy.eleves = _.cloneDeep(eleves);
-        convertTypesBeforeBackend(inscriptionDeepCopy);
+        const inscriptionToSave: InscriptionEnfantBack = prepareInscriptionEnfantBeforeSave(inscriptionDeepCopy);
         if (id) {
-            setApiCallDefinition({ method: "POST", url: buildUrlWithParams(CHECK_COHERENCE_INSCRIPTION_ENDPOINT, { id }), data: inscriptionDeepCopy });
+            setApiCallDefinition({ method: "POST", url: buildUrlWithParams(CHECK_COHERENCE_INSCRIPTION_ENDPOINT, { id }), data: inscriptionToSave });
         } else {
-            setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, data: inscriptionDeepCopy });
+            setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, data: inscriptionToSave });
         }
     };
 
@@ -163,11 +165,10 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             resetApi();
         },
         [`GET:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
-            const loadedInscription = result as InscriptionEnfant;
-            loadedInscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT));
-            convertBooleanToOuiNon(loadedInscription.responsableLegal);
-            form.setFieldsValue(loadedInscription);
-            setEleves(loadedInscription.eleves);
+            const loadedInscription = result as InscriptionEnfantBack;
+            const inscriptionFormValues: InscriptionEnfantFront = prepareInscriptionEnfantBeforeForm(loadedInscription);
+            form.setFieldsValue(inscriptionFormValues);
+            setEleves(inscriptionFormValues.eleves);
             resetApi();
         },
         [`GET:${NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
@@ -197,17 +198,18 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             notification.open({ message: "Au moins un élève saisi figure déjà dans une autre demande d'inscription sur la même période", type: "error" });
             setCodeIncoherence(undefined);
         } else if (codeIncoherence === "NO_INCOHERENCE") {
-            let { sendMailConfirmation, ...rest } = _.cloneDeep(form.getFieldsValue());
+            const inscriptionFormValues: InscriptionEnfantFront = _.cloneDeep(form.getFieldsValue());
+            let sendMailConfirmation = form.getFieldValue("sendMailConfirmation");
             if (!isAdmin) { // si pas en mode admin, l'envoi du mail est systématique
                 sendMailConfirmation = true;
             }
-            rest.eleves = _.cloneDeep(eleves);
-            convertTypesBeforeBackend(rest);
+            inscriptionFormValues.eleves = _.cloneDeep(eleves);
+            const inscriptionToSave = prepareInscriptionEnfantBeforeSave(inscriptionFormValues)
             setCodeIncoherence(undefined);
             if (id) {
-                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }), data: rest, params: { sendMailConfirmation } });
+                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }), data: inscriptionToSave, params: { sendMailConfirmation } });
             } else {
-                setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ENFANT_ENDPOINT, data: rest, params: { sendMailConfirmation } });
+                setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ENFANT_ENDPOINT, data: inscriptionToSave, params: { sendMailConfirmation } });
             }
         }
     }, [codeIncoherence])

@@ -1,6 +1,4 @@
-import { SignatureDto } from "./inscription";
-
-export type ResponsableLegal = {
+export type ResponsableLegal<T extends boolean | string> = {
     id: number;
     nom: string;
     prenom: string;
@@ -11,11 +9,13 @@ export type ResponsableLegal = {
     ville: string;
     idTarif: number;
     adherent: boolean;
-    autorisationAutonomie: boolean | string;
-    autorisationMedia: boolean | string;
+    autorisationAutonomie: T;
+    autorisationMedia: T;
     nomAutre: string;
     prenomAutre: string;
     lienParente: string;
     telephoneAutre: string;
-    signature?: SignatureDto;
 }
+
+export type ResponsableLegalFront = ResponsableLegal<string>;
+export type ResponsableLegalBack = ResponsableLegal<boolean>;

@@ -1,16 +1,14 @@
 import dayjs from "dayjs";
 import { ResponsableLegal } from "../services/ResponsableLegal";
-import { InscriptionEnfant } from "../services/inscription";
+import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfant, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
+import { EleveBack, EleveFront } from "../services/eleve";
 
-export const convertOuiNonToBoolean = (responsableLegal: ResponsableLegal) => {
-    responsableLegal.autorisationAutonomie = responsableLegal.autorisationAutonomie === "OUI" ? true : false;
-    responsableLegal.autorisationMedia = responsableLegal.autorisationMedia === "OUI" ? true : false;
-    responsableLegal.adherent = responsableLegal.adherent ?? false;
+export function convertOuiNonToBoolean(value: string) {
+    return value === "OUI" ? true : false;
 }
 
-export const convertBooleanToOuiNon = (responsableLegal: ResponsableLegal) => {
-    responsableLegal.autorisationAutonomie = responsableLegal.autorisationAutonomie === true ? "OUI" : "NON";
-    responsableLegal.autorisationMedia = responsableLegal.autorisationMedia === true ? "OUI" : "NON";
+export function convertBooleanToOuiNon(value: boolean) {
+    return value === true ? "OUI" : "NON";
 }
 
 export const validatePhoneNumber = (_: any, value: any) => {
@@ -52,11 +50,66 @@ export const validateMontantMinAdhesion = (_: any, value: number) => {
     return Promise.resolve();
 };
 
-export const convertTypesBeforeBackend = (inscription: InscriptionEnfant) => {
-    if (inscription.eleves) {
-        inscription.eleves.forEach(eleve => eleve.dateNaissance = dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT));
-    }
-    convertOuiNonToBoolean(inscription.responsableLegal);
+function prepareEleveBeforeSave(eleves: EleveFront[]) {
+    return eleves.map(eleve => {
+        const eleveToSave: EleveBack = {
+            ...eleve,
+            dateNaissance: dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT),
+        }
+        return eleveToSave;
+    })
+};
+
+function prepareEleveBeforeForm(eleves: EleveBack[]) {
+    return eleves.map(eleve => {
+        const eleveToSave: EleveFront = {
+            ...eleve,
+            dateNaissance: dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT),
+        }
+        return eleveToSave;
+    })
+};
+
+export function prepareInscriptionEnfantBeforeSave(inscription: InscriptionEnfantFront) {
+    const inscriptionToSave: InscriptionEnfantBack = {
+        ...inscription,
+        responsableLegal: {
+            ...inscription.responsableLegal,
+            autorisationAutonomie: convertOuiNonToBoolean(inscription.responsableLegal.autorisationAutonomie),
+            autorisationMedia: convertOuiNonToBoolean(inscription.responsableLegal.autorisationMedia),
+        },
+        eleves: prepareEleveBeforeSave(inscription.eleves),
+    };
+    return inscriptionToSave;
+}
+
+export function prepareInscriptionEnfantBeforeForm(inscription: InscriptionEnfantBack) {
+    const inscriptionToSave: InscriptionEnfantFront = {
+        ...inscription,
+        responsableLegal: {
+            ...inscription.responsableLegal,
+            autorisationAutonomie: convertBooleanToOuiNon(inscription.responsableLegal.autorisationAutonomie),
+            autorisationMedia: convertBooleanToOuiNon(inscription.responsableLegal.autorisationMedia),
+        },
+        eleves: prepareEleveBeforeForm(inscription.eleves),
+    };
+    return inscriptionToSave;
+}
+
+export function prepareInscriptionAdulteBeforeForm(inscription: InscriptionAdulteBack) {
+    const inscriptionToSave: InscriptionAdulteFront = {
+        ...inscription,
+        dateNaissance: dayjs(inscription.dateNaissance, APPLICATION_DATE_FORMAT),
+    };
+    return inscriptionToSave;
+}
+
+export function prepareInscriptionAdulteBeforeSave(inscription: InscriptionAdulteFront) {
+    const inscriptionToSave: InscriptionAdulteBack = {
+        ...inscription,
+        dateNaissance: dayjs(inscription.dateNaissance).format(APPLICATION_DATE_FORMAT),
+    };
+    return inscriptionToSave;
 }
 
 export const getConsentementInscriptionCoursLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours." +

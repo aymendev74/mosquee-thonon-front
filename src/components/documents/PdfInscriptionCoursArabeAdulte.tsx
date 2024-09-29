@@ -2,8 +2,8 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
 import { buildUrlWithParams, INSCRIPTION_ADULTE_ENDPOINT } from '../../services/services';
-import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
-import { InscriptionAdulte } from '../../services/inscription';
+import { getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
+import { InscriptionAdulteBack } from '../../services/inscription';
 import { Sexe } from '../../services/eleve';
 import dayjs from 'dayjs';
 
@@ -120,11 +120,11 @@ const styles = StyleSheet.create({
 
 export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCoursArabeAdulteProps> = ({ id }) => {
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
-    const [inscription, setInscription] = useState<InscriptionAdulte | undefined>();
+    const [inscription, setInscription] = useState<InscriptionAdulteBack | undefined>();
 
     useEffect(() => {
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
-            const inscription = result as InscriptionAdulte;
+            const inscription = result as InscriptionAdulteBack;
             setInscription(inscription);
             resetApi();
         }
@@ -166,7 +166,7 @@ export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCou
                         <Text>Nom et prénom : <Text style={styles.bold}>{inscription.nom} {inscription.prenom}</Text></Text>
                     </View>
                     <View style={[styles.formElement]}>
-                        <Text>Date de naissance : <Text style={styles.bold}>{dayjs(inscription.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}</Text></Text>
+                        <Text>Date de naissance : <Text style={styles.bold}>{inscription.dateNaissance}</Text></Text>
                     </View>
                     <View style={styles.formElement}>
                         <Text>Sexe : <Text style={styles.bold}>{getSexeLibelle()}</Text></Text>
