@@ -25,7 +25,6 @@ export const Parametres: FunctionComponent = () => {
         }
         const params: ParamDto[] = [
             { name: ParamName.REINSCRIPTION_ENABLED, value: paramsDto.reinscriptionPrioritaire ? paramsDto.reinscriptionPrioritaire.toString() : "false" },
-            { name: ParamName.ANNEE_SCOLAIRE, value: paramsDto.anneeScolaire },
             { name: ParamName.INSCRIPTION_ENABLED_FROM_DATE, value: paramsDto.inscriptionEnabledFromDate },
             { name: ParamName.SEND_EMAIL_ENABLED, value: paramsDto.sendMailEnabled ? paramsDto.sendMailEnabled.toString() : "false" }
         ];
@@ -102,13 +101,6 @@ export const Parametres: FunctionComponent = () => {
                         <Tooltip color="geekblue" title="Ce paramètre permet d'activer les réinscriptions. Lorsqu'il est activé,
                         seuls les élèves inscrits pendant la dernière période scolaire sont autorisés à se réinscrire">
                             <SwitchFormItem name="reinscriptionPrioritaire" label="Activer/Désactiver les réinscriptions prioritaires" onChange={onReinscriptionChanged} />
-                        </Tooltip>
-                    </Col>
-                </Row>
-                <Row gutter={[16, 32]}>
-                    <Col span={8}>
-                        <Tooltip color="geekblue" title="Cette information apparaît notamment sur les formulaire pdf des inscriptions">
-                            <InputFormItem name="anneeScolaire" label="Période scolaire en cours" rules={[{ required: true, message: "La période scolaire en cours est obligatoire" }]} />
                         </Tooltip>
                     </Col>
                 </Row>
