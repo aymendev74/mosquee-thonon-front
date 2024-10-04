@@ -1,13 +1,13 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { CrownOutlined, DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
-import { useAuth } from "../hooks/UseAuth";
+import { DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { useAuth } from "../hooks/AuthContext";
 
 export const MyMenu: FunctionComponent = () => {
     const navigate = useNavigate();
     const { loggedUser } = useAuth();
-
+    console.log(loggedUser);
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
             navigate("/");

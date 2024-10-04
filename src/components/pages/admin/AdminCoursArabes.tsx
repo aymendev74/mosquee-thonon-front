@@ -1,7 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { InscriptionLight, InscriptionPatchDto, StatutInscription } from "../../../services/inscription";
 import { ApiCallbacks, handleApiCall, INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT } from "../../../services/services";
-import { useAuth } from "../../../hooks/UseAuth";
 import { useLocation, useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
@@ -20,6 +19,7 @@ import { PdfInscriptionCoursEnfant } from "../../documents/PdfInscriptionCoursEn
 import { getFileNameInscription } from "../../common/tableDefinition";
 import { AdminSearchFilter, InputSearchFieldDef } from "../../common/AdminSearchFilter";
 import { PdfInscriptionCoursArabeAdulte } from "../../documents/PdfInscriptionCoursArabeAdulte";
+import { useAuth } from "../../../hooks/AuthContext";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 

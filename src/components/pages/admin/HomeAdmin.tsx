@@ -1,9 +1,13 @@
-import { FunctionComponent } from "react";
-import { useAuth } from "../../../hooks/UseAuth";
+import { FunctionComponent, useEffect } from "react";
+import { useAuth } from "../../../hooks/AuthContext";
 
 export const HomeAdmin: FunctionComponent = () => {
 
-    const { loggedUser } = useAuth();
+    const { loggedUser, isAuthenticated } = useAuth();
+
+    useEffect(() => {
+        console.log(loggedUser, isAuthenticated);
+    }, [loggedUser, isAuthenticated]);
 
     return loggedUser ? (
         <div>

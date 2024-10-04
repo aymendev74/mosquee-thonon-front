@@ -1,10 +1,9 @@
 import { Button, Col, Divider, Form, Row, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, PARAM_ENDPOINT } from "../../../services/services";
+import { PARAM_ENDPOINT } from "../../../services/services";
 import useApi from "../../../hooks/useApi";
 import { SwitchFormItem } from "../../common/SwitchFormItem";
 import { ParamDto, ParamName, ParamsDto } from "../../../services/parametres";
-import { InputFormItem } from "../../common/InputFormItem";
 import dayjs from "dayjs";
 import { APPLICATION_DATE_FORMAT } from "../../../utils/FormUtils";
 import { DatePickerFormItem } from "../../common/DatePickerFormItem";

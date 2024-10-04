@@ -1,7 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import * as XLSX from 'xlsx';
 import { AdhesionLight, AdhesionLightForExport } from "../../../services/adhesion";
-import { useAuth } from "../../../hooks/UseAuth";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCall } from "../../../services/services";
@@ -16,6 +15,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
 import { AdminSearchFilter } from "../../common/AdminSearchFilter";
+import { useAuth } from "../../../hooks/AuthContext";
 
 
 export const AdminAdhesion: FunctionComponent = () => {

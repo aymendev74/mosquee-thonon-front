@@ -5,7 +5,6 @@ import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm'
 import { Authenticate } from './components/pages/admin/Authenticate';
 import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
-import { useAuth } from './hooks/UseAuth';
 import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
 import { AdhesionForm } from './components/pages/AdhesionForm';
 import { AdminAdhesion } from './components/pages/admin/AdminAdhesion';
@@ -14,6 +13,8 @@ import { FaireUnDon } from './components/pages/FaireUnDon';
 import { Parametres } from './components/pages/admin/Parametres';
 import { HomeAdmin } from './components/pages/admin/HomeAdmin';
 import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm';
+import { useAuth } from './hooks/AuthContext';
+import { SignIn } from './components/pages/admin/SignIn';
 
 const { Header, Content, Footer } = Layout;
 
@@ -80,6 +81,7 @@ function App() {
             <Route path="/changePassword" element={<ChangePassword />} />
             <Route path="/don" element={<FaireUnDon />} />
             <Route path="/parametres" element={<Parametres />} />
+            <Route path="/signIn" element={<SignIn />} />
           </Routes>
         </div>
       </Content>
