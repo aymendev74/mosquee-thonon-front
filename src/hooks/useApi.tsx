@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { executeApiCall } from '../services/services';
 import { notification } from 'antd';
+import { useAxios } from './useAxios';
 
 export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
 
@@ -11,6 +11,11 @@ export type ApiCallDefinition = {
     params?: any
 }
 
+export type APiCallResult = {
+    responseData?: any;
+    status?: number;
+}
+
 const useApi = (apiCallDef?: ApiCallDefinition) => {
     const [result, setResult] = useState();
     const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +23,25 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
     const [errorResult, setErrorResult] = useState<string>();
     const [apiCallDefinition, setApiCallDefinition] = useState<ApiCallDefinition | undefined>(apiCallDef);
     const [status, setStatus] = useState<number | undefined>();
+    const axios = useAxios();
+
+    const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<APiCallResult> => {
+        return axios.request({
+            ...apiCallDefinition,
+            paramsSerializer: {
+                indexes: null
+            }
+        }).then(response => {
+            return { responseData: response.data, status: response.status };
+        }).catch(function (error) {
+            // Si pas de code d'erreur spécifique renvoyé par le back, alors on affiche un message d'erreur standard (problème technique)
+            // Sinon on ne fait rien d'autre que levé l'erreur pour que ce soit géré par l'appelant (message spécifique à afficher à l'utilisateur)
+            if (!error.response || !error.response.data) {
+                notification.open({ message: "Une erreur est survenue", type: "error" });
+            }
+            throw error;
+        });
+    }
 
     useEffect(() => {
         const fetchData = async () => {

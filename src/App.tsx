@@ -19,7 +19,7 @@ import { SignIn } from './components/pages/admin/SignIn';
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const { loggedUser, logout } = useAuth();
+  const { getLoggedUser, logout } = useAuth();
   const navigate = useNavigate();
 
   const DropdownAuthUser = () => {
@@ -38,7 +38,7 @@ function App() {
     return (
       <Dropdown menu={menu}>
         <Avatar style={{ backgroundColor: "orange", verticalAlign: "middle", cursor: "pointer", color: "black" }} size="large">
-          {loggedUser}
+          {getLoggedUser()}
         </Avatar>
       </Dropdown>
     );
@@ -58,7 +58,7 @@ function App() {
             <MyMenu />
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
-            {loggedUser ? (
+            {getLoggedUser() ? (
               <DropdownAuthUser />
             ) : (
               <></>
@@ -73,7 +73,7 @@ function App() {
             <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
             <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
             <Route path="/adhesion" element={<AdhesionForm />} />
-            <Route path="/login" element={<Authenticate />} />
+            <Route path="/login" element={<SignIn />} />
             <Route path="/admin" element={<HomeAdmin />} />
             <Route path="/adminCours" element={<AdminCoursArabes />} />
             <Route path="/adminAdhesion" element={<AdminAdhesion />} />
@@ -81,7 +81,6 @@ function App() {
             <Route path="/changePassword" element={<ChangePassword />} />
             <Route path="/don" element={<FaireUnDon />} />
             <Route path="/parametres" element={<Parametres />} />
-            <Route path="/signIn" element={<SignIn />} />
           </Routes>
         </div>
       </Content>

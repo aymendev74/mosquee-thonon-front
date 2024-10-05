@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 export const SignIn: FunctionComponent = () => {
 
-    const { isAuthenticated, login } = useAuth();
+    const { getLoggedUser, login } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (getLoggedUser()) {
             navigate("/admin");
         }
     }, []);

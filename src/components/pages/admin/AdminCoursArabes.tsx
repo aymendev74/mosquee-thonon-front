@@ -24,10 +24,10 @@ import { useAuth } from "../../../hooks/AuthContext";
 export const AdminCoursArabes: FunctionComponent = () => {
 
     const location = useLocation();
-    const application = location.state.application; // ADULTE ou ENFANT
-    const type = application === "COURS_ENFANT" ? "ENFANT" : "ADULTE";
+    const application = location.state?.application; // ADULTE ou ENFANT
+    const type = application === "COURS_ADULTE" ? "ADULTE" : "ENFANT";
     const [dataSource, setDataSource] = useState<InscriptionLight[]>();
-    const { loggedUser } = useAuth();
+    const { getLoggedUser } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = Form.useForm();
@@ -338,7 +338,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         }
     }
 
-    return loggedUser ? (
+    return getLoggedUser() ? (
         <Form
             name="adminCours"
             labelCol={{ span: 8 }}

@@ -1,15 +1,15 @@
-import { FunctionComponent, useEffect } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/AuthContext";
 
 export const HomeAdmin: FunctionComponent = () => {
-
-    const { loggedUser, isAuthenticated } = useAuth();
+    const { isAuthenticated, getLoggedUser } = useAuth();
+    const [loggedUser, setLoggedUser] = useState<string>();
 
     useEffect(() => {
-        console.log(loggedUser, isAuthenticated);
-    }, [loggedUser, isAuthenticated]);
+        setLoggedUser(getLoggedUser());
+    }, [isAuthenticated]);
 
-    return loggedUser ? (
+    return getLoggedUser() ? (
         <div>
             <h1>Bienvenue <strong>{loggedUser}</strong> dans la partie Administration</h1>
             <br />

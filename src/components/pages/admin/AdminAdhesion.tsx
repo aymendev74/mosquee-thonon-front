@@ -21,7 +21,7 @@ import { useAuth } from "../../../hooks/AuthContext";
 export const AdminAdhesion: FunctionComponent = () => {
 
     const [dataSource, setDataSource] = useState<AdhesionLight[]>();
-    const { loggedUser } = useAuth();
+    const { getLoggedUser } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const { Panel } = Collapse;
@@ -229,7 +229,7 @@ export const AdminAdhesion: FunctionComponent = () => {
         }
     }
 
-    return loggedUser ? (
+    return getLoggedUser() ? (
         <Form
             name="adminAdhesion"
             labelCol={{ span: 8 }}
