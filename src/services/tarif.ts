@@ -34,6 +34,9 @@ export type InfoTarifDto = {
     montantBase4EnfantAdherent: number;
     montantEnfant4Enfant: number;
     montantEnfant4EnfantAdherent: number;
+
+    // tarif unique cours adulte
+    montant: number;
 }
 
 export type ApplicationTarif = "COURS_ENFANT" | "COURS_ADULTE";
