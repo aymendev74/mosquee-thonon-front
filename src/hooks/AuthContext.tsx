@@ -2,14 +2,15 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 import axios from 'axios';
 import qs from 'qs';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type AuthContextType = {
     isAuthenticated: boolean;
     getLoggedUser: () => string;
     login: () => Promise<void>;
     logout: () => void;
-    getAccessToken: () => string;
+    getAccessToken: () => string | null;
+    getAccessTokenSilently: () => string;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,42 +44,55 @@ export function generateCodeChallenge(codeVerifier: string) {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const redirectBaseURI = process.env.REACT_APP_OAUTH_REDIRECT_BASE_URI;
+    const redirectURI = process.env.REACT_APP_OAUTH_REDIRECT_URI;
     const authorizationEndpoint = process.env.REACT_APP_OAUTH_AUTHORIZATION_ENDPOINT;
+    const tokenEndpoint = process.env.REACT_APP_OAUTH_TOKEN_ENDPOINT;
+    const logoutEndpoint = process.env.REACT_APP_BASE_URL_API + "/logout";
     const clientId = process.env.REACT_APP_OAUTH_CLIENT_ID;
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const location = useLocation();
-    const navigate = useNavigate();
 
-    function getCustomizeRedirectUri() {
-        return location.pathname !== "/login" ? redirectBaseURI + location.pathname : redirectBaseURI + "/admin";
+    function getState() {
+        const currentPath = window.location.pathname;
+        if (currentPath.endsWith("/login")) {
+            return null;
+        }
+        return currentPath;
+    }
+
+    function tokenExpired(expirationTime: any) {
+        return new Date().getTime() >= expirationTime * 1000;
     }
 
     const login = useCallback(async function () {
         try {
-            const customizeRedirectUri = getCustomizeRedirectUri();
-            const encodedRedirectUri = encodeURIComponent(customizeRedirectUri);
-            console.log(customizeRedirectUri);
+            const state = getState();
+            const encodedRedirectUri = encodeURIComponent(redirectURI!);
             const codeVerifier = generateCodeVerifier(128);
             const codeChallenge = await generateCodeChallenge(codeVerifier);
             const encodedCodeChallenge = encodeURIComponent(codeChallenge);
             sessionStorage.setItem("code_verifier", codeVerifier);
-            sessionStorage.setItem("redirect_uri", customizeRedirectUri);
-            const url = `${authorizationEndpoint}?response_type=code&client_id=${clientId}&redirect_uri=${encodedRedirectUri}&scope=ADMIN&code_challenge=${encodedCodeChallenge}&code_challenge_method=S256`;
-            window.location.replace(url)
+            const url = `${authorizationEndpoint}?response_type=code&client_id=${clientId}&redirect_uri=${encodedRedirectUri}&code_challenge=${encodedCodeChallenge}&code_challenge_method=S256`;
+            const urlWithState = state ? `${url}&state=${state}` : url;
+            window.location.replace(urlWithState);
         } catch (error) {
             console.error("Erreur lors de la connexion :", error);
         }
     }, []);
 
-    const logout = useCallback(() => {
-        // TODO
+    const logout = useCallback(async () => {
+        const tokenData = sessionStorage.getItem("tokenData");
+        if (tokenData) {
+            const parsedTokenData = JSON.parse(tokenData);
+            if (parsedTokenData.accessToken && !tokenExpired(parsedTokenData.expirationTime)) {
+                sessionStorage.removeItem("tokenData");
+                window.location.replace(logoutEndpoint);
+            }
+        }
     }, []);
 
     async function exchangeCodeForToken(code: string) {
         const codeVerifier = sessionStorage.getItem("code_verifier");
-        const redirectURI = sessionStorage.getItem("redirect_uri");
-        const response = await axios.post("http://localhost:8080/api/oauth2/token", qs.stringify({
+        const response = await axios.post(tokenEndpoint!, qs.stringify({
             grant_type: "authorization_code",
             code: code,
             redirect_uri: redirectURI,
@@ -102,8 +116,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
+        const state = params.get("state");
         if (code) {
             exchangeCodeForToken(code);
+        }
+        if (state) {
+            window.location.replace(state);
         }
     }, []);
 
@@ -111,14 +129,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const tokenData = sessionStorage.getItem("tokenData");
         if (tokenData) {
             const parsedTokenData = JSON.parse(tokenData);
-            if (new Date().getTime() < parsedTokenData?.expirationTime) {
-                console.log("token encore valide");
+            if (!tokenExpired(parsedTokenData?.expirationTime)) {
                 return parsedTokenData.accessToken;
-            } else {
-                console.log("token expiré");
-                login();
             }
         }
+        login();
+        return null;
+    }, []);
+
+    const getAccessTokenSilently = useCallback(() => {
+        const tokenData = sessionStorage.getItem("tokenData");
+        if (tokenData) {
+            const parsedTokenData = JSON.parse(tokenData);
+            return parsedTokenData.accessToken;
+        }
+        return null;
     }, []);
 
     const getLoggedUser = useCallback(() => {
@@ -127,7 +152,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ getAccessToken, login, logout, getLoggedUser, isAuthenticated }}>
+        <AuthContext.Provider value={{ getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );

@@ -115,7 +115,6 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
             updatedEleves.splice(editingIndex!, 1);
         }
         updatedEleves = [...updatedEleves, newEleve];
-        console.log(updatedEleves);
         setEleves(updatedEleves);
         setEditingIndex(null);
         resetEmptyForm();

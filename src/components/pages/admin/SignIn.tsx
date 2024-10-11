@@ -15,7 +15,12 @@ export const SignIn: FunctionComponent = () => {
     }, []);
 
     return (
-        <Button type="primary" onClick={login}>Se connecter</Button>
+        <div className="centered-content-bk">
+            <div className="centered-content-bk m-top-30">Cliquez pour être dirigé vers la page d'authentification</div>
+            <div className="centered-content-bk m-top-15">
+                <Button type="primary" onClick={login} className="login-button">Se connecter</Button>
+            </div>
+        </div>
     );
 
 }

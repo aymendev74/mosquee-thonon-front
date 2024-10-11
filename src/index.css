@@ -27,6 +27,11 @@
   justify-content: center;
 }
 
+.centered-content-bk {
+  display: block;
+  text-align: center;
+}
+
 .centered-content-v {
   display: flex;
   flex-direction: column;
@@ -203,6 +208,10 @@
 .adhesion-title {
   border-bottom: 3px solid orange;
   color: orange;
+}
+
+.login-button {
+  width: 150px
 }
 
 @keyframes scroll-left {

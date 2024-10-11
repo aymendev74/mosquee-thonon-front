@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { notification } from 'antd';
 import { useAxios } from './useAxios';
+import { useAuth } from './AuthContext';
 
 export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
 
@@ -24,6 +25,7 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
     const [apiCallDefinition, setApiCallDefinition] = useState<ApiCallDefinition | undefined>(apiCallDef);
     const [status, setStatus] = useState<number | undefined>();
     const axios = useAxios();
+    const { getLoggedUser, getAccessToken } = useAuth();
 
     const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<APiCallResult> => {
         return axios.request({
@@ -36,9 +38,7 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
         }).catch(function (error) {
             // Si pas de code d'erreur spécifique renvoyé par le back, alors on affiche un message d'erreur standard (problème technique)
             // Sinon on ne fait rien d'autre que levé l'erreur pour que ce soit géré par l'appelant (message spécifique à afficher à l'utilisateur)
-            if (!error.response || !error.response.data) {
-                notification.open({ message: "Une erreur est survenue", type: "error" });
-            }
+            notification.open({ message: "Une erreur est survenue", type: "error" });
             throw error;
         });
     }
@@ -48,6 +48,13 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
             setIsLoading(true);
             setError(false);
             try {
+                // Si un utilisateur est connecté, on vérifie si son token est toujours bon
+                if (getLoggedUser()) {
+                    const token = getAccessToken();
+                    if (!token) { // inutile d'aller plus loin (nouvelle authentification déclenchée)
+                        return;
+                    }
+                }
                 const apiCallResult = await executeApiCall(apiCallDefinition!);
                 setResult(apiCallResult.responseData);
                 setStatus(apiCallResult.status);

@@ -122,7 +122,6 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
     }, [result]);
 
     function onAnneeDebutSelected(value: Dayjs | null) {
-        console.log(value);
         if (value) {
             // Période d'inscriptions 01.05 au 30.09 de l'année
             const dateDebutPeriode = value.set("month", 4).set("date", 1);

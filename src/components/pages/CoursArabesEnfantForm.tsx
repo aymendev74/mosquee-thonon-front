@@ -47,8 +47,6 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         let adherent = form.getFieldValue(["responsableLegal", "adherent"]);
         if (eleves.length > 0) {
             const nbEleves = eleves.length;
-            console.log(nbEleves);
-            console.log(adherent);
             if (id) {
                 setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT, { id }), params: { adherent: adherent ?? false, nbEleves } });
             } else {

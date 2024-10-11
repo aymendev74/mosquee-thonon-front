@@ -152,7 +152,7 @@ export const AdminTarifs: FunctionComponent = () => {
         </Row>
             <Row gutter={[16, 32]}>
                 <Col span={6}>
-                    <SelectFormItem name="typeTarif" label="Période" options={[{ value: "COURS_ENFANT", label: "Cours enfant" }, { value: "COURS_ADULTE", label: "Cours adulte" }]}
+                    <SelectFormItem name="typeTarif" label="Type de tarif" options={[{ value: "COURS_ENFANT", label: "Cours enfant" }, { value: "COURS_ADULTE", label: "Cours adulte" }]}
                         onChange={(value) => { setApplication(value) }} defaultValue="COURS_ENFANT" />
                 </Col>
             </Row>
