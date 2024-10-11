@@ -1,14 +1,10 @@
-import { Layout, Button, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
-import {
-  LoginOutlined,
-} from '@ant-design/icons';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Layout, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
-import { CoursArabesForm } from './components/pages/CoursArabesForm';
+import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm';
 import { Authenticate } from './components/pages/admin/Authenticate';
 import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
-import { useAuth } from './hooks/UseAuth';
 import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
 import { AdhesionForm } from './components/pages/AdhesionForm';
 import { AdminAdhesion } from './components/pages/admin/AdminAdhesion';
@@ -16,11 +12,14 @@ import { AdminTarifs } from './components/pages/admin/AdminTarifs';
 import { FaireUnDon } from './components/pages/FaireUnDon';
 import { Parametres } from './components/pages/admin/Parametres';
 import { HomeAdmin } from './components/pages/admin/HomeAdmin';
+import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm';
+import { useAuth } from './hooks/AuthContext';
+import { SignIn } from './components/pages/admin/SignIn';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const { loggedUser, logout } = useAuth();
+  const { getLoggedUser, logout } = useAuth();
   const navigate = useNavigate();
 
   const DropdownAuthUser = () => {
@@ -38,8 +37,8 @@ function App() {
 
     return (
       <Dropdown menu={menu}>
-        <Avatar style={{ backgroundColor: "#06686E", verticalAlign: "middle", cursor: "pointer" }} size="large">
-          {loggedUser}
+        <Avatar style={{ backgroundColor: "orange", verticalAlign: "middle", cursor: "pointer", color: "black" }} size="large">
+          {getLoggedUser()}
         </Avatar>
       </Dropdown>
     );
@@ -59,7 +58,7 @@ function App() {
             <MyMenu />
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
-            {loggedUser ? (
+            {getLoggedUser() ? (
               <DropdownAuthUser />
             ) : (
               <></>
@@ -71,9 +70,10 @@ function App() {
         <div className="centered-content">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/cours" element={<CoursArabesForm />} />
+            <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
+            <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
             <Route path="/adhesion" element={<AdhesionForm />} />
-            <Route path="/login" element={<Authenticate />} />
+            <Route path="/login" element={<SignIn />} />
             <Route path="/admin" element={<HomeAdmin />} />
             <Route path="/adminCours" element={<AdminCoursArabes />} />
             <Route path="/adminAdhesion" element={<AdminAdhesion />} />

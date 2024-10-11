@@ -1,5 +1,5 @@
 import { AdhesionLight } from "../../services/adhesion";
-import { Inscription, InscriptionLight } from "../../services/inscription";
+import { InscriptionLight } from "../../services/inscription";
 
 export const getFileNameAdhesion = (adhesion: AdhesionLight) => {
     return "adhesion_" + adhesion.prenom + "_" + adhesion.nom;

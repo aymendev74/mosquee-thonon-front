@@ -9,11 +9,16 @@ export const getNiveauOptions = (): DefaultOptionType[] => {
     { value: NiveauScolaire.AUTRE, label: "Autre" }]
 };
 
-export const getNiveauInterneOptions = (): DefaultOptionType[] => {
+export const getNiveauInterneEnfantOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauInterne.P1, label: "P1" }, { value: NiveauInterne.P2, label: "P2" }, { value: NiveauInterne.N1_1, label: "N1-1" },
     { value: NiveauInterne.N1_2, label: "N1-2" }, { value: NiveauInterne.N2_1, label: "N2-1" }, { value: NiveauInterne.N2_2, label: "N2-2" },
     { value: NiveauInterne.N3_1, label: "N3-1" }, { value: NiveauInterne.N3_2, label: "N3-2" }, { value: NiveauInterne.N4_1, label: "N4-1" },
     { value: NiveauInterne.N4_2, label: "N4-2" }]
+}
+
+export const getNiveauInterneAdulteOptions = (): DefaultOptionType[] => {
+    return [{ value: NiveauInterne.DEBUTANT, label: "Débutant" }, { value: NiveauInterne.INTERMEDIAIRE, label: "Intermédiaire" },
+    { value: NiveauInterne.AVANCE, label: "Avancé" }]
 }
 
 export const getStatutInscriptionOptions = () => {

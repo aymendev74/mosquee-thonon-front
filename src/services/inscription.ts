@@ -1,5 +1,5 @@
 import { ResponsableLegal } from "./ResponsableLegal";
-import { Eleve } from "./eleve";
+import { Eleve, Sexe } from "./eleve";
 import { Dayjs } from "dayjs";
 
 export enum StatutInscription {
@@ -9,27 +9,21 @@ export enum StatutInscription {
     REFUSE = "REFUSE",
 }
 
-export type SignatureDto = {
-    dateCreation: string;
-    visaCreation: string;
-    dateModification: string;
-    visaModification: string;
-}
-
 export type InscriptionSaveCriteria = {
     sendMailConfirmation: boolean;
 }
 
-export type Inscription = {
+export type InscriptionEnfant<T extends Dayjs | string, U extends string | boolean> = {
     id: number;
     statut: StatutInscription | boolean;
-    dateInscription: Dayjs | string;
-    responsableLegal: ResponsableLegal;
-    eleves: Eleve[];
+    responsableLegal: ResponsableLegal<U>;
+    eleves: Eleve<T>[];
     anneeScolaire: string;
     montantTotal: number;
-    signature?: SignatureDto;
 }
+
+export type InscriptionEnfantFront = InscriptionEnfant<Dayjs, string>;
+export type InscriptionEnfantBack = InscriptionEnfant<string, boolean>;
 
 export type InscriptionLight = {
     id: number;
@@ -40,7 +34,7 @@ export type InscriptionLight = {
     prenomResponsableLegal: string;
     nomContactUrgence: string;
     prenomContactUrgence: string;
-    dateNaissance: Dayjs | string;
+    dateNaissance: string;
     niveau: string;
     niveauInterne: string;
     mobile: string;
@@ -49,12 +43,10 @@ export type InscriptionLight = {
     autorisationMedia: boolean,
     statut: StatutInscription;
     ville: string;
-    dateInscription: Dayjs | string;
+    dateInscription: string;
     noInscription: string;
     email: string;
 }
-
-export type InscriptionForExport = Omit<InscriptionLight, "id" | "idInscription">;
 
 export enum NiveauScolaire {
     CP = "CP",
@@ -83,4 +75,35 @@ export enum NiveauInterne {
     N3_2 = "N3_2",
     N4_1 = "N4_1",
     N4_2 = "N4_2",
+    DEBUTANT = "DEBUTANT",
+    INTERMEDIAIRE = "INTERMEDIAIRE",
+    AVANCE = "AVANCE",
+}
+
+export type InscriptionAdulte<T extends Dayjs | string> = {
+    nom: string;
+    prenom: string;
+    email: string;
+    dateNaissance: T;
+    mobile: string;
+    numeroEtRue: string;
+    codePostal: number;
+    ville: string;
+    statut: StatutInscription;
+    anneeScolaire: string;
+    montantTotal: number;
+    niveauInterne: NiveauInterne;
+    sexe: Sexe;
+} & {
+    sendMailConfirmation: boolean;
+}
+
+export type InscriptionAdulteFront = InscriptionAdulte<Dayjs>;
+export type InscriptionAdulteBack = InscriptionAdulte<string>;
+
+export type TypeInscription = "ADULTE" | "ENFANT";
+
+export type InscriptionPatchDto = {
+    ids: number[];
+    statut?: StatutInscription;
 }

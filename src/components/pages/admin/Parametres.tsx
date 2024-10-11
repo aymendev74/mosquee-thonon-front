@@ -1,13 +1,13 @@
 import { Button, Col, Divider, Form, Row, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, PARAM_ENDPOINT } from "../../../services/services";
+import { PARAM_ENDPOINT } from "../../../services/services";
 import useApi from "../../../hooks/useApi";
 import { SwitchFormItem } from "../../common/SwitchFormItem";
 import { ParamDto, ParamName, ParamsDto } from "../../../services/parametres";
-import { InputFormItem } from "../../common/InputFormItem";
 import dayjs from "dayjs";
 import { APPLICATION_DATE_FORMAT } from "../../../utils/FormUtils";
 import { DatePickerFormItem } from "../../common/DatePickerFormItem";
+import { SettingOutlined } from "@ant-design/icons";
 
 export const Parametres: FunctionComponent = () => {
 
@@ -22,11 +22,10 @@ export const Parametres: FunctionComponent = () => {
         } else {
             paramsDto.inscriptionEnabledFromDate = "";
         }
-        console.log(values);
         const params: ParamDto[] = [
             { name: ParamName.REINSCRIPTION_ENABLED, value: paramsDto.reinscriptionPrioritaire ? paramsDto.reinscriptionPrioritaire.toString() : "false" },
-            { name: ParamName.ANNEE_SCOLAIRE, value: paramsDto.anneeScolaire },
-            { name: ParamName.INSCRIPTION_ENABLED_FROM_DATE, value: paramsDto.inscriptionEnabledFromDate }
+            { name: ParamName.INSCRIPTION_ENABLED_FROM_DATE, value: paramsDto.inscriptionEnabledFromDate },
+            { name: ParamName.SEND_EMAIL_ENABLED, value: paramsDto.sendMailEnabled ? paramsDto.sendMailEnabled.toString() : "false" }
         ];
         setApiCallDefinition({ method: "POST", url: PARAM_ENDPOINT, data: params });
     }
@@ -76,7 +75,7 @@ export const Parametres: FunctionComponent = () => {
             form={form}
         >
             <Spin spinning={isLoading}>
-                <h2>Paramètres de l'application</h2>
+                <h2 className="admin-param-title"><SettingOutlined /> Paramètres de l'application</h2>
                 <Row gutter={[16, 32]}>
                     <Col span={24}>
                         <Divider orientation="left">Paramètres</Divider>
@@ -106,8 +105,8 @@ export const Parametres: FunctionComponent = () => {
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={8}>
-                        <Tooltip color="geekblue" title="Cette information apparaît notamment sur les formulaire pdf des inscriptions">
-                            <InputFormItem name="anneeScolaire" label="Période scolaire en cours" rules={[{ required: true, message: "La période scolaire en cours est obligatoire" }]} />
+                        <Tooltip color="geekblue" title="Si désactivé, les mails ne sont pas envoyés lors des inscriptions (utile lors des sessions de tests par exemple)">
+                            <SwitchFormItem name="sendMailEnabled" label="Activer/Désactiver l'envoi des e-mails" />
                         </Tooltip>
                     </Col>
                 </Row>

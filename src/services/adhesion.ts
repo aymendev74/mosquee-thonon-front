@@ -1,5 +1,4 @@
-import { Moment } from "moment";
-import { SignatureDto, StatutInscription } from "./inscription";
+import { StatutInscription } from "./inscription";
 import { Dayjs } from "dayjs";
 
 export type Adhesion = {
@@ -17,9 +16,7 @@ export type Adhesion = {
     montantAutre: number;
     montant: number;
     statut: StatutInscription | boolean;
-    dateInscription: Dayjs | string;
     noMembre: number;
-    signature: SignatureDto;
 }
 
 export type AdhesionLight = {

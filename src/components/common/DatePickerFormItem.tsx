@@ -5,11 +5,11 @@ import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 
 export type DatePickerFormItemProps = DatePickerProps & FormItemProps;
 
-export const DatePickerFormItem: FunctionComponent<DatePickerFormItemProps> = ({ name, label, rules, ...rest }) => {
+export const DatePickerFormItem: FunctionComponent<DatePickerFormItemProps> = ({ name, label, rules, picker, onChange }) => {
 
     return (
         <Form.Item name={name.split(".")} label={label} rules={rules}>
-            <DatePicker format={APPLICATION_DATE_FORMAT} {...rest} />
+            {picker === "year" ? (<DatePicker picker={picker} onChange={onChange} />) : (<DatePicker format={APPLICATION_DATE_FORMAT} picker={picker} onChange={onChange} />)}
         </Form.Item>
     );
 }

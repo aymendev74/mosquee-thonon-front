@@ -1,8 +1,8 @@
 import { FunctionComponent, useEffect, useState } from 'react';
-import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import useApi from '../../hooks/useApi';
-import { INSCRIPTION_ENDPOINT } from '../../services/services';
-import { Inscription } from '../../services/inscription';
+import { buildUrlWithParams, INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
+import { InscriptionEnfantBack } from '../../services/inscription';
 import dayjs from 'dayjs';
 import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { getLibelleNiveauScolaire } from '../common/commoninputs';
@@ -10,14 +10,6 @@ import { getLibelleNiveauScolaire } from '../common/commoninputs';
 export type PdfInscriptionCoursProps = {
     id: number;
 };
-
-Font.register({
-    family: 'Open Sans',
-    fonts: [
-        { src: './polices/open-sans/OpenSans-Regular.ttf' },
-        { src: './polices/open-sans/OpenSans-Bold.ttf', fontWeight: "bold" }
-    ]
-});
 
 const styles = StyleSheet.create({
     page: {
@@ -148,13 +140,13 @@ const styles = StyleSheet.create({
     }
 });
 
-export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = ({ id }) => {
+export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursProps> = ({ id }) => {
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
-    const [inscription, setInscription] = useState<Inscription | undefined>();
+    const [inscription, setInscription] = useState<InscriptionEnfantBack | undefined>();
 
     useEffect(() => {
         if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
-            const inscription = result as Inscription;
+            const inscription = result as InscriptionEnfantBack;
             setInscription(inscription);
             resetApi();
         }
@@ -162,7 +154,7 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
 
     useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT + "/" + id });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id: id }) });
         }
     }, []);
 
@@ -212,7 +204,7 @@ export const PdfInscriptionCours: FunctionComponent<PdfInscriptionCoursProps> = 
                         <View key={index} style={styles.row}>
                             <Text style={styles.cell}>{eleve.nom}</Text>
                             <Text style={styles.cell}>{eleve.prenom}</Text>
-                            <Text style={styles.cell}>{dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}</Text>
+                            <Text style={styles.cell}>{eleve.dateNaissance}</Text>
                             <Text style={styles.cell}>{getLibelleNiveauScolaire(eleve.niveau)}</Text>
                             <Text style={styles.cell}>{eleve.niveauInterne}</Text>
                         </View>

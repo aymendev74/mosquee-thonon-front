@@ -1,12 +1,12 @@
 import { Col, Divider, Row, Tag } from "antd";
 import { FunctionComponent } from "react";
-import { InputTarif } from "./InputTarif";
+import { InputTarif } from "./InputTarifEnfant";
 
 export type InfosTarifProperties = {
     readOnly: boolean;
 }
 
-export const InfosTarif: FunctionComponent<InfosTarifProperties> = ({ readOnly }) => {
+export const InfosTarifEnfant: FunctionComponent<InfosTarifProperties> = ({ readOnly }) => {
 
     return (<>
         <Row gutter={[16, 32]}>

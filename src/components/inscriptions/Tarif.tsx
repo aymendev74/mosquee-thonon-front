@@ -1,6 +1,6 @@
 import { Button, Checkbox, Col, Divider, FormInstance, Row } from "antd";
 import { FunctionComponent } from "react";
-import { Eleve } from "../../services/eleve";
+import { Eleve, EleveFront } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getStatutInscriptionOptions } from "../common/commoninputs";
@@ -8,7 +8,7 @@ import { getConsentementInscriptionCoursLibelle } from "../../utils/FormUtils";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 
 export type TarifProps = {
-    eleves: Eleve[];
+    eleves: EleveFront[];
     tarifInscription?: TarifInscriptionDto;
     form: FormInstance;
     isAdmin: boolean;
