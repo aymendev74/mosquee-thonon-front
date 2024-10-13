@@ -8,7 +8,7 @@ import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from 
 import { getLibelleNiveauScolaire } from '../common/commoninputs';
 
 export type PdfInscriptionCoursProps = {
-    id: number;
+    inscription: InscriptionEnfantBack;
 };
 
 const styles = StyleSheet.create({
@@ -140,23 +140,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursProps> = ({ id }) => {
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
-    const [inscription, setInscription] = useState<InscriptionEnfantBack | undefined>();
-
-    useEffect(() => {
-        if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
-            const inscription = result as InscriptionEnfantBack;
-            setInscription(inscription);
-            resetApi();
-        }
-    }, [result]);
-
-    useEffect(() => {
-        if (id) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id: id }) });
-        }
-    }, []);
+export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursProps> = ({ inscription }) => {
 
     const getAutorisationAutonomie = () => {
         return inscription?.responsableLegal.autorisationAutonomie ? "J'autorise mes enfants à sortir seuls après l'école."

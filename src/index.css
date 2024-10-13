@@ -5,7 +5,7 @@
   /* Hauteur du logo */
   margin-right: 15px;
   /* Marge à droite du logo pour l'espacement */
-  background-image: url('./logo_mosquee_thonon.png');
+  background-image: url('/public/images/logo_mosquee_thonon.png');
   /* Spécifiez le chemin de votre image de logo */
   background-size: cover;
   /* Ajustez la taille de l'image du logo */
@@ -222,4 +222,13 @@
   100% {
     transform: translateX(-100%);
   }
+}
+
+.inscription-closed {
+  width: 150px;
+  height: 150px;
+  background-image: url('/public/images/closed.png');
+  background-size: cover;
+  justify-content: center;
+  align-self: center;
 }

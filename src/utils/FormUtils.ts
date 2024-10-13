@@ -119,6 +119,12 @@ export const getConsentementInscriptionCoursLibelle = () => "En soumettant ce fo
 export const getConsentementAdhesionLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre adhésion à l'association." +
     " Vos données seront conservées pendant toute la durée de votre adhésion et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.";
 
+export const isInscriptionFerme = (inscriptionEnabledFromDate?: string) => {
+    if (!inscriptionEnabledFromDate) {
+        return true;
+    }
+    return dayjs(inscriptionEnabledFromDate, APPLICATION_DATE_FORMAT).isAfter(dayjs());
+}
 
 export const APPLICATION_DATE_FORMAT: string = "DD.MM.YYYY";
 export const APPLICATION_DATE_TIME_FORMAT: string = "DD.MM.YYYY HH:mm:ss.SSS";

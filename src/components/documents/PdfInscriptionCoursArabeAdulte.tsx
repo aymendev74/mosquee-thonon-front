@@ -1,14 +1,11 @@
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
-import useApi from '../../hooks/useApi';
-import { buildUrlWithParams, INSCRIPTION_ADULTE_ENDPOINT } from '../../services/services';
 import { getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { InscriptionAdulteBack } from '../../services/inscription';
 import { Sexe } from '../../services/eleve';
-import dayjs from 'dayjs';
 
 export type PdfInscriptionCoursArabeAdulteProps = {
-    id: number;
+    inscription: InscriptionAdulteBack;
 };
 
 const styles = StyleSheet.create({
@@ -118,23 +115,7 @@ const styles = StyleSheet.create({
     },
 });
 
-export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCoursArabeAdulteProps> = ({ id }) => {
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
-    const [inscription, setInscription] = useState<InscriptionAdulteBack | undefined>();
-
-    useEffect(() => {
-        if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
-            const inscription = result as InscriptionAdulteBack;
-            setInscription(inscription);
-            resetApi();
-        }
-    }, [result]);
-
-    useEffect(() => {
-        if (id) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }) });
-        }
-    }, []);
+export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCoursArabeAdulteProps> = ({ inscription }) => {
 
     const getSexeLibelle = () => {
         return inscription?.sexe === Sexe.MASCULIN ? "Masculin" : "Féminin";
