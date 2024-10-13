@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { InscriptionLight, InscriptionPatchDto, StatutInscription } from "../../../services/inscription";
-import { ApiCallbacks, handleApiCall, INSCRIPTION_ENDPOINT, PERIODES_ENDPOINT } from "../../../services/services";
+import { InscriptionAdulteBack, InscriptionEnfantBack, InscriptionLight, InscriptionPatchDto, StatutInscription } from "../../../services/inscription";
+import { ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, PERIODES_ENDPOINT } from "../../../services/services";
 import { useLocation, useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
@@ -34,7 +34,9 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
     const [periodesOptions, setPeriodesOptions] = useState<DefaultOptionType[]>();
-    const [renderedPdfInscriptionsIds, setRenderedPdfInscriptionsIds] = useState<number[]>([]);
+    const [inscriptionsEnfantsById, setInscriptionsEnfantsById] = useState<Record<number, InscriptionEnfantBack>>({});
+    const [inscriptionsAdultesById, setInscriptionsAdultesById] = useState<Record<number, InscriptionAdulteBack>>({});
+    const [loadingInscriptionId, setLoadingInscriptionId] = useState<number>();
 
     const CONSULTER_MENU_KEY = "1";
     const MODIFIER_MENU_KEY = "2";
@@ -217,6 +219,14 @@ export const AdminCoursArabes: FunctionComponent = () => {
         [`GET:${PERIODES_ENDPOINT}`]: (result: any) => {
             setPeriodesOptions(getPeriodeOptions(result as PeriodeInfoDto[]));
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
+        },
+        [`GET:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
+            setInscriptionsEnfantsById({ ...inscriptionsEnfantsById, [loadingInscriptionId!]: result });
+            setLoadingInscriptionId(undefined);
+        },
+        [`GET:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
+            setInscriptionsAdultesById({ ...inscriptionsAdultesById, [loadingInscriptionId!]: result });
+            setLoadingInscriptionId(undefined);
         }
     };
 
@@ -241,14 +251,24 @@ export const AdminCoursArabes: FunctionComponent = () => {
     };
 
     const renderPdf = (idInscription: number) => {
-        return renderedPdfInscriptionsIds.includes(idInscription);
+        return type === "ENFANT" ? inscriptionsEnfantsById[idInscription] !== undefined
+            : inscriptionsAdultesById[idInscription] !== undefined;
     };
 
     const getDocumentContent = (idInscription: number) => {
         if (type === "ENFANT") {
-            return <PdfInscriptionCoursEnfant id={idInscription} />;
+            return <PdfInscriptionCoursEnfant inscription={inscriptionsEnfantsById[idInscription]} />;
         } else {
-            return <PdfInscriptionCoursArabeAdulte id={idInscription} />;
+            return <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} />;
+        }
+    }
+
+    function loadInscription(id: number) {
+        setLoadingInscriptionId(id);
+        if (type === "ENFANT") {
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }) });
+        } else {
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id }) });
         }
     }
 
@@ -258,7 +278,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 return loading ? "Génération Pdf..." : <FilePdfTwoTone />
             }
             }
-        </PDFDownloadLink>) : (<Button type="primary" onClick={() => setRenderedPdfInscriptionsIds([...renderedPdfInscriptionsIds, record.idInscription])}>Générer Pdf</Button>)
+        </PDFDownloadLink>) : (<Button type="primary" onClick={() => { loadInscription(record.idInscription) }}>Générer Pdf</Button>)
     }
 
     const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
