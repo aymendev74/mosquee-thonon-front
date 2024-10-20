@@ -11,16 +11,14 @@ export const SignIn: FunctionComponent = () => {
     useEffect(() => {
         if (getLoggedUser()) {
             navigate("/admin");
+        } else {
+            login();
         }
     }, []);
 
     return (
-        <div className="centered-content-bk">
-            <div className="centered-content-bk m-top-30">Cliquez pour être dirigé vers la page d'authentification</div>
-            <div className="centered-content-bk m-top-15">
-                <Button type="primary" onClick={login} className="login-button">Se connecter</Button>
-            </div>
-        </div>
+        <>
+        </>
     );
 
 }
