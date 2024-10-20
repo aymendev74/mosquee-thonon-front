@@ -63,14 +63,18 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
 
     const apiCallbacks: ApiCallbacks = {
         [`PUT:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-            navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
-            resetApi()
+            if (result) {
+                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+                navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
+                resetApi();
+            }
         },
         [`POST:${NEW_INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
-            setInscriptionSuccess(true);
-            form.resetFields();
-            resetApi()
+            if (result) {
+                setInscriptionSuccess(true);
+                form.resetFields();
+                resetApi();
+            }
         },
         [`GET:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
             const inscriptionFormValues: InscriptionAdulteFront = prepareInscriptionAdulteBeforeForm(result as InscriptionAdulteBack);

@@ -98,7 +98,7 @@ export const AdminTarifs: FunctionComponent = () => {
     }
 
     const copierTarif = (value: any) => {
-        setApiCallDefinition({ method: "GET", url: buildUrlWithParams(TARIFS_ADMIN_ENDPOINT, { id: value }) });
+        setApiCallDefinition({ method: "GET", url: buildUrlWithParams(TARIFS_ADMIN_GET_ENDPOINT, { id: value }) });
     }
 
     const onFinish = (infoTarif: InfoTarifDto) => {
