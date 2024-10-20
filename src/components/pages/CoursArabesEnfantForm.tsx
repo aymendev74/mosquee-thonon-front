@@ -146,15 +146,19 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
 
     const apiCallbacks: ApiCallbacks = {
         [`PUT:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-            navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
-            resetApi();
+            if (result) {
+                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+                navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
+                resetApi();
+            }
         },
         [`POST:${NEW_INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
-            setInscriptionFinished(result);
-            resetForm();
-            resetApi();
+            if (result) {
+                notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
+                setInscriptionFinished(result);
+                resetForm();
+                resetApi();
+            }
         },
         [`GET:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
             const loadedInscription = result as InscriptionEnfantBack;
