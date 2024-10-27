@@ -1,5 +1,5 @@
 import { DefaultOptionType } from "antd/es/select"
-import { NiveauInterne, NiveauScolaire, StatutInscription } from "../../services/inscription"
+import { NiveauInterne, NiveauScolaire, StatutInscription, StatutProfessionel } from "../../services/inscription"
 
 export const getNiveauOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauScolaire.CP, label: "CP" }, { value: NiveauScolaire.CE1, label: "CE1" }, { value: NiveauScolaire.CE2, label: "CE2" },
@@ -28,6 +28,11 @@ export const getStatutInscriptionOptions = () => {
         { value: StatutInscription.LISTE_ATTENTE, label: "Liste d'attente" },
         { value: StatutInscription.REFUSE, label: "Refusée" }
     ];
+}
+
+export const getStatutsProfessionnelsOptions = (): DefaultOptionType[] => {
+    return [{ value: StatutProfessionel.ETUDIANT, label: "Etudiant" }, { value: StatutProfessionel.AVEC_ACTIVITE, label: "Activité lucrative" },
+    { value: StatutProfessionel.SANS_ACTIVITE, label: "Sans activité lucrative" }]
 }
 
 export const getLibelleNiveauScolaire = (niveau: NiveauScolaire) => {

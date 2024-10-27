@@ -11,7 +11,7 @@ import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
 import { Sexe } from "../../services/eleve";
 import { SelectFormItem } from "../common/SelectFormItem";
-import { getNiveauInterneAdulteOptions } from "../common/commoninputs";
+import { getNiveauInterneAdulteOptions, getStatutsProfessionnelsOptions } from "../common/commoninputs";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import { QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { TarifInscriptionDto } from "../../services/tarif";
@@ -51,6 +51,14 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         }
     };
 
+    const onStatutProfessionnelChanged = (value: any) => {
+        if (value) {
+            setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, params: { statutProfessionnel: value } });
+        } else {
+            setTarifInscription(undefined);
+        }
+    }
+
     const tarifInscriptionApiCallBack = (result: any) => {
         if (result) {
             setTarifInscription(result);
@@ -79,16 +87,13 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         [`GET:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
             const inscriptionFormValues: InscriptionAdulteFront = prepareInscriptionAdulteBeforeForm(result as InscriptionAdulteBack);
             form.setFieldsValue(inscriptionFormValues);
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, { id }) });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, { id }), params: { statutProfessionnel: inscriptionFormValues.statutProfessionnel } });
         },
         [`GET:${NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
         [`GET:${INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
         [`GET:${PARAM_ENDPOINT}`]: (result: any) => {
             const resultAsParamsDto = result as ParamsDtoB;
             setIsInscriptionsFermees(isInscriptionFerme(resultAsParamsDto.inscriptionAdulteEnabledFromDate));
-            if (!isInscriptionFerme(resultAsParamsDto.inscriptionAdulteEnabledFromDate)) {
-                setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT });
-            }
         },
     };
 
@@ -187,6 +192,10 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                                 <Popover content={NiveauHelpContent} title="Comment choisir votre niveau ?" trigger="click">
                                     <QuestionCircleOutlined style={{ color: '#1890ff', fontSize: '20px' }} />
                                 </Popover>
+                            </Col>
+                            <Col span={10}>
+                                <SelectFormItem label="Statut professionnel" name="statutProfessionnel" disabled={isReadOnly} options={getStatutsProfessionnelsOptions()}
+                                    rules={[{ required: true, message: "Veuillez saisir votre statut professionel" }]} onChange={onStatutProfessionnelChanged} />
                             </Col>
                         </Row>
                         <Row>
