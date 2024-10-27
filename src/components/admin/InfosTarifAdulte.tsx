@@ -16,6 +16,8 @@ export const InfosTarifAdulte: FunctionComponent<InfosTarifProperties> = ({ read
             </Col>
         </Row>
         <div className="m-bottom-15 fw-bold">Tarif unique</div>
-        <InputNumberFormItem name="montant" label="Montant" addonAfter="€" disabled={readOnly} rules={[{ required: true, message: "Veuillez saisir un montant" }]} />
+        <InputNumberFormItem name="montantEtudiant" label="Etudiant" addonAfter="€" disabled={readOnly} rules={[{ required: true, message: "Veuillez saisir un montant" }]} />
+        <InputNumberFormItem name="montantSansActivite" label="Sans activité lucrative" addonAfter="€" disabled={readOnly} rules={[{ required: true, message: "Veuillez saisir un montant" }]} />
+        <InputNumberFormItem name="montantAvecActivite" label="Avec activité lucrative" addonAfter="€" disabled={readOnly} rules={[{ required: true, message: "Veuillez saisir un montant" }]} />
     </>);
 }

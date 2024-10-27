@@ -94,6 +94,7 @@ export type InscriptionAdulte<T extends Dayjs | string> = {
     montantTotal: number;
     niveauInterne: NiveauInterne;
     sexe: Sexe;
+    statutProfessionnel: StatutProfessionel
 } & {
     sendMailConfirmation: boolean;
 }
@@ -106,4 +107,10 @@ export type TypeInscription = "ADULTE" | "ENFANT";
 export type InscriptionPatchDto = {
     ids: number[];
     statut?: StatutInscription;
+}
+
+export enum StatutProfessionel {
+    ETUDIANT = "ETUDIANT",
+    AVEC_ACTIVITE = "AVEC_ACTIVITE",
+    SANS_ACTIVITE = "SANS_ACTIVITE",
 }
