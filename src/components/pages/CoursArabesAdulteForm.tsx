@@ -162,29 +162,29 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                                 <Divider orientation="left">Identité</Divider>
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
-                            <Col span={12}>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={24} md={12}>
                                 <InputFormItem label="Nom" name="nom" rules={[{ required: true, message: "Veuillez saisir votre nom" }]}
                                     disabled={isReadOnly} />
                             </Col>
-                            <Col span={12}>
+                            <Col xs={24} md={12}>
                                 <InputFormItem disabled={isReadOnly} label="Prénom" name="prenom" rules={[{ required: true, message: "Veuillez saisir votre prénom" }]} />
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
-                            <Col span={12}>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={24} md={12}>
                                 <DatePickerFormItem label="Date de naissance" name="dateNaissance" rules={[{ required: true, message: "Veuillez saisir votre date de naissance" },
                                 { validator: validateMajorite }
                                 ]}
                                     placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                             </Col>
-                            <Col span={12}>
+                            <Col xs={24} md={12}>
                                 <RadioGroupFormItem label="Sexe" name="sexe" disabled={isReadOnly} radioOptions={[{ value: Sexe.MASCULIN, label: "Masculin" },
-                                { value: Sexe.FEMININ, label: "Féminin" }]} />
+                                { value: Sexe.FEMININ, label: "Féminin" }]} rules={[{ required: true, message: "Veuillez saisir votre sexe" }]} />
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
-                            <Col span={10}>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={15} md={10}>
                                 <SelectFormItem label="Niveau" name="niveauInterne" disabled={isReadOnly} options={getNiveauInterneAdulteOptions()}
                                     rules={[{ required: true, message: "Veuillez saisir votre niveau" }]} />
                             </Col>
@@ -193,7 +193,9 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                                     <QuestionCircleOutlined style={{ color: '#1890ff', fontSize: '20px' }} />
                                 </Popover>
                             </Col>
-                            <Col span={10}>
+                        </Row>
+                        <Row>
+                            <Col xs={15} md={12} lg={10}>
                                 <SelectFormItem label="Statut professionnel" name="statutProfessionnel" disabled={isReadOnly} options={getStatutsProfessionnelsOptions()}
                                     rules={[{ required: true, message: "Veuillez saisir votre statut professionel" }]} onChange={onStatutProfessionnelChanged} />
                             </Col>
@@ -203,29 +205,31 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                                 <Divider orientation="left">Contacts</Divider>
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
-                            <Col span={12}>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={24} md={16} lg={12}>
                                 <InputFormItem label="Numéro et rue" name="numeroEtRue" rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]}
                                     disabled={isReadOnly} />
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
-                            <Col span={12}>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={10} md={8}>
                                 <InputFormItem label="Code postal" name={"codePostal"} rules={[{ validator: validateCodePostal }]} disabled={isReadOnly} required />
                             </Col>
-                            <Col span={12}>
+                        </Row>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={24} md={12}>
                                 <InputFormItem label="Ville" name="ville" rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
                                     disabled={isReadOnly} />
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
-                            <Col span={12}>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={24} md={12}>
                                 <InputFormItem label="Tél. mobile" name="mobile" required
                                     rules={[{ validator: validatePhoneNumber }]} disabled={isReadOnly} />
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
-                            <Col span={12}>
+                        <Row gutter={[16, 0]}>
+                            <Col xs={24} md={12}>
                                 <InputFormItem label="E-mail" name="email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
                             </Col>
                         </Row>
@@ -238,15 +242,15 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                             )
                         }
                         {isAdmin && (<><Divider orientation="left">Administration</Divider>
-                            <Row gutter={[16, 32]}>
-                                <Col span={12}>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} md={12}>
                                     <RadioGroupFormItem label="Statut adhésion" name="statut" disabled={isReadOnly} radioOptions={[{ value: StatutInscription.PROVISOIRE, label: "Provisoire" },
                                     { value: StatutInscription.VALIDEE, label: "Validée" }]} />
                                 </Col>
                             </Row>
                             <Divider orientation="left">Renvoi du mail de confirmation</Divider>
-                            <Row gutter={[16, 32]}>
-                                <Col span={12}>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} md={12}>
                                     <SwitchFormItem name="sendMailConfirmation" label="Renvoi automatique du mail de confirmation" disabled={isReadOnly} />
                                 </Col>
                             </Row>
@@ -263,10 +267,10 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                                 )}
                             </Col>
                         </Row>
-                        <Row>
-                            {isAdmin && !isReadOnly && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Enregistrer</Button>)}
-                            {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Valider mon inscription</Button>)}
-                        </Row>
+                        <div style={{ textAlign: "center", marginTop: 30 }}>
+                            {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
+                            {!isAdmin && (<Button type="primary" htmlType="submit">Valider mon inscription</Button>)}
+                        </div>
                     </Spin>
                 </Form >
             );

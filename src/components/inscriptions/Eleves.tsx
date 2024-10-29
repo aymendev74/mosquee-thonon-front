@@ -145,26 +145,26 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
         <div className="m-bottom-15">Veuillez renseigner les informations concernant les élèves à inscrire. Vous pouvez modifier les informations à tout moment en sélectionnant l'élève dans la liste ci-dessous et en cliquant sur "Modifier".</div>
         {!isReadOnly && editingIndex == null && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
         {editingIndex != null && (<>
-            <Row gutter={[16, 32]}>
-                <Col span={12}>
+            <Row gutter={[16, 0]}>
+                <Col xs={24} md={12}>
                     <InputFormItem name="nomEleve" label="Nom" />
                 </Col>
-                <Col span={12}>
+                <Col xs={24} md={12}>
                     <InputFormItem label="Prénom" name="prenomEleve" />
                 </Col>
             </Row>
-            <Row gutter={[16, 32]}>
-                <Col span={12}>
+            <Row gutter={[16, 0]}>
+                <Col xs={24} md={12}>
                     <DatePickerFormItem label="Date de naissance" name="dateNaissanceEleve" placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
                 </Col>
-                {isAdmin ? (<Col span={12}>
+                {isAdmin ? (<Col xs={24} md={12}>
                     <SelectFormItem label="Niveau (interne)" name="niveauInterne" disabled={isReadOnly} options={getNiveauInterneEnfantOptions()} />
-                </Col>) : (<Col span={12}>
+                </Col>) : (<Col xs={24} md={12}>
                     <SelectFormItem label="Niveau scolaire" name="niveauScolaire" disabled={isReadOnly} options={getNiveauOptions()} />
                 </Col>)}
             </Row>
-            {isAdmin && (<Row gutter={[16, 32]}>
-                <Col span={12}>
+            {isAdmin && (<Row gutter={[16, 0]}>
+                <Col xs={24} md={12}>
                     <SelectFormItem label="Niveau scolaire" name="niveauScolaire" disabled={isReadOnly} options={getNiveauOptions()} />
                 </Col>
             </Row>)}
