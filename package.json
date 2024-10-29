@@ -1,6 +1,6 @@
 {
   "name": "mosquee-thonon-front",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
