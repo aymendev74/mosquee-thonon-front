@@ -93,7 +93,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     const tabItems: TabsProps['items'] = [
         {
             key: COURS_KEY_STEP_RESP_LEGAL,
-            label: <><InfoCircleOutlined />Responsable légal</>,
+            label: <><InfoCircleOutlined />Responsable</>,
             children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} onNextStep={onNextStep} form={form} />,
         },
         {

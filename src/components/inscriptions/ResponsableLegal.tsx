@@ -35,13 +35,13 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                 <Divider orientation="left">Identité</Divider>
             </Col>
         </Row>
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="Nom"
                     name="responsableLegal.nom"
                     rules={[{ required: true, message: "Veuillez saisir votre nom" }]} disabled={isReadOnly} />
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="Prénom"
                     name="responsableLegal.prenom"
                     rules={[{ required: true, message: "Veuillez saisir votre prénom" }]} disabled={isReadOnly} />
@@ -52,35 +52,37 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                 <Divider orientation="left">Contacts</Divider>
             </Col>
         </Row>
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        <Row gutter={[16, 0]}>
+            <Col md={16} lg={12}>
                 <InputFormItem label="Numéro et rue"
                     name="responsableLegal.numeroEtRue"
                     rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]} disabled={isReadOnly} />
             </Col>
         </Row>
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        <Row gutter={[16, 0]}>
+            <Col xs={10} md={10} lg={6}>
                 <InputFormItem label="Code postal" name="responsableLegal.codePostal" required
                     rules={[{ validator: validateCodePostal }]} disabled={isReadOnly} />
             </Col>
-            <Col span={12}>
+        </Row>
+        <Row gutter={[16, 0]}>
+            <Col xs={14} md={10}>
                 <InputFormItem label="Ville" name="responsableLegal.ville" rules={[{ required: true, message: "Veuillez saisir votre ville" }]} disabled={isReadOnly} />
             </Col>
-        </Row>
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        </Row >
+        <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="Tél. mobile" name="responsableLegal.mobile" rules={[{ validator: validatePhoneNumber }]} required
                     disabled={isReadOnly} />
             </Col>
         </Row>
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="E-mail" name="responsableLegal.email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
             </Col>
         </Row>
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
                 <Tooltip color="geekblue" title="En étant adhérent, vous bénéficiez d'un tarif préférentiel pour les cours d'arabes">
                     <SwitchFormItem label="Je suis adhérent" name="responsableLegal.adherent" disabled={isReadOnly} onChange={() => doCalculTarif()} />
                 </Tooltip>
@@ -91,20 +93,20 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
                 <Divider orientation="left">Autre contact (en cas d'urgence)</Divider>
             </Col>
         </Row>
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="Nom" name="responsableLegal.nomAutre" rules={[{ required: true, message: "Veuillez saisir le nom" }]} disabled={isReadOnly} />
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="Prénom" name="responsableLegal.prenomAutre" rules={[{ required: true, message: "Veuillez saisir le prénom" }]} disabled={isReadOnly} />
             </Col>
         </Row >
-        <Row gutter={[16, 32]}>
-            <Col span={12}>
+        <Row gutter={[16, 0]}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="Lien de parenté" name="responsableLegal.lienParente" rules={[{ required: true, message: "Veuillez saisir le lien de parenté" }]}
                     disabled={isReadOnly} />
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
                 <InputFormItem label="Tél. mobile" name="responsableLegal.telephoneAutre" rules={[{ validator: validatePhoneNumber }]}
                     disabled={isReadOnly} required />
             </Col>

@@ -128,26 +128,26 @@ export const AdhesionForm: FunctionComponent = () => {
                 </h2>
                 <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
                     <Row>
-                        <Col span={24}>
+                        <Col xs={24} md={12}>
                             <Divider orientation="left">Identité</Divider>
                         </Col>
                     </Row>
-                    <Row gutter={[0, 32]}>
-                        <Col span={6}>
+                    <Row gutter={[0, 0]}>
+                        <Col xs={10} md={5}>
                             <SelectFormItem name="titre" label="Titre" rules={[{ required: true, message: "Veuillez saisir votre titre" }]}
                                 disabled={isReadOnly} options={getCiviliteOptions()} />
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={12}>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} md={12}>
                             <InputFormItem label="Nom" name="nom" rules={[{ required: true, message: "Veuillez saisir votre nom" }]}
                                 disabled={isReadOnly} />
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} md={12}>
                             <InputFormItem disabled={isReadOnly} label="Prénom" name="prenom" rules={[{ required: true, message: "Veuillez saisir votre prénom" }]} />
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
+                    <Row gutter={[16, 0]}>
                         <Col span={24}>
                             <DatePickerFormItem label="Date de naissance" name="dateNaissance" rules={[{ required: true, message: "Veuillez saisir votre date de naissance" },
                             { validator: validateMajorite }
@@ -160,29 +160,31 @@ export const AdhesionForm: FunctionComponent = () => {
                             <Divider orientation="left">Contacts</Divider>
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={12}>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} md={12}>
                             <InputFormItem label="Numéro et rue" name="numeroEtRue" rules={[{ required: true, message: "Veuillez saisir votre numéro et rue" }]}
                                 disabled={isReadOnly} />
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={12}>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={14} md={8}>
                             <InputFormItem label="Code postal" name={"codePostal"} rules={[{ validator: validateCodePostal }]} disabled={isReadOnly} required />
                         </Col>
-                        <Col span={12}>
+                    </Row>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} md={12}>
                             <InputFormItem label="Ville" name="ville" rules={[{ required: true, message: "Veuillez saisir votre ville" }]}
                                 disabled={isReadOnly} />
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={12}>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} md={12}>
                             <InputFormItem label="Tél. mobile" name="mobile" required
                                 rules={[{ validator: validatePhoneNumber }]} disabled={isReadOnly} />
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={12}>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} md={12}>
                             <InputFormItem label="E-mail" name="email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
                         </Col>
                     </Row>
@@ -191,33 +193,33 @@ export const AdhesionForm: FunctionComponent = () => {
                             <Divider orientation="left">Versement mensuel</Divider>
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={12}>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} md={18} lg={10}>
                             <SelectFormItem name="idTarif" label="Je m'engage à verser mensuellement" rules={[{
                                 required: true, message: "Veuillez saisir votre versement mensuel"
                             }]}
                                 disabled={isReadOnly} options={versementMensuelOptions} onChange={onMontantChanged} />
                         </Col>
-                        {autreMontantVisible && (<Col span={12}>
+                        {autreMontantVisible && (<Col xs={24} md={10} lg={6}>
                             <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly} addonAfter="€"
                                 rules={[{ validator: validateMontantMinAdhesion }, { required: true, message: "Veuillez saisir le montant de votre cotisation" }]} min={1} />
                         </Col>)
                         }
                     </Row>
                     {isAdmin && (<><Divider orientation="left">Administration</Divider>
-                        <Row gutter={[16, 32]}>
+                        <Row gutter={[16, 0]}>
                             <Col span={12}>
                                 <RadioGroupFormItem label="Statut adhésion" name="statut" disabled={isReadOnly} radioOptions={[{ value: StatutInscription.PROVISOIRE, label: "Provisoire" },
                                 { value: StatutInscription.VALIDEE, label: "Validée" }]} />
                             </Col>
                         </Row>
-                        <Row gutter={[16, 32]}>
+                        <Row gutter={[16, 0]}>
                             <Col span={12}>
                                 <InputFormItem label="Numéro de membre" name="noMembre" disabled={isReadOnly} />
                             </Col>
                         </Row>
                     </>)}
-                    <Row gutter={[16, 32]}>
+                    <Row gutter={[16, 0]}>
                         <Col span={24}>
                             {!isAdmin && (
                                 <Checkbox checked={consentementChecked} onChange={(e) => { setConsentementChecked(e.target.checked) }}>
@@ -226,10 +228,10 @@ export const AdhesionForm: FunctionComponent = () => {
                             )}
                         </Col>
                     </Row>
-                    <Row>
-                        {isAdmin && !isReadOnly && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Enregistrer</Button>)}
-                        {!isAdmin && (<Button style={{ marginTop: 30 }} type="primary" htmlType="submit">Valider mon adhésion</Button>)}
-                    </Row>
+                    <div style={{ textAlign: "center", marginTop: 30 }}>
+                        {isAdmin && !isReadOnly && (<Button type="primary" htmlType="submit">Enregistrer</Button>)}
+                        {!isAdmin && (<Button type="primary" htmlType="submit">Valider mon adhésion</Button>)}
+                    </div>
                 </Spin>
             </Form>
         );
