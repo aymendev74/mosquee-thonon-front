@@ -27,7 +27,7 @@ export const PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT = "/params/reinscription-e
 export const PARAM_ENDPOINT = "/params";
 export const ENSEIGNANT_ENDPOINT_POINT = "/enseignants";
 export const EXISTING_ENSEIGNANT_ENDPOINT_POINT = "/enseignants/{id}";
-
+export const ROLES_ENDPOINT_POINT = "/roles";
 
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";

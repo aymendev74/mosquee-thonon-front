@@ -4,4 +4,5 @@ export type EnseignantDto = {
     nom: string;
     prenom: string;
     mobile: string;
+    hasClasse: boolean;
 }
