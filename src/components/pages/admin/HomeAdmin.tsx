@@ -10,13 +10,15 @@ export const HomeAdmin: FunctionComponent = () => {
     }, [isAuthenticated]);
 
     return getLoggedUser() ? (
-        <div>
-            <h1>Bienvenue <strong>{loggedUser}</strong> dans la partie Administration</h1>
-            <br />
-            <br />
-            <p className="home">
-                Cette partie est réservée aux administrateurs de l'application.
-            </p>
+        <div className="centered-content">
+            <div>
+                <h1>Bienvenue <strong>{loggedUser}</strong> dans la partie Administration</h1>
+                <br />
+                <br />
+                <p className="home">
+                    Cette partie est réservée aux administrateurs de l'application.
+                </p>
+            </div>
         </div>
     ) : (<div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>);
 

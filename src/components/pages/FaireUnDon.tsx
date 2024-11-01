@@ -72,7 +72,7 @@ export const FaireUnDon: FunctionComponent = () => {
             </div>)
         }
 
-        return getContent();
+        return <div className="centered-content">getContent()</div>;
     }
 
     return (

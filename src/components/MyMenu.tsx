@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { DollarCircleOutlined, EditOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
 
 export const MyMenu: FunctionComponent = () => {
@@ -86,6 +86,11 @@ export const MyMenu: FunctionComponent = () => {
             key: "parametres",
             icon: <SettingOutlined />,
             label: "Paramètres",
+        },
+        {
+            key: "enseignants",
+            icon: <EditOutlined />,
+            label: "Enseignants",
         }];
         return menuItems;
     };

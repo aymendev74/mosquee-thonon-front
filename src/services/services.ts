@@ -1,7 +1,7 @@
 import { HttpMethod } from "../hooks/useApi";
 
-export const AUTHENTIFICATION_ENDPOINT = "/user/auth";
-export const CHANGE_PASSWORD_ENDPOINT = "/user/password";
+export const CHANGE_PASSWORD_ENDPOINT = "/users/password";
+export const USER_ENDPOINT = "/users";
 export const NEW_INSCRIPTION_ENFANT_ENDPOINT = "/inscriptions-enfants";
 export const INSCRIPTION_ENFANT_ENDPOINT = "/inscriptions-enfants/{id}";
 export const INSCRIPTION_ENDPOINT = "/inscriptions";
@@ -25,6 +25,9 @@ export const PERIODES_VALIDATION_ENDPOINT = "/periodes/validation";
 export const PERIODES_EXISTING_VALIDATION_ENDPOINT = "/periodes/{id}/validation";
 export const PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT = "/params/reinscription-enabled";
 export const PARAM_ENDPOINT = "/params";
+export const ENSEIGNANT_ENDPOINT_POINT = "/enseignants";
+export const EXISTING_ENSEIGNANT_ENDPOINT_POINT = "/enseignants/{id}";
+
 
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";

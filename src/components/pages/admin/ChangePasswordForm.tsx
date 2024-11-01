@@ -30,58 +30,60 @@ export const ChangePassword: FunctionComponent = () => {
     }, [result, errorResult]);
 
     return (
-        <Form
-            name="changePassword"
-            labelCol={{ span: 14 }}
-            wrapperCol={{ span: 10 }}
-            style={{ maxWidth: 600 }}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            autoComplete="off"
-            form={form}
-            className="container-full-width"
-        >
-            <Spin spinning={isLoading}>
-                <Form.Item<FieldType>
-                    label="Mot de passe actuel"
-                    name="oldPassword"
-                    rules={[{ required: true, message: "Veuillez saisir votre mot de passe actuel" }]}
-                >
-                    <Input.Password />
-                </Form.Item>
+        <div className="centered-content">
+            <Form
+                name="changePassword"
+                labelCol={{ span: 14 }}
+                wrapperCol={{ span: 10 }}
+                style={{ maxWidth: 600 }}
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+                autoComplete="off"
+                form={form}
+                className="container-full-width"
+            >
+                <Spin spinning={isLoading}>
+                    <Form.Item<FieldType>
+                        label="Mot de passe actuel"
+                        name="oldPassword"
+                        rules={[{ required: true, message: "Veuillez saisir votre mot de passe actuel" }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
-                <Form.Item<FieldType>
-                    label="Nouveau mot de passe"
-                    name="newPassword"
-                    rules={[{ required: true, message: "Veuillez saisir votre nouveau mot de passe" }]}
-                >
-                    <Input.Password />
-                </Form.Item>
+                    <Form.Item<FieldType>
+                        label="Nouveau mot de passe"
+                        name="newPassword"
+                        rules={[{ required: true, message: "Veuillez saisir votre nouveau mot de passe" }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
-                <Form.Item<FieldType>
-                    label="Confirmer nouveau mot de passe"
-                    name="confirmedNewPassword"
-                    dependencies={["newPassword"]}
-                    rules={[{ required: true, message: "Veuillez confirmer votre nouveau mot de passe" }
-                        , ({ getFieldValue }) => ({
-                            validator(_, value) {
-                                if (!value || getFieldValue('newPassword') === value) {
-                                    return Promise.resolve();
-                                }
-                                return Promise.reject(new Error("Le nouveau mot de passe ne correspond pas"));
-                            },
-                            validateTrigger: "onSubmit"
-                        }),]}
-                >
-                    <Input.Password />
-                </Form.Item>
+                    <Form.Item<FieldType>
+                        label="Confirmer nouveau mot de passe"
+                        name="confirmedNewPassword"
+                        dependencies={["newPassword"]}
+                        rules={[{ required: true, message: "Veuillez confirmer votre nouveau mot de passe" }
+                            , ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('newPassword') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error("Le nouveau mot de passe ne correspond pas"));
+                                },
+                                validateTrigger: "onSubmit"
+                            }),]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
-                <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
-                    <Button type="primary" htmlType="submit">
-                        Connexion
-                    </Button>
-                </Form.Item>
-            </Spin>
-        </Form>
+                    <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
+                        <Button type="primary" htmlType="submit">
+                            Connexion
+                        </Button>
+                    </Form.Item>
+                </Spin>
+            </Form>
+        </div>
     );
 }

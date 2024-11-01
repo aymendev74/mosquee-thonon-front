@@ -329,22 +329,24 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
 
     return isInscriptionsFermees ? getInscriptionFermeesContent() :
         (
-            <Form
-                name="cours"
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
-                className="container-form"
-                form={form}
-            >
-                <h2 className="insc-enfant-title">
-                    <TeamOutlined /> Inscription aux cours arabes pour enfants
-                </h2>
-                <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
-                    {getFormContent()}
-                    <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
-                </Spin>
-            </Form >
+            <div className="centered-content">
+                <Form
+                    name="cours"
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    autoComplete="off"
+                    className="container-form"
+                    form={form}
+                >
+                    <h2 className="insc-enfant-title">
+                        <TeamOutlined /> Inscription aux cours arabes pour enfants
+                    </h2>
+                    <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
+                        {getFormContent()}
+                        <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
+                    </Spin>
+                </Form >
+            </div>
         );
 
 }

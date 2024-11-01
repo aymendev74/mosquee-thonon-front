@@ -167,39 +167,40 @@ export const AdminTarifs: FunctionComponent = () => {
         setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
     }, [application]);
 
-    return (<>
-        <Form
-            name="basic"
-            autoComplete="off"
-            className="container-full-width"
-            onFinish={onFinish}
-            form={form}
-        >
-            <Spin spinning={isLoading}>
-                <h2 className="admin-tarif-title"><EuroCircleOutlined /> Administration des tarifs</h2>
-                {getTypeTarifContent()}
-                {periodesOptions && getPeriodeContent()}
-                {viewTarif && application === "COURS_ENFANT" && (<InfosTarifEnfant readOnly={isSelectedPeriodeReadOnly()} />)}
-                {viewTarif && application === "COURS_ADULTE" && (<InfosTarifAdulte readOnly={isSelectedPeriodeReadOnly()} />)}
-                {viewTarif && !isSelectedPeriodeReadOnly() && (
-                    (<Button type="primary" htmlType="submit">Enregistrer</Button>)
-                )}
-                {viewTarif && !isSelectedPeriodeReadOnly() && (
-                    (<Tooltip color="geekblue" title="Copier les tarifs d'une autre période">
-                        <Popover
-                            content={getPopOverCopierTarifContent()}
-                            title="Copier tarifs"
-                            trigger="click"
-                            open={openPopOver}
-                            onOpenChange={handleOpenPopOverChange}
-                        >
-                            <Button className="m-left-10" type="primary">Copier</Button>
-                        </Popover>
-                    </Tooltip>
-                    )
-                )}
-                <ModalPeriode open={modalPeriodeOpen} setOpen={setModalPeriodeOpen} isCreation={createPeriode} periode={periodeToEdit} application={application} />
-            </Spin>
-        </Form >
-    </>);
+    return (
+        <div className="centered-content">
+            <Form
+                name="basic"
+                autoComplete="off"
+                className="container-full-width"
+                onFinish={onFinish}
+                form={form}
+            >
+                <Spin spinning={isLoading}>
+                    <h2 className="admin-tarif-title"><EuroCircleOutlined /> Administration des tarifs</h2>
+                    {getTypeTarifContent()}
+                    {periodesOptions && getPeriodeContent()}
+                    {viewTarif && application === "COURS_ENFANT" && (<InfosTarifEnfant readOnly={isSelectedPeriodeReadOnly()} />)}
+                    {viewTarif && application === "COURS_ADULTE" && (<InfosTarifAdulte readOnly={isSelectedPeriodeReadOnly()} />)}
+                    {viewTarif && !isSelectedPeriodeReadOnly() && (
+                        (<Button type="primary" htmlType="submit">Enregistrer</Button>)
+                    )}
+                    {viewTarif && !isSelectedPeriodeReadOnly() && (
+                        (<Tooltip color="geekblue" title="Copier les tarifs d'une autre période">
+                            <Popover
+                                content={getPopOverCopierTarifContent()}
+                                title="Copier tarifs"
+                                trigger="click"
+                                open={openPopOver}
+                                onOpenChange={handleOpenPopOverChange}
+                            >
+                                <Button className="m-left-10" type="primary">Copier</Button>
+                            </Popover>
+                        </Tooltip>
+                        )
+                    )}
+                    <ModalPeriode open={modalPeriodeOpen} setOpen={setModalPeriodeOpen} isCreation={createPeriode} periode={periodeToEdit} application={application} />
+                </Spin>
+            </Form >
+        </div>);
 }

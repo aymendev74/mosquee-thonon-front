@@ -2,7 +2,6 @@ import { Layout, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm';
-import { Authenticate } from './components/pages/admin/Authenticate';
 import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
 import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
@@ -15,6 +14,7 @@ import { HomeAdmin } from './components/pages/admin/HomeAdmin';
 import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm';
 import { useAuth } from './hooks/AuthContext';
 import { SignIn } from './components/pages/admin/SignIn';
+import Enseignants from './components/pages/admin/Enseignants';
 
 const { Header, Content, Footer } = Layout;
 
@@ -67,22 +67,21 @@ function App() {
         </Row>
       </Header>
       <Content className="content">
-        <div className="centered-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
-            <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
-            <Route path="/adhesion" element={<AdhesionForm />} />
-            <Route path="/login" element={<SignIn />} />
-            <Route path="/admin" element={<HomeAdmin />} />
-            <Route path="/adminCours" element={<AdminCoursArabes />} />
-            <Route path="/adminAdhesion" element={<AdminAdhesion />} />
-            <Route path="/adminTarif" element={<AdminTarifs />} />
-            <Route path="/changePassword" element={<ChangePassword />} />
-            <Route path="/don" element={<FaireUnDon />} />
-            <Route path="/parametres" element={<Parametres />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
+          <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
+          <Route path="/adhesion" element={<AdhesionForm />} />
+          <Route path="/login" element={<SignIn />} />
+          <Route path="/admin" element={<HomeAdmin />} />
+          <Route path="/adminCours" element={<AdminCoursArabes />} />
+          <Route path="/adminAdhesion" element={<AdminAdhesion />} />
+          <Route path="/adminTarif" element={<AdminTarifs />} />
+          <Route path="/enseignants" element={<Enseignants />} />
+          <Route path="/changePassword" element={<ChangePassword />} />
+          <Route path="/don" element={<FaireUnDon />} />
+          <Route path="/parametres" element={<Parametres />} />
+        </Routes>
       </Content>
       <Footer>
         <div className="footer">

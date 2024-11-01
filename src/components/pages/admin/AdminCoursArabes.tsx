@@ -359,42 +359,44 @@ export const AdminCoursArabes: FunctionComponent = () => {
     }
 
     return getLoggedUser() ? (
-        <Form
-            name="adminCours"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            autoComplete="off"
-            className="container-full-width"
-            form={form}
-        >
-            <Spin spinning={isLoading}>
-                <h2 className={type === "ENFANT" ? "insc-enfant-title" : "insc-adulte-title"}>
-                    {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
-                </h2>
-                <div className="d-flex">
-                    <div className="filters-container">
-                        <SearchCollapse />
-                    </div>
-                    <div className="result-container">
-                        <div className="menu-action-container">
-                            <div className="label">Veuillez choisir une action à effectuer :</div>
-                            <div className="bt-action"><DropdownMenu /></div>
-                            <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
-                                <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
-                            </Tooltip>
+        <div className="centered-content">
+            <Form
+                name="adminCours"
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                autoComplete="off"
+                className="container-full-width"
+                form={form}
+            >
+                <Spin spinning={isLoading}>
+                    <h2 className={type === "ENFANT" ? "insc-enfant-title" : "insc-adulte-title"}>
+                        {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
+                    </h2>
+                    <div className="d-flex">
+                        <div className="filters-container">
+                            <SearchCollapse />
                         </div>
-                        <Row>
-                            <Col span={24}>
-                                <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                    columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
-                                    pagination={{ showTotal: formatTotal }} />
-                            </Col>
-                        </Row>
+                        <div className="result-container">
+                            <div className="menu-action-container">
+                                <div className="label">Veuillez choisir une action à effectuer :</div>
+                                <div className="bt-action"><DropdownMenu /></div>
+                                <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
+                                    <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
+                                </Tooltip>
+                            </div>
+                            <Row>
+                                <Col span={24}>
+                                    <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
+                                        columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
+                                        pagination={{ showTotal: formatTotal }} />
+                                </Col>
+                            </Row>
+                        </div>
                     </div>
-                </div>
-                <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
-                    nbInscriptions={getSelectedInscriptionDistinctIds().length} onConfirm={onConfirmSuppression} />
-            </Spin>
-        </Form>
+                    <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
+                        nbInscriptions={getSelectedInscriptionDistinctIds().length} onConfirm={onConfirmSuppression} />
+                </Spin>
+            </Form>
+        </div>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
 };
