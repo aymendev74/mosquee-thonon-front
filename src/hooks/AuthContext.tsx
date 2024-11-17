@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 type AuthContextType = {
     isAuthenticated: boolean;
     getLoggedUser: () => string;
+    getRoles: () => string[];
     login: () => Promise<void>;
     logout: () => void;
     getAccessToken: () => string | null;
@@ -107,9 +108,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const tokenData = {
             accessToken: response.data.access_token,
             user: decoded.sub!,
-            expirationTime: decoded.exp! * 1000 // après le decode de jwtDecode, l'expiration est en secondes
+            expirationTime: decoded.exp! * 1000, // après le decode de jwtDecode, l'expiration est en secondes
+            roles: decoded.roles
         }
         sessionStorage.setItem("tokenData", JSON.stringify(tokenData));
+        console.log(tokenData);
         setIsAuthenticated(true);
     }
 
@@ -151,8 +154,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return tokenData ? JSON.parse(tokenData).user : null;
     }, []);
 
+    const getRoles = useCallback(() => {
+        const tokenData = sessionStorage.getItem("tokenData");
+        return tokenData ? JSON.parse(tokenData).roles : null;
+    }, []);
+
+    console.log("Rendu du contexte AuthContext");
+
     return (
-        <AuthContext.Provider value={{ getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, isAuthenticated }}>
+        <AuthContext.Provider value={{ getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, getRoles, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );

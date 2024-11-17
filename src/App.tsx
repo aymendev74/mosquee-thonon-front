@@ -15,6 +15,7 @@ import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm'
 import { useAuth } from './hooks/AuthContext';
 import { SignIn } from './components/pages/admin/SignIn';
 import Enseignants from './components/pages/admin/Enseignants';
+import CreateUpdateClasse from './components/pages/admin/CreateUpdateClasse';
 
 const { Header, Content, Footer } = Layout;
 
@@ -78,6 +79,7 @@ function App() {
           <Route path="/adminAdhesion" element={<AdminAdhesion />} />
           <Route path="/adminTarif" element={<AdminTarifs />} />
           <Route path="/enseignants" element={<Enseignants />} />
+          <Route path="/creerModifierClasse" element={<CreateUpdateClasse />} />
           <Route path="/changePassword" element={<ChangePassword />} />
           <Route path="/don" element={<FaireUnDon />} />
           <Route path="/parametres" element={<Parametres />} />

@@ -27,7 +27,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const application = location.state?.application; // ADULTE ou ENFANT
     const type = application === "COURS_ADULTE" ? "ADULTE" : "ENFANT";
     const [dataSource, setDataSource] = useState<InscriptionLight[]>();
-    const { getLoggedUser } = useAuth();
+    const { getRoles } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = Form.useForm();
@@ -358,7 +358,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         }
     }
 
-    return getLoggedUser() ? (
+    return getRoles()?.includes("ROLE_ADMIN") ? (
         <div className="centered-content">
             <Form
                 name="adminCours"

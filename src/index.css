@@ -198,6 +198,11 @@
   color: #4FC3F7;
 }
 
+.classes-title {
+  border-bottom: 3px solid #4FC3F7;
+  color: #4FC3F7;
+}
+
 .insc-adulte-title {
   border-bottom: 3px solid #1A73E8;
   color: #1A73E8;
@@ -244,5 +249,11 @@
 .main-content-enseignant {
   margin: 0 auto;
   width: 50%;
+  text-align: center;
+}
+
+.main-content-classes {
+  margin: 0 20px;
+  width: 80%;
   text-align: center;
 }

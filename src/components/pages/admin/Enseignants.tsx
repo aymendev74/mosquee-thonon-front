@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message, Card, notification, Row, Col } from 'antd';
+import { FunctionComponent, useEffect, useState } from 'react';
+import { Table, Button, Modal, Form, Input, message, Card, notification, Row, Col, Tooltip } from 'antd';
 import { useAuth } from '../../../hooks/AuthContext';
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { EnseignantDto } from '../../../services/enseignant';
@@ -8,6 +8,11 @@ import { ApiCallbacks, buildUrlWithParams, ENSEIGNANT_ENDPOINT_POINT, EXISTING_E
 import { validatePhoneNumber } from '../../../utils/FormUtils';
 import { InputFormItem } from '../../common/InputFormItem';
 import { SelectFormItem } from '../../common/SelectFormItem';
+import { ROLE_ENSEIGNANT } from '../../../services/user';
+
+type ModalUtilisateurProps = {
+    presetRole?: string;
+}
 
 const Enseignants = () => {
     const [enseignants, setEnseignants] = useState<EnseignantDto[]>([]);
@@ -18,10 +23,8 @@ const Enseignants = () => {
     const [editingEnseignantId, setEditingEnseignantId] = useState<number | null>(null);
     const [usernames, setUsernames] = useState<string[]>([]);
     const [roles, setRoles] = useState<string[]>([]);
-    const { getLoggedUser } = useAuth();
+    const { getRoles } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
-
-    console.log(isModalUtilisateurVisible);
 
     function getUsernameOptions() {
         return usernames.map((username) => ({ label: username, value: username }));
@@ -217,7 +220,7 @@ const Enseignants = () => {
         </Modal>
     );
 
-    const ModalUtilisateur = () => (
+    const ModalUtilisateur: FunctionComponent<ModalUtilisateurProps> = ({ presetRole }) => (
         <Modal
             title="Nouvel utilisateur"
             open={isModalUtilisateurVisible}
@@ -229,7 +232,8 @@ const Enseignants = () => {
         >
             <Form form={formUtilisateur}
                 layout="vertical"
-                className="container-full-width">
+                className="container-full-width"
+                initialValues={{ role: presetRole }} >
                 <Row>
                     <Col span={22}>
                         <InputFormItem name="username"
@@ -239,13 +243,16 @@ const Enseignants = () => {
                 </Row>
                 <Row>
                     <Col span={22}>
-                        <Form.Item
-                            label="Mot de passe"
-                            name="password"
-                            rules={[{ required: true, message: "Veuillez saisir votre nouveau mot de passe" }]}
-                        >
-                            <Input.Password />
-                        </Form.Item>
+
+                        <Tooltip title="Demander à l'enseignant de remplacer son mot de passe lors de sa première connexion" color="geekblue">
+                            <Form.Item
+                                label="Mot de passe"
+                                name="password"
+                                rules={[{ required: true, message: "Veuillez saisir votre nouveau mot de passe" }]}
+                            >
+                                <Input.Password />
+                            </Form.Item>
+                        </Tooltip>
                     </Col>
                 </Row>
                 <Row>
@@ -253,14 +260,15 @@ const Enseignants = () => {
                         <SelectFormItem name="role"
                             label="Rôle"
                             rules={[{ required: true, message: "Veuillez saisir le rôle de l’utilisateur." }]}
-                            options={getRoleOptions()} />
+                            options={getRoleOptions()}
+                            disabled={!!presetRole} />
                     </Col>
                 </Row>
             </Form>
         </Modal>
     );
 
-    return getLoggedUser() ? (
+    return getRoles()?.includes("ROLE_ADMIN") ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">
@@ -285,7 +293,7 @@ const Enseignants = () => {
                 />
 
                 <ModalEnseignant />
-                <ModalUtilisateur />
+                <ModalUtilisateur presetRole={ROLE_ENSEIGNANT} />
             </div>
         </>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;

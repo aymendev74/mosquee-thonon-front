@@ -1,4 +1,3 @@
-import { Moment } from "moment";
 import { NiveauInterne, NiveauScolaire } from "./inscription";
 import { Dayjs } from "dayjs";
 
@@ -14,7 +13,6 @@ export type Eleve<T extends Dayjs | string> = {
     dateNaissance: T;
     niveau: NiveauScolaire;
     niveauInterne?: NiveauInterne;
-    sexe?: Sexe;
 }
 
 export type EleveFront = Eleve<Dayjs>;

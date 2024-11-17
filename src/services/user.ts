@@ -7,3 +7,6 @@ export type UserDto = {
     password: string;
     roles: RoleDto[];
 }
+
+export const ROLE_ADMIN = "ROLE_ADMIN";
+export const ROLE_ENSEIGNANT = "ROLE_ENSEIGNANT";
