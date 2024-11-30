@@ -4,7 +4,7 @@ import { useAuth } from '../../../hooks/AuthContext';
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { EnseignantDto } from '../../../services/enseignant';
 import useApi from '../../../hooks/useApi';
-import { ApiCallbacks, buildUrlWithParams, ENSEIGNANT_ENDPOINT_POINT, EXISTING_ENSEIGNANT_ENDPOINT_POINT, handleApiCall, ROLES_ENDPOINT_POINT, USER_ENDPOINT } from '../../../services/services';
+import { ApiCallbacks, buildUrlWithParams, ENSEIGNANT_ENDPOINT, EXISTING_ENSEIGNANT_ENDPOINT, handleApiCall, ROLES_ENDPOINT, USER_ENDPOINT } from '../../../services/services';
 import { validatePhoneNumber } from '../../../utils/FormUtils';
 import { InputFormItem } from '../../common/InputFormItem';
 import { SelectFormItem } from '../../common/SelectFormItem';
@@ -47,10 +47,10 @@ const Enseignants = () => {
                 if (editingEnseignantId) {
                     let enseignant = enseignants.find((enseignant) => enseignant.id === editingEnseignantId);
                     enseignant = { ...enseignant, ...values };
-                    setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT_POINT, { id: editingEnseignantId }), data: enseignant });
+                    setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT, { id: editingEnseignantId }), data: enseignant });
                 } else {
                     const newEnseignant = { ...values };
-                    setApiCallDefinition({ method: "POST", url: ENSEIGNANT_ENDPOINT_POINT, data: newEnseignant });
+                    setApiCallDefinition({ method: "POST", url: ENSEIGNANT_ENDPOINT, data: newEnseignant });
                 }
                 setIsModalEnseignantVisible(false);
                 formEnseignant.resetFields();
@@ -88,7 +88,7 @@ const Enseignants = () => {
     };
 
     function onDeleteEnseignant(id: number) {
-        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT_POINT, { id }) });
+        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT, { id }) });
     }
 
     useEffect(() => {
@@ -98,34 +98,34 @@ const Enseignants = () => {
     const apiCallbacks: ApiCallbacks = {
         [`GET:${USER_ENDPOINT}`]: (result: any) => {
             setUsernames(result);
-            setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT_POINT });
+            setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
         },
-        [`GET:${ENSEIGNANT_ENDPOINT_POINT}`]: (result: any) => {
+        [`GET:${ENSEIGNANT_ENDPOINT}`]: (result: any) => {
             setEnseignants(result);
             resetApi();
         },
-        [`POST:${ENSEIGNANT_ENDPOINT_POINT}`]: (result: any) => {
+        [`POST:${ENSEIGNANT_ENDPOINT}`]: (result: any) => {
             if (result) {
                 notification.open({ message: "L'enseignant a bien été créé", type: "success" });
                 // On reload les enseignants depuis la base
-                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT_POINT });
+                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
             }
         },
-        [`PUT:${EXISTING_ENSEIGNANT_ENDPOINT_POINT}`]: (result: any) => {
+        [`PUT:${EXISTING_ENSEIGNANT_ENDPOINT}`]: (result: any) => {
             if (result) {
                 notification.open({ message: "L'enseignant a bien été mis à jour", type: "success" });
                 // On reload les enseignants depuis la base
-                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT_POINT });
+                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
             }
         },
-        [`DELETE:${EXISTING_ENSEIGNANT_ENDPOINT_POINT}`]: (result: any) => {
+        [`DELETE:${EXISTING_ENSEIGNANT_ENDPOINT}`]: (result: any) => {
             if (result) {
                 notification.open({ message: "L'enseignant a bien été supprimé", type: "success" });
                 // On reload les enseignants depuis la base
-                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT_POINT });
+                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
             }
         },
-        [`GET:${ROLES_ENDPOINT_POINT}`]: (result: any) => {
+        [`GET:${ROLES_ENDPOINT}`]: (result: any) => {
             setRoles(result);
             resetApi();
         },
@@ -168,7 +168,7 @@ const Enseignants = () => {
     const onNewUtilisateur = () => {
         setIsModalEnseignantVisible(false);
         setIsModalUtilisateurVisible(true);
-        setApiCallDefinition({ method: "GET", url: ROLES_ENDPOINT_POINT });
+        setApiCallDefinition({ method: "GET", url: ROLES_ENDPOINT });
     }
 
     const ModalEnseignant = () => (

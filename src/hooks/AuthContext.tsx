@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     function tokenExpired(expirationTime: any) {
-        return new Date().getTime() >= expirationTime * 1000;
+        return new Date().getTime() >= expirationTime;
     }
 
     const login = useCallback(async function () {
@@ -105,6 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
         });
         const decoded = jwtDecode<MyJwtPayload>(response.data.access_token);
+        console.log(response.data.access_token);
         const tokenData = {
             accessToken: response.data.access_token,
             user: decoded.sub!,
@@ -112,7 +113,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             roles: decoded.roles
         }
         sessionStorage.setItem("tokenData", JSON.stringify(tokenData));
-        console.log(tokenData);
         setIsAuthenticated(true);
     }
 
@@ -132,6 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const tokenData = sessionStorage.getItem("tokenData");
         if (tokenData) {
             const parsedTokenData = JSON.parse(tokenData);
+            console.log("Token expiré ?", tokenExpired(parsedTokenData?.expirationTime));
             if (!tokenExpired(parsedTokenData?.expirationTime)) {
                 return parsedTokenData.accessToken;
             }
@@ -158,8 +159,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const tokenData = sessionStorage.getItem("tokenData");
         return tokenData ? JSON.parse(tokenData).roles : null;
     }, []);
-
-    console.log("Rendu du contexte AuthContext");
 
     return (
         <AuthContext.Provider value={{ getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, getRoles, isAuthenticated }}>

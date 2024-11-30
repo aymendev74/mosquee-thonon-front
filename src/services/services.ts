@@ -25,10 +25,12 @@ export const PERIODES_VALIDATION_ENDPOINT = "/periodes/validation";
 export const PERIODES_EXISTING_VALIDATION_ENDPOINT = "/periodes/{id}/validation";
 export const PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT = "/params/reinscription-enabled";
 export const PARAM_ENDPOINT = "/params";
-export const ENSEIGNANT_ENDPOINT_POINT = "/enseignants";
-export const EXISTING_ENSEIGNANT_ENDPOINT_POINT = "/enseignants/{id}";
-export const ROLES_ENDPOINT_POINT = "/roles";
-
+export const ENSEIGNANT_ENDPOINT = "/enseignants";
+export const EXISTING_ENSEIGNANT_ENDPOINT = "/enseignants/{id}";
+export const ROLES_ENDPOINT = "/roles";
+export const CLASSES_ENDPOINT = "/classes";
+export const EXISTING_CLASSES_ENDPOINT = "/classes/{id}";
+export const ELEVES_ENDPOINT = "/eleves";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

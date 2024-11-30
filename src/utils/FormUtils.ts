@@ -1,7 +1,8 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { ResponsableLegal } from "../services/ResponsableLegal";
 import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfant, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
 import { EleveBack, EleveFront } from "../services/eleve";
+import { ClasseDtoB, ClasseDtoF, LienClasseEleveDto } from "../services/classe";
 
 export function convertOuiNonToBoolean(value: string) {
     return value === "OUI" ? true : false;
@@ -50,7 +51,7 @@ export const validateMontantMinAdhesion = (_: any, value: number) => {
     return Promise.resolve();
 };
 
-function prepareEleveBeforeSave(eleves: EleveFront[]) {
+export function prepareEleveBeforeSave(eleves: EleveFront[]) {
     return eleves.map(eleve => {
         const eleveToSave: EleveBack = {
             ...eleve,
@@ -60,7 +61,7 @@ function prepareEleveBeforeSave(eleves: EleveFront[]) {
     })
 };
 
-function prepareEleveBeforeForm(eleves: EleveBack[]) {
+export function prepareEleveBeforeForm(eleves: EleveBack[]) {
     return eleves.map(eleve => {
         const eleveToSave: EleveFront = {
             ...eleve,
@@ -111,6 +112,17 @@ export function prepareInscriptionAdulteBeforeSave(inscription: InscriptionAdult
     };
     return inscriptionToSave;
 }
+
+export function prepareClasseBeforeForm(classe: ClasseDtoB) {
+    const lienClassesF = classe.liensClasseEleves?.map(
+        lien => ({ ...lien, eleve: prepareEleveBeforeForm([lien.eleve])[0] })
+    );
+    return {
+        ...classe,
+        liensClasseEleves: lienClassesF
+    }
+}
+
 
 export const getConsentementInscriptionCoursLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours." +
     " Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com." +

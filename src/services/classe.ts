@@ -24,9 +24,9 @@ export type LienClasseEleveDto<K extends string | Dayjs> = {
 }
 
 export enum JourActiviteEnum {
-    SAMEDI_MATIN = "SAM_MAT",
-    DIMANCHE_MATIN = "DIM_MAT",
-    DIMANCHE_APRES_MIDI = "DIM_APM",
+    SAMEDI_MATIN = "SAMEDI_MATIN",
+    DIMANCHE_MATIN = "DIMANCHE_MATIN",
+    DIMANCHE_APRES_MIDI = "DIMANCHE_APRES_MIDI",
 }
 
 export type ClasseActiviteDto = {
@@ -34,14 +34,14 @@ export type ClasseActiviteDto = {
 }
 
 export type ClasseDto<K extends string | Dayjs> = {
-    id: number;
-    libelle: string;
-    niveau: NiveauInterne;
-    idEnseignant: number;
-    liensClasseEleves: LienClasseEleveDto<K>[];
+    id?: number;
+    libelle?: string;
+    niveau?: NiveauInterne;
+    idEnseignant?: number;
+    liensClasseEleves?: LienClasseEleveDto<K>[];
     debutAnneeScolaire: number;
     finAnneeScolaire: number;
-    activites: ClasseActiviteDto[];
+    activites?: ClasseActiviteDto[];
 }
 
 export type ClasseDtoF = ClasseDto<Dayjs>;
