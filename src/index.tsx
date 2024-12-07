@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, theme } from 'antd';
 //import { AuthProvider } from './hooks/UseAuth';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
@@ -29,15 +29,16 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+console.log(JSON.stringify(theme.defaultConfig.token));
+
 root.render(
   <BrowserRouter>
     <ConfigProvider
       theme={{
         token: {
           borderRadius: 15,
-
           fontFamily: 'Roboto, sans-serif',
-        },
+        }
       }}
       locale={frFR}
     >

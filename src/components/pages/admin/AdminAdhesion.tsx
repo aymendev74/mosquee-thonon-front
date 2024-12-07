@@ -7,7 +7,7 @@ import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCal
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EuroCircleOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../../services/inscription";
 import { getFileNameAdhesion } from "../../common/tableDefinition";
-import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
+import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
 import useApi from "../../../hooks/useApi";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
 import { PdfAdhesion } from "../../documents/PdfAdhesion";
@@ -264,7 +264,7 @@ export const AdminAdhesion: FunctionComponent = () => {
                             </Row>
                         </div>
                     </div>
-                    <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
+                    <ModaleConfirmSuppressionInscription open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
                         nbInscriptions={selectedAdhesions.length} onConfirm={onConfirmSuppression} />
                 </Spin>
             </Form>

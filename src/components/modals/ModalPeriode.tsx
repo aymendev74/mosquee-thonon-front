@@ -2,10 +2,8 @@ import { Button, Col, Form, Modal, Row, Spin, Tooltip, notification } from "antd
 import { FunctionComponent, useEffect, useState } from "react"
 import { PeriodeDtoBack, PeriodeDtoFront, PeriodeInfoDto, PeriodeValidationResultDto } from "../../services/periode";
 import useApi from "../../hooks/useApi";
-import moment, { Moment } from "moment";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
-import { InputFormItem } from "../common/InputFormItem";
 import _ from "lodash";
 import { ApiCallbacks, buildUrlWithParams, handleApiCall, PERIODES_ENDPOINT, PERIODES_EXISTING_ENDPOINT, PERIODES_EXISTING_VALIDATION_ENDPOINT, PERIODES_VALIDATION_ENDPOINT } from "../../services/services";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";

@@ -11,6 +11,10 @@
   /* Ajustez la taille de l'image du logo */
 }
 
+body {
+  background-color: #f5f5f5;
+}
+
 /* Centre le menu horizontalement */
 .ant-menu-horizontal {
   display: flex;
@@ -19,7 +23,7 @@
 
 .content {
   padding-top: 15px;
-  min-height: 600px;
+  min-height: 450px;
 }
 
 .centered-content {
@@ -45,6 +49,29 @@
   padding: 0 10px;
 }
 
+.carousel-container {
+  margin: 150px 250px;
+}
+
+.ant-carousel .slick-slide {
+  text-align: center;
+  height: 350px;
+  line-height: 180px;
+  background: #001529;
+  overflow: hidden;
+}
+
+.ant-carousel .slick-slide h3 {
+  color: #fff;
+}
+
+.carousel-element {
+  padding: 15px;
+  color: #fff;
+  line-height: 1.8;
+  text-align: center;
+}
+
 /* Pour les écrans de taille moyenne (par exemple, tablettes), le conteneur utilise 70% */
 @media screen and (max-width: 900px) {
   .container-form {
@@ -54,6 +81,10 @@
 
   .hidden-xs {
     display: none;
+  }
+
+  .carousel-container {
+    margin: 50px 10px;
   }
 }
 
@@ -175,17 +206,6 @@
 .result-message {
   font-weight: bolder;
   font-size: large;
-}
-
-.message-scroll-container {
-  width: 100%;
-}
-
-.message-scroll {
-  display: inline-block;
-  white-space: nowrap;
-  animation: scroll-left 30s linear infinite;
-  color: red;
 }
 
 .insc-enfant-title {

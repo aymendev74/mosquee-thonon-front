@@ -4,17 +4,17 @@ import { FunctionComponent } from 'react';
 export type ModaleConfirmSuppressionProps = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    nbInscriptions: number,
-    onConfirm: () => void,
+    title: string,
+    onConfirm: () => void
 }
 
-export const ModaleConfirmSuppression: FunctionComponent<ModaleConfirmSuppressionProps> = ({ open, setOpen, nbInscriptions, onConfirm }) => {
+export const ModaleConfirmSuppression: FunctionComponent<ModaleConfirmSuppressionProps> = ({ open, setOpen, title, onConfirm }) => {
 
     const close = () => setOpen(false);
-    return (<Modal title="Suppression inscriptions" open={open} width={400} onCancel={close}
-        footer={<><Button onClick={close}>Annuler</Button><Button onClick={onConfirm} danger>Oui</Button></>} onOk={onConfirm}>
+    return (<Modal title={title} open={open} width={400} onCancel={close}
+        footer={<><Button onClick={close}>Annuler</Button><Button onClick={onConfirm} danger>Oui</Button></>}>
         <div>
-            Voulez-vous vraiment supprimer les données de(s) {nbInscriptions} inscription(s) sélectionnée(s) ? <br />
+            Voulez-vous vraiment supprimer cet élément ? <br />
         </div>
         <strong>Attention, cette opération est définitive.</strong>
     </Modal>);

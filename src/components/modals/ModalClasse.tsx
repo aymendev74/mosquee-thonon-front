@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table } from "antd";
+import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag, Tooltip } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
 import useApi from "../../hooks/useApi";
 import _, { get } from "lodash";
@@ -13,6 +13,8 @@ import { EleveBack, EleveFront } from "../../services/eleve";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, prepareEleveBeforeForm, prepareEleveBeforeSave } from "../../utils/FormUtils";
 import { ColumnsType } from "antd/es/table";
 import dayjs, { Dayjs } from "dayjs";
+import { EyeOutlined, SearchOutlined, WarningOutlined } from "@ant-design/icons";
+import { SwitchFormItem } from "../common/SwitchFormItem";
 
 
 export type ModalClasseProps = {
@@ -111,6 +113,10 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                     form.setFieldValue("jourActivite", classeToEdit.activites[0].jour);
                 }
             }
+        } else {
+            setElevesFiltres([]);
+            setSelectedEleves([]);
+            form.resetFields();
         }
     }, [open]);
 
@@ -132,28 +138,38 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
 
     const columnsTableEleves: ColumnsType<EleveFront> = [
         {
-            title: 'Nom',
-            dataIndex: 'nom',
-            key: 'nom',
+            title: "Nom",
+            dataIndex: "nom",
+            key: "nom",
         },
         {
-            title: 'Prénom',
-            dataIndex: 'prenom',
-            key: 'prenom',
+            title: "Prénom",
+            dataIndex: "prenom",
+            key: "prenom",
         },
         {
-            title: 'Niveau',
-            dataIndex: 'niveauInterne',
-            key: 'niveauInterne',
+            title: "Niveau",
+            dataIndex: "niveauInterne",
+            key: "niveauInterne",
         },
         {
-            title: 'Date naissance',
-            dataIndex: 'dateNaissance',
-            key: 'dateNaissance',
+            title: "Date naissance",
+            dataIndex: "dateNaissance",
+            key: "dateNaissance",
             render: (value, record, index) => {
                 return dayjs(record.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT);
             }
         },
+        {
+            title: "",
+            dataIndex: "classeId",
+            key: "classeId",
+            render: (value, record, index) => {
+                return record.classeId && record.classeId !== classeToEdit?.id
+                    ? (<Tooltip color="red" title="Eleve affecté dans une autre classe"><WarningOutlined /></Tooltip>)
+                    : <></>;
+            }
+        }
     ];
 
     function onFilterEleves() {
@@ -169,7 +185,19 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         }
     }
 
-    return (<Modal title={getTitre()} open={open} width={700} onCancel={close}
+    function formatTotal(total: number) {
+        return (<Tag color="geekblue">Total : <strong>{total} élève(s)</strong></Tag>);
+    }
+
+    function onEffectifSelected(checked: boolean) {
+        if (checked) {
+            setElevesFiltres(eleves.filter(eleve => selectedEleves.map(selectedEleve => selectedEleve.id).includes(eleve.id)));
+        } else {
+            onFilterEleves();
+        }
+    }
+
+    return (<Modal title={getTitre()} open={open} width={800} onCancel={close}
         footer={<><Button onClick={close}>Annuler</Button><Button onClick={onValider} danger>Valider</Button></>}>
         <Form
             name="classe"
@@ -199,14 +227,21 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                     <Col span={12}>
                         <InputFormItem name="filterField" label="Nom/Prénom" />
                     </Col>
-                    <Col span={6}>
-                        <Button type="primary" onClick={onFilterEleves}>Filtrer</Button>
+                    <Col span={1}>
+                        <Tooltip title="Filtrer les élèves sur le nom ou le prénom" color="geekblue">
+                            <Button type="primary" onClick={onFilterEleves} icon={<SearchOutlined />} />
+                        </Tooltip>
+                    </Col>
+                    <Col span={3}>
+                        <Tooltip title="Visualiser l'effectif de la classe uniquement" color="geekblue">
+                            <SwitchFormItem className="m-left-10" name="effectif" onChange={onEffectifSelected} />
+                        </Tooltip>
                     </Col>
                 </Row>
                 <Table dataSource={elevesFiltres}
                     columns={columnsTableEleves}
                     rowSelection={{ type: "checkbox", selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}
-                    pagination={{ pageSize: 5, showSizeChanger: false }}
+                    pagination={{ pageSize: 5, showSizeChanger: false, showTotal: formatTotal }}
                     rowKey={record => record.id!} />
             </Spin>
         </Form>

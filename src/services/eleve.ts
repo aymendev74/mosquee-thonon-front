@@ -13,6 +13,7 @@ export type Eleve<T extends Dayjs | string> = {
     dateNaissance: T;
     niveau: NiveauScolaire;
     niveauInterne?: NiveauInterne;
+    classeId?: number;
 }
 
 export type EleveFront = Eleve<Dayjs>;
