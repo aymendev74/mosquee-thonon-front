@@ -16,6 +16,7 @@ import { useAuth } from './hooks/AuthContext';
 import { SignIn } from './components/pages/admin/SignIn';
 import Enseignants from './components/pages/admin/Enseignants';
 import CreateUpdateClasse from './components/pages/admin/CreateUpdateClasse';
+import MesClasses from './components/pages/enseignant/MesClasses';
 
 const { Header, Content, Footer } = Layout;
 
@@ -80,6 +81,7 @@ function App() {
           <Route path="/adminTarif" element={<AdminTarifs />} />
           <Route path="/enseignants" element={<Enseignants />} />
           <Route path="/creerModifierClasse" element={<CreateUpdateClasse />} />
+          <Route path="/mesClasses" element={<MesClasses />} />
           <Route path="/changePassword" element={<ChangePassword />} />
           <Route path="/don" element={<FaireUnDon />} />
           <Route path="/parametres" element={<Parametres />} />

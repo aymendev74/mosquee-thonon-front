@@ -31,6 +31,7 @@ export const ROLES_ENDPOINT = "/roles";
 export const CLASSES_ENDPOINT = "/classes";
 export const EXISTING_CLASSES_ENDPOINT = "/classes/{id}";
 export const ELEVES_ENDPOINT = "/eleves";
+export const FEUILLE_PRESENCE_ENDPOINT = "/classes/{id}/presences";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

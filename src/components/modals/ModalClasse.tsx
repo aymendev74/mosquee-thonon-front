@@ -13,7 +13,7 @@ import { EleveBack, EleveFront } from "../../services/eleve";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, prepareEleveBeforeForm, prepareEleveBeforeSave } from "../../utils/FormUtils";
 import { ColumnsType } from "antd/es/table";
 import dayjs, { Dayjs } from "dayjs";
-import { EyeOutlined, SearchOutlined, WarningOutlined } from "@ant-design/icons";
+import { CheckOutlined, CloseOutlined, EyeOutlined, SearchOutlined, WarningOutlined } from "@ant-design/icons";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 
 
@@ -198,7 +198,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
     }
 
     return (<Modal title={getTitre()} open={open} width={800} onCancel={close}
-        footer={<><Button onClick={close}>Annuler</Button><Button onClick={onValider} danger>Valider</Button></>}>
+        footer={<><Button onClick={close} icon={<CloseOutlined />}>Annuler</Button><Button onClick={onValider} icon={<CheckOutlined />} danger>Valider</Button></>}>
         <Form
             name="classe"
             autoComplete="off"

@@ -105,7 +105,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
         });
         const decoded = jwtDecode<MyJwtPayload>(response.data.access_token);
-        console.log(response.data.access_token);
         const tokenData = {
             accessToken: response.data.access_token,
             user: decoded.sub!,

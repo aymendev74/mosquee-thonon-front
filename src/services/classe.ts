@@ -33,7 +33,7 @@ export type ClasseActiviteDto = {
     jour: JourActiviteEnum;
 }
 
-export type ClasseDto<K extends string | Dayjs> = {
+type ClasseDto<K extends string | Dayjs> = {
     id?: number;
     libelle?: string;
     niveau?: NiveauInterne;
@@ -46,3 +46,16 @@ export type ClasseDto<K extends string | Dayjs> = {
 
 export type ClasseDtoF = ClasseDto<Dayjs>;
 export type ClasseDtoB = ClasseDto<string>;
+
+export type PresenceEleveDto = {
+    idEleve: number;
+    present: boolean;
+}
+
+type FeuillePresenceDto<K extends string | Dayjs> = {
+    date: K;
+    presenceEleves: PresenceEleveDto[];
+}
+
+export type FeuillePresenceDtoB = FeuillePresenceDto<string>;
+export type FeuillePresenceDtoF = FeuillePresenceDto<Dayjs>;
