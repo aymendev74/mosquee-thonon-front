@@ -1,14 +1,13 @@
-import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag, Tooltip } from "antd";
+import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
 import useApi from "../../hooks/useApi";
-import _, { get } from "lodash";
-import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ELEVES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, FEUILLE_PRESENCE_ENDPOINT, handleApiCall } from "../../services/services";
-import { ClasseDtoF, FeuillePresenceDtoB, LienClasseEleveDto, PresenceEleveDto } from "../../services/classe";
-import { EnseignantDto } from "../../services/enseignant";
+import _ from "lodash";
+import { ApiCallbacks, buildUrlWithParams, EXISTING_FEUILLE_PRESENCE_ENDPOINT, FEUILLE_PRESENCE_ENDPOINT, handleApiCall } from "../../services/services";
+import { ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from "../../services/classe";
 import { EleveFront } from "../../services/eleve";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 import { ColumnsType } from "antd/es/table";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 
@@ -16,10 +15,11 @@ import { DatePickerFormItem } from "../common/DatePickerFormItem";
 export type ModalFeuillePresenceProps = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    classe: ClasseDtoF,
+    classe?: ClasseDtoF,
+    feuilleToEdit?: FeuillePresenceDtoF,
 }
 
-export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> = ({ open, setOpen, classe }) => {
+export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> = ({ open, setOpen, classe, feuilleToEdit }) => {
     const { isLoading, result, setApiCallDefinition, apiCallDefinition, resetApi } = useApi();
     const [form] = Form.useForm();
     const [eleves, setEleves] = useState<EleveFront[]>([]);
@@ -38,27 +38,41 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
             date: dayjs(dateFeuille).format(APPLICATION_DATE_FORMAT),
             presenceEleves: [...elevesPresents, ...elevesAbsents],
         }
-        setApiCallDefinition({ method: "POST", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe.id }), data: feuillePresence });
+        if (feuilleToEdit) { // mise à jour
+            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(EXISTING_FEUILLE_PRESENCE_ENDPOINT, { id: feuilleToEdit.id }), data: feuillePresence });
+        } else { // création
+            setApiCallDefinition({ method: "POST", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }), data: feuillePresence });
+        }
     }
 
     const getTitre = () => {
         return "Feuille de temps";
     }
 
+    function handleSaveSucess(result: any) {
+        if (result) {
+            notification.success({ message: "La feuille de présence a bien été enregistrée" });
+            setOpen(false);
+            setEleves([]);
+            setSelectedEleves([]);
+        }
+    }
+
     const apiCallbacks: ApiCallbacks = {
-        [`POST:${FEUILLE_PRESENCE_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.success({ message: "La feuille de présence a bien été enregistrée" });
-                setOpen(false);
-                setEleves([]);
-                setSelectedEleves([]);
-            }
-        },
+        [`POST:${FEUILLE_PRESENCE_ENDPOINT}`]: handleSaveSucess,
+        [`PUT:${EXISTING_FEUILLE_PRESENCE_ENDPOINT}`]: handleSaveSucess,
     };
 
     useEffect(() => {
         if (open && classe && classe.liensClasseEleves) {
-            setEleves(classe?.liensClasseEleves?.map((lien) => lien.eleve));
+            const elevesClasses = classe?.liensClasseEleves?.map((lien) => lien.eleve);
+            setEleves(elevesClasses);
+            console.log(feuilleToEdit);
+            if (feuilleToEdit) {
+                form.setFieldValue("dateFeuille", feuilleToEdit.date);
+                setSelectedEleves(feuilleToEdit.presenceEleves.filter((presence) => presence.present)
+                    .map((presence) => elevesClasses.find((eleve) => eleve.id === presence.idEleve)!));
+            }
         } else {
             form.resetFields();
             setEleves([]);

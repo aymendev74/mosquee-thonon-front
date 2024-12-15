@@ -121,9 +121,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const state = params.get("state");
         if (code) {
             exchangeCodeForToken(code);
-        }
-        if (state) {
+        } else if (state) {
             window.location.replace(state);
+        } else if (getLoggedUser() != null) {
+            setIsAuthenticated(true);
         }
     }, []);
 

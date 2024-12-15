@@ -53,6 +53,7 @@ export type PresenceEleveDto = {
 }
 
 type FeuillePresenceDto<K extends string | Dayjs> = {
+    id?: number;
     date: K;
     presenceEleves: PresenceEleveDto[];
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { EditOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
 import { ApiCallbacks, CLASSES_ENDPOINT, handleApiCall } from '../../../services/services';
 import { Button, Card, Col, Divider, Empty, Form, Row, Tooltip } from 'antd';
@@ -9,8 +9,7 @@ import { useForm } from 'antd/es/form/Form';
 import dayjs from 'dayjs';
 import { ClasseDtoB, ClasseDtoF } from '../../../services/classe';
 import { prepareClasseBeforeForm } from '../../../utils/FormUtils';
-import { TimerOutlined } from '@mui/icons-material';
-import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
+import { useNavigate } from 'react-router-dom';
 
 const MesClasses = () => {
     const { isAuthenticated } = useAuth();
@@ -18,8 +17,8 @@ const MesClasses = () => {
     const [classes, setClasses] = useState<ClasseDtoF[]>([]);
     const [form] = useForm();
     const [debutAnneeScolaire, setDebutAnneeScolaire] = useState<number>(dayjs().year());
-    const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
-    const [classeToEdit, setClasseToEdit] = useState<ClasseDtoF>();
+    const navigate = useNavigate();
+
 
     function doSearchClasses(values: any) {
         const anneeDebut: number = values.anneeDebut;
@@ -27,16 +26,11 @@ const MesClasses = () => {
         setApiCallDefinition({ method: "GET", url: CLASSES_ENDPOINT, params: { anneeDebut, anneeFin } });
     }
 
-    function onCreateFeuillePresence(classe: ClasseDtoF) {
-        setClasseToEdit(classe);
-        setModalFeuillePresenceOpen(true);
-    }
-
     function getActionsClasseButtons(classe: ClasseDtoF) {
         return (
             <>
-                <Tooltip title="Feuille de présence" color="geekblue">
-                    <Button type="primary" icon={<TimerOutlined />} onClick={() => onCreateFeuillePresence(classe)} />
+                <Tooltip title="Consulter la classe" color="geekblue">
+                    <Button type="primary" icon={<EyeOutlined />} onClick={() => navigate(`/classes/${classe.id}`)} />
                 </Tooltip>
             </>
         );
@@ -44,8 +38,8 @@ const MesClasses = () => {
 
     const getClasseView = (classe: ClasseDtoF) => {
         return (
-            <Col span={6}>
-                <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} style={{ width: 350 }}>
+            <Col span={6} key={"col_" + classe.id}>
+                <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} style={{ width: 350 }} key={classe.id}>
                     <p><b>Niveau: </b>{classe.niveau}</p>
                     <p><b>Nombre d'élèves: </b>{classe.liensClasseEleves?.length ?? 0}</p>
                 </Card>
@@ -97,7 +91,6 @@ const MesClasses = () => {
                 </div>
             </div>
             <div className="main-content-classes">
-                <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classes[0]} />
                 <Form form={form}
                     onFinish={doSearchClasses}
                     initialValues={{ anneeDebut: dayjs().year() }}>

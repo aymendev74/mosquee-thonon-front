@@ -93,7 +93,7 @@ export const MyMenu: FunctionComponent = () => {
             label: "Enseignants",
         },
         {
-            key: "classes",
+            key: "classeMenu",
             icon: <UserOutlined />,
             label: "Classes",
             children: [
@@ -109,7 +109,7 @@ export const MyMenu: FunctionComponent = () => {
 
     function getEnseignantMenuItems() {
         const menuItems: MenuProps["items"] = [{
-            key: "mesClasses",
+            key: "classes",
             icon: <TeamOutlined />,
             label: "Mes classes",
         }];

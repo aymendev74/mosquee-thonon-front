@@ -2,7 +2,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { ResponsableLegal } from "../services/ResponsableLegal";
 import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfant, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
 import { EleveBack, EleveFront } from "../services/eleve";
-import { ClasseDtoB, ClasseDtoF, LienClasseEleveDto } from "../services/classe";
+import { ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, LienClasseEleveDto } from "../services/classe";
 
 export function convertOuiNonToBoolean(value: string) {
     return value === "OUI" ? true : false;
@@ -121,6 +121,14 @@ export function prepareClasseBeforeForm(classe: ClasseDtoB) {
         ...classe,
         liensClasseEleves: lienClassesF
     }
+}
+
+export function prepareFeuillePresenceBeforeForm(feuille: FeuillePresenceDtoB) {
+    const feuillePresenceDtoF: FeuillePresenceDtoF = {
+        ...feuille,
+        date: dayjs(feuille.date, APPLICATION_DATE_FORMAT)
+    }
+    return feuillePresenceDtoF;
 }
 
 
