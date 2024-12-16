@@ -277,3 +277,7 @@ body {
   width: 80%;
   text-align: center;
 }
+
+.ant-collapse-header {
+  color: #ffffff !important;
+}

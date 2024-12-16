@@ -118,13 +118,14 @@ const MaClasse = () => {
     function getFeuillePresenceContent() {
         return (
             <div style={{ textAlign: "center" }}>
-                <Button type="primary" icon={<AddCircleOutline />} className="m-bottom-10" onClick={onCreateFeuillePresence}>Nouvelle feuille</Button>
+                <h3>Listes des feuilles de présences pour cette classe</h3>
                 <div style={{ width: "50%", margin: "0 auto", textAlign: "center" }}>
                     <Table dataSource={feuillesPresence}
                         columns={columnsTableFeuillesPresence}
-                        pagination={{ pageSize: 10 }}
+                        pagination={{ pageSize: 5 }}
                         rowKey={record => record.date?.millisecond.toString()} />
                 </div>
+                <Button type="primary" icon={<AddCircleOutline />} className="m-bottom-15 m-top-15" onClick={onCreateFeuillePresence}>Nouvelle feuille</Button>
             </div>
         );
     };
@@ -155,14 +156,14 @@ const MaClasse = () => {
             <div className="centered-content">
                 <div className="container-full-width">
                     <h2 className="classes-title">
-                        {<EditOutlined />} {classe?.libelle}
+                        {<EditOutlined />} {classe?.libelle} - {classe?.niveau} - {classe?.debutAnneeScolaire} / {classe?.finAnneeScolaire}
                     </h2>
                 </div>
             </div>
-            <div>
+            <div style={{ margin: "0 20px" }}>
                 <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
                     feuilleToEdit={feuilleToEdit} />
-                <Collapse defaultActiveKey={['1']} bordered={false} items={collapseItems} />
+                <Collapse accordion defaultActiveKey={['1']} items={collapseItems} />
             </div>
         </>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;

@@ -125,8 +125,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
                 navigate(path, { state: { isReadOnly: readOnly, id: selectedInscriptions[0].idInscription, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                const patchInscription: InscriptionPatchDto = { ids: getSelectedInscriptionDistinctIds(), statut: StatutInscription.VALIDEE };
-                setApiCallDefinition({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: patchInscription });
+                const inscriptionsPatch: InscriptionPatchDto[] = getSelectedInscriptionDistinctIds().map(id => ({ id, statut: StatutInscription.VALIDEE }));
+                setApiCallDefinition({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: inscriptionsPatch } });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }

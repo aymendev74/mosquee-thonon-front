@@ -38,6 +38,13 @@ root.render(
         token: {
           borderRadius: 15,
           fontFamily: 'Roboto, sans-serif',
+        },
+        components: {
+          Collapse: {
+            borderRadiusLG: 20,
+            contentBg: "#f5f5f5",
+            headerBg: "#001529",
+          },
         }
       }}
       locale={frFR}

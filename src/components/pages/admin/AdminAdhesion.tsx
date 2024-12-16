@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import * as XLSX from 'xlsx';
-import { AdhesionLight, AdhesionLightForExport } from "../../../services/adhesion";
+import { AdhesionLight, AdhesionLightForExport, AdhesionPatchDto } from "../../../services/adhesion";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCall } from "../../../services/services";
@@ -74,7 +74,8 @@ export const AdminAdhesion: FunctionComponent = () => {
                 }
                 navigate("/adhesion", { state: { isReadOnly: readOnly, id: selectedAdhesions[0].id, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                setApiCallDefinition({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { ids: selectedAdhesions.map(adhesion => adhesion.id), statut: StatutInscription.VALIDEE } });
+                const adhesionsPatches: AdhesionPatchDto[] = selectedAdhesions.map(adhesion => ({ id: adhesion.id, statut: StatutInscription.VALIDEE }));
+                setApiCallDefinition({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: adhesionsPatches } });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }

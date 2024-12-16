@@ -105,7 +105,7 @@ export type InscriptionAdulteBack = InscriptionAdulte<string>;
 export type TypeInscription = "ADULTE" | "ENFANT";
 
 export type InscriptionPatchDto = {
-    ids: number[];
+    id: number;
     statut?: StatutInscription;
 }
 
