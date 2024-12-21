@@ -7,9 +7,8 @@ import Table, { ColumnsType } from "antd/es/table";
 import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
-import * as XLSX from 'xlsx';
 import { getLibelleNiveauScolaire, getNiveauInterneAdulteOptions, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
+import exportToExcel, { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, ExcelColumnHeadersType } from "../../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import { PeriodeInfoDto } from "../../../services/periode";
 import { getPeriodeOptions } from "../../common/CommonComponents";
@@ -44,65 +43,35 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const SUPPRIMER_MENU_KEY = "4";
     const icon = type === "ENFANT" ? <TeamOutlined /> : <UserOutlined />;
 
-    type ColumnHeadersType = Partial<Record<keyof InscriptionLight, string>>;
+    let excelColumnHeaders: ExcelColumnHeadersType<InscriptionLight> = { // commun aux cours adultes et enfant
+        nom: "Nom élève",
+        prenom: "Prénom élève",
+        dateNaissance: "Date naissance",
+        niveauInterne: "Niveau interne",
+        mobile: "Tél.",
+        email: "E-mail",
+        ville: "Ville",
+        noInscription: "Numéro inscription",
+        dateInscription: "Date d'inscription",
+    };
 
-    const prepareForExport = (dataSource: any) => {
-        // Mapping des champs de l'objet aux noms des colonnes du fichier excel
-        let columnHeaders: ColumnHeadersType = { // commun aux cours adultes et enfant
-            nom: "Nom élève",
-            prenom: "Prénom élève",
-            dateNaissance: "Date naissance",
-            niveauInterne: "Niveau interne",
-            mobile: "Tél.",
-            email: "E-mail",
-            ville: "Ville",
-            noInscription: "Numéro inscription",
-            dateInscription: "Date d'inscription",
-        };
-
-        if (application === "COURS_ENFANT") { // données spécifiques aux enfants
-            columnHeaders = {
-                ...columnHeaders,
-                niveau: "Niveau publique",
-                nomResponsableLegal: "Nom responsable légal",
-                prenomResponsableLegal: "Prénom responsable légal",
-                nomContactUrgence: "Nom autre contact",
-                prenomContactUrgence: "Prénom autre contact",
-                mobileContactUrgence: "Tél. autre contact",
-                autorisationAutonomie: "Autorisation à rentrer seul",
-                autorisationMedia: "Autorisation photos/vidéos",
-            }
+    if (application === "COURS_ENFANT") { // données spécifiques aux enfants
+        excelColumnHeaders = {
+            ...excelColumnHeaders,
+            niveau: "Niveau publique",
+            nomResponsableLegal: "Nom responsable légal",
+            prenomResponsableLegal: "Prénom responsable légal",
+            nomContactUrgence: "Nom autre contact",
+            prenomContactUrgence: "Prénom autre contact",
+            mobileContactUrgence: "Tél. autre contact",
+            autorisationAutonomie: "Autorisation à rentrer seul",
+            autorisationMedia: "Autorisation photos/vidéos",
         }
-
-        const transformValue = (key: keyof InscriptionLight, value: any): string => {
-            if (typeof value === 'boolean') {
-                return value ? 'OUI' : 'NON';
-            }
-            return value;
-        };
-
-        return dataSource.map((row: any) => {
-            const formattedRow: { [key: string]: string } = {};
-            for (const key in columnHeaders) {
-                const typedKey = key as keyof InscriptionLight;
-                formattedRow[columnHeaders[typedKey] as string] = transformValue(typedKey, row[typedKey]);
-            }
-            return formattedRow;
-        });
-    }
+    };
 
     const exportData = () => {
         if (dataSource) {
-            const formattedData = prepareForExport(dataSource);
-
-            const ws = XLSX.utils.json_to_sheet(formattedData);
-
-            // Crée un classeur
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Inscriptions');
-
-            // Sauvegarde le fichier Excel
-            XLSX.writeFile(wb, 'inscriptions.xlsx');
+            exportToExcel<InscriptionLight>(dataSource, excelColumnHeaders, `inscriptions-${type}`);
         }
     }
 

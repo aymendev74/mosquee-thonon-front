@@ -67,7 +67,6 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
         if (open && classe && classe.liensClasseEleves) {
             const elevesClasses = classe?.liensClasseEleves?.map((lien) => lien.eleve);
             setEleves(elevesClasses);
-            console.log(feuilleToEdit);
             if (feuilleToEdit) {
                 form.setFieldValue("dateFeuille", feuilleToEdit.date);
                 setSelectedEleves(feuilleToEdit.presenceEleves.filter((presence) => presence.present)
@@ -141,6 +140,7 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
                     </Col>
                 </Row>
                 <Divider orientation="left">Liste des élèves</Divider>
+                <h3>Selectionnez les élèves qui ont assisté au cours</h3>
                 <Table dataSource={eleves}
                     columns={columnsTableEleves}
                     rowSelection={{ type: "checkbox", selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}

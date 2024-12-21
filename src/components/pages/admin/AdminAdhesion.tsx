@@ -9,7 +9,7 @@ import { StatutInscription } from "../../../services/inscription";
 import { getFileNameAdhesion } from "../../common/tableDefinition";
 import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
 import useApi from "../../../hooks/useApi";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
+import exportToExcel, { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, ExcelColumnHeadersType } from "../../../utils/FormUtils";
 import { PdfAdhesion } from "../../documents/PdfAdhesion";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import dayjs from "dayjs";
@@ -35,28 +35,18 @@ export const AdminAdhesion: FunctionComponent = () => {
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
 
-    const prepareForExport = (dataSource: AdhesionLight) => {
-        const { id, ...rest } = dataSource;
-        return rest as AdhesionLightForExport;
-    }
+    const excelColumnHeaders: ExcelColumnHeadersType<AdhesionLight> = { // commun aux cours adultes et enfant
+        nom: "Nom",
+        prenom: "Prénom",
+        ville: "Ville",
+        montant: "Montant",
+        statut: "Statut",
+        dateInscription: "Date adhésion",
+    };
 
     const exportData = () => {
-        // Crée une feuille de calcul
         if (dataSource) {
-            const inscriptionForExports: AdhesionLightForExport[] = [];
-            // On ne garde que les champs intéressants pour l'export excel
-            dataSource.forEach(adhesion => {
-                inscriptionForExports.push(prepareForExport(adhesion));
-            });
-
-            const ws = XLSX.utils.json_to_sheet(inscriptionForExports);
-
-            // Crée un classeur
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Adhésions');
-
-            // Sauvegarde le fichier Excel
-            XLSX.writeFile(wb, 'adhesions.xlsx');
+            exportToExcel<AdhesionLight>(dataSource, excelColumnHeaders, `adhesion.xlsx`);
         }
     }
 

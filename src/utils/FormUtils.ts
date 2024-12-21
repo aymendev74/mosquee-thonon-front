@@ -1,8 +1,8 @@
-import dayjs, { Dayjs } from "dayjs";
-import { ResponsableLegal } from "../services/ResponsableLegal";
-import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfant, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
+import dayjs from "dayjs";
+import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
 import { EleveBack, EleveFront } from "../services/eleve";
-import { ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, LienClasseEleveDto } from "../services/classe";
+import { ClasseDtoB, FeuillePresenceDtoB, FeuillePresenceDtoF } from "../services/classe";
+import * as XLSX from 'xlsx';
 
 export function convertOuiNonToBoolean(value: string) {
     return value === "OUI" ? true : false;
@@ -145,6 +145,51 @@ export const isInscriptionFerme = (inscriptionEnabledFromDate?: string) => {
     }
     return dayjs(inscriptionEnabledFromDate, APPLICATION_DATE_FORMAT).isAfter(dayjs());
 }
+
+export type ExcelColumnHeadersType<T> = Partial<Record<keyof T, string>>;
+
+function exportToExcel<T>(
+    data: T[],
+    columnHeaders: ExcelColumnHeadersType<T>,
+    fileName: string
+): void {
+    if (!data || data.length === 0) {
+        console.warn("No data provided for export.");
+        return;
+    }
+
+    const transformValue = (value: any): string => {
+        if (typeof value === "boolean") {
+            return value ? "OUI" : "NON";
+        }
+        return value?.toString() ?? "";
+    };
+
+    // Préparer les données en fonction des `columnHeaders`
+    const preparedData = data.map((row) => {
+        const formattedRow: { [key: string]: string } = {};
+        for (const key in columnHeaders) {
+            const typedKey = key as keyof T;
+            const columnHeader = columnHeaders[typedKey];
+            if (columnHeader) {
+                formattedRow[columnHeader] = transformValue(row[typedKey]);
+            }
+        }
+        return formattedRow;
+    });
+
+    // Crée une feuille de calcul
+    const ws = XLSX.utils.json_to_sheet(preparedData);
+
+    // Crée un classeur et ajoute la feuille
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Export");
+
+    // Sauvegarde le fichier Excel
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+}
+
+export default exportToExcel;
 
 export const APPLICATION_DATE_FORMAT: string = "DD.MM.YYYY";
 export const APPLICATION_DATE_TIME_FORMAT: string = "DD.MM.YYYY HH:mm:ss.SSS";

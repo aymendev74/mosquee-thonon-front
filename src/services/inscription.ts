@@ -104,10 +104,7 @@ export type InscriptionAdulteBack = InscriptionAdulte<string>;
 
 export type TypeInscription = "ADULTE" | "ENFANT";
 
-export type InscriptionPatchDto = {
-    id: number;
-    statut?: StatutInscription;
-}
+export type InscriptionPatchDto = Partial<InscriptionEnfantFront | InscriptionAdulteFront>;
 
 export enum StatutProfessionel {
     ETUDIANT = "ETUDIANT",

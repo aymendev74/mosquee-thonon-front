@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { EditOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, EditOutlined, FileOutlined } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
-import { ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams, FEUILLE_PRESENCE_ENDPOINT } from '../../../services/services';
-import { Button, Col, Collapse, Divider, Row, Table, Tag, Tooltip } from 'antd';
+import { ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams, FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT } from '../../../services/services';
+import { Button, Col, Collapse, Divider, Form, notification, Row, Select, Switch, Table, Tag, Tooltip } from 'antd';
 import { ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
-import { APPLICATION_DATE_FORMAT, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
-import { AddCircle, AddCircleOutline, AddOutlined } from '@mui/icons-material';
+import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
+import { AddCircleOutline, AddOutlined } from '@mui/icons-material';
 import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
 import { useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { get } from 'lodash';
 import { CollapseProps } from 'antd/lib';
+import { InputFormItem } from '../../common/InputFormItem';
+import { EleveEnrichedDto, PatchEleve, ResultatEnum } from '../../../services/eleve';
+import { SwitchFormItem } from '../../common/SwitchFormItem';
+import { getJourActiviteOptions, getResultatOptions } from '../../common/commoninputs';
 
 const MaClasse = () => {
     const { isAuthenticated } = useAuth();
@@ -21,6 +24,9 @@ const MaClasse = () => {
     const [classe, setClasse] = useState<ClasseDtoF | undefined>();
     const [feuillesPresence, setFeuillesPresence] = useState<FeuillePresenceDtoF[]>([]);
     const [feuilleToEdit, setFeuilleToEdit] = useState<FeuillePresenceDtoF | undefined>();
+    const [elevesEnriched, setElevesEnriched] = useState<EleveEnrichedDto[]>([]);
+    const [vueDetaille, setVueDetaille] = useState(false);
+    const [form] = Form.useForm();
     const { id } = useParams();
 
     function onCreateFeuillePresence() {
@@ -34,15 +40,35 @@ const MaClasse = () => {
         }
     }, [modalFeuillePresenceOpen]);
 
+    function getJourClasse() {
+        if (classe?.activites) {
+            const jour = classe.activites[0].jour;
+            return getJourActiviteOptions().find((option) => option.value === jour)?.label;
+        }
+        return "";
+    }
+
     const apiCallbacks: ApiCallbacks = {
         [`GET:${EXISTING_CLASSES_ENDPOINT}`]: (result: any) => {
             const classesF = prepareClasseBeforeForm(result as ClasseDtoB);
             setClasse(classesF);
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id }) });
+
         },
         [`GET:${FEUILLE_PRESENCE_ENDPOINT}`]: (result: any) => {
             const feuillesPresencesB = result as FeuillePresenceDtoB[];
             setFeuillesPresence(feuillesPresencesB.map((feuillePresence) => prepareFeuillePresenceBeforeForm(feuillePresence)));
+            setApiCallDefinition({ method: "GET", url: ELEVES_ENRICHED_ENDPOINT, params: { idClasse: id } });
+        },
+        [`GET:${ELEVES_ENRICHED_ENDPOINT}`]: (result: any) => {
+            const eleves = result as EleveEnrichedDto[];
+            setElevesEnriched(eleves);
+            resetApi();
+        },
+        [`PATCH:${ELEVES_ENDPOINT}`]: (result: any) => {
+            notification.success({ message: "Les résultats des élèves ont bien été enregistrés" });
+            // on reload la classe entièrement pour raffraichir l'écran
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
         },
     };
 
@@ -72,7 +98,85 @@ const MaClasse = () => {
     function onModifierFeuille(feuillePresence: FeuillePresenceDtoF) {
         setFeuilleToEdit(feuillePresence);
         setModalFeuillePresenceOpen(true);
-    }
+    };
+
+    const columnsTableEffectif: ColumnsType<EleveEnrichedDto> = [
+        {
+            title: "Nom",
+            key: "nom",
+            dataIndex: "nom",
+        },
+        {
+            title: "Prénom",
+            key: "prenom",
+            dataIndex: "prenom",
+        },
+        {
+            title: "Date naissance",
+            key: "dateNaissance",
+            dataIndex: "dateNaissance",
+        },
+        {
+            title: "Niveau",
+            key: "niveauInterne",
+            dataIndex: "niveauInterne",
+        },
+    ];
+
+    const columnTableEffectifDetaille: ColumnsType<EleveEnrichedDto> = [
+        ...columnsTableEffectif,
+        {
+            title: "Nom resp. légal",
+            key: "nomResponsableLegal",
+            dataIndex: "nomResponsableLegal",
+        },
+        {
+            title: "Prénom resp. légal",
+            key: "prenomResponsableLegal",
+            dataIndex: "prenomResponsableLegal",
+        },
+        {
+            title: "Mobile",
+            key: "mobile",
+            dataIndex: "mobile",
+        },
+        {
+            title: "Nom contact urgence",
+            key: "nomContactUrgence",
+            dataIndex: "nomContactUrgence",
+        },
+        {
+            title: "Prénom contact urgence",
+            key: "prenomContactUrgence",
+            dataIndex: "prenomContactUrgence",
+        },
+        {
+            title: "Prénom contact urgence",
+            key: "prenomContactUrgence",
+            dataIndex: "prenomContactUrgence",
+        },
+        {
+            title: "Mobile",
+            key: "mobileContactUrgence",
+            dataIndex: "mobileContactUrgence",
+        },
+        {
+            title: "Photos / Vidéos",
+            key: "autorisationMedia",
+            dataIndex: "autorisationMedia",
+            render: (value, record, index) => {
+                return value ? <Tag color="green">Oui</Tag> : <Tag color="red">Non</Tag>;
+            }
+        },
+        {
+            title: "Rentre seul",
+            key: "autorisationAutonomie",
+            dataIndex: "autorisationAutonomie",
+            render: (value, record, index) => {
+                return value ? <Tag color="green">Oui</Tag> : <Tag color="red">Non</Tag>;
+            }
+        },
+    ];
 
     const columnsTableFeuillesPresence: ColumnsType<FeuillePresenceDtoF> = [
         {
@@ -87,10 +191,12 @@ const MaClasse = () => {
             key: "absents",
             render: (value, record, index) => {
                 const elevesAbsents = record.presenceEleves.filter((presenceEleve) => !presenceEleve.present);
-                return (
+                return elevesAbsents.length > 0 ? (
                     <Tooltip title={getListeEleves(elevesAbsents)} color="geekblue">
                         <Tag color="red">{elevesAbsents.length}</Tag>
                     </Tooltip>
+                ) : (
+                    <Tag color="red">{elevesAbsents.length}</Tag>
                 );
             }
         },
@@ -115,6 +221,108 @@ const MaClasse = () => {
         },
     ];
 
+    function onModifierResultat(eleveId: number, resultat: ResultatEnum) {
+        setElevesEnriched(elevesEnriched.map((eleveEnriched) => eleveEnriched.id === eleveId ? { ...eleveEnriched, resultat } : eleveEnriched));
+    }
+
+    const columnsTableResultats: ColumnsType<EleveEnrichedDto> = [
+        {
+            title: "Nom",
+            key: "nom",
+            dataIndex: "nom",
+        },
+        {
+            title: "Prénom",
+            key: "prenom",
+            dataIndex: "prenom",
+        },
+        {
+            title: "Niveau",
+            key: "niveauInterne",
+            dataIndex: "niveauInterne",
+        },
+        {
+            title: "Résultat",
+            key: "resultat",
+            render: (value, record, index) => {
+                return (
+                    <Select style={{ width: "100%" }} value={record.resultat} options={getResultatOptions()} onChange={(value) => onModifierResultat(record.id, value)} />
+                )
+            }
+        }
+    ];
+
+    const excelColumnHeaders: ExcelColumnHeadersType<EleveEnrichedDto> = { // commun aux cours adultes et enfant
+        nom: "Nom",
+        prenom: "Prénom",
+        dateNaissance: "Date naissance",
+        niveauInterne: "Niveau",
+        nomResponsableLegal: "Nom resp. légal",
+        prenomResponsableLegal: "Prrenom resp. légal",
+        mobile: "Tél.",
+        nomContactUrgence: "Nom contact urgence",
+        prenomContactUrgence: "Prrenom contact urgence",
+        mobileContactUrgence: "Tél. contact urgence",
+        autorisationMedia: "Autor. photos/vidéos",
+        autorisationAutonomie: "Autor. à rentrer seul",
+    };
+
+    const exportData = () => {
+        if (elevesEnriched) {
+            exportToExcel<EleveEnrichedDto>(elevesEnriched, excelColumnHeaders, `eleves_${classe?.libelle}`);
+        }
+    };
+
+    function formatTotal(total: number) {
+        return (<Tag color="geekblue">Total : <strong>{total}</strong></Tag>);
+    }
+
+    function onEnregistrerResultat() {
+        if (elevesEnriched.length > 0) {
+            const patchesEleves: PatchEleve[] = elevesEnriched.map(eleve => ({ id: eleve.id, resultat: eleve.resultat }));
+            setApiCallDefinition({ method: "PATCH", url: ELEVES_ENDPOINT, data: { eleves: patchesEleves } });
+        }
+    }
+
+    function getInformationGeneralesContent() {
+        return (
+            <div style={{ textAlign: "center" }}>
+                <Divider orientation="left">Informations générales</Divider>
+                <Row gutter={[16, 32]}>
+                    <Col span={3}>
+                        <Form.Item label="Jour de classe">
+                            <Tag color="geekblue">{getJourClasse()}</Tag>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={[16, 32]}>
+                    <Col span={2}>
+                        <Form.Item label="Nombre d'élèves">
+                            <Tag color="geekblue">{elevesEnriched.length}</Tag>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Divider orientation="left">Effectif</Divider>
+                <Row gutter={[16, 32]}>
+                    <Col span={2}>
+                        <SwitchFormItem name="vueDetaille" value={vueDetaille} onChange={(value) => { setVueDetaille(value) }} label="Vue détaillée" />
+                    </Col>
+                    <Col span={2}>
+                        <Tooltip title="Exporter les données au format Excel" color="geekblue">
+                            <Button type="primary" icon={<FileOutlined />} onClick={exportData}>Exporter</Button>
+                        </Tooltip>
+                    </Col>
+                </Row>
+                <div style={{ width: vueDetaille ? "100%" : "50%", margin: "0 auto", textAlign: "center" }}>
+                    <Table dataSource={elevesEnriched}
+                        columns={vueDetaille ? columnTableEffectifDetaille : columnsTableEffectif}
+                        pagination={{ pageSize: 5, showTotal: formatTotal }}
+                        rowKey={record => record.id} />
+                </div>
+            </div>
+        );
+    };
+
     function getFeuillePresenceContent() {
         return (
             <div style={{ textAlign: "center" }}>
@@ -122,7 +330,7 @@ const MaClasse = () => {
                 <div style={{ width: "50%", margin: "0 auto", textAlign: "center" }}>
                     <Table dataSource={feuillesPresence}
                         columns={columnsTableFeuillesPresence}
-                        pagination={{ pageSize: 5 }}
+                        pagination={{ pageSize: 5, showTotal: formatTotal }}
                         rowKey={record => record.date?.millisecond.toString()} />
                 </div>
                 <Button type="primary" icon={<AddCircleOutline />} className="m-bottom-15 m-top-15" onClick={onCreateFeuillePresence}>Nouvelle feuille</Button>
@@ -132,12 +340,25 @@ const MaClasse = () => {
 
     function getResultatAnnuelContent() {
         return (
-            <>
-            </>
+            <div style={{ textAlign: "center" }}>
+                <h3>Résultats annuels</h3>
+                <div style={{ width: "50%", margin: "0 auto", textAlign: "center" }}>
+                    <Table dataSource={elevesEnriched}
+                        columns={columnsTableResultats}
+                        pagination={{ pageSize: 5, showTotal: formatTotal }}
+                        rowKey={record => record.id} />
+                </div>
+                <Button type="primary" icon={<CheckCircleOutlined />} className="m-bottom-15 m-top-15" onClick={onEnregistrerResultat}>Enregistrer</Button>
+            </div>
         );
     };
 
     const collapseItems: CollapseProps["items"] = [
+        {
+            key: "0",
+            label: "Informations générales",
+            children: getInformationGeneralesContent(),
+        },
         {
             key: "1",
             label: "Feuilles de présence",
@@ -163,7 +384,9 @@ const MaClasse = () => {
             <div style={{ margin: "0 20px" }}>
                 <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
                     feuilleToEdit={feuilleToEdit} />
-                <Collapse accordion defaultActiveKey={['1']} items={collapseItems} />
+                <Form form={form}>
+                    <Collapse accordion defaultActiveKey={["0"]} items={collapseItems} />
+                </Form>
             </div>
         </>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;

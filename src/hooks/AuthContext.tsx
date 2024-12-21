@@ -132,7 +132,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const tokenData = sessionStorage.getItem("tokenData");
         if (tokenData) {
             const parsedTokenData = JSON.parse(tokenData);
-            console.log("Token expiré ?", tokenExpired(parsedTokenData?.expirationTime));
             if (!tokenExpired(parsedTokenData?.expirationTime)) {
                 return parsedTokenData.accessToken;
             }

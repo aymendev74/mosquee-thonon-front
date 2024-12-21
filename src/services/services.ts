@@ -31,6 +31,7 @@ export const ROLES_ENDPOINT = "/roles";
 export const CLASSES_ENDPOINT = "/classes";
 export const EXISTING_CLASSES_ENDPOINT = "/classes/{id}";
 export const ELEVES_ENDPOINT = "/eleves";
+export const ELEVES_ENRICHED_ENDPOINT = "/eleves/enriched";
 export const FEUILLE_PRESENCE_ENDPOINT = "/classes/{id}/presences";
 export const EXISTING_FEUILLE_PRESENCE_ENDPOINT = "/presences/{id}";
 

@@ -29,8 +29,6 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-console.log(JSON.stringify(theme.defaultConfig.token));
-
 root.render(
   <BrowserRouter>
     <ConfigProvider
