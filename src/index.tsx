@@ -43,6 +43,10 @@ root.render(
             contentBg: "#f5f5f5",
             headerBg: "#001529",
           },
+          Card: {
+            headerBg: "#001529",
+            colorBgContainer: "#f5f5f5",
+          }
         }
       }}
       locale={frFR}

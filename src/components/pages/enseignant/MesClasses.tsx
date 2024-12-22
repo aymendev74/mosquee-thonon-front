@@ -39,7 +39,7 @@ const MesClasses = () => {
     const getClasseView = (classe: ClasseDtoF) => {
         return (
             <Col span={6} key={"col_" + classe.id}>
-                <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} style={{ width: 350 }} key={classe.id}>
+                <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} style={{ width: 350 }} key={classe.id} bordered={false}>
                     <p><b>Niveau: </b>{classe.niveau}</p>
                     <p><b>Nombre d'élèves: </b>{classe.liensClasseEleves?.length ?? 0}</p>
                 </Card>

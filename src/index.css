@@ -281,3 +281,22 @@ body {
 .ant-collapse-header {
   color: #ffffff !important;
 }
+
+.ant-card-head-title {
+  color: #f5f5f5 !important;
+}
+
+.ant-card {
+  border: 1px solid #001529 !important;
+}
+
+.classe-container {
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  /* Colonne gauche à 40% et droite prend l'espace restant */
+  gap: 15px;
+  /* Espacement entre les deux div */
+  width: 100%;
+  padding: 15px;
+  transition: grid-template-columns 0.3s ease;
+}

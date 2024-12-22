@@ -1,18 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { CheckCircleOutlined, EditOutlined, FileOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
-import { ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams, FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT } from '../../../services/services';
-import { Button, Col, Collapse, Divider, Form, notification, Row, Select, Switch, Table, Tag, Tooltip } from 'antd';
+import { ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams, FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT } from '../../../services/services';
+import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Splitter, Switch, Table, Tag, Tooltip } from 'antd';
 import { ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
 import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
-import { AddCircleOutline, AddOutlined } from '@mui/icons-material';
+import { AddCircleOutline } from '@mui/icons-material';
 import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
 import { useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { CollapseProps } from 'antd/lib';
-import { InputFormItem } from '../../common/InputFormItem';
 import { EleveEnrichedDto, PatchEleve, ResultatEnum } from '../../../services/eleve';
 import { SwitchFormItem } from '../../common/SwitchFormItem';
 import { getJourActiviteOptions, getResultatOptions } from '../../common/commoninputs';
@@ -27,6 +26,9 @@ const MaClasse = () => {
     const [elevesEnriched, setElevesEnriched] = useState<EleveEnrichedDto[]>([]);
     const [vueDetaille, setVueDetaille] = useState(false);
     const [form] = Form.useForm();
+    const splitterRef = useRef<HTMLDivElement | null>(null);
+    const [containerWidth, setContainerWidth] = useState(0);
+    const [infoGeneralViewSize, setInfoGeneralViewSize] = useState<number>(40);
     const { id } = useParams();
 
     function onCreateFeuillePresence() {
@@ -39,6 +41,17 @@ const MaClasse = () => {
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
         }
     }, [modalFeuillePresenceOpen]);
+
+    useEffect(() => {
+        const updateContainerWidth = () => {
+            if (splitterRef.current) {
+                setContainerWidth(splitterRef.current.offsetWidth);
+            }
+        };
+        updateContainerWidth();
+        window.addEventListener("resize", updateContainerWidth); // Responsive
+        return () => window.removeEventListener("resize", updateContainerWidth);
+    }, []);
 
     function getJourClasse() {
         if (classe?.activites) {
@@ -70,6 +83,10 @@ const MaClasse = () => {
             // on reload la classe entièrement pour raffraichir l'écran
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
         },
+        [`DELETE:${EXISTING_FEUILLE_PRESENCE_ENDPOINT}`]: (result: any) => {
+            notification.success({ message: "La feuille de temps a bien été supprimée" });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }) });
+        },
     };
 
     useEffect(() => {
@@ -98,6 +115,10 @@ const MaClasse = () => {
     function onModifierFeuille(feuillePresence: FeuillePresenceDtoF) {
         setFeuilleToEdit(feuillePresence);
         setModalFeuillePresenceOpen(true);
+    };
+
+    function onDeleteFeuille(feuillePresence: FeuillePresenceDtoF) {
+        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(EXISTING_FEUILLE_PRESENCE_ENDPOINT, { id: feuillePresence.id }) });
     };
 
     const columnsTableEffectif: ColumnsType<EleveEnrichedDto> = [
@@ -144,11 +165,6 @@ const MaClasse = () => {
             title: "Nom contact urgence",
             key: "nomContactUrgence",
             dataIndex: "nomContactUrgence",
-        },
-        {
-            title: "Prénom contact urgence",
-            key: "prenomContactUrgence",
-            dataIndex: "prenomContactUrgence",
         },
         {
             title: "Prénom contact urgence",
@@ -212,10 +228,13 @@ const MaClasse = () => {
         },
         {
             title: "",
-            key: "modifier",
+            key: "actions",
             render: (value, record, index) => {
                 return (
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierFeuille(record)} />
+                    <>
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierFeuille(record)} />
+                        <Button className="m-left-10" type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteFeuille(record)} danger />
+                    </>
                 )
             }
         },
@@ -282,6 +301,29 @@ const MaClasse = () => {
             const patchesEleves: PatchEleve[] = elevesEnriched.map(eleve => ({ id: eleve.id, resultat: eleve.resultat }));
             setApiCallDefinition({ method: "PATCH", url: ELEVES_ENDPOINT, data: { eleves: patchesEleves } });
         }
+    };
+
+    function onVueDetailleSwitch(checked: boolean) {
+        setVueDetaille(checked);
+        const classeContainerDiv = document.querySelector('.classe-container') as HTMLDivElement;
+        if (classeContainerDiv) {
+            if (checked) {
+                classeContainerDiv.style.gridTemplateColumns = '70% 1fr';
+            } else {
+                classeContainerDiv.style.gridTemplateColumns = '40% 1fr';
+            }
+        }
+    };
+
+    function getTauxReussite() {
+        const eleveSansResultat = elevesEnriched.find(eleve => !eleve.resultat);
+        if (eleveSansResultat) {
+            return <Tooltip title="Le taux de réussite est calculé lorsque les résultats de tous les élèves sont saisis">Pas disponible</Tooltip>
+        } else {
+            const eleveNiveauAcquis = elevesEnriched.filter(eleve => eleve.resultat == ResultatEnum.ACQUIS).length;
+            const eleveNiveauNonAcquis = elevesEnriched.filter(eleve => eleve.resultat == ResultatEnum.NON_ACQUIS).length;
+            return `${(eleveNiveauAcquis / (eleveNiveauAcquis + eleveNiveauNonAcquis) * 100).toFixed(2)}%`;
+        }
     }
 
     function getInformationGeneralesContent() {
@@ -289,31 +331,38 @@ const MaClasse = () => {
             <div style={{ textAlign: "center" }}>
                 <Divider orientation="left">Informations générales</Divider>
                 <Row gutter={[16, 32]}>
-                    <Col span={3}>
+                    <Col span={8}>
                         <Form.Item label="Jour de classe">
                             <Tag color="geekblue">{getJourClasse()}</Tag>
                         </Form.Item>
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
-                    <Col span={2}>
+                    <Col span={6}>
                         <Form.Item label="Nombre d'élèves">
                             <Tag color="geekblue">{elevesEnriched.length}</Tag>
                         </Form.Item>
                     </Col>
                 </Row>
+                <Row gutter={[16, 32]}>
+                    <Col span={7}>
+                        <Form.Item label="Taux de réussite">
+                            <Tag color="geekblue">{getTauxReussite()}</Tag>
+                        </Form.Item>
+                    </Col>
+                </Row>
                 <Divider orientation="left">Effectif</Divider>
                 <Row gutter={[16, 32]}>
-                    <Col span={2}>
-                        <SwitchFormItem name="vueDetaille" value={vueDetaille} onChange={(value) => { setVueDetaille(value) }} label="Vue détaillée" />
+                    <Col span={6}>
+                        <SwitchFormItem name="vueDetaille" value={vueDetaille} onChange={onVueDetailleSwitch} label="Vue détaillée" />
                     </Col>
-                    <Col span={2}>
-                        <Tooltip title="Exporter les données au format Excel" color="geekblue">
+                    <Col span={3}>
+                        <Tooltip title="Exporter la listes des élèves au format Excel" color="geekblue">
                             <Button type="primary" icon={<FileOutlined />} onClick={exportData}>Exporter</Button>
                         </Tooltip>
                     </Col>
                 </Row>
-                <div style={{ width: vueDetaille ? "100%" : "50%", margin: "0 auto", textAlign: "center" }}>
+                <div>
                     <Table dataSource={elevesEnriched}
                         columns={vueDetaille ? columnTableEffectifDetaille : columnsTableEffectif}
                         pagination={{ pageSize: 5, showTotal: formatTotal }}
@@ -355,11 +404,6 @@ const MaClasse = () => {
 
     const collapseItems: CollapseProps["items"] = [
         {
-            key: "0",
-            label: "Informations générales",
-            children: getInformationGeneralesContent(),
-        },
-        {
             key: "1",
             label: "Feuilles de présence",
             children: getFeuillePresenceContent(),
@@ -371,7 +415,6 @@ const MaClasse = () => {
         }
     ];
 
-
     return isAuthenticated ? (
         <>
             <div className="centered-content">
@@ -381,12 +424,17 @@ const MaClasse = () => {
                     </h2>
                 </div>
             </div>
-            <div style={{ margin: "0 20px" }}>
-                <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
-                    feuilleToEdit={feuilleToEdit} />
-                <Form form={form}>
-                    <Collapse accordion defaultActiveKey={["0"]} items={collapseItems} />
-                </Form>
+            <div className="classe-container">
+                <div>
+                    <Card title="Informations générales" bordered={false} style={{ width: "100%" }} size="small">
+                        {getInformationGeneralesContent()}
+                    </Card>
+                </div>
+                <div>
+                    <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
+                        feuilleToEdit={feuilleToEdit} />
+                    <Collapse accordion defaultActiveKey={["1"]} items={collapseItems} />
+                </div>
             </div>
         </>
     ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;
