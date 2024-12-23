@@ -4,7 +4,7 @@ import { FunctionComponent } from "react";
 export const Home: FunctionComponent = () => {
     return (
         <div className="carousel-container">
-            <Carousel arrows autoplay autoplaySpeed={8000} speed={1500}>
+            <Carousel arrows autoplay autoplaySpeed={8000} speed={1500} infinite>
                 <div>
                     <h3 className="carousel-element">
                         Bienvenue sur le site de l'association musulmane du chablais.<br />

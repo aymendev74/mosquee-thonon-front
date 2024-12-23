@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import { ClasseDtoB, ClasseDtoF } from '../../../services/classe';
 import { prepareClasseBeforeForm } from '../../../utils/FormUtils';
 import { useNavigate } from 'react-router-dom';
+import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 const MesClasses = () => {
     const { isAuthenticated } = useAuth();
@@ -40,6 +41,7 @@ const MesClasses = () => {
         return (
             <Col span={6} key={"col_" + classe.id}>
                 <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} style={{ width: 350 }} key={classe.id} bordered={false}>
+                    <p><b>Enseignant: </b>{classe.nomPrenomEnseignant ?? "-"}</p>
                     <p><b>Niveau: </b>{classe.niveau}</p>
                     <p><b>Nombre d'élèves: </b>{classe.liensClasseEleves?.length ?? 0}</p>
                 </Card>
@@ -110,7 +112,7 @@ const MesClasses = () => {
                 {getClassesContent()}
             </div>
         </>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;
+    ) : <UnahtorizedAccess />
 };
 
 export default MesClasses;

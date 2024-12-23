@@ -9,6 +9,7 @@ import { validatePhoneNumber } from '../../../utils/FormUtils';
 import { InputFormItem } from '../../common/InputFormItem';
 import { SelectFormItem } from '../../common/SelectFormItem';
 import { ROLE_ENSEIGNANT } from '../../../services/user';
+import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 type ModalUtilisateurProps = {
     presetRole?: string;
@@ -296,7 +297,7 @@ const Enseignants = () => {
                 <ModalUtilisateur presetRole={ROLE_ENSEIGNANT} />
             </div>
         </>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;
+    ) : <UnahtorizedAccess />
 };
 
 export default Enseignants;

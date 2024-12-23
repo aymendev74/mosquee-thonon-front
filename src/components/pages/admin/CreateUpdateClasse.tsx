@@ -3,16 +3,16 @@ import { useAuth } from '../../../hooks/AuthContext';
 import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
 import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, handleApiCall } from '../../../services/services';
-import { BackTop, Button, Card, Col, Divider, Empty, FloatButton, Form, notification, Row, Space, Tooltip } from 'antd';
+import { Button, Card, Col, Divider, Empty, FloatButton, Form, notification, Row, Tooltip } from 'antd';
 import { InputNumberFormItem } from '../../common/InputNumberFormItem';
 import { useForm } from 'antd/es/form/Form';
 import dayjs from 'dayjs';
 import { ClasseDtoB, ClasseDtoF } from '../../../services/classe';
-import { NiveauInterne, NiveauScolaire } from '../../../services/inscription';
 import { ModalClasse } from '../../modals/ModalClasse';
 import { EnseignantDto } from '../../../services/enseignant';
 import { prepareClasseBeforeForm } from '../../../utils/FormUtils';
 import { ModaleConfirmSuppression } from '../../modals/ModalConfirmSuppression';
+import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 const CreateUpdateClasse = () => {
     const { getRoles } = useAuth();
@@ -168,7 +168,7 @@ const CreateUpdateClasse = () => {
                 {getClassesContent()}
             </div>
         </>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;
+    ) : <UnahtorizedAccess />
 };
 
 export default CreateUpdateClasse;

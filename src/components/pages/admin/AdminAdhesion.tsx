@@ -1,8 +1,7 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import * as XLSX from 'xlsx';
-import { AdhesionLight, AdhesionLightForExport, AdhesionPatchDto } from "../../../services/adhesion";
+import { AdhesionLight, AdhesionPatchDto } from "../../../services/adhesion";
 import { useNavigate } from "react-router-dom";
-import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
+import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCall } from "../../../services/services";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EuroCircleOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../../services/inscription";
@@ -16,6 +15,7 @@ import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
 import { AdminSearchFilter } from "../../common/AdminSearchFilter";
 import { useAuth } from "../../../hooks/AuthContext";
+import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 
 export const AdminAdhesion: FunctionComponent = () => {
@@ -100,7 +100,7 @@ export const AdminAdhesion: FunctionComponent = () => {
         setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT, params: searchCriteria });
     }
 
-    const SearchCollapse = () => {
+    const SearchFilters = () => {
         return (
             <AdminSearchFilter doSearch={doSearch} inputFilters={[
                 { name: "prenom", libelle: "Prénom", inputType: "InputText" },
@@ -234,11 +234,11 @@ export const AdminAdhesion: FunctionComponent = () => {
                     <EuroCircleOutlined /> Administration des adhésions
                 </h2>
                 <Spin spinning={isLoading}>
-                    <div className="d-flex">
-                        <div className="filters-container">
-                            <SearchCollapse />
+                    <div className="search-result-container">
+                        <div>
+                            <SearchFilters />
                         </div>
-                        <div className="result-container">
+                        <Card title="Résultats" bordered={false}>
                             <div className="menu-action-container">
                                 <div className="label">Veuillez choisir une action à effectuer :</div>
                                 <div className="bt-action"><DropdownMenu /></div>
@@ -253,12 +253,12 @@ export const AdminAdhesion: FunctionComponent = () => {
                                         pagination={{ showTotal: formatTotal }} />
                                 </Col>
                             </Row>
-                        </div>
+                        </Card>
                     </div>
                     <ModaleConfirmSuppressionInscription open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
                         nbInscriptions={selectedAdhesions.length} onConfirm={onConfirmSuppression} />
                 </Spin>
             </Form>
         </div>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
+    ) : <UnahtorizedAccess />
 };

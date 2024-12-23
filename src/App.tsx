@@ -18,6 +18,7 @@ import Enseignants from './components/pages/admin/Enseignants';
 import CreateUpdateClasse from './components/pages/admin/CreateUpdateClasse';
 import MesClasses from './components/pages/enseignant/MesClasses';
 import MaClasse from './components/pages/enseignant/MaClasse';
+import { NotFound } from './components/pages/NotFound';
 
 const { Header, Content, Footer } = Layout;
 
@@ -87,6 +88,7 @@ function App() {
           <Route path="/changePassword" element={<ChangePassword />} />
           <Route path="/don" element={<FaireUnDon />} />
           <Route path="/parametres" element={<Parametres />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>
       <Footer>

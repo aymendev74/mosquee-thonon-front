@@ -288,15 +288,22 @@ body {
 
 .ant-card {
   border: 1px solid #001529 !important;
+  box-shadow: 0 5px 15px #001529 !important;
 }
 
 .classe-container {
   display: grid;
   grid-template-columns: 40% 1fr;
-  /* Colonne gauche à 40% et droite prend l'espace restant */
-  gap: 15px;
-  /* Espacement entre les deux div */
+  gap: 25px;
   width: 100%;
   padding: 15px;
   transition: grid-template-columns 0.3s ease;
+}
+
+.search-result-container {
+  display: grid;
+  grid-template-columns: 25% 1fr;
+  gap: 25px;
+  width: 100%;
+  padding: 20px;
 }

@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Popover, Row, Select, Spin, Tooltip, notification } from "antd";
+import { Button, Card, Col, Divider, Form, Popover, Row, Select, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { ApiCallbacks, buildUrlWithParams, handleApiCall, PERIODES_ENDPOINT, TARIFS_ADMIN_ENDPOINT, TARIFS_ADMIN_GET_ENDPOINT } from "../../../services/services";
 import useApi from "../../../hooks/useApi";
@@ -11,9 +11,12 @@ import { SelectFormItem } from "../../common/SelectFormItem";
 import { ApplicationTarif, InfoTarifDto } from "../../../services/tarif";
 import { getPeriodeOptions } from "../../common/CommonComponents";
 import { InfosTarifAdulte } from "../../admin/InfosTarifAdulte";
+import { useAuth } from "../../../hooks/AuthContext";
+import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const AdminTarifs: FunctionComponent = () => {
 
+    const { isAuthenticated } = useAuth();
     const [form] = Form.useForm();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [periodesDto, setPeriodesDto] = useState<PeriodeInfoDto[]>();
@@ -167,7 +170,7 @@ export const AdminTarifs: FunctionComponent = () => {
         setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
     }, [application]);
 
-    return (
+    return isAuthenticated ? (
         <div className="centered-content">
             <Form
                 name="basic"
@@ -202,5 +205,6 @@ export const AdminTarifs: FunctionComponent = () => {
                     <ModalPeriode open={modalPeriodeOpen} setOpen={setModalPeriodeOpen} isCreation={createPeriode} periode={periodeToEdit} application={application} />
                 </Spin>
             </Form >
-        </div>);
-}
+        </div>) : <UnahtorizedAccess />
+
+};

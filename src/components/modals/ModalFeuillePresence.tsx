@@ -43,11 +43,7 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
         } else { // création
             setApiCallDefinition({ method: "POST", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }), data: feuillePresence });
         }
-    }
-
-    const getTitre = () => {
-        return "Feuille de temps";
-    }
+    };
 
     function handleSaveSucess(result: any) {
         if (result) {
@@ -56,7 +52,7 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
             setEleves([]);
             setSelectedEleves([]);
         }
-    }
+    };
 
     const apiCallbacks: ApiCallbacks = {
         [`POST:${FEUILLE_PRESENCE_ENDPOINT}`]: handleSaveSucess,
@@ -125,7 +121,7 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
         return (<Tag color="geekblue">Total : <strong>{total} élève(s)</strong></Tag>);
     }
 
-    return (<Modal title={getTitre()} open={open} width={500} onCancel={close} footer={<></>}>
+    return (<Modal title="Feuille de présence" open={open} width={500} onCancel={close} footer={<></>}>
         <Form
             name="feuillePresence"
             autoComplete="off"

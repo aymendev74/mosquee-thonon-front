@@ -1,4 +1,4 @@
-import { Button, Collapse, Form, FormItemProps, Switch, SwitchProps, Tooltip } from "antd";
+import { Button, Card, Collapse, Form, FormItemProps, Switch, SwitchProps, Tooltip } from "antd";
 import { FunctionComponent } from "react";
 import { SelectFormItem } from "./SelectFormItem";
 import { DatePickerFormItem } from "./DatePickerFormItem";
@@ -46,8 +46,6 @@ export type AdminSearchFilterProps = {
 
 export const AdminSearchFilter: FunctionComponent<AdminSearchFilterProps> = ({ inputFilters, doSearch }) => {
 
-    const { Panel } = Collapse;
-
     const createInputFilter = (inputFilter: InputSearchFieldDef) => {
         const { name, libelle, inputType, tooltip, selectOptions } = inputFilter;
         if (tooltip) {
@@ -62,14 +60,12 @@ export const AdminSearchFilter: FunctionComponent<AdminSearchFilterProps> = ({ i
     }
 
     return (
-        <Collapse defaultActiveKey={['1']}>
-            <Panel header="Filtres de recherche" key="1">
-                {inputFilters.map(inputFilter => createInputFilter(inputFilter))}
-                <div className="centered-content">
-                    <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
-                </div>
-            </Panel>
-        </Collapse>
+        <Card title="Filtres de recherches" bordered={false}>
+            {inputFilters.map(inputFilter => createInputFilter(inputFilter))}
+            <div className="centered-content">
+                <Button icon={<SearchOutlined />} onClick={doSearch} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
+            </div>
+        </Card>
     );
 
 }

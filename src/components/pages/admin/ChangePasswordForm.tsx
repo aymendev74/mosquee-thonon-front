@@ -1,8 +1,10 @@
-import { Button, Form, Input, Spin, notification } from 'antd';
+import { Button, Card, Form, Input, Spin, notification } from 'antd';
 import { FunctionComponent, useEffect } from 'react';
 import { CHANGE_PASSWORD_ENDPOINT, ERROR_INVALID_OLD_PASSWORD } from '../../../services/services';
 import useApi from '../../../hooks/useApi';
 import { useForm } from 'antd/es/form/Form';
+import { useAuth } from '../../../hooks/AuthContext';
+import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 type FieldType = {
     newPassword?: string;
@@ -11,6 +13,7 @@ type FieldType = {
 };
 
 export const ChangePassword: FunctionComponent = () => {
+    const { isAuthenticated } = useAuth();
     const { result, errorResult, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = useForm();
 
@@ -29,7 +32,7 @@ export const ChangePassword: FunctionComponent = () => {
         resetApi();
     }, [result, errorResult]);
 
-    return (
+    return isAuthenticated ? (
         <div className="centered-content">
             <Form
                 name="changePassword"
@@ -85,5 +88,6 @@ export const ChangePassword: FunctionComponent = () => {
                 </Spin>
             </Form>
         </div>
-    );
+    ) : <UnahtorizedAccess />
+
 }

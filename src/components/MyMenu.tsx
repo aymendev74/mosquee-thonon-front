@@ -101,6 +101,11 @@ export const MyMenu: FunctionComponent = () => {
                     key: "creerModifierClasse",
                     label: "Créer ou Modifier",
                     icon: <UserOutlined />,
+                },
+                {
+                    key: "classes",
+                    icon: <TeamOutlined />,
+                    label: "Mes classes",
                 }
             ]
         }];

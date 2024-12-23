@@ -4,7 +4,7 @@ import { ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_END
 import { useLocation, useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
-import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
+import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
 import { getLibelleNiveauScolaire, getNiveauInterneAdulteOptions, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
@@ -19,6 +19,7 @@ import { getFileNameInscription } from "../../common/tableDefinition";
 import { AdminSearchFilter, InputSearchFieldDef } from "../../common/AdminSearchFilter";
 import { PdfInscriptionCoursArabeAdulte } from "../../documents/PdfInscriptionCoursArabeAdulte";
 import { useAuth } from "../../../hooks/AuthContext";
+import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -158,7 +159,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return filters;
     }
 
-    const SearchCollapse: FunctionComponent = () => {
+    const SearchFilters: FunctionComponent = () => {
         return (
             <AdminSearchFilter doSearch={doSearch} inputFilters={getSearchFilters()} />
         );
@@ -341,25 +342,27 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     <h2 className={type === "ENFANT" ? "insc-enfant-title" : "insc-adulte-title"}>
                         {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
                     </h2>
-                    <div className="d-flex">
-                        <div className="filters-container">
-                            <SearchCollapse />
+                    <div className="search-result-container">
+                        <div>
+                            <SearchFilters />
                         </div>
-                        <div className="result-container">
-                            <div className="menu-action-container">
-                                <div className="label">Veuillez choisir une action à effectuer :</div>
-                                <div className="bt-action"><DropdownMenu /></div>
-                                <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
-                                    <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
-                                </Tooltip>
-                            </div>
-                            <Row>
-                                <Col span={24}>
-                                    <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                        columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
-                                        pagination={{ showTotal: formatTotal }} />
-                                </Col>
-                            </Row>
+                        <div>
+                            <Card title="Résultats" bordered={false}>
+                                <div className="menu-action-container">
+                                    <div className="label">Veuillez choisir une action à effectuer :</div>
+                                    <div className="bt-action"><DropdownMenu /></div>
+                                    <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
+                                        <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
+                                    </Tooltip>
+                                </div>
+                                <Row>
+                                    <Col span={24}>
+                                        <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
+                                            columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
+                                            pagination={{ showTotal: formatTotal }} />
+                                    </Col>
+                                </Row>
+                            </Card>
                         </div>
                     </div>
                     <ModaleConfirmSuppressionInscription open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
@@ -367,5 +370,5 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 </Spin>
             </Form>
         </div>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
+    ) : <UnahtorizedAccess />
 };

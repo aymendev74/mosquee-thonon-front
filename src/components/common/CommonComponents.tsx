@@ -11,6 +11,7 @@ export const formatPeriodeLibelle = (periode: PeriodeInfoDto) => {
 }
 
 export const getPeriodeOptions = (periodes: PeriodeInfoDto[]) => {
+    if (!periodes) return [];
     const periodesOptions: DefaultOptionType[] = [];
     periodes.forEach(periode => periodesOptions.push({ value: periode.id, label: formatPeriodeLibelle(periode) }));
     return periodesOptions;

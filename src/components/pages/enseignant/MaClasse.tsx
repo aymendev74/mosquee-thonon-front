@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileExcelOutlined } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
 import { ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams, FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT } from '../../../services/services';
-import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Splitter, Switch, Table, Tag, Tooltip } from 'antd';
+import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Table, Tag, Tooltip } from 'antd';
 import { ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
 import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
 import { AddCircleOutline } from '@mui/icons-material';
@@ -15,6 +15,7 @@ import { CollapseProps } from 'antd/lib';
 import { EleveEnrichedDto, PatchEleve, ResultatEnum } from '../../../services/eleve';
 import { SwitchFormItem } from '../../common/SwitchFormItem';
 import { getJourActiviteOptions, getResultatOptions } from '../../common/commoninputs';
+import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 const MaClasse = () => {
     const { isAuthenticated } = useAuth();
@@ -25,10 +26,6 @@ const MaClasse = () => {
     const [feuilleToEdit, setFeuilleToEdit] = useState<FeuillePresenceDtoF | undefined>();
     const [elevesEnriched, setElevesEnriched] = useState<EleveEnrichedDto[]>([]);
     const [vueDetaille, setVueDetaille] = useState(false);
-    const [form] = Form.useForm();
-    const splitterRef = useRef<HTMLDivElement | null>(null);
-    const [containerWidth, setContainerWidth] = useState(0);
-    const [infoGeneralViewSize, setInfoGeneralViewSize] = useState<number>(40);
     const { id } = useParams();
 
     function onCreateFeuillePresence() {
@@ -41,17 +38,6 @@ const MaClasse = () => {
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
         }
     }, [modalFeuillePresenceOpen]);
-
-    useEffect(() => {
-        const updateContainerWidth = () => {
-            if (splitterRef.current) {
-                setContainerWidth(splitterRef.current.offsetWidth);
-            }
-        };
-        updateContainerWidth();
-        window.addEventListener("resize", updateContainerWidth); // Responsive
-        return () => window.removeEventListener("resize", updateContainerWidth);
-    }, []);
 
     function getJourClasse() {
         if (classe?.activites) {
@@ -330,21 +316,28 @@ const MaClasse = () => {
         return (
             <div style={{ textAlign: "center" }}>
                 <Divider orientation="left">Informations générales</Divider>
-                <Row gutter={[16, 32]}>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="Enseignant">
+                            <Tag color="geekblue">{classe?.nomPrenomEnseignant ?? "-"}</Tag>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
                     <Col span={8}>
                         <Form.Item label="Jour de classe">
                             <Tag color="geekblue">{getJourClasse()}</Tag>
                         </Form.Item>
                     </Col>
                 </Row>
-                <Row gutter={[16, 32]}>
+                <Row>
                     <Col span={6}>
                         <Form.Item label="Nombre d'élèves">
                             <Tag color="geekblue">{elevesEnriched.length}</Tag>
                         </Form.Item>
                     </Col>
                 </Row>
-                <Row gutter={[16, 32]}>
+                <Row>
                     <Col span={7}>
                         <Form.Item label="Taux de réussite">
                             <Tag color="geekblue">{getTauxReussite()}</Tag>
@@ -352,13 +345,13 @@ const MaClasse = () => {
                     </Col>
                 </Row>
                 <Divider orientation="left">Effectif</Divider>
-                <Row gutter={[16, 32]}>
+                <Row>
                     <Col span={6}>
                         <SwitchFormItem name="vueDetaille" value={vueDetaille} onChange={onVueDetailleSwitch} label="Vue détaillée" />
                     </Col>
                     <Col span={3}>
                         <Tooltip title="Exporter la listes des élèves au format Excel" color="geekblue">
-                            <Button type="primary" icon={<FileOutlined />} onClick={exportData}>Exporter</Button>
+                            <Button type="primary" icon={<FileExcelOutlined />} onClick={exportData}>Exporter</Button>
                         </Tooltip>
                     </Col>
                 </Row>
@@ -437,7 +430,7 @@ const MaClasse = () => {
                 </div>
             </div>
         </>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>;
+    ) : <UnahtorizedAccess />
 };
 
 export default MaClasse;

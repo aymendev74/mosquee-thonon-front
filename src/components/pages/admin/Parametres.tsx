@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Row, Spin, Tooltip, notification } from "antd";
+import { Button, Card, Col, Divider, Form, Row, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { PARAM_ENDPOINT } from "../../../services/services";
 import useApi from "../../../hooks/useApi";
@@ -8,9 +8,12 @@ import dayjs from "dayjs";
 import { APPLICATION_DATE_FORMAT } from "../../../utils/FormUtils";
 import { DatePickerFormItem } from "../../common/DatePickerFormItem";
 import { SettingOutlined } from "@ant-design/icons";
+import { useAuth } from "../../../hooks/AuthContext";
+import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const Parametres: FunctionComponent = () => {
 
+    const { isAuthenticated } = useAuth();
     const [form] = Form.useForm();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [inscriptionEnfantFromDateVisible, setInscriptionEnfantFromDateVisible] = useState<boolean>(false);
@@ -91,7 +94,7 @@ export const Parametres: FunctionComponent = () => {
         }
     }
 
-    return (
+    return isAuthenticated ? (
         <div className="centered-content">
             <Form
                 name="basic"
@@ -161,5 +164,5 @@ export const Parametres: FunctionComponent = () => {
                     <Button type="primary" htmlType="submit">Enregistrer</Button>
                 </Spin>
             </Form >
-        </div>);
-}
+        </div>) : <UnahtorizedAccess />
+};
