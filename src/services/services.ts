@@ -1,7 +1,7 @@
 import { HttpMethod } from "../hooks/useApi";
 
-export const AUTHENTIFICATION_ENDPOINT = "/user/auth";
-export const CHANGE_PASSWORD_ENDPOINT = "/user/password";
+export const CHANGE_PASSWORD_ENDPOINT = "/users/password";
+export const USER_ENDPOINT = "/users";
 export const NEW_INSCRIPTION_ENFANT_ENDPOINT = "/inscriptions-enfants";
 export const INSCRIPTION_ENFANT_ENDPOINT = "/inscriptions-enfants/{id}";
 export const INSCRIPTION_ENDPOINT = "/inscriptions";
@@ -25,7 +25,15 @@ export const PERIODES_VALIDATION_ENDPOINT = "/periodes/validation";
 export const PERIODES_EXISTING_VALIDATION_ENDPOINT = "/periodes/{id}/validation";
 export const PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT = "/params/reinscription-enabled";
 export const PARAM_ENDPOINT = "/params";
-
+export const ENSEIGNANT_ENDPOINT = "/enseignants";
+export const EXISTING_ENSEIGNANT_ENDPOINT = "/enseignants/{id}";
+export const ROLES_ENDPOINT = "/roles";
+export const CLASSES_ENDPOINT = "/classes";
+export const EXISTING_CLASSES_ENDPOINT = "/classes/{id}";
+export const ELEVES_ENDPOINT = "/eleves";
+export const ELEVES_ENRICHED_ENDPOINT = "/eleves/enriched";
+export const FEUILLE_PRESENCE_ENDPOINT = "/classes/{id}/presences";
+export const EXISTING_FEUILLE_PRESENCE_ENDPOINT = "/presences/{id}";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

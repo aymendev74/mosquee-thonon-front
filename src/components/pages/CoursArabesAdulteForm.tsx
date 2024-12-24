@@ -136,16 +136,18 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
 
     const getFormContent = () => {
         return inscriptionSuccess ? (
-            <Result
-                status="success"
-                title="Inscription enregistrée"
-                subTitle={(<div className="result-message">Votre inscription a bien été enregistrée. Vous serez recontacté rapidement.</div>)}
-                extra={[
-                    <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
-                        Nouvelle inscription
-                    </Button>]}
-            />) :
-            (
+            <div className="centered-content">
+                <Result
+                    status="success"
+                    title="Inscription enregistrée"
+                    subTitle={(<div className="result-message">Votre inscription a bien été enregistrée. Vous serez recontacté rapidement.</div>)}
+                    extra={[
+                        <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
+                            Nouvelle inscription
+                        </Button>]}
+                />
+            </div>) :
+            (<div className="centered-content">
                 <Form
                     name="adhesion"
                     onFinish={onFinish}
@@ -273,6 +275,7 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                         </div>
                     </Spin>
                 </Form >
+            </div>
             );
     }
 

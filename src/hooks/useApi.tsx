@@ -28,14 +28,17 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
     const { getLoggedUser, getAccessToken } = useAuth();
 
     const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<APiCallResult> => {
+        console.log("exec appel API", JSON.stringify(apiCallDefinition));
         return axios.request({
             ...apiCallDefinition,
             paramsSerializer: {
                 indexes: null
             }
         }).then(response => {
+            console.log("response", response);
             return { responseData: response.data, status: response.status };
         }).catch(function (error) {
+            console.log("error", error);
             // Si pas de code d'erreur spécifique renvoyé par le back, alors on affiche un message d'erreur standard (problème technique)
             // Sinon on ne fait rien d'autre que levé l'erreur pour que ce soit géré par l'appelant (message spécifique à afficher à l'utilisateur)
             notification.open({ message: "Une erreur est survenue", type: "error" });

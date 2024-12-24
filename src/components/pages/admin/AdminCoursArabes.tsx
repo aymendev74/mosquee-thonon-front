@@ -4,12 +4,11 @@ import { ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_END
 import { useLocation, useNavigate } from "react-router-dom";
 import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
-import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
+import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined } from "@ant-design/icons";
-import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
-import * as XLSX from 'xlsx';
+import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
 import { getLibelleNiveauScolaire, getNiveauInterneAdulteOptions, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
+import exportToExcel, { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, ExcelColumnHeadersType } from "../../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import { PeriodeInfoDto } from "../../../services/periode";
 import { getPeriodeOptions } from "../../common/CommonComponents";
@@ -20,6 +19,7 @@ import { getFileNameInscription } from "../../common/tableDefinition";
 import { AdminSearchFilter, InputSearchFieldDef } from "../../common/AdminSearchFilter";
 import { PdfInscriptionCoursArabeAdulte } from "../../documents/PdfInscriptionCoursArabeAdulte";
 import { useAuth } from "../../../hooks/AuthContext";
+import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -27,7 +27,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const application = location.state?.application; // ADULTE ou ENFANT
     const type = application === "COURS_ADULTE" ? "ADULTE" : "ENFANT";
     const [dataSource, setDataSource] = useState<InscriptionLight[]>();
-    const { getLoggedUser } = useAuth();
+    const { getRoles } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = Form.useForm();
@@ -44,65 +44,35 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const SUPPRIMER_MENU_KEY = "4";
     const icon = type === "ENFANT" ? <TeamOutlined /> : <UserOutlined />;
 
-    type ColumnHeadersType = Partial<Record<keyof InscriptionLight, string>>;
+    let excelColumnHeaders: ExcelColumnHeadersType<InscriptionLight> = { // commun aux cours adultes et enfant
+        nom: "Nom élève",
+        prenom: "Prénom élève",
+        dateNaissance: "Date naissance",
+        niveauInterne: "Niveau interne",
+        mobile: "Tél.",
+        email: "E-mail",
+        ville: "Ville",
+        noInscription: "Numéro inscription",
+        dateInscription: "Date d'inscription",
+    };
 
-    const prepareForExport = (dataSource: any) => {
-        // Mapping des champs de l'objet aux noms des colonnes du fichier excel
-        let columnHeaders: ColumnHeadersType = { // commun aux cours adultes et enfant
-            nom: "Nom élève",
-            prenom: "Prénom élève",
-            dateNaissance: "Date naissance",
-            niveauInterne: "Niveau interne",
-            mobile: "Tél.",
-            email: "E-mail",
-            ville: "Ville",
-            noInscription: "Numéro inscription",
-            dateInscription: "Date d'inscription",
-        };
-
-        if (application === "COURS_ENFANT") { // données spécifiques aux enfants
-            columnHeaders = {
-                ...columnHeaders,
-                niveau: "Niveau publique",
-                nomResponsableLegal: "Nom responsable légal",
-                prenomResponsableLegal: "Prénom responsable légal",
-                nomContactUrgence: "Nom autre contact",
-                prenomContactUrgence: "Prénom autre contact",
-                mobileContactUrgence: "Tél. autre contact",
-                autorisationAutonomie: "Autorisation à rentrer seul",
-                autorisationMedia: "Autorisation photos/vidéos",
-            }
+    if (application === "COURS_ENFANT") { // données spécifiques aux enfants
+        excelColumnHeaders = {
+            ...excelColumnHeaders,
+            niveau: "Niveau publique",
+            nomResponsableLegal: "Nom responsable légal",
+            prenomResponsableLegal: "Prénom responsable légal",
+            nomContactUrgence: "Nom autre contact",
+            prenomContactUrgence: "Prénom autre contact",
+            mobileContactUrgence: "Tél. autre contact",
+            autorisationAutonomie: "Autorisation à rentrer seul",
+            autorisationMedia: "Autorisation photos/vidéos",
         }
-
-        const transformValue = (key: keyof InscriptionLight, value: any): string => {
-            if (typeof value === 'boolean') {
-                return value ? 'OUI' : 'NON';
-            }
-            return value;
-        };
-
-        return dataSource.map((row: any) => {
-            const formattedRow: { [key: string]: string } = {};
-            for (const key in columnHeaders) {
-                const typedKey = key as keyof InscriptionLight;
-                formattedRow[columnHeaders[typedKey] as string] = transformValue(typedKey, row[typedKey]);
-            }
-            return formattedRow;
-        });
-    }
+    };
 
     const exportData = () => {
         if (dataSource) {
-            const formattedData = prepareForExport(dataSource);
-
-            const ws = XLSX.utils.json_to_sheet(formattedData);
-
-            // Crée un classeur
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Inscriptions');
-
-            // Sauvegarde le fichier Excel
-            XLSX.writeFile(wb, 'inscriptions.xlsx');
+            exportToExcel<InscriptionLight>(dataSource, excelColumnHeaders, `inscriptions-${type}`);
         }
     }
 
@@ -125,8 +95,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
                 navigate(path, { state: { isReadOnly: readOnly, id: selectedInscriptions[0].idInscription, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                const patchInscription: InscriptionPatchDto = { ids: getSelectedInscriptionDistinctIds(), statut: StatutInscription.VALIDEE };
-                setApiCallDefinition({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: patchInscription });
+                const inscriptionsPatch: InscriptionPatchDto[] = getSelectedInscriptionDistinctIds().map(id => ({ id, statut: StatutInscription.VALIDEE }));
+                setApiCallDefinition({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: inscriptionsPatch } });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -189,7 +159,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return filters;
     }
 
-    const SearchCollapse: FunctionComponent = () => {
+    const SearchFilters: FunctionComponent = () => {
         return (
             <AdminSearchFilter doSearch={doSearch} inputFilters={getSearchFilters()} />
         );
@@ -358,43 +328,47 @@ export const AdminCoursArabes: FunctionComponent = () => {
         }
     }
 
-    return getLoggedUser() ? (
-        <Form
-            name="adminCours"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            autoComplete="off"
-            className="container-full-width"
-            form={form}
-        >
-            <Spin spinning={isLoading}>
-                <h2 className={type === "ENFANT" ? "insc-enfant-title" : "insc-adulte-title"}>
-                    {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
-                </h2>
-                <div className="d-flex">
-                    <div className="filters-container">
-                        <SearchCollapse />
-                    </div>
-                    <div className="result-container">
-                        <div className="menu-action-container">
-                            <div className="label">Veuillez choisir une action à effectuer :</div>
-                            <div className="bt-action"><DropdownMenu /></div>
-                            <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
-                                <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
-                            </Tooltip>
+    return getRoles()?.includes("ROLE_ADMIN") ? (
+        <div className="centered-content">
+            <Form
+                name="adminCours"
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                autoComplete="off"
+                className="container-full-width"
+                form={form}
+            >
+                <Spin spinning={isLoading}>
+                    <h2 className={type === "ENFANT" ? "insc-enfant-title" : "insc-adulte-title"}>
+                        {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
+                    </h2>
+                    <div className="search-result-container">
+                        <div>
+                            <SearchFilters />
                         </div>
-                        <Row>
-                            <Col span={24}>
-                                <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                    columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
-                                    pagination={{ showTotal: formatTotal }} />
-                            </Col>
-                        </Row>
+                        <div>
+                            <Card title="Résultats" bordered={false}>
+                                <div className="menu-action-container">
+                                    <div className="label">Veuillez choisir une action à effectuer :</div>
+                                    <div className="bt-action"><DropdownMenu /></div>
+                                    <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
+                                        <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
+                                    </Tooltip>
+                                </div>
+                                <Row>
+                                    <Col span={24}>
+                                        <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
+                                            columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
+                                            pagination={{ showTotal: formatTotal }} />
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </div>
                     </div>
-                </div>
-                <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
-                    nbInscriptions={getSelectedInscriptionDistinctIds().length} onConfirm={onConfirmSuppression} />
-            </Spin>
-        </Form>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
+                    <ModaleConfirmSuppressionInscription open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
+                        nbInscriptions={getSelectedInscriptionDistinctIds().length} onConfirm={onConfirmSuppression} />
+                </Spin>
+            </Form>
+        </div>
+    ) : <UnahtorizedAccess />
 };

@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
-import { ResponsableLegal } from "../services/ResponsableLegal";
-import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfant, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
+import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
 import { EleveBack, EleveFront } from "../services/eleve";
+import { ClasseDtoB, FeuillePresenceDtoB, FeuillePresenceDtoF } from "../services/classe";
+import * as XLSX from 'xlsx';
 
 export function convertOuiNonToBoolean(value: string) {
     return value === "OUI" ? true : false;
@@ -50,7 +51,7 @@ export const validateMontantMinAdhesion = (_: any, value: number) => {
     return Promise.resolve();
 };
 
-function prepareEleveBeforeSave(eleves: EleveFront[]) {
+export function prepareEleveBeforeSave(eleves: EleveFront[]) {
     return eleves.map(eleve => {
         const eleveToSave: EleveBack = {
             ...eleve,
@@ -60,7 +61,7 @@ function prepareEleveBeforeSave(eleves: EleveFront[]) {
     })
 };
 
-function prepareEleveBeforeForm(eleves: EleveBack[]) {
+export function prepareEleveBeforeForm(eleves: EleveBack[]) {
     return eleves.map(eleve => {
         const eleveToSave: EleveFront = {
             ...eleve,
@@ -112,6 +113,25 @@ export function prepareInscriptionAdulteBeforeSave(inscription: InscriptionAdult
     return inscriptionToSave;
 }
 
+export function prepareClasseBeforeForm(classe: ClasseDtoB) {
+    const lienClassesF = classe.liensClasseEleves?.map(
+        lien => ({ ...lien, eleve: prepareEleveBeforeForm([lien.eleve])[0] })
+    );
+    return {
+        ...classe,
+        liensClasseEleves: lienClassesF
+    }
+}
+
+export function prepareFeuillePresenceBeforeForm(feuille: FeuillePresenceDtoB) {
+    const feuillePresenceDtoF: FeuillePresenceDtoF = {
+        ...feuille,
+        date: dayjs(feuille.date, APPLICATION_DATE_FORMAT)
+    }
+    return feuillePresenceDtoF;
+}
+
+
 export const getConsentementInscriptionCoursLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours." +
     " Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com." +
     " Vous vous engagez également à respecter le règlement intérieur de l'école, disponible sur demande auprès des membres de l'association et également affiché dans les locaux.";
@@ -125,6 +145,51 @@ export const isInscriptionFerme = (inscriptionEnabledFromDate?: string) => {
     }
     return dayjs(inscriptionEnabledFromDate, APPLICATION_DATE_FORMAT).isAfter(dayjs());
 }
+
+export type ExcelColumnHeadersType<T> = Partial<Record<keyof T, string>>;
+
+function exportToExcel<T>(
+    data: T[],
+    columnHeaders: ExcelColumnHeadersType<T>,
+    fileName: string
+): void {
+    if (!data || data.length === 0) {
+        console.warn("No data provided for export.");
+        return;
+    }
+
+    const transformValue = (value: any): string => {
+        if (typeof value === "boolean") {
+            return value ? "OUI" : "NON";
+        }
+        return value?.toString() ?? "";
+    };
+
+    // Préparer les données en fonction des `columnHeaders`
+    const preparedData = data.map((row) => {
+        const formattedRow: { [key: string]: string } = {};
+        for (const key in columnHeaders) {
+            const typedKey = key as keyof T;
+            const columnHeader = columnHeaders[typedKey];
+            if (columnHeader) {
+                formattedRow[columnHeader] = transformValue(row[typedKey]);
+            }
+        }
+        return formattedRow;
+    });
+
+    // Crée une feuille de calcul
+    const ws = XLSX.utils.json_to_sheet(preparedData);
+
+    // Crée un classeur et ajoute la feuille
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Export");
+
+    // Sauvegarde le fichier Excel
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+}
+
+export default exportToExcel;
 
 export const APPLICATION_DATE_FORMAT: string = "DD.MM.YYYY";
 export const APPLICATION_DATE_TIME_FORMAT: string = "DD.MM.YYYY HH:mm:ss.SSS";

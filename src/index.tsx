@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, theme } from 'antd';
 //import { AuthProvider } from './hooks/UseAuth';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
@@ -35,9 +35,19 @@ root.render(
       theme={{
         token: {
           borderRadius: 15,
-
           fontFamily: 'Roboto, sans-serif',
         },
+        components: {
+          Collapse: {
+            borderRadiusLG: 20,
+            contentBg: "#f5f5f5",
+            headerBg: "#001529",
+          },
+          Card: {
+            headerBg: "#001529",
+            colorBgContainer: "#f5f5f5",
+          }
+        }
       }}
       locale={frFR}
     >

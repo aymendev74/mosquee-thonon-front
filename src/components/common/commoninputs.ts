@@ -1,5 +1,7 @@
 import { DefaultOptionType } from "antd/es/select"
 import { NiveauInterne, NiveauScolaire, StatutInscription, StatutProfessionel } from "../../services/inscription"
+import { JourActiviteEnum } from "../../services/classe";
+import { ResultatEnum } from "../../services/eleve";
 
 export const getNiveauOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauScolaire.CP, label: "CP" }, { value: NiveauScolaire.CE1, label: "CE1" }, { value: NiveauScolaire.CE2, label: "CE2" },
@@ -66,3 +68,18 @@ export const getLibelleNiveauScolaire = (niveau: NiveauScolaire) => {
         return "Inconnu";
     }
 };
+
+export function getJourActiviteOptions(): DefaultOptionType[] {
+    return [
+        { value: JourActiviteEnum.SAMEDI_MATIN, label: "Samedi matin" },
+        { value: JourActiviteEnum.DIMANCHE_MATIN, label: "Dimanche matin" },
+        { value: JourActiviteEnum.DIMANCHE_APRES_MIDI, label: "Dimanche après-midi" },
+    ];
+};
+
+export function getResultatOptions(): DefaultOptionType[] {
+    return [
+        { value: ResultatEnum.ACQUIS, label: "Acquis" },
+        { value: ResultatEnum.NON_ACQUIS, label: "Non acquis" },
+    ];
+}

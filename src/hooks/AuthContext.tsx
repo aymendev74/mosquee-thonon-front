@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 type AuthContextType = {
     isAuthenticated: boolean;
     getLoggedUser: () => string;
+    getRoles: () => string[];
     login: () => Promise<void>;
     logout: () => void;
     getAccessToken: () => string | null;
@@ -60,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     function tokenExpired(expirationTime: any) {
-        return new Date().getTime() >= expirationTime * 1000;
+        return new Date().getTime() >= expirationTime;
     }
 
     const login = useCallback(async function () {
@@ -107,7 +108,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const tokenData = {
             accessToken: response.data.access_token,
             user: decoded.sub!,
-            expirationTime: decoded.exp! * 1000 // après le decode de jwtDecode, l'expiration est en secondes
+            expirationTime: decoded.exp! * 1000, // après le decode de jwtDecode, l'expiration est en secondes
+            roles: decoded.roles
         }
         sessionStorage.setItem("tokenData", JSON.stringify(tokenData));
         setIsAuthenticated(true);
@@ -119,9 +121,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const state = params.get("state");
         if (code) {
             exchangeCodeForToken(code);
-        }
-        if (state) {
+        } else if (state) {
             window.location.replace(state);
+        } else if (getLoggedUser() != null) {
+            setIsAuthenticated(true);
         }
     }, []);
 
@@ -151,8 +154,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return tokenData ? JSON.parse(tokenData).user : null;
     }, []);
 
+    const getRoles = useCallback(() => {
+        const tokenData = sessionStorage.getItem("tokenData");
+        return tokenData ? JSON.parse(tokenData).roles : null;
+    }, []);
+
     return (
-        <AuthContext.Provider value={{ getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, isAuthenticated }}>
+        <AuthContext.Provider value={{ getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, getRoles, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );

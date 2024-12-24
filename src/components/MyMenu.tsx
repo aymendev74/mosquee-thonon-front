@@ -1,12 +1,12 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { DollarCircleOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { DollarCircleOutlined, EditOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
 
 export const MyMenu: FunctionComponent = () => {
     const navigate = useNavigate();
-    const { getLoggedUser } = useAuth();
+    const { getRoles } = useAuth();
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
             navigate("/");
@@ -86,12 +86,49 @@ export const MyMenu: FunctionComponent = () => {
             key: "parametres",
             icon: <SettingOutlined />,
             label: "Paramètres",
+        },
+        {
+            key: "enseignants",
+            icon: <EditOutlined />,
+            label: "Enseignants",
+        },
+        {
+            key: "classeMenu",
+            icon: <UserOutlined />,
+            label: "Classes",
+            children: [
+                {
+                    key: "creerModifierClasse",
+                    label: "Créer ou Modifier",
+                    icon: <UserOutlined />,
+                },
+                {
+                    key: "classes",
+                    icon: <TeamOutlined />,
+                    label: "Mes classes",
+                }
+            ]
         }];
         return menuItems;
     };
 
+    function getEnseignantMenuItems() {
+        const menuItems: MenuProps["items"] = [{
+            key: "classes",
+            icon: <TeamOutlined />,
+            label: "Mes classes",
+        }];
+        return menuItems;
+    }
+
     const getMenuItems = () => {
-        return getLoggedUser() ? getAdminMenuItems() : getPublicMenuItems();
+        if (getRoles()?.includes("ROLE_ADMIN")) {
+            return getAdminMenuItems();
+        } else if (getRoles()?.includes("ROLE_ENSEIGNANT")) {
+            return getEnseignantMenuItems();
+        } else {
+            return getPublicMenuItems();
+        }
     }
 
 

@@ -30,3 +30,8 @@ export type AdhesionLight = {
 }
 
 export type AdhesionLightForExport = Omit<AdhesionLight, "id">;
+
+export type AdhesionPatchDto = {
+    id: number;
+    statut?: StatutInscription
+}

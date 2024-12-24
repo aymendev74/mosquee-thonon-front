@@ -1,8 +1,10 @@
-import { Button, Form, Input, Spin, notification } from 'antd';
+import { Button, Card, Form, Input, Spin, notification } from 'antd';
 import { FunctionComponent, useEffect } from 'react';
 import { CHANGE_PASSWORD_ENDPOINT, ERROR_INVALID_OLD_PASSWORD } from '../../../services/services';
 import useApi from '../../../hooks/useApi';
 import { useForm } from 'antd/es/form/Form';
+import { useAuth } from '../../../hooks/AuthContext';
+import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 type FieldType = {
     newPassword?: string;
@@ -11,6 +13,7 @@ type FieldType = {
 };
 
 export const ChangePassword: FunctionComponent = () => {
+    const { isAuthenticated } = useAuth();
     const { result, errorResult, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = useForm();
 
@@ -29,59 +32,62 @@ export const ChangePassword: FunctionComponent = () => {
         resetApi();
     }, [result, errorResult]);
 
-    return (
-        <Form
-            name="changePassword"
-            labelCol={{ span: 14 }}
-            wrapperCol={{ span: 10 }}
-            style={{ maxWidth: 600 }}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            autoComplete="off"
-            form={form}
-            className="container-full-width"
-        >
-            <Spin spinning={isLoading}>
-                <Form.Item<FieldType>
-                    label="Mot de passe actuel"
-                    name="oldPassword"
-                    rules={[{ required: true, message: "Veuillez saisir votre mot de passe actuel" }]}
-                >
-                    <Input.Password />
-                </Form.Item>
+    return isAuthenticated ? (
+        <div className="centered-content">
+            <Form
+                name="changePassword"
+                labelCol={{ span: 14 }}
+                wrapperCol={{ span: 10 }}
+                style={{ maxWidth: 600 }}
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+                autoComplete="off"
+                form={form}
+                className="container-full-width"
+            >
+                <Spin spinning={isLoading}>
+                    <Form.Item<FieldType>
+                        label="Mot de passe actuel"
+                        name="oldPassword"
+                        rules={[{ required: true, message: "Veuillez saisir votre mot de passe actuel" }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
-                <Form.Item<FieldType>
-                    label="Nouveau mot de passe"
-                    name="newPassword"
-                    rules={[{ required: true, message: "Veuillez saisir votre nouveau mot de passe" }]}
-                >
-                    <Input.Password />
-                </Form.Item>
+                    <Form.Item<FieldType>
+                        label="Nouveau mot de passe"
+                        name="newPassword"
+                        rules={[{ required: true, message: "Veuillez saisir votre nouveau mot de passe" }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
-                <Form.Item<FieldType>
-                    label="Confirmer nouveau mot de passe"
-                    name="confirmedNewPassword"
-                    dependencies={["newPassword"]}
-                    rules={[{ required: true, message: "Veuillez confirmer votre nouveau mot de passe" }
-                        , ({ getFieldValue }) => ({
-                            validator(_, value) {
-                                if (!value || getFieldValue('newPassword') === value) {
-                                    return Promise.resolve();
-                                }
-                                return Promise.reject(new Error("Le nouveau mot de passe ne correspond pas"));
-                            },
-                            validateTrigger: "onSubmit"
-                        }),]}
-                >
-                    <Input.Password />
-                </Form.Item>
+                    <Form.Item<FieldType>
+                        label="Confirmer nouveau mot de passe"
+                        name="confirmedNewPassword"
+                        dependencies={["newPassword"]}
+                        rules={[{ required: true, message: "Veuillez confirmer votre nouveau mot de passe" }
+                            , ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('newPassword') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error("Le nouveau mot de passe ne correspond pas"));
+                                },
+                                validateTrigger: "onSubmit"
+                            }),]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
-                <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
-                    <Button type="primary" htmlType="submit">
-                        Connexion
-                    </Button>
-                </Form.Item>
-            </Spin>
-        </Form>
-    );
+                    <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
+                        <Button type="primary" htmlType="submit">
+                            Connexion
+                        </Button>
+                    </Form.Item>
+                </Spin>
+            </Form>
+        </div>
+    ) : <UnahtorizedAccess />
+
 }

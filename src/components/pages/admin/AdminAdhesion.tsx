@@ -1,27 +1,27 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import * as XLSX from 'xlsx';
-import { AdhesionLight, AdhesionLightForExport } from "../../../services/adhesion";
+import { AdhesionLight, AdhesionPatchDto } from "../../../services/adhesion";
 import { useNavigate } from "react-router-dom";
-import { Button, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
+import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
 import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCall } from "../../../services/services";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EuroCircleOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../../services/inscription";
 import { getFileNameAdhesion } from "../../common/tableDefinition";
-import { ModaleConfirmSuppression } from "../../modals/ModalConfirmSuppression";
+import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
 import useApi from "../../../hooks/useApi";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
+import exportToExcel, { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, ExcelColumnHeadersType } from "../../../utils/FormUtils";
 import { PdfAdhesion } from "../../documents/PdfAdhesion";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
 import { AdminSearchFilter } from "../../common/AdminSearchFilter";
 import { useAuth } from "../../../hooks/AuthContext";
+import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 
 export const AdminAdhesion: FunctionComponent = () => {
 
     const [dataSource, setDataSource] = useState<AdhesionLight[]>();
-    const { getLoggedUser } = useAuth();
+    const { getRoles } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const { Panel } = Collapse;
@@ -35,28 +35,18 @@ export const AdminAdhesion: FunctionComponent = () => {
     const VALIDER_MENU_KEY = "3";
     const SUPPRIMER_MENU_KEY = "4";
 
-    const prepareForExport = (dataSource: AdhesionLight) => {
-        const { id, ...rest } = dataSource;
-        return rest as AdhesionLightForExport;
-    }
+    const excelColumnHeaders: ExcelColumnHeadersType<AdhesionLight> = { // commun aux cours adultes et enfant
+        nom: "Nom",
+        prenom: "Prénom",
+        ville: "Ville",
+        montant: "Montant",
+        statut: "Statut",
+        dateInscription: "Date adhésion",
+    };
 
     const exportData = () => {
-        // Crée une feuille de calcul
         if (dataSource) {
-            const inscriptionForExports: AdhesionLightForExport[] = [];
-            // On ne garde que les champs intéressants pour l'export excel
-            dataSource.forEach(adhesion => {
-                inscriptionForExports.push(prepareForExport(adhesion));
-            });
-
-            const ws = XLSX.utils.json_to_sheet(inscriptionForExports);
-
-            // Crée un classeur
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Adhésions');
-
-            // Sauvegarde le fichier Excel
-            XLSX.writeFile(wb, 'adhesions.xlsx');
+            exportToExcel<AdhesionLight>(dataSource, excelColumnHeaders, `adhesion.xlsx`);
         }
     }
 
@@ -74,7 +64,8 @@ export const AdminAdhesion: FunctionComponent = () => {
                 }
                 navigate("/adhesion", { state: { isReadOnly: readOnly, id: selectedAdhesions[0].id, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                setApiCallDefinition({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { ids: selectedAdhesions.map(adhesion => adhesion.id), statut: StatutInscription.VALIDEE } });
+                const adhesionsPatches: AdhesionPatchDto[] = selectedAdhesions.map(adhesion => ({ id: adhesion.id, statut: StatutInscription.VALIDEE }));
+                setApiCallDefinition({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: adhesionsPatches } });
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -109,7 +100,7 @@ export const AdminAdhesion: FunctionComponent = () => {
         setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT, params: searchCriteria });
     }
 
-    const SearchCollapse = () => {
+    const SearchFilters = () => {
         return (
             <AdminSearchFilter doSearch={doSearch} inputFilters={[
                 { name: "prenom", libelle: "Prénom", inputType: "InputText" },
@@ -229,43 +220,45 @@ export const AdminAdhesion: FunctionComponent = () => {
         }
     }
 
-    return getLoggedUser() ? (
-        <Form
-            name="adminAdhesion"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            autoComplete="off"
-            className="container-full-width"
-            form={form}
-        >
-            <h2 className="adhesion-title">
-                <EuroCircleOutlined /> Administration des adhésions
-            </h2>
-            <Spin spinning={isLoading}>
-                <div className="d-flex">
-                    <div className="filters-container">
-                        <SearchCollapse />
-                    </div>
-                    <div className="result-container">
-                        <div className="menu-action-container">
-                            <div className="label">Veuillez choisir une action à effectuer :</div>
-                            <div className="bt-action"><DropdownMenu /></div>
-                            <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
-                                <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
-                            </Tooltip>
+    return getRoles()?.includes("ROLE_ADMIN") ? (
+        <div className="centered-content">
+            <Form
+                name="adminAdhesion"
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                autoComplete="off"
+                className="container-full-width"
+                form={form}
+            >
+                <h2 className="adhesion-title">
+                    <EuroCircleOutlined /> Administration des adhésions
+                </h2>
+                <Spin spinning={isLoading}>
+                    <div className="search-result-container">
+                        <div>
+                            <SearchFilters />
                         </div>
-                        <Row>
-                            <Col span={24}>
-                                <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedAdhesions.map(adhesion => adhesion.id), ...rowSelection }}
-                                    columns={columnsTableAdhesions} dataSource={dataSource} rowKey={record => record.id}
-                                    pagination={{ showTotal: formatTotal }} />
-                            </Col>
-                        </Row>
+                        <Card title="Résultats" bordered={false}>
+                            <div className="menu-action-container">
+                                <div className="label">Veuillez choisir une action à effectuer :</div>
+                                <div className="bt-action"><DropdownMenu /></div>
+                                <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
+                                    <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
+                                </Tooltip>
+                            </div>
+                            <Row>
+                                <Col span={24}>
+                                    <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedAdhesions.map(adhesion => adhesion.id), ...rowSelection }}
+                                        columns={columnsTableAdhesions} dataSource={dataSource} rowKey={record => record.id}
+                                        pagination={{ showTotal: formatTotal }} />
+                                </Col>
+                            </Row>
+                        </Card>
                     </div>
-                </div>
-                <ModaleConfirmSuppression open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
-                    nbInscriptions={selectedAdhesions.length} onConfirm={onConfirmSuppression} />
-            </Spin>
-        </Form>
-    ) : <div className="centered-content">Vous n'êtes pas autorisé à accéder à ce contenu. Veuillez vous connecter.</div>
+                    <ModaleConfirmSuppressionInscription open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
+                        nbInscriptions={selectedAdhesions.length} onConfirm={onConfirmSuppression} />
+                </Spin>
+            </Form>
+        </div>
+    ) : <UnahtorizedAccess />
 };
