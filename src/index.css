@@ -72,6 +72,15 @@ body {
   text-align: center;
 }
 
+.logo-carousel {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto;
+  text-align: center;
+  background-image: url('/public/images/logo_mosquee_thonon.png');
+  background-size: cover;
+}
+
 /* Pour les écrans de taille moyenne (par exemple, tablettes), le conteneur utilise 70% */
 @media screen and (max-width: 900px) {
   .container-form {
@@ -97,6 +106,15 @@ body {
 
   .hidden-xs {
     display: none;
+  }
+
+  .logo-carousel {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+    text-align: center;
+    background-image: url('/public/images/logo_mosquee_thonon.png');
+    background-size: cover;
   }
 }
 
