@@ -9,7 +9,7 @@ export const Home: FunctionComponent = () => {
                     <h3 className="carousel-element">
                         Bienvenue sur le site de l'association musulmane du chablais.<br />
                         Vous pouvez vous inscrire ou inscrire vos enfants aux cours dispensés par l'association en remplissant le formulaire.<br />
-                        Vous pouvez également devenir en adhérent en remplissant le formulaire prévu à cet effet.
+                        Vous pouvez également devenir adhérent en remplissant le formulaire prévu à cet effet.
                     </h3>
                     <div className="logo-carousel hidden-xs" />
                 </div>
