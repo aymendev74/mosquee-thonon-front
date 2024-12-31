@@ -12,9 +12,10 @@ type InputFilterProps = {
     libelle: string,
     inputType: "Select" | "SelectTags" | "Date" | "InputText" | "InputNumber",
     selectOptions?: DefaultOptionType[],
+    doSearch?: () => void,
 }
 
-const InputFilter: FunctionComponent<InputFilterProps> = ({ name, libelle, inputType, selectOptions, ...rest }) => {
+const InputFilter: FunctionComponent<InputFilterProps> = ({ name, libelle, inputType, selectOptions, doSearch, ...rest }) => {
 
     const createInput = () => {
         switch (inputType) {
@@ -23,11 +24,11 @@ const InputFilter: FunctionComponent<InputFilterProps> = ({ name, libelle, input
             case "SelectTags":
                 return (<SelectFormItem name={name} label={libelle} placeholder={libelle} options={selectOptions} key={name} mode="tags" allowClear {...rest} />);
             case "Date":
-                return (<DatePickerFormItem name={name} label={libelle} placeholder={libelle} key={name} {...rest} />);
+                return (<DatePickerFormItem onChange={doSearch} name={name} label={libelle} placeholder={libelle} key={name} {...rest} />);
             case "InputText":
-                return (<InputFormItem name={name} label={libelle} placeholder={libelle} key={name} {...rest} />);
+                return (<InputFormItem onPressEnter={doSearch} name={name} label={libelle} placeholder={libelle} key={name} {...rest} />);
             case "InputNumber":
-                return (<InputNumberFormItem name={name} label={libelle} key={name} {...rest} />);
+                return (<InputNumberFormItem onPressEnter={doSearch} name={name} label={libelle} key={name} {...rest} />);
             default: return (<></>);
         }
     }
@@ -51,11 +52,11 @@ export const AdminSearchFilter: FunctionComponent<AdminSearchFilterProps> = ({ i
         if (tooltip) {
             return (
                 <Tooltip title={tooltip} color="geekblue" key={name} >
-                    <InputFilter key={name + inputType} name={name} libelle={libelle} inputType={inputType} selectOptions={selectOptions} />
+                    <InputFilter doSearch={doSearch} key={name + inputType} name={name} libelle={libelle} inputType={inputType} selectOptions={selectOptions} />
                 </Tooltip>
             );
         } else {
-            return (<InputFilter key={name + inputType} name={name} libelle={libelle} inputType={inputType} selectOptions={selectOptions} />);
+            return (<InputFilter doSearch={doSearch} key={name + inputType} name={name} libelle={libelle} inputType={inputType} selectOptions={selectOptions} />);
         }
     }
 

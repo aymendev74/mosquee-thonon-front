@@ -1,4 +1,4 @@
-import { Button, Col, Collapse, FormInstance, Row, notification } from "antd";
+import { Button, Col, Collapse, FormInstance, Row, Tag, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { EleveFront } from "../../services/eleve";
 import { getLibelleNiveauScolaire, getNiveauInterneEnfantOptions, getNiveauOptions } from "../common/commoninputs";
@@ -29,6 +29,14 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
         <Collapse accordion>
             {eleves.map((eleve, index) => (
                 <Panel header={eleve.prenom} key={index}>
+                    {eleve.classeId &&
+                        (
+                            <p>
+                                <Tag color="red">Attention: Cet élève est affecté à une classe, par mesure de précaution certaines opérations ne sont pas possibles (suppression par ex.)
+                                </Tag>
+                            </p>
+                        )
+                    }
                     <p><strong>Nom :</strong> {eleve.nom}</p>
                     <p><strong>Prénom :</strong> {eleve.prenom}</p>
                     <p><strong>Date de naissance :</strong> {dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT)}</p>
@@ -38,7 +46,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
                         !isReadOnly &&
                         (<>
                             <Button onClick={() => handleEdit(index)}>Modifier</Button>
-                            <Button className="m-left-10" onClick={() => handleDelete(index)} danger>Supprimer</Button>
+                            <Button className="m-left-10" onClick={() => handleDelete(index)} danger disabled={!!eleve.classeId}>Supprimer</Button>
                         </>)
                     }
                 </Panel>
@@ -58,6 +66,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     const handleEdit = (index: number) => {
         setError(undefined);
         setEditingIndex(index);
+        form.setFieldValue("idEleve", eleves[index].id);
         form.setFieldValue("nomEleve", eleves[index].nom);
         form.setFieldValue("prenomEleve", eleves[index].prenom);
         form.setFieldValue("dateNaissanceEleve", eleves[index].dateNaissance);
@@ -66,6 +75,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     };
 
     const resetEmptyForm = () => {
+        form.setFieldValue("idEleve", undefined);
         form.setFieldValue("nomEleve", undefined);
         form.setFieldValue("prenomEleve", undefined);
         form.setFieldValue("dateNaissanceEleve", undefined);
@@ -75,6 +85,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     }
 
     const validateEleve = () => {
+        const id = form.getFieldValue("idEleve");
         const nom = form.getFieldValue("nomEleve");
         const prenom = form.getFieldValue("prenomEleve");
         const dateNaissance: Dayjs = form.getFieldValue("dateNaissanceEleve");
@@ -102,7 +113,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
             return undefined;
         }
 
-        return { nom, prenom, dateNaissance, niveau, niveauInterne };
+        return { id, nom, prenom, dateNaissance, niveau, niveauInterne };
     }
 
     const ajouterEleve = () => {
@@ -145,6 +156,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
         <div className="m-bottom-15">Veuillez renseigner les informations concernant les élèves à inscrire. Vous pouvez modifier les informations à tout moment en sélectionnant l'élève dans la liste ci-dessous et en cliquant sur "Modifier".</div>
         {!isReadOnly && editingIndex == null && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
         {editingIndex != null && (<>
+            <InputFormItem type="hidden" name="idEleve" />
             <Row gutter={[16, 0]}>
                 <Col xs={24} md={12}>
                     <InputFormItem name="nomEleve" label="Nom" />
