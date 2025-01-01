@@ -1,9 +1,5 @@
 on:
   workflow_dispatch:
-    inputs:
-      release_version:
-        description: 'Branche de release (préciser uniquement la version majeure)'
-        required: true
 
 permissions:
   contents: write
@@ -13,7 +9,7 @@ env:
   RELEASE_BRANCHE: "release-${{ github.event.inputs.release_version }}.0.0"
 
 jobs:
-  create-release-branch:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,19 +23,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Create release branch
+      - name: Release
         run: |
           git config --global user.name "Aymen"
-          git config --global user.email "aymen330d@hotmail.fr"          
-          git checkout -b $RELEASE_BRANCHE
-          npm version $RELEASE_VERSION --no-git-tag-version
-          git add package.json
-          git commit -m "release branche created ==> $RELEASE_VERSION"
-          git push origin $RELEASE_BRANCHE
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create first Tag
-        run: |
-          git tag $RELEASE_VERSION
-          git push origin $RELEASE_VERSION # on pousse le nouveau tag          
+          git config --global user.email "aymen330d@hotmail.fr"
+          CURRENT_BRANCH=${GITHUB_REF_NAME}     
+          npm version minor
+          git push origin $CURRENT_BRANCH
+          git push origin --tags

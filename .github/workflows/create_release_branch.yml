@@ -1,0 +1,47 @@
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+
+  prepare_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate Branch
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          echo "🛠 Vérification de la branche actuelle..."
+          CURRENT_BRANCH=${GITHUB_REF_NAME}
+
+          if ["$CURRENT_BRANCH" != "master"]; then
+            echo "❌ Prepare Release non autorisée : la branche sélectionnée ($CURRENT_BRANCH) n'est pas le 'master'"
+            exit 1
+          fi
+
+          echo "✅ Branche valide : $CURRENT_BRANCH"
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Create release branch
+        run: |
+          git config --global user.name "Aymen"
+          git config --global user.email "aymen330d@hotmail.fr"          
+          npm version major
+          VERSION_MAJOR=$(node -p "require('./package.json').version.split('.')[0]")
+          git push origin master
+          git push origin --tags
+          git checkout -b release-v${VERSION_MAJOR}.x
+          git push origin release-v${VERSION_MAJOR}.x
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
