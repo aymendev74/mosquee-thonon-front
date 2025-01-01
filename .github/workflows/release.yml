@@ -1,9 +1,5 @@
 on:
   workflow_dispatch:
-    inputs:
-      release_version:
-        description: 'Branche de release (préciser uniquement la version majeure)'
-        required: true
 
 permissions:
   contents: write
