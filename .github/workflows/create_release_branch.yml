@@ -39,6 +39,8 @@ jobs:
           git config --global user.email "aymen330d@hotmail.fr"          
           npm version major
           VERSION_MAJOR=$(node -p "require('./package.json').version.split('.')[0]")
+          git push origin master
+          git push origin --tags
           git checkout -b release-v${VERSION_MAJOR}.x
           git push origin release-v${VERSION_MAJOR}.x
         env:
