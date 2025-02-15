@@ -197,3 +197,5 @@ export const APPLICATION_DATE_TIME_FORMAT: string = "DD.MM.YYYY HH:mm:ss.SSS";
 export const COURS_KEY_STEP_RESP_LEGAL = "1";
 export const COURS_KEY_STEP_ELEVES = "2";
 export const COURS_KEY_STEP_TARIF = "3";
+
+export const MOIS_EN_LETTRE = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "décembre"];

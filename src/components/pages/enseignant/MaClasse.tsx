@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileExcelOutlined } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
-import { ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams, FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT } from '../../../services/services';
+import {
+    ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams,
+    FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT,
+    BULLETINS_ELEVE_ENDPOINT
+} from '../../../services/services';
 import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Table, Tag, Tooltip } from 'antd';
-import { ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
-import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
-import { AddCircleOutline } from '@mui/icons-material';
+import { BulletinDto, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
+import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, MOIS_EN_LETTRE, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
+import { AddCircleOutline, AddOutlined } from '@mui/icons-material';
 import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
 import { useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
@@ -16,16 +20,21 @@ import { EleveEnrichedDto, PatchEleve, ResultatEnum } from '../../../services/el
 import { SwitchFormItem } from '../../common/SwitchFormItem';
 import { getJourActiviteOptions, getResultatOptions } from '../../common/commoninputs';
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
+import { SelectFormItem } from '../../common/SelectFormItem';
+import { ModalBulletin } from '../../modals/ModalBulletin';
 
 const MaClasse = () => {
     const { getLoggedUser } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
+    const [modalBulletinOpen, setModalBulletinOpen] = useState(false);
     const [classe, setClasse] = useState<ClasseDtoF | undefined>();
     const [feuillesPresence, setFeuillesPresence] = useState<FeuillePresenceDtoF[]>([]);
     const [feuilleToEdit, setFeuilleToEdit] = useState<FeuillePresenceDtoF | undefined>();
     const [elevesEnriched, setElevesEnriched] = useState<EleveEnrichedDto[]>([]);
     const [vueDetaille, setVueDetaille] = useState(false);
+    const [bulletins, setBulletins] = useState<BulletinDto[]>([]);
+    const [selectedEleveId, setSelectedEleveId] = useState<number | undefined>();
     const { id } = useParams();
 
     function onCreateFeuillePresence() {
@@ -72,6 +81,11 @@ const MaClasse = () => {
         [`DELETE:${EXISTING_FEUILLE_PRESENCE_ENDPOINT}`]: (result: any) => {
             notification.success({ message: "La feuille de temps a bien été supprimée" });
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }) });
+        },
+        [`GET:${BULLETINS_ELEVE_ENDPOINT}`]: (result: any) => {
+            const bulletins = result as BulletinDto[];
+            setBulletins(bulletins);
+            resetApi();
         },
     };
 
@@ -310,6 +324,15 @@ const MaClasse = () => {
             const eleveNiveauNonAcquis = elevesEnriched.filter(eleve => eleve.resultat == ResultatEnum.NON_ACQUIS).length;
             return `${(eleveNiveauAcquis / (eleveNiveauAcquis + eleveNiveauNonAcquis) * 100).toFixed(2)}%`;
         }
+    };
+
+    function loadBulletinsEleve(eleveId: number) {
+        setSelectedEleveId(eleveId);
+        if (eleveId) {
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: eleveId }) });
+        } else {
+            setBulletins([]);
+        }
     }
 
     function getInformationGeneralesContent() {
@@ -395,6 +418,74 @@ const MaClasse = () => {
         );
     };
 
+    function onModifierBulletin(bulletinId: number) {
+
+    };
+
+    function onDeleteBulletin(bulletinId: number) {
+
+    };
+
+    const columnsTableBulletins: ColumnsType<BulletinDto> = [
+        {
+            title: "Mois",
+            key: "nom",
+            render: (value, record, index) => {
+                return (
+                    <span>{MOIS_EN_LETTRE[record.mois - 1]}</span>
+                )
+            },
+        },
+        {
+            title: "Année",
+            key: "année",
+            dataIndex: "année",
+        },
+        {
+            title: "Absences",
+            key: "nbAbsences",
+            dataIndex: "nbAbsences",
+        },
+        {
+            title: "",
+            key: "actions",
+            render: (value, record, index) => {
+                return <>
+                    <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierBulletin(record.id)} />
+                    <Button type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteBulletin(record.id)} className="m-left-10" />
+                </>;
+            }
+        }
+    ];
+
+    function getBulletinsContent() {
+        return (
+            <div style={{ textAlign: "center" }}>
+                <div style={{ width: "80%", margin: "0 auto", textAlign: "center" }}>
+                    <Row>
+                        <Col span={8}>
+                            <SelectFormItem name="eleveid" label="Elève" options={elevesEnriched.map(eleve => ({ value: eleve.id, label: `${eleve.prenom} ${eleve.nom}` }))}
+                                onChange={loadBulletinsEleve} />
+                        </Col>
+                        <Col span={2}>
+                            <Tooltip title="Créer un nouveau bulletin pour cet élève" color="geekblue">
+                                <Button icon={<AddOutlined />} type="primary" className="m-left-10" disabled={!selectedEleveId} onClick={() => setModalBulletinOpen(true)} />
+                            </Tooltip>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}>
+                            <Table dataSource={bulletins}
+                                columns={columnsTableBulletins}
+                                pagination={{ pageSize: 5, showTotal: formatTotal }}
+                                rowKey={record => record.mois + record.annee} />
+                        </Col>
+                    </Row>
+                </div>
+            </div>
+        );
+    }
+
     const collapseItems: CollapseProps["items"] = [
         {
             key: "1",
@@ -403,10 +494,19 @@ const MaClasse = () => {
         },
         {
             key: "2",
+            label: "Bulletins",
+            children: getBulletinsContent(),
+        },
+        {
+            key: "3",
             label: "Résultats annuels",
             children: getResultatAnnuelContent(),
         }
     ];
+
+    function getSelectedEleve() {
+        return elevesEnriched.find(eleve => eleve.id === selectedEleveId);
+    }
 
     return getLoggedUser() ? (
         <>
@@ -426,6 +526,8 @@ const MaClasse = () => {
                 <div>
                     <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
                         feuilleToEdit={feuilleToEdit} />
+                    <ModalBulletin open={modalBulletinOpen} setOpen={setModalBulletinOpen} isCreation={true}
+                        annees={[classe?.debutAnneeScolaire!, classe?.finAnneeScolaire!]} eleve={getSelectedEleve()} />
                     <Collapse accordion defaultActiveKey={["1"]} items={collapseItems} />
                 </div>
             </div>

@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, Menu, theme } from 'antd';
 //import { AuthProvider } from './hooks/UseAuth';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
@@ -46,6 +46,9 @@ root.render(
           Card: {
             headerBg: "#001529",
             colorBgContainer: "#f5f5f5",
+          },
+          Menu: {
+            subMenuItemSelectedColor: "#ffff",
           }
         }
       }}
