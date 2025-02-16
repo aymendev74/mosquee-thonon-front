@@ -10,7 +10,7 @@ import {
 } from '../../../services/services';
 import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Table, Tag, Tooltip } from 'antd';
 import { BulletinDto, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
-import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, MOIS_EN_LETTRE, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
+import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm, firstLettertoUpperCase } from '../../../utils/FormUtils';
 import { AddCircleOutline, AddOutlined } from '@mui/icons-material';
 import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
 import { useParams } from 'react-router-dom';
@@ -450,14 +450,14 @@ const MaClasse = () => {
             key: "nom",
             render: (value, record, index) => {
                 return (
-                    <span>{MOIS_EN_LETTRE[record.mois! - 1]}</span>
+                    <span>{firstLettertoUpperCase(dayjs().month(record.mois! - 1).format("MMMM"))}</span>
                 )
             },
         },
         {
             title: "Année",
-            key: "année",
-            dataIndex: "année",
+            key: "annee",
+            dataIndex: "annee",
         },
         {
             title: "Absences",

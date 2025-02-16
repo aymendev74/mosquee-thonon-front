@@ -15,6 +15,7 @@ import { AuthProvider } from './hooks/AuthContext';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Europe/Paris");
+dayjs.locale("fr");
 
 // react-pdf
 Font.register({

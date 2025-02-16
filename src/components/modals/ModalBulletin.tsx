@@ -9,6 +9,7 @@ import { EleveEnrichedDto } from "../../services/eleve";
 import { InputFormItem } from "../common/InputFormItem";
 import TextArea from "antd/es/input/TextArea";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
+import { firstLettertoUpperCase } from '../../utils/FormUtils';
 
 
 export type ModalBulletinProps = {
@@ -124,7 +125,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 <Row gutter={[16, 32]}>
                     <Col span={8}>
                         <SelectFormItem label="Mois" name="mois"
-                            options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(mois => ({ value: mois, label: dayjs().month(mois - 1).format("MMMM") }))}
+                            options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(mois => ({ value: mois, label: firstLettertoUpperCase(dayjs().month(mois - 1).format("MMMM")) }))}
                             rules={[{ required: true, message: "Veuillez sélectionner le mois" }]} />
                     </Col>
                     <Col span={12}>
