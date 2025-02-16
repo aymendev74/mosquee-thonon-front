@@ -1,7 +1,7 @@
-import { Button, Col, Divider, Form, Modal, Row, Spin, Tag } from "antd";
+import { Button, Col, Divider, Form, Modal, notification, Row, Spin, Tag } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
 import useApi from "../../hooks/useApi";
-import { ApiCallbacks, handleApiCall, MATIERES_ENDPOINT } from "../../services/services";
+import { ApiCallbacks, buildUrlWithParams, BULLETIN_ENDPOINT, BULLETIN_EXISTING_ENDPOINT, BULLETINS_ELEVE_ENDPOINT, handleApiCall, MATIERES_ENDPOINT } from "../../services/services";
 import dayjs from "dayjs";
 import { BulletinDto, MatiereDto, MatiereNoteEnum } from "../../services/classe";
 import { SelectFormItem } from "../common/SelectFormItem";
@@ -30,8 +30,23 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
         setOpen(false);
     };
 
-    const onValider = () => {
-
+    const onValider = (values: any) => {
+        const { notes, remarques, ...otherFields } = values;
+        const bulletinMatieres = Object.keys(notes || {}).map((idMatiere) => ({
+            idMatiere: Number(idMatiere),
+            note: notes[idMatiere],
+            remarque: remarques?.[idMatiere]
+        }));
+        const bulletinToSave = {
+            ...bulletin,
+            ...otherFields,
+            bulletinMatieres
+        };
+        if (isCreation) {
+            setApiCallDefinition({ method: "POST", url: BULLETIN_ENDPOINT, data: bulletinToSave });
+        } else {
+            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletin?.id }), data: bulletinToSave });
+        }
     }
 
     const getTitre = () => {
@@ -40,16 +55,40 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
 
     useEffect(() => {
         if (bulletin) {
-            form.setFieldsValue(bulletin);
+            const notes: Record<string, string> = {};
+            const remarques: Record<string, string> = {};
+            bulletin.bulletinMatieres?.forEach((matiere) => {
+                notes[matiere.idMatiere] = matiere.note;
+                remarques[matiere.idMatiere] = matiere.remarque;
+            });
+            form.setFieldsValue({ ...bulletin, notes, remarques });
         }
         setApiCallDefinition({ method: "GET", url: MATIERES_ENDPOINT });
-    }, []);
+    }, [bulletin]);
+
+    function confirmSaveSuccess() {
+        notification.success({ message: "Le bulletin a bien été enregistré" });
+        close();
+        resetApi();
+    }
 
     const apiCallbacks: ApiCallbacks = {
         [`GET:${MATIERES_ENDPOINT}`]: (result: any) => {
             setMatieres(result as MatiereDto[]);
             resetApi();
-        }
+        },
+        [`POST:${BULLETIN_ENDPOINT}`]: (result: any) => {
+            if (result) {
+                confirmSaveSuccess();
+                setOpen(false);
+            }
+        },
+        [`PUT:${BULLETIN_ENDPOINT}`]: (result: any) => {
+            if (result) {
+                confirmSaveSuccess();
+                setOpen(false);
+            }
+        },
     };
 
     useEffect(() => {
@@ -68,37 +107,49 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
         { value: MatiereNoteEnum.NA, label: <Tag color="red">Non acquis</Tag> }];
     }
 
-    return (<Modal title={getTitre()} open={open} width={800} onCancel={close}
-        footer={<><Button onClick={close}>Annuler</Button><Button onClick={onValider} danger>Valider</Button></>}>
+    return (<Modal title={getTitre()} open={open} width={1000} onCancel={close}
+        footer={<>
+            <Button onClick={close} type="primary">Annuler</Button>
+            <Button htmlType="submit" type="primary" onClick={() => form.submit()} >Valider</Button>
+        </>} >
         <Form
             name="periode"
             autoComplete="off"
             form={form}
+            onFinish={onValider}
         >
             <Spin spinning={isLoading}>
                 <Divider orientation="left">Informations générales</Divider>
                 <div>Nom de l'élève: <Tag color="orange" className="m-left-10">{eleve?.prenom} {eleve?.nom}</Tag></div><br />
                 <Row gutter={[16, 32]}>
                     <Col span={8}>
-                        <SelectFormItem label="Mois" name="mois" options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(mois => ({ value: mois, label: dayjs().month(mois - 1).format("MMMM") }))} />
+                        <SelectFormItem label="Mois" name="mois"
+                            options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(mois => ({ value: mois, label: dayjs().month(mois - 1).format("MMMM") }))}
+                            rules={[{ required: true, message: "Veuillez sélectionner le mois" }]} />
                     </Col>
                     <Col span={12}>
-                        <SelectFormItem label="Annee" name="annee" options={annees.map(annee => ({ value: annee, label: annee }))} />
+                        <SelectFormItem label="Annee" name="annee" options={annees.map(annee => ({ value: annee, label: annee }))}
+                            rules={[{ required: true, message: "Veuillez sélectionner l'année" }]} />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={8}>
-                        <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" />
+                        <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" rules={[{ required: true, message: "Veuillez indiquer le nombre d'absences" }]}
+                            min={0} />
                     </Col>
                 </Row>
                 <Divider orientation="left">Notes</Divider>
                 {matieres?.map((matiere) => (
-                    <Row key={matiere.id} gutter={[16, 32]}>
-                        <Col span={8}>
+                    <Row key={matiere.id} gutter={[32, 32]}>
+                        <Col span={4}>
                             <Tag color="geekblue">{matiere.libelle}</Tag>
                         </Col>
-                        <Col span={12}>
-                            <SelectFormItem name={"notes" + matiere.id} label="Sélectionnez une note" options={getNotesOptions()} />
+                        <Col span={9}>
+                            <SelectFormItem name={"notes." + matiere.id} label="Sélectionnez une note" options={getNotesOptions()}
+                                rules={[{ required: true, message: "Veuillez sélectionner une note" }]} />
+                        </Col>
+                        <Col span={11}>
+                            <InputFormItem name={"remarques." + matiere.id} label="Remarques" />
                         </Col>
                     </Row>
                 ))}
@@ -106,6 +157,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 <Form.Item
                     label="Appréciation"
                     name="appreciation"
+                    rules={[{ required: true, message: "Veuillez indiquer votre appréciation générale" }]}
                 >
                     <TextArea rows={4} placeholder="Veuillez saisir votre appréciation générale ici..." />
                 </Form.Item>

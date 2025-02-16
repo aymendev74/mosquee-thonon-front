@@ -35,6 +35,8 @@ export const ELEVES_ENRICHED_ENDPOINT = "/eleves/enriched";
 export const FEUILLE_PRESENCE_ENDPOINT = "/classes/{id}/presences";
 export const EXISTING_FEUILLE_PRESENCE_ENDPOINT = "/presences/{id}";
 export const BULLETINS_ELEVE_ENDPOINT = "/eleves/{id}/bulletins";
+export const BULLETIN_ENDPOINT = "/bulletins";
+export const BULLETIN_EXISTING_ENDPOINT = "/bulletins/{id}";
 export const MATIERES_ENDPOINT = "/matieres";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";

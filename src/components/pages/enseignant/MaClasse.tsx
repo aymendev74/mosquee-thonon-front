@@ -5,7 +5,8 @@ import useApi from '../../../hooks/useApi';
 import {
     ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams,
     FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT,
-    BULLETINS_ELEVE_ENDPOINT
+    BULLETINS_ELEVE_ENDPOINT,
+    BULLETIN_EXISTING_ENDPOINT
 } from '../../../services/services';
 import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Table, Tag, Tooltip } from 'antd';
 import { BulletinDto, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
@@ -35,6 +36,7 @@ const MaClasse = () => {
     const [vueDetaille, setVueDetaille] = useState(false);
     const [bulletins, setBulletins] = useState<BulletinDto[]>([]);
     const [selectedEleveId, setSelectedEleveId] = useState<number | undefined>();
+    const [bulletin, setBulletin] = useState<BulletinDto | undefined>();
     const { id } = useParams();
 
     function onCreateFeuillePresence() {
@@ -47,6 +49,12 @@ const MaClasse = () => {
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
         }
     }, [modalFeuillePresenceOpen]);
+
+    useEffect(() => {
+        if (!modalBulletinOpen && selectedEleveId) {
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: selectedEleveId }) });
+        }
+    }, [modalBulletinOpen])
 
     function getJourClasse() {
         if (classe?.activites) {
@@ -86,6 +94,10 @@ const MaClasse = () => {
             const bulletins = result as BulletinDto[];
             setBulletins(bulletins);
             resetApi();
+        },
+        [`DELETE:${BULLETIN_EXISTING_ENDPOINT}`]: (result: any) => {
+            notification.success({ message: "Le bulletin a bien été supprimé" });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: selectedEleveId }) });
         },
     };
 
@@ -419,12 +431,18 @@ const MaClasse = () => {
     };
 
     function onModifierBulletin(bulletinId: number) {
-
+        setModalBulletinOpen(true);
+        setBulletin(bulletins.find(bulletin => bulletin.id === bulletinId));
     };
 
     function onDeleteBulletin(bulletinId: number) {
-
+        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletinId }) });
     };
+
+    function onCreerBulletin() {
+        setModalBulletinOpen(true);
+        setBulletin({ idEleve: selectedEleveId! });
+    }
 
     const columnsTableBulletins: ColumnsType<BulletinDto> = [
         {
@@ -432,7 +450,7 @@ const MaClasse = () => {
             key: "nom",
             render: (value, record, index) => {
                 return (
-                    <span>{MOIS_EN_LETTRE[record.mois - 1]}</span>
+                    <span>{MOIS_EN_LETTRE[record.mois! - 1]}</span>
                 )
             },
         },
@@ -451,8 +469,8 @@ const MaClasse = () => {
             key: "actions",
             render: (value, record, index) => {
                 return <>
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierBulletin(record.id)} />
-                    <Button type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteBulletin(record.id)} className="m-left-10" />
+                    <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierBulletin(record.id!)} />
+                    <Button type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteBulletin(record.id!)} danger className="m-left-10" />
                 </>;
             }
         }
@@ -469,7 +487,7 @@ const MaClasse = () => {
                         </Col>
                         <Col span={2}>
                             <Tooltip title="Créer un nouveau bulletin pour cet élève" color="geekblue">
-                                <Button icon={<AddOutlined />} type="primary" className="m-left-10" disabled={!selectedEleveId} onClick={() => setModalBulletinOpen(true)} />
+                                <Button icon={<AddOutlined />} type="primary" className="m-left-10" disabled={!selectedEleveId} onClick={onCreerBulletin} />
                             </Tooltip>
                         </Col>
                     </Row>
@@ -478,7 +496,7 @@ const MaClasse = () => {
                             <Table dataSource={bulletins}
                                 columns={columnsTableBulletins}
                                 pagination={{ pageSize: 5, showTotal: formatTotal }}
-                                rowKey={record => record.mois + record.annee} />
+                                rowKey={record => record.mois! + record.annee!} />
                         </Col>
                     </Row>
                 </div>
@@ -527,7 +545,8 @@ const MaClasse = () => {
                     <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
                         feuilleToEdit={feuilleToEdit} />
                     <ModalBulletin open={modalBulletinOpen} setOpen={setModalBulletinOpen} isCreation={true}
-                        annees={[classe?.debutAnneeScolaire!, classe?.finAnneeScolaire!]} eleve={getSelectedEleve()} />
+                        annees={[classe?.debutAnneeScolaire!, classe?.finAnneeScolaire!]} eleve={getSelectedEleve()}
+                        bulletin={bulletin} />
                     <Collapse accordion defaultActiveKey={["1"]} items={collapseItems} />
                 </div>
             </div>

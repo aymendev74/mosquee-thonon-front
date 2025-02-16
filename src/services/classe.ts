@@ -76,13 +76,13 @@ export type BulletinMatiereDto = {
 }
 
 export type BulletinDto = {
-    id: number;
-    idEleve: number;
-    appreciation: string;
-    nbAbsences: number;
-    mois: number;
-    annee: number;
-    matieres: BulletinMatiereDto[];
+    id?: number;
+    idEleve?: number;
+    appreciation?: string;
+    nbAbsences?: number;
+    mois?: number;
+    annee?: number;
+    bulletinMatieres?: BulletinMatiereDto[];
 }
 
 export enum MatiereEnum {
