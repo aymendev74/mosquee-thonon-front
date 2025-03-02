@@ -20,6 +20,7 @@ import { AdminSearchFilter, InputSearchFieldDef } from "../../common/AdminSearch
 import { PdfInscriptionCoursArabeAdulte } from "../../documents/PdfInscriptionCoursArabeAdulte";
 import { useAuth } from "../../../hooks/AuthContext";
 import { UnahtorizedAccess } from "../UnahtorizedAccess";
+import { PdfAuthContextBridge } from "../../documents/PdfContextBridge";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -243,12 +244,14 @@ export const AdminCoursArabes: FunctionComponent = () => {
     }
 
     const getPdf = (record: InscriptionLight) => {
-        return renderPdf(record.idInscription) ? (<PDFDownloadLink document={getDocumentContent(record.idInscription)} fileName={getFileNameInscription(record)}>
-            {({ blob, url, loading, error }) => {
-                return loading ? "Génération Pdf..." : <FilePdfTwoTone />
-            }
-            }
-        </PDFDownloadLink>) : (<Button type="primary" onClick={() => { loadInscription(record.idInscription) }}>Générer Pdf</Button>)
+        return renderPdf(record.idInscription) ? (<PdfAuthContextBridge>
+            <PDFDownloadLink document={getDocumentContent(record.idInscription)} fileName={getFileNameInscription(record)}>
+                {({ blob, url, loading, error }) => {
+                    return loading ? "Génération Pdf..." : <FilePdfTwoTone />
+                }
+                }
+            </PDFDownloadLink>
+        </PdfAuthContextBridge>) : (<Button type="primary" onClick={() => { loadInscription(record.idInscription) }}>Générer Pdf</Button>)
     }
 
     const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
