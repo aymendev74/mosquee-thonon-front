@@ -228,9 +228,17 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const getDocumentContent = (idInscription: number) => {
         if (type === "ENFANT") {
-            return <PdfInscriptionCoursEnfant inscription={inscriptionsEnfantsById[idInscription]} />;
+            return (
+                <PdfAuthContextBridge>
+                    <PdfInscriptionCoursEnfant inscription={inscriptionsEnfantsById[idInscription]} />
+                </PdfAuthContextBridge>
+            );
         } else {
-            return <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} />;
+            return (
+                <PdfAuthContextBridge>
+                    <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} />
+                </PdfAuthContextBridge>
+            );
         }
     }
 
@@ -244,14 +252,12 @@ export const AdminCoursArabes: FunctionComponent = () => {
     }
 
     const getPdf = (record: InscriptionLight) => {
-        return renderPdf(record.idInscription) ? (<PdfAuthContextBridge>
-            <PDFDownloadLink document={getDocumentContent(record.idInscription)} fileName={getFileNameInscription(record)}>
-                {({ blob, url, loading, error }) => {
-                    return loading ? "Génération Pdf..." : <FilePdfTwoTone />
-                }
-                }
-            </PDFDownloadLink>
-        </PdfAuthContextBridge>) : (<Button type="primary" onClick={() => { loadInscription(record.idInscription) }}>Générer Pdf</Button>)
+        return renderPdf(record.idInscription) ? (<PDFDownloadLink document={getDocumentContent(record.idInscription)} fileName={getFileNameInscription(record)}>
+            {({ blob, url, loading, error }) => {
+                return loading ? "Génération Pdf..." : <FilePdfTwoTone />
+            }
+            }
+        </PDFDownloadLink>) : (<Button type="primary" onClick={() => { loadInscription(record.idInscription) }}>Générer Pdf</Button>)
     }
 
     const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
