@@ -13,6 +13,7 @@ import { EnseignantDto } from '../../../services/enseignant';
 import { prepareClasseBeforeForm } from '../../../utils/FormUtils';
 import { ModaleConfirmSuppression } from '../../modals/ModalConfirmSuppression';
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
+import { valueType } from 'antd/es/statistic/utils';
 
 const CreateUpdateClasse = () => {
     const { getRoles } = useAuth();
@@ -74,7 +75,7 @@ const CreateUpdateClasse = () => {
         const enseignant = enseignants.find(enseignant => enseignant.id === classe.idEnseignant);
         return (
             <Col span={6}>
-                <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} style={{ width: 350 }}>
+                <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} >
                     <p><b>Niveau: </b>{classe.niveau}</p>
                     <p><b>Nombre d'élèves: </b>{classe.liensClasseEleves?.length ?? 0}</p>
                     <p><b>Enseignant: </b>{enseignant ? enseignant.prenom + " " + enseignant.nom : "-"}</p>
@@ -128,6 +129,14 @@ const CreateUpdateClasse = () => {
         }
     }, [result]);
 
+    function handleAnneeScolaireChanged(val: valueType | null) {
+        if (!val) return;
+        const anneeDebut = typeof val === "string" ? parseFloat(val) : val;
+        if (!isNaN(anneeDebut)) { // Vérifie si c'est bien un nombre
+            setDebutAnneeScolaire(anneeDebut);
+        }
+    };
+
     return getRoles()?.includes("ROLE_ADMIN") ? (
         <>
             <FloatButton.BackTop />
@@ -158,6 +167,7 @@ const CreateUpdateClasse = () => {
                                 name="anneeDebut"
                                 label="Année scolaire"
                                 rules={[{ required: true, message: "Veuillez saisir une année scolaire" }]}
+                                onChange={handleAnneeScolaireChanged}
                             />
                         </Col>
                         <Col span={1}>
