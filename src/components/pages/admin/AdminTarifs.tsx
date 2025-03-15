@@ -131,7 +131,7 @@ export const AdminTarifs: FunctionComponent = () => {
                 <Col span={6}>
                     <SelectFormItem name="idPeriode" label="Période" options={periodesOptions} onChange={onPeriodeSelected} />
                 </Col>
-                <Col span={4}>
+                <Col span={6}>
                     <Tooltip title="Modifier les données de la période sélectionnée" color="geekblue"><Button icon={<EditOutlined />}
                         type="primary" disabled={!selectedIdPeriode} onClick={onModifierPeriode}>Modifier</Button>
                     </Tooltip>
