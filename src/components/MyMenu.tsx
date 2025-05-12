@@ -42,7 +42,7 @@ export const MyMenu: FunctionComponent = () => {
             ],
         },
         {
-            key: "adhesion",
+            key: "adhesionInfos",
             icon: <EuroCircleOutlined />,
             label: "Adhésion",
         },

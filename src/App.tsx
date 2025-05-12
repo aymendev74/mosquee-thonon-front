@@ -19,6 +19,7 @@ import CreateUpdateClasse from './components/pages/admin/CreateUpdateClasse';
 import MesClasses from './components/pages/enseignant/MesClasses';
 import MaClasse from './components/pages/enseignant/MaClasse';
 import { NotFound } from './components/pages/NotFound';
+import AdhesionInfos from './components/pages/AdhesionInfos';
 
 const { Header, Content, Footer } = Layout;
 
@@ -76,6 +77,7 @@ function App() {
           <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
           <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
           <Route path="/adhesion" element={<AdhesionForm />} />
+          <Route path="/adhesionInfos" element={<AdhesionInfos />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/admin" element={<HomeAdmin />} />
           <Route path="/adminCours" element={<AdminCoursArabes />} />
@@ -91,8 +93,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>
-      <Footer>
-        <div className="footer">
+      <Footer className="footer">
+        <div className="footer-content">
           <p>Copyright © 2023 | MOSQUEE-THONON</p>
           <strong>Association Musulmane du Chablais</strong><br />
           5 chemin des Epinanches<br />

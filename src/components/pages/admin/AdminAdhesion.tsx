@@ -16,6 +16,7 @@ import { ColumnsType } from "antd/es/table";
 import { AdminSearchFilter } from "../../common/AdminSearchFilter";
 import { useAuth } from "../../../hooks/AuthContext";
 import { UnahtorizedAccess } from "../UnahtorizedAccess";
+import { PdfAuthContextBridge } from "../../documents/PdfContextBridge";
 
 
 export const AdminAdhesion: FunctionComponent = () => {
@@ -203,7 +204,8 @@ export const AdminAdhesion: FunctionComponent = () => {
         {
             title: "Fichier Pdf",
             key: "pdf",
-            render: (value, record, index) => renderPdf(record.id) ? (<PDFDownloadLink document={<PdfAdhesion id={record.id} />} fileName={getFileNameAdhesion(record)}>
+            render: (value, record, index) => renderPdf(record.id) ? (<PDFDownloadLink document={
+                <PdfAuthContextBridge><PdfAdhesion id={record.id} /></PdfAuthContextBridge>} fileName={getFileNameAdhesion(record)}>
                 {({ blob, url, loading, error }) => {
                     return loading ? "Génération Pdf..." : <FilePdfTwoTone />
                 }

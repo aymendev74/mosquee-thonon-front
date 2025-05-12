@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const tokenData = sessionStorage.getItem("tokenData");
         if (tokenData) {
             const parsedTokenData = JSON.parse(tokenData);
-            if (parsedTokenData.accessToken && !tokenExpired(parsedTokenData.expirationTime)) {
+            if (parsedTokenData.accessToken) {
                 sessionStorage.removeItem("tokenData");
                 window.location.replace(logoutEndpoint);
             }

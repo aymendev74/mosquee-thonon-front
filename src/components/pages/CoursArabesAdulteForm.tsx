@@ -128,7 +128,7 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
             <>
                 <div className="centered-content-v">
                     <div className="inscription-closed" />
-                    <div>Les inscriptions sont actuellement fermées</div>
+                    <div className="inscription-closed-text">Les inscriptions sont actuellement fermées</div>
                 </div>
             </>
         );
