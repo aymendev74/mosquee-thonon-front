@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Divider, FormInstance, Row } from "antd";
+import { Alert, Button, Checkbox, Col, Divider, FormInstance, Row } from "antd";
 import { FunctionComponent } from "react";
 import { Eleve, EleveFront } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
@@ -16,9 +16,10 @@ export type TarifProps = {
     onPreviousStep: () => void;
     consentementChecked: boolean;
     setConsentementChecked: React.Dispatch<React.SetStateAction<boolean>>;
+    isReinscriptionOnlyEnabled: boolean;
 }
 
-export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription, form, isAdmin, isReadOnly, onPreviousStep, consentementChecked, setConsentementChecked }) => {
+export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription, form, isAdmin, isReadOnly, onPreviousStep, consentementChecked, setConsentementChecked, isReinscriptionOnlyEnabled }) => {
 
     const getStatutAdherent = () => {
         const adherent = form.getFieldValue(["responsableLegal", "adherent"]);
@@ -40,8 +41,12 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                     <div className="m-bottom-10">Ce tarif a été calculé en prenant en compte votre statut (<strong>{getStatutAdherent()}</strong>) et le nombre d'élèves à inscrire.</div>
                 </>
             )}
-            {!isAdmin && tarifInscription?.listeAttente && (<div className="m-bottom-10"><strong>Attention, le nombre d'élèves inscrits sur la période en cours a atteint
-                la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription.</strong></div>)}
+            {!isAdmin && tarifInscription?.listeAttente && !isReinscriptionOnlyEnabled && (<div className="m-bottom-10">
+                <Alert message="Liste d'attente" type="warning"
+                    description="Attention, le nombre d'élèves inscrits sur la période en cours a atteint
+                la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription." showIcon />
+                <br />
+            </div>)}
             {isAdmin && (<><Divider orientation="left">Statut</Divider>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
@@ -56,6 +61,15 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                     </Col>
                 </Row>
             </>)}
+            {isReinscriptionOnlyEnabled && (
+                <>
+                    <Alert message="Attention à l'orthographe !" type="warning"
+                        description="Vous êtes en train de réinscrire vos enfants, veuillez vous assurer que l'orthographe des noms et prénoms, ainsi que 
+                        les dates de naissances sont correctes et identiques à l'inscription de l'année précédente. 
+                        Dans le cas contraire, l'inscription risque d'être rejetée automatiquement." showIcon />
+                    <br />
+                </>
+            )}
             {!isAdmin && tarifInscription && (
                 <Row gutter={[16, 32]}>
                     <Col span={24}>
