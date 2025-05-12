@@ -103,7 +103,10 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         if (open) {
             setApiCallDefinition({
                 method: "GET", url: ELEVES_ENDPOINT,
-                params: { anneeDebut: debutAnneeScolaire, anneeFin: finAnneeScolaire, affectation: AffectationEleveEnum.SANS_IMPORTANCE }
+                params: {
+                    anneeDebut: debutAnneeScolaire, anneeFin: finAnneeScolaire, affectation: AffectationEleveEnum.SANS_IMPORTANCE,
+                    avecNiveau: false
+                }
             });
 
             // si modification, initialisation du formulaire avec la classe à modifier

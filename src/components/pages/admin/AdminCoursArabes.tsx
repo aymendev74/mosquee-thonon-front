@@ -20,6 +20,7 @@ import { AdminSearchFilter, InputSearchFieldDef } from "../../common/AdminSearch
 import { PdfInscriptionCoursArabeAdulte } from "../../documents/PdfInscriptionCoursArabeAdulte";
 import { useAuth } from "../../../hooks/AuthContext";
 import { UnahtorizedAccess } from "../UnahtorizedAccess";
+import { PdfAuthContextBridge } from "../../documents/PdfContextBridge";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -227,9 +228,17 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const getDocumentContent = (idInscription: number) => {
         if (type === "ENFANT") {
-            return <PdfInscriptionCoursEnfant inscription={inscriptionsEnfantsById[idInscription]} />;
+            return (
+                <PdfAuthContextBridge>
+                    <PdfInscriptionCoursEnfant inscription={inscriptionsEnfantsById[idInscription]} />
+                </PdfAuthContextBridge>
+            );
         } else {
-            return <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} />;
+            return (
+                <PdfAuthContextBridge>
+                    <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} />
+                </PdfAuthContextBridge>
+            );
         }
     }
 

@@ -28,7 +28,7 @@ export const Home: FunctionComponent = () => {
                     <div className="logo-carousel" />
                 </div>
                 <div>
-                    <h3 className="carousel-element">Vous pouvez également soutenir l'association en devenant adhérent de l'AMC, en vous inscrivant via le menu dédié ou en cliquant <a href="/adhesion">ici</a>.<br /></h3>
+                    <h3 className="carousel-element">Vous pouvez également soutenir l'association en devenant adhérent de l'AMC, en vous inscrivant via le menu dédié ou en cliquant <a href="/adhesionInfos">ici</a>.<br /></h3>
                     <div className="logo-carousel" />
                 </div>
             </Carousel>

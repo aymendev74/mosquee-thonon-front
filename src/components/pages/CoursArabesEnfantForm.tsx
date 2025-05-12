@@ -106,7 +106,8 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             key: COURS_KEY_STEP_TARIF,
             label: <><EuroCircleOutlined />Tarif</>,
             children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} isReadOnly={isReadOnly}
-                onPreviousStep={onPreviousStep} consentementChecked={consentementChecked} setConsentementChecked={setConsentementChecked} />,
+                onPreviousStep={onPreviousStep} consentementChecked={consentementChecked} setConsentementChecked={setConsentementChecked}
+                isReinscriptionOnlyEnabled={isOnlyReinscriptionEnabled} />,
         }
     ];
 
@@ -321,7 +322,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             <>
                 <div className="centered-content-v">
                     <div className="inscription-closed" />
-                    <div>Les inscriptions sont actuellement fermées</div>
+                    <div className="inscription-closed-text">Les inscriptions sont actuellement fermées</div>
                 </div>
             </>
         );

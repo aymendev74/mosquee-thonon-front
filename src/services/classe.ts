@@ -11,7 +11,8 @@ export enum AffectationEleveEnum {
 export type SearchEleveCriteria = {
     anneeDebut: number;
     anneeFin: number;
-    affectation: AffectationEleveEnum
+    affectation: AffectationEleveEnum;
+    avecNiveau: boolean;
 }
 
 export type SearchClasseCriteria = {
