@@ -25,7 +25,6 @@ export const AdminAdhesion: FunctionComponent = () => {
     const { getRoles } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
-    const { Panel } = Collapse;
     const [form] = Form.useForm();
     const [selectedAdhesions, setSelectedAdhesions] = useState<AdhesionLight[]>([]);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
