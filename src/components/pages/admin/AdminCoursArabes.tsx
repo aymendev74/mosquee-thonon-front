@@ -188,8 +188,12 @@ export const AdminCoursArabes: FunctionComponent = () => {
             setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
         },
         [`GET:${PERIODES_ENDPOINT}`]: (result: any) => {
-            setPeriodesOptions(getPeriodeOptions(result as PeriodeInfoDto[]));
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
+            const periodes = result as PeriodeInfoDto[];
+            if (periodes?.length > 0) {
+                setPeriodesOptions(getPeriodeOptions(periodes));
+                form.setFieldValue("idPeriode", periodes[0].id);
+                setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type, idPeriode: periodes[0].id } });
+            }
         },
         [`GET:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
             setInscriptionsEnfantsById({ ...inscriptionsEnfantsById, [loadingInscriptionId!]: result });
