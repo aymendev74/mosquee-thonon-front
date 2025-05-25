@@ -119,7 +119,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         );
     };
 
-    const doSearch = () => {
+    function buildSearchCriteria() {
         const { nom, prenom, telephone, statut, noInscription, idPeriode } = form.getFieldsValue();
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
@@ -134,7 +134,11 @@ export const AdminCoursArabes: FunctionComponent = () => {
             niveauxInternes: niveauxInternes ?? null, noInscription: noInscription ?? null, idPeriode: idPeriode ?? null,
             type
         }
-        setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: searchCriteria });
+        return searchCriteria;
+    }
+
+    const doSearch = () => {
+        setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: buildSearchCriteria() });
     }
 
     const getSearchFilters = () => {
@@ -179,13 +183,13 @@ export const AdminCoursArabes: FunctionComponent = () => {
             notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: buildSearchCriteria() });
         },
         [`DELETE:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
             notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
             // On reload toutes les inscriptions depuis la base
             setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type } });
+            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: buildSearchCriteria() });
         },
         [`GET:${PERIODES_ENDPOINT}`]: (result: any) => {
             const periodes = result as PeriodeInfoDto[];
