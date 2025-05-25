@@ -37,33 +37,33 @@ function App() {
     };
 
     const items: MenuProps['items'] = [
-      { 
-        label: "Se déconnecter", 
+      {
+        label: "Se déconnecter",
         key: "1",
         className: "dropdown-item"
-      }, 
-      { 
-        label: "Modifier mot de passe", 
+      },
+      {
+        label: "Modifier mot de passe",
         key: "2",
         className: "dropdown-item"
       }
     ];
 
-    const menu: MenuProps = { 
-      items, 
+    const menu: MenuProps = {
+      items,
       onClick: handleMenuClick,
       className: "user-dropdown"
     };
 
     return (
       <Dropdown menu={menu} placement="bottomRight">
-        <Avatar 
-          style={{ 
-            backgroundColor: "var(--accent-color)", 
+        <Avatar
+          style={{
+            backgroundColor: "var(--accent-color)",
             cursor: "pointer",
             color: "white",
             transition: "transform 0.2s ease"
-          }} 
+          }}
           size="large"
           className="user-avatar"
         >
@@ -116,13 +116,33 @@ function App() {
         </div>
       </Content>
       <Footer className="footer">
-        <div className="footer-content">
-          <p className="copyright">Copyright © {new Date().getFullYear()} | MOSQUEE-THONON</p>
-          <div className="footer-address">
-            <strong>Association Musulmane du Chablais</strong>
-            <p>5 chemin des Epinanches<br />74200 THONON LES BAINS</p>
-            <p>Tel: (+33)4 50 70 64 78</p>
-          </div>
+        <Row gutter={[16, 16]} justify="center">
+          <Col xs={24} md={8} className="footer-section">
+            <h3 className="footer-title">Association Musulmane du Chablais</h3>
+            <p>5 chemin des Epinanches</p>
+            <p>74200 Thonon-les-Bains</p>
+            <p>
+              Tel: <a href="tel:+33450706478" className="footer-link">(+33) 4 50 70 64 78</a><br />
+              Email: <a href="mailto:amcinscription@gmail.com" className="footer-link">amcinscription@gmail.com</a>
+            </p>
+          </Col>
+          <Col xs={24} md={8} className="footer-section">
+            <h3 className="footer-title">Navigation</h3>
+            <p><a href="/coursEnfants" className="footer-link">Cours enfants</a></p>
+            <p><a href="/coursAdultes" className="footer-link">Cours adultes</a></p>
+            <p><a href="/adhesionInfos" className="footer-link">Adhésion</a></p>
+          </Col>
+          <Col xs={24} md={8} className="footer-section">
+            <h3 className="footer-title">Suivez-nous</h3>
+            <div className="social-icons">
+              <a href="https://www.facebook.com/100012969094800" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-facebook-f"></i>
+              </a>
+            </div>
+          </Col>
+        </Row>
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <p>© 2023 Association Musulmane du Chablais. Tous droits réservés.</p>
         </div>
       </Footer>
     </Layout>
