@@ -28,7 +28,6 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
     const { getLoggedUser, getAccessToken } = useAuth();
 
     const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<APiCallResult> => {
-        console.log("exec appel API", JSON.stringify(apiCallDefinition));
         return axios.request({
             ...apiCallDefinition,
             paramsSerializer: {

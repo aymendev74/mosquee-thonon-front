@@ -75,7 +75,7 @@ const CreateUpdateClasse = () => {
         const enseignant = enseignants.find(enseignant => enseignant.id === classe.idEnseignant);
         return (
             <Col span={6}>
-                <Card size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} >
+                <Card className="card-focus-effect" size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} >
                     <p><b>Niveau: </b>{classe.niveau}</p>
                     <p><b>Nombre d'élèves: </b>{classe.liensClasseEleves?.length ?? 0}</p>
                     <p><b>Enseignant: </b>{enseignant ? enseignant.prenom + " " + enseignant.nom : "-"}</p>

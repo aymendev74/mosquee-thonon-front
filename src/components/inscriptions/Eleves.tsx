@@ -156,7 +156,7 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
         <div className="m-bottom-15">Veuillez renseigner les informations concernant les élèves à inscrire. Vous pouvez modifier les informations à tout moment en sélectionnant l'élève dans la liste ci-dessous et en cliquant sur "Modifier".</div>
         {!isReadOnly && editingIndex == null && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
         {editingIndex != null && (<>
-            <InputFormItem type="hidden" name="idEleve" />
+            <InputFormItem type="hidden" name="idEleve" hidden />
             <Row gutter={[16, 0]}>
                 <Col xs={24} md={12}>
                     <InputFormItem name="nomEleve" label="Nom" />
