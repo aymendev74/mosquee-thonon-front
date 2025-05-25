@@ -34,7 +34,7 @@ root.render(
     <ConfigProvider
       theme={{
         token: {
-          borderRadius: 15,
+          borderRadius: 10,
           fontFamily: 'Roboto, sans-serif',
         },
         components: {
