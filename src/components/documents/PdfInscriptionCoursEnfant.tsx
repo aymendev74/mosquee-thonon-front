@@ -1,10 +1,7 @@
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
-import useApi from '../../hooks/useApi';
-import { buildUrlWithParams, INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
 import { InscriptionEnfantBack } from '../../services/inscription';
-import dayjs from 'dayjs';
-import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
+import { getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { getLibelleNiveauScolaire } from '../common/commoninputs';
 
 export type PdfInscriptionCoursProps = {
@@ -15,7 +12,6 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 10,
-        fontFamily: "Open Sans",
         fontSize: 10,
     },
     header: {
@@ -29,7 +25,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 12,
         fontWeight: 'bold',
-        fontFamily: "Open Sans",
         textAlign: 'center',
         marginTop: 15,
         marginBottom: 10,

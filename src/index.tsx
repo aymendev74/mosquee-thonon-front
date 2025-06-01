@@ -21,8 +21,26 @@ dayjs.locale("fr");
 Font.register({
   family: 'Roboto',
   fonts: [
-    { src: './polices/roboto/Roboto-Regular.ttf' },
-    { src: './polices/roboto/Roboto-Bold.ttf', fontWeight: "bold" }
+    {
+      src: '/polices/Roboto-Regular.ttf',
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+    },
+    {
+      src: '/polices/Roboto-Bold.ttf',
+      fontWeight: 'bold',
+      fontStyle: 'normal',
+    },
+    {
+      src: '/polices/Roboto-Italic.ttf',
+      fontWeight: 'normal',
+      fontStyle: 'italic',
+    },
+    {
+      src: '/polices/Roboto-BoldItalic.ttf',
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+    },
   ]
 });
 

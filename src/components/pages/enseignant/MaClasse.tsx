@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileExcelOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileExcelOutlined, FilePdfOutlined, FilePdfTwoTone } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
 import {
     ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams,
@@ -23,6 +23,9 @@ import { getJourActiviteOptions, getResultatOptions } from '../../common/commoni
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
 import { SelectFormItem } from '../../common/SelectFormItem';
 import { ModalBulletin } from '../../modals/ModalBulletin';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PdfAuthContextBridge } from '../../documents/PdfContextBridge';
+import { PdfBulletin } from '../../documents/PdfBulletin';
 
 const MaClasse = () => {
     const { getLoggedUser } = useAuth();
@@ -37,6 +40,7 @@ const MaClasse = () => {
     const [bulletins, setBulletins] = useState<BulletinDto[]>([]);
     const [selectedEleveId, setSelectedEleveId] = useState<number | undefined>();
     const [bulletin, setBulletin] = useState<BulletinDto | undefined>();
+    const [bulletinsPdf, setBulletinsPdf] = useState<number[]>([]);
     const { id } = useParams();
 
     function onCreateFeuillePresence() {
@@ -439,6 +443,20 @@ const MaClasse = () => {
         setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletinId }) });
     };
 
+    const getBulletinPdfButton = (id: number) => {
+        return bulletinsPdf.some(idBulletin => idBulletin === id) ?
+            (
+                <PDFDownloadLink className="m-left-10" document={<PdfAuthContextBridge>
+                    <PdfBulletin id={id} />
+                </PdfAuthContextBridge>}
+                    fileName="bulletin">
+                    {({ blob, url, loading, error }) => {
+                        return loading ? "Génération Pdf..." : <FilePdfTwoTone />
+                    }
+                    }
+                </PDFDownloadLink>) : (<Button className="m-left-10" type="primary" onClick={() => { setBulletinsPdf([...bulletinsPdf, id]) }} icon={<FilePdfTwoTone />} />)
+    }
+
     function onCreerBulletin() {
         setModalBulletinOpen(true);
         setBulletin({ idEleve: selectedEleveId! });
@@ -471,6 +489,9 @@ const MaClasse = () => {
                 return <>
                     <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierBulletin(record.id!)} />
                     <Button type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteBulletin(record.id!)} danger className="m-left-10" />
+                    <Tooltip color="geekblue" title="Générer le bulletin au format PDF">
+                        {getBulletinPdfButton(record.id!)}
+                    </Tooltip>
                 </>;
             }
         }

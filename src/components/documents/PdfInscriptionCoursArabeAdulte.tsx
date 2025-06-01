@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 15,
-        fontFamily: "Roboto",
         fontSize: 12,
     },
     header: {
@@ -26,7 +25,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-        fontFamily: "Roboto",
         textAlign: 'center',
         marginTop: 15,
         marginBottom: 25,

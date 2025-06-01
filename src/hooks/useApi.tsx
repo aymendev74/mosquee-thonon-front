@@ -34,7 +34,6 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
                 indexes: null
             }
         }).then(response => {
-            console.log("response", response);
             return { responseData: response.data, status: response.status };
         }).catch(function (error) {
             console.log("error", error);

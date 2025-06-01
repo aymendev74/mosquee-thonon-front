@@ -9,19 +9,10 @@ export type PdfAdhesionProps = {
     id: number;
 };
 
-Font.register({
-    family: 'Open Sans',
-    fonts: [
-        { src: './polices/open-sans/OpenSans-Regular.ttf' },
-        { src: './polices/open-sans/OpenSans-Bold.ttf', fontWeight: "bold" }
-    ]
-});
-
 const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 15,
-        fontFamily: "Open Sans",
         fontSize: 12,
     },
     header: {
@@ -35,7 +26,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-        fontFamily: "Open Sans",
         textAlign: 'center',
         marginTop: 15,
         marginBottom: 25,
