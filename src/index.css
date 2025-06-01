@@ -1,147 +1,34 @@
-/* Base styles */
-:root {
-  --primary-color: #1890ff;
-  --secondary-color: #001529;
-  --accent-color: #fa8c16;
-  --text-color: #2c3e50;
-  --background-light: #f8f9fa;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --border-radius: 8px;
-  --transition: all 0.3s ease;
+.logo {
+  width: 50px;
+  /* Largeur du logo */
+  height: 50px;
+  /* Hauteur du logo */
+  margin-right: 15px;
+  /* Marge à droite du logo pour l'espacement */
+  background-image: url('/public/images/logo_mosquee_thonon.png');
+  /* Spécifiez le chemin de votre image de logo */
+  background-size: cover;
+  /* Ajustez la taille de l'image du logo */
 }
 
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: var(--background-light);
-  color: var(--text-color);
-  line-height: 1.6;
+  background-color: #f5f5f5;
 }
 
-/* Layout & Navigation */
-.ant-layout {
-  background: var(--background-light);
-}
-
-.ant-layout-header {
-  padding: 0 50px;
-  height: 64px;
-  background: white;
-  box-shadow: var(--shadow-sm);
-  position: fixed;
-  width: 100%;
-  z-index: 1000;
-  top: 0;
-}
-
-.content {
-  margin-top: 64px;
-  padding: 24px 50px;
-  min-height: calc(100vh - 64px - 70px);
-}
-
+/* Centre le menu horizontalement */
 .ant-menu-horizontal {
-  border-bottom: none;
-}
-
-/* Logo and Header */
-.logo {
-  width: 40px;
-  height: 40px;
-  margin-right: 15px;
-  background-image: url('/public/images/logo_mosquee_thonon.png');
-  background-size: cover;
-  transition: var(--transition);
-}
-
-.logo:hover {
-  transform: scale(1.05);
-}
-
-.logo-title {
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-/* Cards & Containers */
-.container-form {
-  max-width: 800px;
-  width: 100%;
-  padding: 2rem;
-  background: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  margin: 2rem auto;
-}
-
-.ant-card {
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-
-.ant-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-/* Carousel */
-.carousel-container {
-  margin: 2rem auto;
-  max-width: 1200px;
-  padding: 0 1rem;
-}
-
-.ant-carousel .slick-slide {
-  height: 400px;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #1a365d 100%);
-}
-
-.carousel-element {
-  padding: 2rem;
-  color: white;
-  line-height: 1.8;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  height: 100%;
 }
 
-/* Buttons & Interactive Elements */
-.ant-btn {
-  border-radius: var(--border-radius);
-  transition: var(--transition);
-}
-
-.ant-btn-primary {
-  background: var(--primary-color);
-}
-
-.ant-btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-/* Forms */
-.ant-form-item {
-  margin-bottom: 1.5rem;
-}
-
-.ant-input,
-.ant-select-selector {
-  border-radius: var(--border-radius) !important;
-}
-
-/* Footer */
 .footer {
-  background: white;
+  background-color: #001529;
+  color: #fff;
   padding: 2rem 0;
-  box-shadow: var(--shadow-sm);
+  font-size: 0.9rem;
+  margin-top: 20px;
+  font-family: 'Roboto', sans-serif !important;
 }
 
 .footer-content {
@@ -151,218 +38,17 @@ body {
   text-align: center;
 }
 
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-  .ant-layout-header {
-    padding: 0 20px;
-  }
-
-  .content {
-    padding: 24px 20px;
-  }
-
-  .container-form {
-    padding: 1rem;
-  }
-
-  .carousel-container {
-    margin: 1rem auto;
-  }
-
-  .ant-carousel .slick-slide {
-    height: 300px;
-  }
+.footer strong {
+  display: block;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  color: #fff;
 }
 
 .content {
   min-height: 600px;
 }
 
-@media (min-width: 1024px) {
-  .search-result-container {
-    grid-template-columns: 300px 1fr;
-  }
-}
-
-/* Animation Classes */
-.fade-in {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Utility Classes */
-.text-center {
-  text-align: center;
-}
-
-.mb-1 {
-  margin-bottom: 0.5rem;
-}
-
-.mb-2 {
-  margin-bottom: 1rem;
-}
-
-.mb-3 {
-  margin-bottom: 1.5rem;
-}
-
-.mb-4 {
-  margin-bottom: 2rem;
-}
-
-.mt-1 {
-  margin-top: 0.5rem;
-}
-
-.mt-2 {
-  margin-top: 1rem;
-}
-
-.mt-3 {
-  margin-top: 1.5rem;
-}
-
-.mt-4 {
-  margin-top: 2rem;
-}
-
-/* Status Indicators */
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.status-success {
-  background: #e6f7ff;
-  color: #096dd9;
-}
-
-.status-warning {
-  background: #fff7e6;
-  color: #d46b08;
-}
-
-.status-error {
-  background: #fff1f0;
-  color: #cf1322;
-}
-
-/* Enhanced Table Styles */
-.ant-table {
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.ant-table-thead>tr>th {
-  background: #fafafa;
-}
-
-/* Form Enhancements */
-.ant-form-item-label>label {
-  font-weight: 500;
-}
-
-.ant-input:focus,
-.ant-select-focused .ant-select-selector {
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-}
-
-/* Card Grid Layout */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 1.5rem;
-}
-
-/* Enhanced Modal Styles */
-.ant-modal-content {
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
-}
-
-.ant-modal-header {
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
-}
-
-/* Improved Navigation */
-.ant-menu-horizontal>.ant-menu-item:hover,
-.ant-menu-horizontal>.ant-menu-submenu:hover {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
-}
-
-/* Loading States */
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-}
-
-/* Enhanced Dropdown Styles */
-.ant-dropdown-menu {
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-}
-
-/* Improved Alert Styles */
-.ant-alert {
-  border-radius: var(--border-radius);
-  margin-bottom: 1rem;
-}
-
-/* Better Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--text-color);
-  margin-bottom: 1rem;
-}
-
-h1 {
-  font-size: 2.5rem;
-}
-
-h2 {
-  font-size: 2rem;
-}
-
-h3 {
-  font-size: 1.75rem;
-}
-
-h4 {
-  font-size: 1.5rem;
-}
-
-h5 {
-  font-size: 1.25rem;
-}
-
-h6 {
-  font-size: 1rem;
-}
-
-/* Existing Classes with Improvements */
 .centered-content {
   display: flex;
   justify-content: center;
@@ -550,23 +236,16 @@ h6 {
 .container-nav-bi {
   display: flex;
   justify-content: space-between;
-  padding: 1rem;
-  margin-top: 1rem;
+  padding: 10px;
 }
 
 .container-nav-mono {
   display: flex;
-  justify-content: flex-end;
-  padding: 1rem;
+  justify-content: right;
 }
 
-/* Enhanced Form Validation States */
-.ant-form-item-has-error .ant-input,
-.ant-form-item-has-error .ant-input-affix-wrapper,
-.ant-form-item-has-error .ant-input:hover,
-.ant-form-item-has-error .ant-input-affix-wrapper:hover {
-  border-color: #ff4d4f;
-  border-radius: var(--border-radius);
+.popover-content {
+  width: 250px;
 }
 
 .action-icon {

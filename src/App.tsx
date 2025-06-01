@@ -56,17 +56,8 @@ function App() {
     };
 
     return (
-      <Dropdown menu={menu} placement="bottomRight">
-        <Avatar
-          style={{
-            backgroundColor: "var(--accent-color)",
-            cursor: "pointer",
-            color: "white",
-            transition: "transform 0.2s ease"
-          }}
-          size="large"
-          className="user-avatar"
-        >
+      <Dropdown menu={menu}>
+        <Avatar style={{ backgroundColor: "orange", verticalAlign: "middle", cursor: "pointer", color: "black" }} size="large">
           {getLoggedUser()}
         </Avatar>
       </Dropdown>
@@ -74,13 +65,13 @@ function App() {
   };
 
   return (
-    <Layout className="app-layout">
-      <Header className="header">
-        <Row justify="space-between" align="middle">
-          <Col span={8}>
-            <div className="header-logo">
+    <Layout>
+      <Header>
+        <Row justify="space-between">
+          <Col span={8} style={{ marginTop: "5px" }}>
+            <div className="d-flex">
               <div className="logo" />
-              <div className="logo-title">Association musulmane du Chablais</div>
+              <div className="logo-title hidden-xs">Association musulmane du Chablais</div>
             </div>
           </Col>
           <Col span={8}>
@@ -91,29 +82,27 @@ function App() {
           </Col>
         </Row>
       </Header>
-      <Content className="main-content">
-        <div className="content-wrapper">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
-            <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
-            <Route path="/adhesion" element={<AdhesionForm />} />
-            <Route path="/adhesionInfos" element={<AdhesionInfos />} />
-            <Route path="/login" element={<SignIn />} />
-            <Route path="/admin" element={<HomeAdmin />} />
-            <Route path="/adminCours" element={<AdminCoursArabes />} />
-            <Route path="/adminAdhesion" element={<AdminAdhesion />} />
-            <Route path="/adminTarif" element={<AdminTarifs />} />
-            <Route path="/enseignants" element={<Enseignants />} />
-            <Route path="/creerModifierClasse" element={<CreateUpdateClasse />} />
-            <Route path="/classes" element={<MesClasses />} />
-            <Route path="/classes/:id" element={<MaClasse />} />
-            <Route path="/changePassword" element={<ChangePassword />} />
-            <Route path="/don" element={<FaireUnDon />} />
-            <Route path="/parametres" element={<Parametres />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+      <Content className="content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
+          <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
+          <Route path="/adhesion" element={<AdhesionForm />} />
+          <Route path="/adhesionInfos" element={<AdhesionInfos />} />
+          <Route path="/login" element={<SignIn />} />
+          <Route path="/admin" element={<HomeAdmin />} />
+          <Route path="/adminCours" element={<AdminCoursArabes />} />
+          <Route path="/adminAdhesion" element={<AdminAdhesion />} />
+          <Route path="/adminTarif" element={<AdminTarifs />} />
+          <Route path="/enseignants" element={<Enseignants />} />
+          <Route path="/creerModifierClasse" element={<CreateUpdateClasse />} />
+          <Route path="/classes" element={<MesClasses />} />
+          <Route path="/classes/:id" element={<MaClasse />} />
+          <Route path="/changePassword" element={<ChangePassword />} />
+          <Route path="/don" element={<FaireUnDon />} />
+          <Route path="/parametres" element={<Parametres />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </Content>
       <Footer className="footer">
         <Row gutter={[16, 16]} justify="center">
