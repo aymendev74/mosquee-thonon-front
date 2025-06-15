@@ -113,6 +113,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         sessionStorage.setItem("tokenData", JSON.stringify(tokenData));
         setIsAuthenticated(true);
+    };
+
+    async function handleAuthorizationCode(code: string) {
+        try {
+            await exchangeCodeForToken(code);
+        } catch (e) {
+            console.error("Erreur lors de l'échange du code :", e);
+        } finally {
+            // Nettoyer l'URL : enlever ?code=...&state=... sans recharger la page
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
     }
 
     useEffect(() => {
@@ -120,7 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const code = params.get("code");
         const state = params.get("state");
         if (code) {
-            exchangeCodeForToken(code);
+            handleAuthorizationCode(code);
         } else if (state) {
             window.location.replace(state);
         } else if (getLoggedUser() != null) {
