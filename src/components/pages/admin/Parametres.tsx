@@ -13,7 +13,7 @@ import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const Parametres: FunctionComponent = () => {
 
-    const { isAuthenticated } = useAuth();
+    const { getLoggedUser } = useAuth();
     const [form] = Form.useForm();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [inscriptionEnfantFromDateVisible, setInscriptionEnfantFromDateVisible] = useState<boolean>(false);
@@ -94,7 +94,7 @@ export const Parametres: FunctionComponent = () => {
         }
     }
 
-    return isAuthenticated ? (
+    return getLoggedUser() ? (
         <div className="centered-content">
             <Form
                 name="basic"

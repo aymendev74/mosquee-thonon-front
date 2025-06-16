@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 const MesClasses = () => {
-    const { isAuthenticated } = useAuth();
+    const { getLoggedUser } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const [classes, setClasses] = useState<ClasseDtoF[]>([]);
     const [form] = useForm();
@@ -83,7 +83,7 @@ const MesClasses = () => {
         }
     }, [result]);
 
-    return isAuthenticated ? (
+    return getLoggedUser() ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">

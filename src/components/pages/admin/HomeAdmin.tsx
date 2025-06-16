@@ -8,17 +8,17 @@ const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 export const HomeAdmin: FunctionComponent = () => {
-    const { isAuthenticated, getLoggedUser } = useAuth();
+    const { getLoggedUser } = useAuth();
     const [loggedUser, setLoggedUser] = useState<string>();
 
     useEffect(() => {
         setLoggedUser(getLoggedUser());
-    }, [isAuthenticated]);
+    }, [getLoggedUser()]);
 
     return (
         <Layout>
             <Content style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "24px" }}>
-                {isAuthenticated ? (
+                {getLoggedUser() ? (
                     <Card
                         style={{
                             maxWidth: "600px",

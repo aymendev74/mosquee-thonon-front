@@ -13,7 +13,7 @@ type FieldType = {
 };
 
 export const ChangePassword: FunctionComponent = () => {
-    const { isAuthenticated } = useAuth();
+    const { getLoggedUser } = useAuth();
     const { result, errorResult, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = useForm();
 
@@ -32,7 +32,7 @@ export const ChangePassword: FunctionComponent = () => {
         resetApi();
     }, [result, errorResult]);
 
-    return isAuthenticated ? (
+    return getLoggedUser() ? (
         <div className="centered-content">
             <Form
                 name="changePassword"

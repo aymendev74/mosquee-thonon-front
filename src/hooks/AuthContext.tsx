@@ -5,13 +5,13 @@ import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
 type AuthContextType = {
-    isAuthenticated: boolean;
     getLoggedUser: () => string;
     getRoles: () => string[];
     login: () => Promise<void>;
     logout: () => void;
     getAccessToken: () => string | null;
     getAccessTokenSilently: () => string;
+    handleAuthorizationCode: (code: string, state: string | null) => Promise<string | null>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,49 +50,73 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const tokenEndpoint = process.env.REACT_APP_OAUTH_TOKEN_ENDPOINT;
     const logoutEndpoint = process.env.REACT_APP_BASE_URL_API + "/logout";
     const clientId = process.env.REACT_APP_OAUTH_CLIENT_ID;
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     function getState() {
-        const currentPath = window.location.pathname;
-        if (currentPath.endsWith("/login")) {
+        const { pathname, search } = window.location
+        if (pathname === "/login") {
             return null;
         }
-        return currentPath;
+        return `${pathname}${search}`;
     }
 
     function tokenExpired(expirationTime: any) {
         return new Date().getTime() >= expirationTime;
     }
 
-    const login = useCallback(async function () {
+    const login = useCallback(async () => {
         try {
-            const state = getState();
-            const encodedRedirectUri = encodeURIComponent(redirectURI!);
+            const from = getState();
             const codeVerifier = generateCodeVerifier(128);
             const codeChallenge = await generateCodeChallenge(codeVerifier);
-            const encodedCodeChallenge = encodeURIComponent(codeChallenge);
-            sessionStorage.setItem("code_verifier", codeVerifier);
-            const url = `${authorizationEndpoint}?response_type=code&client_id=${clientId}&redirect_uri=${encodedRedirectUri}&code_challenge=${encodedCodeChallenge}&code_challenge_method=S256`;
-            const urlWithState = state ? `${url}&state=${state}` : url;
-            window.location.replace(urlWithState);
+
+            const statePayload = {
+                code_verifier: codeVerifier,
+                from
+            };
+            const state = encodeURIComponent(btoa(JSON.stringify(statePayload)));
+
+            const url = `${authorizationEndpoint}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectURI!)}&code_challenge=${encodeURIComponent(codeChallenge)}&code_challenge_method=S256&state=${state}`;
+
+            window.location.replace(url);
         } catch (error) {
             console.error("Erreur lors de la connexion :", error);
         }
     }, []);
 
     const logout = useCallback(async () => {
-        const tokenData = sessionStorage.getItem("tokenData");
+        const tokenData = localStorage.getItem("tokenData");
         if (tokenData) {
             const parsedTokenData = JSON.parse(tokenData);
             if (parsedTokenData.accessToken) {
-                sessionStorage.removeItem("tokenData");
+                localStorage.removeItem("tokenData");
                 window.location.replace(logoutEndpoint);
             }
         }
     }, []);
 
-    async function exchangeCodeForToken(code: string) {
-        const codeVerifier = sessionStorage.getItem("code_verifier");
+    const exchangeCodeForToken = useCallback(async (code: string, stateEncoded: string | null): Promise<string | null> => {
+        let codeVerifier: string | null = null;
+        let from: string | null = null;
+        if (!stateEncoded) {
+            console.error("le state est manquant au retour du serveur OAuth !");
+            return null;
+        }
+
+        try {
+            const stateDecoded = atob(decodeURIComponent(stateEncoded));
+            const stateObj = JSON.parse(stateDecoded);
+            codeVerifier = stateObj.code_verifier;
+            from = stateObj.from;
+        } catch (error) {
+            console.error("Erreur de décodage du paramètre state :", error);
+            return null;
+        }
+
+        if (!codeVerifier) {
+            console.error("code_verifier manquant !");
+            return null;
+        }
+
         const response = await axios.post(tokenEndpoint!, qs.stringify({
             grant_type: "authorization_code",
             code: code,
@@ -104,44 +128,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 "Content-Type": "application/x-www-form-urlencoded",
             }
         });
+
         const decoded = jwtDecode<MyJwtPayload>(response.data.access_token);
         const tokenData = {
             accessToken: response.data.access_token,
             user: decoded.sub!,
-            expirationTime: decoded.exp! * 1000, // après le decode de jwtDecode, l'expiration est en secondes
+            expirationTime: decoded.exp! * 1000,
             roles: decoded.roles
-        }
-        sessionStorage.setItem("tokenData", JSON.stringify(tokenData));
-        setIsAuthenticated(true);
-    };
+        };
+        localStorage.setItem("tokenData", JSON.stringify(tokenData));
 
-    async function handleAuthorizationCode(code: string) {
+        return from;
+    }, []);
+
+    const handleAuthorizationCode = useCallback(async (code: string, stateEncoded: string | null): Promise<string | null> => {
+        let redirection: string | null = null;
         try {
-            await exchangeCodeForToken(code);
+            redirection = await exchangeCodeForToken(code, stateEncoded);
         } catch (e) {
             console.error("Erreur lors de l'échange du code :", e);
         } finally {
             // Nettoyer l'URL : enlever ?code=...&state=... sans recharger la page
             const newUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
-        }
-    }
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get("code");
-        const state = params.get("state");
-        if (code) {
-            handleAuthorizationCode(code);
-        } else if (state) {
-            window.location.replace(state);
-        } else if (getLoggedUser() != null) {
-            setIsAuthenticated(true);
+            return redirection;
         }
     }, []);
 
+    // On clean le local storage lorsque l'app est quittée
+    useEffect(() => {
+        const handleUnload = () => {
+            localStorage.removeItem("tokenData");
+        };
+
+        window.addEventListener("beforeunload", handleUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleUnload);
+        };
+    }, []);
+
     const getAccessToken = useCallback(() => {
-        const tokenData = sessionStorage.getItem("tokenData");
+        const tokenData = localStorage.getItem("tokenData");
         if (tokenData) {
             const parsedTokenData = JSON.parse(tokenData);
             if (!tokenExpired(parsedTokenData?.expirationTime)) {
@@ -153,7 +181,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
 
     const getAccessTokenSilently = useCallback(() => {
-        const tokenData = sessionStorage.getItem("tokenData");
+        const tokenData = localStorage.getItem("tokenData");
         if (tokenData) {
             const parsedTokenData = JSON.parse(tokenData);
             return parsedTokenData.accessToken;
@@ -162,17 +190,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
 
     const getLoggedUser = useCallback(() => {
-        const tokenData = sessionStorage.getItem("tokenData");
+        const tokenData = localStorage.getItem("tokenData");
         return tokenData ? JSON.parse(tokenData).user : null;
     }, []);
 
     const getRoles = useCallback(() => {
-        const tokenData = sessionStorage.getItem("tokenData");
+        const tokenData = localStorage.getItem("tokenData");
         return tokenData ? JSON.parse(tokenData).roles : null;
     }, []);
 
     return (
-        <AuthContext.Provider value={{ getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, getRoles, isAuthenticated }}>
+        <AuthContext.Provider value={{ handleAuthorizationCode, getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, getRoles }}>
             {children}
         </AuthContext.Provider>
     );
