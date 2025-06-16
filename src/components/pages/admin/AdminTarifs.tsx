@@ -16,7 +16,7 @@ import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const AdminTarifs: FunctionComponent = () => {
 
-    const { isAuthenticated } = useAuth();
+    const { getLoggedUser } = useAuth();
     const [form] = Form.useForm();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [periodesDto, setPeriodesDto] = useState<PeriodeInfoDto[]>();
@@ -170,7 +170,7 @@ export const AdminTarifs: FunctionComponent = () => {
         setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
     }, [application]);
 
-    return isAuthenticated ? (
+    return getLoggedUser() ? (
         <div className="centered-content">
             <Form
                 name="basic"
