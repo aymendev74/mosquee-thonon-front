@@ -16,7 +16,7 @@ import { UnahtorizedAccess } from '../UnahtorizedAccess';
 import { valueType } from 'antd/es/statistic/utils';
 
 const CreateUpdateClasse = () => {
-    const { getRoles } = useAuth();
+    const { roles } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [enseignants, setEnseignants] = useState<EnseignantDto[]>([]);
     const [classes, setClasses] = useState<ClasseDtoF[]>([]);
@@ -137,7 +137,7 @@ const CreateUpdateClasse = () => {
         }
     };
 
-    return getRoles()?.includes("ROLE_ADMIN") ? (
+    return roles?.includes("ROLE_ADMIN") ? (
         <>
             <FloatButton.BackTop />
             <FloatButton icon={<PlusOutlined />} type="primary" onClick={onCreateClasse} tooltip="Créer une nouvelle classe" />

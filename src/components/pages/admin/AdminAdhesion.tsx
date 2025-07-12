@@ -22,7 +22,7 @@ import { PdfAuthContextBridge } from "../../documents/PdfContextBridge";
 export const AdminAdhesion: FunctionComponent = () => {
 
     const [dataSource, setDataSource] = useState<AdhesionLight[]>();
-    const { getRoles } = useAuth();
+    const { roles } = useAuth();
     const navigate = useNavigate();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
     const [form] = Form.useForm();
@@ -221,7 +221,7 @@ export const AdminAdhesion: FunctionComponent = () => {
         }
     }
 
-    return getRoles()?.includes("ROLE_ADMIN") ? (
+    return roles?.includes("ROLE_ADMIN") ? (
         <div className="centered-content">
             <Form
                 name="adminAdhesion"

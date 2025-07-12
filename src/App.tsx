@@ -20,11 +20,13 @@ import MesClasses from './components/pages/enseignant/MesClasses';
 import MaClasse from './components/pages/enseignant/MaClasse';
 import { NotFound } from './components/pages/NotFound';
 import AdhesionInfos from './components/pages/AdhesionInfos';
+import { useEffect } from 'react';
+import useApi from './hooks/useApi';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const { getLoggedUser, logout } = useAuth();
+  const { username, logout, getLoggedUser } = useAuth();
   const navigate = useNavigate();
 
   const DropdownAuthUser = () => {
@@ -43,11 +45,15 @@ function App() {
     return (
       <Dropdown menu={menu}>
         <Avatar style={{ backgroundColor: "orange", verticalAlign: "middle", cursor: "pointer", color: "black" }} size="large">
-          {getLoggedUser()}
+          {username}
         </Avatar>
       </Dropdown>
     );
   };
+
+  useEffect(() => {
+    getLoggedUser();
+  }, []);
 
   return (
     <Layout>
@@ -63,7 +69,7 @@ function App() {
             <MyMenu />
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
-            {getLoggedUser() ? (
+            {username ? (
               <DropdownAuthUser />
             ) : (
               <></>
