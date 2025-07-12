@@ -23,8 +23,8 @@ const Enseignants = () => {
     const [formUtilisateur] = Form.useForm();
     const [editingEnseignantId, setEditingEnseignantId] = useState<number | null>(null);
     const [usernames, setUsernames] = useState<string[]>([]);
-    const [roles, setRoles] = useState<string[]>([]);
-    const { getRoles } = useAuth();
+    const [allRoles, setAllRoles] = useState<string[]>([]);
+    const { roles } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
 
     function getUsernameOptions() {
@@ -32,7 +32,7 @@ const Enseignants = () => {
     }
 
     function getRoleOptions() {
-        return roles.map((role) => ({ label: role, value: role }));
+        return allRoles.map((role) => ({ label: role, value: role }));
     }
 
     const handleCancel = () => {
@@ -127,7 +127,7 @@ const Enseignants = () => {
             }
         },
         [`GET:${ROLES_ENDPOINT}`]: (result: any) => {
-            setRoles(result);
+            setAllRoles(result);
             resetApi();
         },
         [`POST:${USER_ENDPOINT}`]: (result: any) => {
@@ -269,7 +269,7 @@ const Enseignants = () => {
         </Modal>
     );
 
-    return getRoles()?.includes("ROLE_ADMIN") ? (
+    return roles?.includes("ROLE_ADMIN") ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">

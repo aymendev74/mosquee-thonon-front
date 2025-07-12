@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export const SignIn: FunctionComponent = () => {
 
-    const { login, handleAuthorizationCode, getLoggedUser } = useAuth();
+    const { login, handleAuthorizationCode, username } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,7 +16,7 @@ export const SignIn: FunctionComponent = () => {
             if (code) {
                 const redirectionUrl = await handleAuthorizationCode(code, state);
                 navigate(redirectionUrl ?? "/admin");
-            } else if (!getLoggedUser()) {
+            } else if (!username) {
                 login(); // déclenche le redirect vers le serveur OAuth
             } else {
                 navigate("/admin");

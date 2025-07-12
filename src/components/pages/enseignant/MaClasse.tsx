@@ -18,7 +18,7 @@ import { getJourActiviteOptions, getResultatOptions } from '../../common/commoni
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 const MaClasse = () => {
-    const { getLoggedUser } = useAuth();
+    const { username } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
     const [classe, setClasse] = useState<ClasseDtoF | undefined>();
@@ -408,7 +408,7 @@ const MaClasse = () => {
         }
     ];
 
-    return getLoggedUser() ? (
+    return username ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">

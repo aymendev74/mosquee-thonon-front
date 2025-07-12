@@ -1,4 +1,4 @@
-export type AuthResponse = {
+export type UserInfoDto = {
     username: string;
-    accessToken: string;
+    roles: string[];
 }
