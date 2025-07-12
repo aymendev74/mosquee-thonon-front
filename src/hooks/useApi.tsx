@@ -25,11 +25,12 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
     const [apiCallDefinition, setApiCallDefinition] = useState<ApiCallDefinition | undefined>(apiCallDef);
     const [status, setStatus] = useState<number | undefined>();
     const axios = useAxios();
-    const { getLoggedUser, getAccessToken } = useAuth();
+    const { login } = useAuth();
 
     const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<APiCallResult> => {
         return axios.request({
             ...apiCallDefinition,
+            withCredentials: true,
             paramsSerializer: {
                 indexes: null
             }
@@ -37,9 +38,11 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
             return { responseData: response.data, status: response.status };
         }).catch(function (error) {
             console.log("error", error);
-            // Si pas de code d'erreur spécifique renvoyé par le back, alors on affiche un message d'erreur standard (problème technique)
-            // Sinon on ne fait rien d'autre que levé l'erreur pour que ce soit géré par l'appelant (message spécifique à afficher à l'utilisateur)
-            notification.open({ message: "Une erreur est survenue", type: "error" });
+            if (error.response && error.response.status === 401) {
+                login();
+            } else {
+                notification.open({ message: "Une erreur est survenue", type: "error" });
+            }
             throw error;
         });
     }
@@ -49,13 +52,6 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
             setIsLoading(true);
             setError(false);
             try {
-                // Si un utilisateur est connecté, on vérifie si son token est toujours bon
-                if (getLoggedUser()) {
-                    const token = getAccessToken();
-                    if (!token) { // inutile d'aller plus loin (nouvelle authentification déclenchée)
-                        return;
-                    }
-                }
                 const apiCallResult = await executeApiCall(apiCallDefinition!);
                 setResult(apiCallResult.responseData);
                 setStatus(apiCallResult.status);

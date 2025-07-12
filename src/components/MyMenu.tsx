@@ -6,7 +6,7 @@ import { useAuth } from "../hooks/AuthContext";
 
 export const MyMenu: FunctionComponent = () => {
     const navigate = useNavigate();
-    const { getRoles } = useAuth();
+    const { roles } = useAuth();
     const onMenuClicked: MenuProps['onClick'] = (menuInfo) => {
         if (menuInfo.key === "home") {
             navigate("/");
@@ -122,9 +122,9 @@ export const MyMenu: FunctionComponent = () => {
     }
 
     const getMenuItems = () => {
-        if (getRoles()?.includes("ROLE_ADMIN")) {
+        if (roles?.includes("ROLE_ADMIN")) {
             return getAdminMenuItems();
-        } else if (getRoles()?.includes("ROLE_ENSEIGNANT")) {
+        } else if (roles?.includes("ROLE_ENSEIGNANT")) {
             return getEnseignantMenuItems();
         } else {
             return getPublicMenuItems();

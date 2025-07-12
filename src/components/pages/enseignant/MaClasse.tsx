@@ -28,7 +28,7 @@ import { PdfAuthContextBridge } from '../../documents/PdfContextBridge';
 import { PdfBulletin } from '../../documents/PdfBulletin';
 
 const MaClasse = () => {
-    const { getLoggedUser } = useAuth();
+    const { username } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
     const [modalBulletinOpen, setModalBulletinOpen] = useState(false);
@@ -547,7 +547,7 @@ const MaClasse = () => {
         return elevesEnriched.find(eleve => eleve.id === selectedEleveId);
     }
 
-    return getLoggedUser() ? (
+    return username ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">
