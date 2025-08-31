@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import { ConfigProvider, Menu, theme } from 'antd';
+import { ConfigProvider } from 'antd';
 //import { AuthProvider } from './hooks/UseAuth';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
@@ -22,22 +22,22 @@ Font.register({
   family: 'Roboto',
   fonts: [
     {
-      src: '/polices/Roboto-Regular.ttf',
+      src: '/polices/roboto/Roboto-Regular.ttf',
       fontWeight: 'normal',
       fontStyle: 'normal',
     },
     {
-      src: '/polices/Roboto-Bold.ttf',
+      src: '/polices/roboto/Roboto-Bold.ttf',
       fontWeight: 'bold',
       fontStyle: 'normal',
     },
     {
-      src: '/polices/Roboto-Italic.ttf',
+      src: '/polices/roboto/Roboto-Italic.ttf',
       fontWeight: 'normal',
       fontStyle: 'italic',
     },
     {
-      src: '/polices/Roboto-BoldItalic.ttf',
+      src: '/polices/roboto/Roboto-BoldItalic.ttf',
       fontWeight: 'bold',
       fontStyle: 'italic',
     },

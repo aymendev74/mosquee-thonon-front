@@ -6,11 +6,12 @@ import {
     ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams,
     FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT,
     BULLETINS_ELEVE_ENDPOINT,
-    BULLETIN_EXISTING_ENDPOINT
+    BULLETIN_EXISTING_ENDPOINT,
+    MATIERES_ENDPOINT
 } from '../../../services/services';
 import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Table, Tag, Tooltip } from 'antd';
-import { BulletinDto, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
-import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm, firstLettertoUpperCase } from '../../../utils/FormUtils';
+import { BulletinDto, BulletinDtoB, BulletinDtoF, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, MatiereDto, PresenceEleveDto } from '../../../services/classe';
+import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm, firstLettertoUpperCase, prepareBulletinBeforeForm } from '../../../utils/FormUtils';
 import { AddCircleOutline, AddOutlined } from '@mui/icons-material';
 import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
 import { useParams } from 'react-router-dom';
@@ -26,6 +27,7 @@ import { ModalBulletin } from '../../modals/ModalBulletin';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PdfAuthContextBridge } from '../../documents/PdfContextBridge';
 import { PdfBulletin } from '../../documents/PdfBulletin';
+import { useMatieresStore } from '../../stores/useMatieresStore';
 
 const MaClasse = () => {
     const { username } = useAuth();
@@ -37,11 +39,13 @@ const MaClasse = () => {
     const [feuilleToEdit, setFeuilleToEdit] = useState<FeuillePresenceDtoF | undefined>();
     const [elevesEnriched, setElevesEnriched] = useState<EleveEnrichedDto[]>([]);
     const [vueDetaille, setVueDetaille] = useState(false);
-    const [bulletins, setBulletins] = useState<BulletinDto[]>([]);
+    const [bulletins, setBulletins] = useState<BulletinDtoF[]>([]);
     const [selectedEleveId, setSelectedEleveId] = useState<number | undefined>();
-    const [bulletin, setBulletin] = useState<BulletinDto | undefined>();
+    const [bulletin, setBulletin] = useState<BulletinDtoF | undefined>();
     const [bulletinsPdf, setBulletinsPdf] = useState<number[]>([]);
     const { id } = useParams();
+    const { setMatieres, matieres } = useMatieresStore();
+    console.log(elevesEnriched);
 
     function onCreateFeuillePresence() {
         setFeuilleToEdit(undefined);
@@ -83,6 +87,10 @@ const MaClasse = () => {
         [`GET:${ELEVES_ENRICHED_ENDPOINT}`]: (result: any) => {
             const eleves = result as EleveEnrichedDto[];
             setElevesEnriched(eleves);
+            setApiCallDefinition({ method: "GET", url: MATIERES_ENDPOINT });
+        },
+        [`GET:${MATIERES_ENDPOINT}`]: (result: any) => {
+            setMatieres(result as MatiereDto[]);
             resetApi();
         },
         [`PATCH:${ELEVES_ENDPOINT}`]: (result: any) => {
@@ -95,8 +103,9 @@ const MaClasse = () => {
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }) });
         },
         [`GET:${BULLETINS_ELEVE_ENDPOINT}`]: (result: any) => {
-            const bulletins = result as BulletinDto[];
-            setBulletins(bulletins);
+            const bulletins = result as BulletinDtoB[];
+            let bulletinsF = bulletins.map((bulletin) => prepareBulletinBeforeForm(bulletin));
+            setBulletins(bulletinsF);
             resetApi();
         },
         [`DELETE:${BULLETIN_EXISTING_ENDPOINT}`]: (result: any) => {
@@ -443,18 +452,23 @@ const MaClasse = () => {
         setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletinId }) });
     };
 
+    const getBulletinById = (id: number) => bulletins.find(bulletin => bulletin.id === id);
+
     const getBulletinPdfButton = (id: number) => {
         return bulletinsPdf.some(idBulletin => idBulletin === id) ?
             (
                 <PDFDownloadLink className="m-left-10" document={<PdfAuthContextBridge>
-                    <PdfBulletin id={id} />
+                    <PdfBulletin bulletin={getBulletinById(id)!}
+                        eleve={elevesEnriched.find(eleve => eleve.id === getBulletinById(id)?.idEleve)!} matieres={matieres}
+                        nomPrenomEnseignant={classe?.nomPrenomEnseignant ?? ""} nomClasse={classe?.libelle ?? ""} />
                 </PdfAuthContextBridge>}
                     fileName="bulletin">
                     {({ blob, url, loading, error }) => {
                         return loading ? "Génération Pdf..." : <FilePdfTwoTone />
                     }
                     }
-                </PDFDownloadLink>) : (<Button className="m-left-10" type="primary" onClick={() => { setBulletinsPdf([...bulletinsPdf, id]) }} icon={<FilePdfTwoTone />} />)
+                </PDFDownloadLink>) : (<Tooltip color="geekblue" title="Fonctionnalité en cours de développement..."><Button className="m-left-10" type="primary" onClick={() => { setBulletinsPdf([...bulletinsPdf, id]) }} icon={<FilePdfTwoTone />}
+                    disabled /></Tooltip>)
     }
 
     function onCreerBulletin() {
@@ -462,7 +476,7 @@ const MaClasse = () => {
         setBulletin({ idEleve: selectedEleveId! });
     }
 
-    const columnsTableBulletins: ColumnsType<BulletinDto> = [
+    const columnsTableBulletins: ColumnsType<BulletinDtoF> = [
         {
             title: "Mois",
             key: "nom",

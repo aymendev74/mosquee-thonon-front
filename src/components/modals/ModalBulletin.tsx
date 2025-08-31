@@ -3,28 +3,30 @@ import { FunctionComponent, useEffect, useState } from "react"
 import useApi from "../../hooks/useApi";
 import { ApiCallbacks, buildUrlWithParams, BULLETIN_ENDPOINT, BULLETIN_EXISTING_ENDPOINT, BULLETINS_ELEVE_ENDPOINT, handleApiCall, MATIERES_ENDPOINT } from "../../services/services";
 import dayjs from "dayjs";
-import { BulletinDto, MatiereDto, MatiereNoteEnum } from "../../services/classe";
+import { BulletinDto, BulletinDtoB, BulletinDtoF, MatiereDto, MatiereNoteEnum } from "../../services/classe";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { EleveEnrichedDto } from "../../services/eleve";
 import { InputFormItem } from "../common/InputFormItem";
 import TextArea from "antd/es/input/TextArea";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
-import { firstLettertoUpperCase } from '../../utils/FormUtils';
+import { firstLettertoUpperCase, prepareBulletinBeforeSave } from '../../utils/FormUtils';
+import { useMatieresStore } from "../stores/useMatieresStore";
+import { DatePickerFormItem } from "../common/DatePickerFormItem";
 
 
 export type ModalBulletinProps = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     isCreation: boolean,
-    bulletin?: BulletinDto,
+    bulletin?: BulletinDtoF,
     annees: number[],
     eleve?: EleveEnrichedDto,
 }
 
 export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, setOpen, isCreation, bulletin, annees, eleve }) => {
     const { isLoading, result, setApiCallDefinition, apiCallDefinition, resetApi } = useApi();
-    const [matieres, setMatieres] = useState<MatiereDto[]>([]);
     const [form] = Form.useForm();
+    const { matieres } = useMatieresStore();
 
     const close = () => {
         form.resetFields();
@@ -38,11 +40,11 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
             note: notes[idMatiere],
             remarque: remarques?.[idMatiere]
         }));
-        const bulletinToSave = {
+        const bulletinToSave: BulletinDtoB = prepareBulletinBeforeSave({
             ...bulletin,
             ...otherFields,
             bulletinMatieres
-        };
+        });
         if (isCreation) {
             setApiCallDefinition({ method: "POST", url: BULLETIN_ENDPOINT, data: bulletinToSave });
         } else {
@@ -64,7 +66,6 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
             });
             form.setFieldsValue({ ...bulletin, notes, remarques });
         }
-        setApiCallDefinition({ method: "GET", url: MATIERES_ENDPOINT });
     }, [bulletin]);
 
     function confirmSaveSuccess() {
@@ -74,10 +75,6 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
     }
 
     const apiCallbacks: ApiCallbacks = {
-        [`GET:${MATIERES_ENDPOINT}`]: (result: any) => {
-            setMatieres(result as MatiereDto[]);
-            resetApi();
-        },
         [`POST:${BULLETIN_ENDPOINT}`]: (result: any) => {
             if (result) {
                 confirmSaveSuccess();
@@ -155,13 +152,20 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                     </Row>
                 ))}
                 <Divider orientation="left">Appréciation générale</Divider>
-                <Form.Item
-                    label="Appréciation"
-                    name="appreciation"
-                    rules={[{ required: true, message: "Veuillez indiquer votre appréciation générale" }]}
-                >
-                    <TextArea rows={4} placeholder="Veuillez saisir votre appréciation générale ici..." />
-                </Form.Item>
+                <Row gutter={[16, 32]}>
+                    <Col span={6}>
+                        <DatePickerFormItem name="dateBulletin" label="Date" rules={[{ required: true, message: "Veuillez indiquer la date du bulletin (apparaîtra sur le document PDF)" }]} />
+                    </Col>
+                    <Col span={18}>
+                        <Form.Item
+                            label="Appréciation"
+                            name="appreciation"
+                            rules={[{ required: true, message: "Veuillez indiquer votre appréciation générale" }]}
+                        >
+                            <TextArea rows={4} placeholder="Veuillez saisir votre appréciation générale ici..." />
+                        </Form.Item>
+                    </Col>
+                </Row>
             </Spin>
         </Form>
     </Modal>);

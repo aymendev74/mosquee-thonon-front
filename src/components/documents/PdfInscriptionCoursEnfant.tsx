@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         padding: 10,
         fontSize: 10,
+        fontFamily: "Roboto",
     },
     header: {
         flexDirection: 'row',
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     },
     detailsCadreAdmin: {
         margin: "5 0",
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
     titreInfos: {
         textAlign: "center",
@@ -155,7 +156,7 @@ export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursPro
                         <View style={styles.association}>
                             <Text>Association musulmane du chablais</Text>
                         </View>
-                        <Image style={styles.logo} src="./logo_mosquee_thonon.png" />
+                        <Image style={styles.logo} src="/images/logo_mosquee_thonon.png" />
                     </View>
                     <View style={styles.title}>
                         <Text>FICHE D'INSCRIPTION AUX COURS D'ARABE</Text>

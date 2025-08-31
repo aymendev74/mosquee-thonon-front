@@ -1,9 +1,17 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { FunctionComponent } from "react";
+import { BulletinDto, BulletinDtoF, MatiereDto } from "../../services/classe";
+import { EleveEnrichedDto } from "../../services/eleve";
+import { firstLettertoUpperCase } from "../../utils/FormUtils";
+import dayjs from "dayjs";
 
 
 export type PdfBulletinProps = {
-    id: number;
+    bulletin: BulletinDtoF;
+    eleve: EleveEnrichedDto;
+    matieres: MatiereDto[];
+    nomClasse: string;
+    nomPrenomEnseignant: string;
 };
 
 const styles = StyleSheet.create({
@@ -37,59 +45,54 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         fontWeight: "bold",
     },
-    cadreAdminContainer: {
-        margin: "10 auto",
-        textAlign: 'center',
-        width: "80%",
-        border: '1px solid black',
-        borderRadius: 15,
-        padding: 5,
-        marginBottom: 30,
-    },
-    titreCadreAdmin: {
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
-    detailsCadreAdmin: {
-        margin: "5 0",
-        fontWeight: 'bold',
-    },
-    memberNumber: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        marginBottom: 15,
+    classe: {
         fontSize: 14,
-    },
-    dateSignatureContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        padding: 15,
-        marginBottom: 30,
-    },
-    signature: {
-        marginRight: 10,
-    },
-    date: {
-        marginRight: 10,
-    },
-    formElement: {
         marginBottom: 10,
     },
-    conditions: {
-        fontSize: 9,
-        marginBottom: 100,
+    enseignant: {
+        fontSize: 14,
+        marginBottom: 10,
     },
-    adresse: {
-        fontSize: 8,
-        textAlign: 'center',
+    eleve: {
+        fontSize: 14,
+        marginBottom: 20,
     },
-    bold: {
-        fontWeight: "bold",
+    tableau: {
+        border: "1px solid black",
+        borderColor: "black",
+        borderWidth: 1,
+        borderStyle: "solid",
+        borderRadius: 4,
+        padding: 10,
+    },
+    ligne: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottom: "1px solid black",
+        padding: 5,
+    },
+    colonne: {
+        width: "30%",
+        textAlign: "center",
+        fontSize: 12,
+    },
+    remarques: {
+        width: "40%",
+        textAlign: "left",
+        fontSize: 12,
+    },
+    absences: {
+        fontSize: 14,
+        marginBottom: 10,
+    },
+    appreciation: {
+        fontSize: 14,
+        marginBottom: 20,
     },
     checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         marginLeft: 10,
         marginRight: 10,
         marginBottom: 30,
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
         width: 10,
         height: 10,
         borderWidth: 1,
-        borderColor: 'black',
+        borderColor: "black",
         marginRight: 5,
     },
     checkmark: {
@@ -106,12 +109,37 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         fontSize: 8,
     },
-    labelConsentement: {
-        fontSize: 9,
-    },
 });
 
-export const PdfBulletin: FunctionComponent<PdfBulletinProps> = ({ id }) => {
+export const PdfBulletin: FunctionComponent<PdfBulletinProps> = ({ bulletin, eleve, matieres, nomClasse, nomPrenomEnseignant }) => {
+
+    const getMoisAnnee = () => {
+        return `${firstLettertoUpperCase(dayjs().month(bulletin.mois! - 1).format("MMMM"))} ${bulletin.annee}`;
+    };
+
+    const getEleve = () => {
+        // Récupérez le nom et le prénom de l'élève à partir de l'objet bulletin
+        return `${eleve.nom} ${eleve.prenom}`;
+    };
+
+    const getMatieres = (idMatiere: number) => {
+        // Récupérez le libellé de la matière à partir de l'objet bulletin
+        return matieres.find((matiere) => matiere.id === idMatiere)?.libelle;
+    };
+
+    const getNotes = () => {
+        // Récupérez les notes de l'élève à partir de l'objet bulletin
+        // Vous pouvez utiliser la bibliothèque dayjs pour formater les dates
+        return bulletin.bulletinMatieres?.map((bulletinMatiere) => (
+            <View key={bulletinMatiere.idMatiere} style={styles.ligne}>
+                <Text style={styles.colonne}>{getMatieres(bulletinMatiere.idMatiere)}</Text>
+                <Text style={styles.colonne}>
+                </Text>
+                <Text style={styles.remarques}>{bulletinMatiere.remarque}</Text>
+            </View>
+        ));
+    };
+
     return (
         <Document>
             <Page size="A4" style={styles.page}>
@@ -119,8 +147,35 @@ export const PdfBulletin: FunctionComponent<PdfBulletinProps> = ({ id }) => {
                     <View style={styles.association}>
                         <Text>Association musulmane du chablais</Text>
                     </View>
+                    <Image style={styles.logo} src="/images/logo_mosquee_thonon.png" />
+                </View>
+                <View style={styles.title}>
+                    <Text>{getMoisAnnee()}</Text>
+                </View>
+                <View style={styles.classe}>
+                    <Text>Classe : {nomClasse}</Text>
+                </View>
+                <View style={styles.enseignant}>
+                    <Text>Enseignant : {nomPrenomEnseignant}</Text>
+                </View>
+                <View style={styles.eleve}>
+                    <Text>Eleve : {getEleve()}</Text>
+                </View>
+                <View style={styles.tableau}>
+                    <View style={styles.ligne}>
+                        <Text style={styles.colonne}>Matières</Text>
+                        <Text style={styles.colonne}>Notes</Text>
+                        <Text style={styles.remarques}>Remarques</Text>
+                    </View>
+                    {getNotes()}
+                </View>
+                <View style={styles.absences}>
+                    <Text>Nombre d'absences : {bulletin.nbAbsences}</Text>
+                </View>
+                <View style={styles.appreciation}>
+                    <Text>Appréciation générale : {bulletin.appreciation}</Text>
                 </View>
             </Page>
-        </Document >
+        </Document>
     );
-} 
+};

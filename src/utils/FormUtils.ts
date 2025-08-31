@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { InscriptionAdulteBack, InscriptionAdulteFront, InscriptionEnfantBack, InscriptionEnfantFront } from "../services/inscription";
 import { EleveBack, EleveFront } from "../services/eleve";
-import { ClasseDtoB, FeuillePresenceDtoB, FeuillePresenceDtoF } from "../services/classe";
+import { BulletinDtoB, BulletinDtoF, ClasseDtoB, FeuillePresenceDtoB, FeuillePresenceDtoF } from "../services/classe";
 import * as XLSX from 'xlsx';
 
 export function convertOuiNonToBoolean(value: string) {
@@ -131,6 +131,21 @@ export function prepareFeuillePresenceBeforeForm(feuille: FeuillePresenceDtoB) {
     return feuillePresenceDtoF;
 }
 
+export function prepareBulletinBeforeForm(bulletin: BulletinDtoB) {
+    const bulletinDtoF: BulletinDtoF = {
+        ...bulletin,
+        dateBulletin: dayjs(bulletin.dateBulletin, APPLICATION_DATE_FORMAT)
+    }
+    return bulletinDtoF;
+}
+
+export function prepareBulletinBeforeSave(bulletin: BulletinDtoF) {
+    const bulletinDtoB: BulletinDtoB = {
+        ...bulletin,
+        dateBulletin: dayjs(bulletin.dateBulletin).format(APPLICATION_DATE_FORMAT)
+    }
+    return bulletinDtoB;
+}
 
 export const getConsentementInscriptionCoursLibelle = () => "En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre inscription aux cours." +
     " Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com." +

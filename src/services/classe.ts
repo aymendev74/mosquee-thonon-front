@@ -75,15 +75,19 @@ export type BulletinMatiereDto = {
     remarque: string;
 }
 
-export type BulletinDto = {
+export type BulletinDto<K extends string | Dayjs> = {
     id?: number;
     idEleve?: number;
     appreciation?: string;
     nbAbsences?: number;
     mois?: number;
     annee?: number;
+    dateBulletin?: K;
     bulletinMatieres?: BulletinMatiereDto[];
 }
+
+export type BulletinDtoB = BulletinDto<string>;
+export type BulletinDtoF = BulletinDto<Dayjs>;
 
 export enum MatiereEnum {
     EXPRESSION_ORALE = "EXPRESSION_ORALE",
