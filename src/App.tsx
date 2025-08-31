@@ -25,7 +25,7 @@ import { useEffect } from 'react';
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const { username, logout, getLoggedUser } = useAuth();
+  const { username, logout, requestProfileInformations } = useAuth();
   const navigate = useNavigate();
 
   const DropdownAuthUser = () => {
@@ -66,7 +66,7 @@ function App() {
   };
 
   useEffect(() => {
-    getLoggedUser();
+    requestProfileInformations();
   }, []);
 
   return (
