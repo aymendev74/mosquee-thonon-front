@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileExcelOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileExcelOutlined, FilePdfOutlined, FilePdfTwoTone } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
-import { ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams, FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT } from '../../../services/services';
+import {
+    ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams,
+    FEUILLE_PRESENCE_ENDPOINT, ELEVES_ENRICHED_ENDPOINT, ELEVES_ENDPOINT, EXISTING_FEUILLE_PRESENCE_ENDPOINT,
+    BULLETINS_ELEVE_ENDPOINT,
+    BULLETIN_EXISTING_ENDPOINT,
+    MATIERES_ENDPOINT
+} from '../../../services/services';
 import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Table, Tag, Tooltip } from 'antd';
-import { ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from '../../../services/classe';
-import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm } from '../../../utils/FormUtils';
-import { AddCircleOutline } from '@mui/icons-material';
+import { BulletinDto, BulletinDtoB, BulletinDtoF, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, MatiereDto, PresenceEleveDto } from '../../../services/classe';
+import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm, firstLettertoUpperCase, prepareBulletinBeforeForm } from '../../../utils/FormUtils';
+import { AddCircleOutline, AddOutlined } from '@mui/icons-material';
 import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
 import { useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
@@ -16,17 +22,30 @@ import { EleveEnrichedDto, PatchEleve, ResultatEnum } from '../../../services/el
 import { SwitchFormItem } from '../../common/SwitchFormItem';
 import { getJourActiviteOptions, getResultatOptions } from '../../common/commoninputs';
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
+import { SelectFormItem } from '../../common/SelectFormItem';
+import { ModalBulletin } from '../../modals/ModalBulletin';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PdfAuthContextBridge } from '../../documents/PdfContextBridge';
+import { PdfBulletin } from '../../documents/PdfBulletin';
+import { useMatieresStore } from '../../stores/useMatieresStore';
 
 const MaClasse = () => {
-    const { getLoggedUser } = useAuth();
+    const { username } = useAuth();
     const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
+    const [modalBulletinOpen, setModalBulletinOpen] = useState(false);
     const [classe, setClasse] = useState<ClasseDtoF | undefined>();
     const [feuillesPresence, setFeuillesPresence] = useState<FeuillePresenceDtoF[]>([]);
     const [feuilleToEdit, setFeuilleToEdit] = useState<FeuillePresenceDtoF | undefined>();
     const [elevesEnriched, setElevesEnriched] = useState<EleveEnrichedDto[]>([]);
     const [vueDetaille, setVueDetaille] = useState(false);
+    const [bulletins, setBulletins] = useState<BulletinDtoF[]>([]);
+    const [selectedEleveId, setSelectedEleveId] = useState<number | undefined>();
+    const [bulletin, setBulletin] = useState<BulletinDtoF | undefined>();
+    const [bulletinsPdf, setBulletinsPdf] = useState<number[]>([]);
     const { id } = useParams();
+    const { setMatieres, matieres } = useMatieresStore();
+    console.log(elevesEnriched);
 
     function onCreateFeuillePresence() {
         setFeuilleToEdit(undefined);
@@ -38,6 +57,12 @@ const MaClasse = () => {
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
         }
     }, [modalFeuillePresenceOpen]);
+
+    useEffect(() => {
+        if (!modalBulletinOpen && selectedEleveId) {
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: selectedEleveId }) });
+        }
+    }, [modalBulletinOpen])
 
     function getJourClasse() {
         if (classe?.activites) {
@@ -62,6 +87,10 @@ const MaClasse = () => {
         [`GET:${ELEVES_ENRICHED_ENDPOINT}`]: (result: any) => {
             const eleves = result as EleveEnrichedDto[];
             setElevesEnriched(eleves);
+            setApiCallDefinition({ method: "GET", url: MATIERES_ENDPOINT });
+        },
+        [`GET:${MATIERES_ENDPOINT}`]: (result: any) => {
+            setMatieres(result as MatiereDto[]);
             resetApi();
         },
         [`PATCH:${ELEVES_ENDPOINT}`]: (result: any) => {
@@ -72,6 +101,16 @@ const MaClasse = () => {
         [`DELETE:${EXISTING_FEUILLE_PRESENCE_ENDPOINT}`]: (result: any) => {
             notification.success({ message: "La feuille de temps a bien été supprimée" });
             setApiCallDefinition({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }) });
+        },
+        [`GET:${BULLETINS_ELEVE_ENDPOINT}`]: (result: any) => {
+            const bulletins = result as BulletinDtoB[];
+            let bulletinsF = bulletins.map((bulletin) => prepareBulletinBeforeForm(bulletin));
+            setBulletins(bulletinsF);
+            resetApi();
+        },
+        [`DELETE:${BULLETIN_EXISTING_ENDPOINT}`]: (result: any) => {
+            notification.success({ message: "Le bulletin a bien été supprimé" });
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: selectedEleveId }) });
         },
     };
 
@@ -310,6 +349,15 @@ const MaClasse = () => {
             const eleveNiveauNonAcquis = elevesEnriched.filter(eleve => eleve.resultat == ResultatEnum.NON_ACQUIS).length;
             return `${(eleveNiveauAcquis / (eleveNiveauAcquis + eleveNiveauNonAcquis) * 100).toFixed(2)}%`;
         }
+    };
+
+    function loadBulletinsEleve(eleveId: number) {
+        setSelectedEleveId(eleveId);
+        if (eleveId) {
+            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: eleveId }) });
+        } else {
+            setBulletins([]);
+        }
     }
 
     function getInformationGeneralesContent() {
@@ -395,6 +443,102 @@ const MaClasse = () => {
         );
     };
 
+    function onModifierBulletin(bulletinId: number) {
+        setModalBulletinOpen(true);
+        setBulletin(bulletins.find(bulletin => bulletin.id === bulletinId));
+    };
+
+    function onDeleteBulletin(bulletinId: number) {
+        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletinId }) });
+    };
+
+    const getBulletinById = (id: number) => bulletins.find(bulletin => bulletin.id === id);
+
+    const getBulletinPdfButton = (id: number) => {
+        return bulletinsPdf.some(idBulletin => idBulletin === id) ?
+            (
+                <PDFDownloadLink className="m-left-10" document={<PdfAuthContextBridge>
+                    <PdfBulletin bulletin={getBulletinById(id)!}
+                        eleve={elevesEnriched.find(eleve => eleve.id === getBulletinById(id)?.idEleve)!} matieres={matieres}
+                        nomPrenomEnseignant={classe?.nomPrenomEnseignant ?? ""} nomClasse={classe?.libelle ?? ""} />
+                </PdfAuthContextBridge>}
+                    fileName="bulletin">
+                    {({ blob, url, loading, error }) => {
+                        return loading ? "Génération Pdf..." : <FilePdfTwoTone />
+                    }
+                    }
+                </PDFDownloadLink>) : (<Tooltip color="geekblue" title="Fonctionnalité en cours de développement..."><Button className="m-left-10" type="primary" onClick={() => { setBulletinsPdf([...bulletinsPdf, id]) }} icon={<FilePdfTwoTone />}
+                    disabled /></Tooltip>)
+    }
+
+    function onCreerBulletin() {
+        setModalBulletinOpen(true);
+        setBulletin({ idEleve: selectedEleveId! });
+    }
+
+    const columnsTableBulletins: ColumnsType<BulletinDtoF> = [
+        {
+            title: "Mois",
+            key: "nom",
+            render: (value, record, index) => {
+                return (
+                    <span>{firstLettertoUpperCase(dayjs().month(record.mois! - 1).format("MMMM"))}</span>
+                )
+            },
+        },
+        {
+            title: "Année",
+            key: "annee",
+            dataIndex: "annee",
+        },
+        {
+            title: "Absences",
+            key: "nbAbsences",
+            dataIndex: "nbAbsences",
+        },
+        {
+            title: "",
+            key: "actions",
+            render: (value, record, index) => {
+                return <>
+                    <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierBulletin(record.id!)} />
+                    <Button type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteBulletin(record.id!)} danger className="m-left-10" />
+                    <Tooltip color="geekblue" title="Générer le bulletin au format PDF">
+                        {getBulletinPdfButton(record.id!)}
+                    </Tooltip>
+                </>;
+            }
+        }
+    ];
+
+    function getBulletinsContent() {
+        return (
+            <div style={{ textAlign: "center" }}>
+                <div style={{ width: "80%", margin: "0 auto", textAlign: "center" }}>
+                    <Row>
+                        <Col span={8}>
+                            <SelectFormItem name="eleveid" label="Elève" options={elevesEnriched.map(eleve => ({ value: eleve.id, label: `${eleve.prenom} ${eleve.nom}` }))}
+                                onChange={loadBulletinsEleve} />
+                        </Col>
+                        <Col span={2}>
+                            <Tooltip title="Créer un nouveau bulletin pour cet élève" color="geekblue">
+                                <Button icon={<AddOutlined />} type="primary" className="m-left-10" disabled={!selectedEleveId} onClick={onCreerBulletin} />
+                            </Tooltip>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}>
+                            <Table dataSource={bulletins}
+                                columns={columnsTableBulletins}
+                                pagination={{ pageSize: 5, showTotal: formatTotal }}
+                                rowKey={record => record.mois! + record.annee!} />
+                        </Col>
+                    </Row>
+                </div>
+            </div>
+        );
+    }
+
     const collapseItems: CollapseProps["items"] = [
         {
             key: "1",
@@ -403,12 +547,21 @@ const MaClasse = () => {
         },
         {
             key: "2",
+            label: "Bulletins",
+            children: getBulletinsContent(),
+        },
+        {
+            key: "3",
             label: "Résultats annuels",
             children: getResultatAnnuelContent(),
         }
     ];
 
-    return getLoggedUser() ? (
+    function getSelectedEleve() {
+        return elevesEnriched.find(eleve => eleve.id === selectedEleveId);
+    }
+
+    return username ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">
@@ -426,6 +579,9 @@ const MaClasse = () => {
                 <div>
                     <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
                         feuilleToEdit={feuilleToEdit} />
+                    <ModalBulletin open={modalBulletinOpen} setOpen={setModalBulletinOpen} isCreation={true}
+                        annees={[classe?.debutAnneeScolaire!, classe?.finAnneeScolaire!]} eleve={getSelectedEleve()}
+                        bulletin={bulletin} />
                     <Collapse accordion defaultActiveKey={["1"]} items={collapseItems} />
                 </div>
             </div>

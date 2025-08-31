@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider } from 'antd';
 //import { AuthProvider } from './hooks/UseAuth';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
@@ -15,13 +15,32 @@ import { AuthProvider } from './hooks/AuthContext';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Europe/Paris");
+dayjs.locale("fr");
 
 // react-pdf
 Font.register({
   family: 'Roboto',
   fonts: [
-    { src: './polices/roboto/Roboto-Regular.ttf' },
-    { src: './polices/roboto/Roboto-Bold.ttf', fontWeight: "bold" }
+    {
+      src: '/polices/roboto/Roboto-Regular.ttf',
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+    },
+    {
+      src: '/polices/roboto/Roboto-Bold.ttf',
+      fontWeight: 'bold',
+      fontStyle: 'normal',
+    },
+    {
+      src: '/polices/roboto/Roboto-Italic.ttf',
+      fontWeight: 'normal',
+      fontStyle: 'italic',
+    },
+    {
+      src: '/polices/roboto/Roboto-BoldItalic.ttf',
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+    },
   ]
 });
 
@@ -46,6 +65,9 @@ root.render(
           Card: {
             headerBg: "#001529",
             colorBgContainer: "#f5f5f5",
+          },
+          Menu: {
+            subMenuItemSelectedColor: "#ffff",
           }
         }
       }}

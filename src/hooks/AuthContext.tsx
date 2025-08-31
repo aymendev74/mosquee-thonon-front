@@ -1,16 +1,14 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import qs from 'qs';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
+import { UserInfoDto } from '../services/AuthResponse';
 
 type AuthContextType = {
-    getLoggedUser: () => string;
-    getRoles: () => string[];
+    username: string | null;
+    roles: string[] | null;
+    requestProfileInformations: () => void;
     login: () => Promise<void>;
     logout: () => void;
-    getAccessToken: () => string | null;
-    getAccessTokenSilently: () => string;
     handleAuthorizationCode: (code: string, state: string | null) => Promise<string | null>;
 }
 
@@ -18,10 +16,6 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
     children: ReactNode;
-}
-
-interface MyJwtPayload extends JwtPayload {
-    roles: string[];
 }
 
 export function generateCodeVerifier(length: number) {
@@ -49,7 +43,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const authorizationEndpoint = process.env.REACT_APP_OAUTH_AUTHORIZATION_ENDPOINT;
     const tokenEndpoint = process.env.REACT_APP_OAUTH_TOKEN_ENDPOINT;
     const logoutEndpoint = process.env.REACT_APP_BASE_URL_API + "/logout";
+    const profileEndpoint = process.env.REACT_APP_BASE_URL_API + "/profile";
     const clientId = process.env.REACT_APP_OAUTH_CLIENT_ID;
+    const [loggedUser, setLoggedUser] = useState<UserInfoDto | null>(null);
+    const username = loggedUser?.username ?? null;
+    const roles = loggedUser?.roles ?? null;
+    const [isGettingToken, setIsGettingToken] = useState(false);
 
     function getState() {
         const { pathname, search } = window.location
@@ -59,9 +58,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return `${pathname}${search}`;
     }
 
-    function tokenExpired(expirationTime: any) {
-        return new Date().getTime() >= expirationTime;
-    }
+    const requestProfileInformations = useCallback(async () => {
+        const userInfo = await axios.get<UserInfoDto>(profileEndpoint, { withCredentials: true }).then(response => response.data);
+        setLoggedUser(userInfo);
+    }, []);
 
     const login = useCallback(async () => {
         try {
@@ -84,14 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
 
     const logout = useCallback(async () => {
-        const tokenData = localStorage.getItem("tokenData");
-        if (tokenData) {
-            const parsedTokenData = JSON.parse(tokenData);
-            if (parsedTokenData.accessToken) {
-                localStorage.removeItem("tokenData");
-                window.location.replace(logoutEndpoint);
-            }
-        }
+        window.location.replace(logoutEndpoint);
     }, []);
 
     const exchangeCodeForToken = useCallback(async (code: string, stateEncoded: string | null): Promise<string | null> => {
@@ -117,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             return null;
         }
 
-        const response = await axios.post(tokenEndpoint!, qs.stringify({
+        const responseToken = await axios.post(tokenEndpoint!, qs.stringify({
             grant_type: "authorization_code",
             code: code,
             redirect_uri: redirectURI,
@@ -126,18 +119,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }), {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
-            }
+            },
+            withCredentials: true
         });
-
-        const decoded = jwtDecode<MyJwtPayload>(response.data.access_token);
-        const tokenData = {
-            accessToken: response.data.access_token,
-            user: decoded.sub!,
-            expirationTime: decoded.exp! * 1000,
-            roles: decoded.roles
-        };
-        localStorage.setItem("tokenData", JSON.stringify(tokenData));
-
+        setLoggedUser(responseToken.data);
         return from;
     }, []);
 
@@ -155,52 +140,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
-    // On clean le local storage lorsque l'app est quittée
-    useEffect(() => {
-        const handleUnload = () => {
-            localStorage.removeItem("tokenData");
-        };
-
-        window.addEventListener("beforeunload", handleUnload);
-
-        return () => {
-            window.removeEventListener("beforeunload", handleUnload);
-        };
-    }, []);
-
-    const getAccessToken = useCallback(() => {
-        const tokenData = localStorage.getItem("tokenData");
-        if (tokenData) {
-            const parsedTokenData = JSON.parse(tokenData);
-            if (!tokenExpired(parsedTokenData?.expirationTime)) {
-                return parsedTokenData.accessToken;
-            }
-        }
-        login();
-        return null;
-    }, []);
-
-    const getAccessTokenSilently = useCallback(() => {
-        const tokenData = localStorage.getItem("tokenData");
-        if (tokenData) {
-            const parsedTokenData = JSON.parse(tokenData);
-            return parsedTokenData.accessToken;
-        }
-        return null;
-    }, []);
-
-    const getLoggedUser = useCallback(() => {
-        const tokenData = localStorage.getItem("tokenData");
-        return tokenData ? JSON.parse(tokenData).user : null;
-    }, []);
-
-    const getRoles = useCallback(() => {
-        const tokenData = localStorage.getItem("tokenData");
-        return tokenData ? JSON.parse(tokenData).roles : null;
-    }, []);
-
     return (
-        <AuthContext.Provider value={{ handleAuthorizationCode, getAccessToken, getAccessTokenSilently, login, logout, getLoggedUser, getRoles }}>
+        <AuthContext.Provider value={{ handleAuthorizationCode, login, logout, username, roles, requestProfileInformations }}>
             {children}
         </AuthContext.Provider>
     );
