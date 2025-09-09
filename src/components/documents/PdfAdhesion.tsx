@@ -9,20 +9,12 @@ export type PdfAdhesionProps = {
     id: number;
 };
 
-Font.register({
-    family: 'Open Sans',
-    fonts: [
-        { src: './polices/open-sans/OpenSans-Regular.ttf' },
-        { src: './polices/open-sans/OpenSans-Bold.ttf', fontWeight: "bold" }
-    ]
-});
-
 const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 15,
-        fontFamily: "Open Sans",
         fontSize: 12,
+        fontFamily: "Roboto",
     },
     header: {
         flexDirection: 'row',
@@ -33,9 +25,8 @@ const styles = StyleSheet.create({
         height: 50,
     },
     title: {
-        fontSize: 18,
+        fontSize: 12,
         fontWeight: 'bold',
-        fontFamily: "Open Sans",
         textAlign: 'center',
         marginTop: 15,
         marginBottom: 25,
@@ -152,7 +143,7 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
                         <View style={styles.association}>
                             <Text>Association musulmane du chablais</Text>
                         </View>
-                        <Image style={styles.logo} src="./logo_mosquee_thonon.png" />
+                        <Image style={styles.logo} src="/images/logo_mosquee_thonon.png" />
                     </View>
                     <View style={styles.memberNumberContainer}>
                         <View style={styles.memberNumber}>

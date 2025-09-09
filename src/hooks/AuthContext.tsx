@@ -6,7 +6,11 @@ import { UserInfoDto } from '../services/AuthResponse';
 type AuthContextType = {
     username: string | null;
     roles: string[] | null;
+<<<<<<< HEAD
     getLoggedUser: () => void;
+=======
+    requestProfileInformations: () => void;
+>>>>>>> b7a3f3e36885c2d2c17969647167bf61fe8d1cf9
     login: () => Promise<void>;
     logout: () => void;
     handleAuthorizationCode: (code: string, state: string | null) => Promise<string | null>;
@@ -58,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return `${pathname}${search}`;
     }
 
-    const getLoggedUser = useCallback(async () => {
+    const requestProfileInformations = useCallback(async () => {
         const userInfo = await axios.get<UserInfoDto>(profileEndpoint, { withCredentials: true }).then(response => response.data);
         setLoggedUser(userInfo);
     }, []);
@@ -140,21 +144,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
-    // On clean le local storage lorsque l'app est quittée
-    useEffect(() => {
-        const handleUnload = () => {
-            localStorage.removeItem("tokenData");
-        };
-
-        window.addEventListener("beforeunload", handleUnload);
-
-        return () => {
-            window.removeEventListener("beforeunload", handleUnload);
-        };
-    }, []);
-
     return (
-        <AuthContext.Provider value={{ handleAuthorizationCode, login, logout, username, roles, getLoggedUser }}>
+        <AuthContext.Provider value={{ handleAuthorizationCode, login, logout, username, roles, requestProfileInformations }}>
             {children}
         </AuthContext.Provider>
     );

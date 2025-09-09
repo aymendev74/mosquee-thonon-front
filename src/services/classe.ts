@@ -62,3 +62,45 @@ type FeuillePresenceDto<K extends string | Dayjs> = {
 
 export type FeuillePresenceDtoB = FeuillePresenceDto<string>;
 export type FeuillePresenceDtoF = FeuillePresenceDto<Dayjs>;
+
+export enum MatiereNoteEnum {
+    A = "A",
+    EA = "EA",
+    NA = "NA",
+}
+
+export type BulletinMatiereDto = {
+    idMatiere: number;
+    note: MatiereNoteEnum;
+    remarque: string;
+}
+
+export type BulletinDto<K extends string | Dayjs> = {
+    id?: number;
+    idEleve?: number;
+    appreciation?: string;
+    nbAbsences?: number;
+    mois?: number;
+    annee?: number;
+    dateBulletin?: K;
+    bulletinMatieres?: BulletinMatiereDto[];
+}
+
+export type BulletinDtoB = BulletinDto<string>;
+export type BulletinDtoF = BulletinDto<Dayjs>;
+
+export enum MatiereEnum {
+    EXPRESSION_ORALE = "EXPRESSION_ORALE",
+    DICTEE = "DICTEE",
+    LECTURE = "LECTURE",
+    ECRITURE = "ECRITURE",
+    CORAN = "CORAN",
+    EDUCATION_ISLAMIQUE = "EDUCATION_ISLAMIQUE",
+    ASSIDUITE_COMPORTEMENT = "ASSIDUITE_COMPORTEMENT",
+}
+
+export type MatiereDto = {
+    id: number;
+    code: MatiereEnum;
+    libelle: string;
+}

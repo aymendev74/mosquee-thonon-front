@@ -21,12 +21,11 @@ import MaClasse from './components/pages/enseignant/MaClasse';
 import { NotFound } from './components/pages/NotFound';
 import AdhesionInfos from './components/pages/AdhesionInfos';
 import { useEffect } from 'react';
-import useApi from './hooks/useApi';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const { username, logout, getLoggedUser } = useAuth();
+  const { username, logout, requestProfileInformations } = useAuth();
   const navigate = useNavigate();
 
   const DropdownAuthUser = () => {
@@ -67,7 +66,7 @@ function App() {
   };
 
   useEffect(() => {
-    getLoggedUser();
+    requestProfileInformations();
   }, []);
 
   return (
