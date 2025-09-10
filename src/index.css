@@ -5,7 +5,7 @@
   /* Hauteur du logo */
   margin-right: 15px;
   /* Marge à droite du logo pour l'espacement */
-  background-image: url('/public/images/logo_mosquee_thonon.png');
+  background-image: url('/public/images/logo_amc.png');
   /* Spécifiez le chemin de votre image de logo */
   background-size: cover;
   /* Ajustez la taille de l'image du logo */
@@ -105,7 +105,7 @@ body {
   height: 110px;
   margin: 0 auto;
   text-align: center;
-  background-image: url('/public/images/logo_mosquee_thonon.png');
+  background-image: url('/public/images/logo_amc.png');
   background-size: cover;
 }
 
@@ -140,7 +140,7 @@ body {
     height: 90px;
     margin: 0 auto;
     text-align: center;
-    background-image: url('/public/images/logo_mosquee_thonon.png');
+    background-image: url('/public/images/logo_amc.png');
     background-size: cover;
   }
 }

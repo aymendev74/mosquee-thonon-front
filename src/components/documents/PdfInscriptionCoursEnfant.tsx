@@ -1,10 +1,7 @@
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
-import useApi from '../../hooks/useApi';
-import { buildUrlWithParams, INSCRIPTION_ENFANT_ENDPOINT } from '../../services/services';
 import { InscriptionEnfantBack } from '../../services/inscription';
-import dayjs from 'dayjs';
-import { APPLICATION_DATE_FORMAT, getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
+import { getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { getLibelleNiveauScolaire } from '../common/commoninputs';
 
 export type PdfInscriptionCoursProps = {
@@ -15,33 +12,34 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 10,
-        fontFamily: "Open Sans",
         fontSize: 10,
+        fontFamily: "Roboto",
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        alignItems: 'center',
     },
-    logo: {
-        width: 50,
-        height: 50,
-    },
-    title: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        fontFamily: "Open Sans",
-        textAlign: 'center',
-        marginTop: 15,
-        marginBottom: 10,
+    leftSpacer: {
+        width: 110,
     },
     association: {
+        flex: 1,
         textAlign: 'center',
-        marginBottom: 25,
-        fontSize: 15,
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        fontSize: 18,
         fontWeight: "bold",
+    },
+    logo: {
+        width: 110,
+        height: 110,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontFamily: "Roboto",
+        textAlign: 'center',
+        marginTop: 10,
+        marginBottom: 20,
+        textDecoration: "underline",
     },
     cadreAdminContainer: {
         margin: "10 auto",
@@ -58,7 +56,7 @@ const styles = StyleSheet.create({
     },
     detailsCadreAdmin: {
         margin: "5 0",
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
     titreInfos: {
         textAlign: "center",
@@ -157,10 +155,9 @@ export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursPro
             <Document>
                 <Page size="A4" style={styles.page}>
                     <View style={styles.header}>
-                        <View style={styles.association}>
-                            <Text>Association musulmane du chablais</Text>
-                        </View>
-                        <Image style={styles.logo} src="./logo_mosquee_thonon.png" />
+                        <View style={styles.leftSpacer}></View>
+                        <Text style={styles.association}>Association lettres et cultures</Text>
+                        <Image style={styles.logo} src="/images/logo_alc.png" />
                     </View>
                     <View style={styles.title}>
                         <Text>FICHE D'INSCRIPTION AUX COURS D'ARABE</Text>
@@ -212,6 +209,9 @@ export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursPro
                             Email: <Text style={styles.bold}>{inscription.responsableLegal.email}</Text>
                         </Text>
                         <Text style={styles.formElement}>
+                            Adhérent de l'association: <Text style={styles.bold}>{inscription.responsableLegal.adherent ? "Oui" : "Non"}</Text>
+                        </Text>
+                        <Text style={styles.formElement}>
                             Autre personne à joindre: <Text style={styles.bold}>{inscription.responsableLegal.nomAutre} {inscription.responsableLegal.prenomAutre}</Text>
                         </Text>
                         <Text style={styles.formElement}>
@@ -231,7 +231,7 @@ export const PdfInscriptionCoursEnfant: FunctionComponent<PdfInscriptionCoursPro
                         <Text style={styles.signature}>Signature: ____________</Text>
                     </View>
                     <View style={styles.adresse}>
-                        <Text>Association musulmane du chablais</Text>
+                        <Text>Association lettres et cultures</Text>
                         <Text>5, rue des epinanches</Text>
                         <Text>74200 THONON LES BAINS</Text>
                         <Text>Tel/Fax: 0450706478</Text>
