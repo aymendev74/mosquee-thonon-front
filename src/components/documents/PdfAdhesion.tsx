@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 15,
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: "Roboto",
     },
     header: {
@@ -143,7 +143,7 @@ export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
                         <View style={styles.association}>
                             <Text>Association musulmane du chablais</Text>
                         </View>
-                        <Image style={styles.logo} src="/images/logo_mosquee_thonon.png" />
+                        <Image style={styles.logo} src="./images/logo_amc.png" />
                     </View>
                     <View style={styles.memberNumberContainer}>
                         <View style={styles.memberNumber}>

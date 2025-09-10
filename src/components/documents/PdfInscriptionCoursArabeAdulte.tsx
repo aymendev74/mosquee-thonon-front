@@ -12,33 +12,33 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 15,
-        fontSize: 12,
         fontFamily: "Roboto",
+        fontSize: 10,
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    leftSpacer: {
+        width: 110,
+    },
+    association: {
+        flex: 1,
+        textAlign: 'center',
+        fontSize: 18,
+        fontWeight: "bold",
     },
     logo: {
-        width: 50,
-        height: 50,
+        width: 110,
+        height: 110,
     },
     title: {
         fontSize: 12,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: 15,
-        marginBottom: 25,
+        marginTop: 10,
+        marginBottom: 20,
         textDecoration: "underline",
-    },
-    association: {
-        textAlign: 'center',
-        marginBottom: 25,
-        fontSize: 18,
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontWeight: "bold",
     },
     cadreAdminContainer: {
         margin: "10 auto",
@@ -125,10 +125,9 @@ export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCou
             <Document>
                 <Page size="A4" style={styles.page}>
                     <View style={styles.header}>
-                        <View style={styles.association}>
-                            <Text>Association musulmane du chablais</Text>
-                        </View>
-                        <Image style={styles.logo} src="/images/logo_mosquee_thonon.png" />
+                        <View style={styles.leftSpacer}></View>
+                        <Text style={styles.association}>Association lettres et cultures</Text>
+                        <Image style={styles.logo} src="/images/logo_alc.png" />
                     </View>
                     <View style={styles.title}>
                         <Text>FICHE D'INSCRIPTION AUX COURS D'ARABE</Text>
@@ -175,7 +174,7 @@ export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCou
                         <Text style={styles.signature}>Signature: ____________</Text>
                     </View>
                     <View style={styles.adresse}>
-                        <Text>Association musulmane du chablais</Text>
+                        <Text>Association lettres et cultures</Text>
                         <Text>5, rue des epinanches</Text>
                         <Text>74200 THONON LES BAINS</Text>
                         <Text>Tel/Fax: 0450706478</Text>
