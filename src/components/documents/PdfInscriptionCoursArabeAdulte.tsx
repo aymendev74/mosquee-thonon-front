@@ -126,7 +126,7 @@ export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCou
                 <Page size="A4" style={styles.page}>
                     <View style={styles.header}>
                         <View style={styles.leftSpacer}></View>
-                        <Text style={styles.association}>Association lettres et cultures</Text>
+                        <Text style={styles.association}>Association Lettres et Cultures</Text>
                         <Image style={styles.logo} src="/images/logo_alc.png" />
                     </View>
                     <View style={styles.title}>
@@ -174,7 +174,7 @@ export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCou
                         <Text style={styles.signature}>Signature: ____________</Text>
                     </View>
                     <View style={styles.adresse}>
-                        <Text>Association lettres et cultures</Text>
+                        <Text>Association Lettres et Cultures</Text>
                         <Text>5, rue des epinanches</Text>
                         <Text>74200 THONON LES BAINS</Text>
                         <Text>Tel/Fax: 0450706478</Text>
