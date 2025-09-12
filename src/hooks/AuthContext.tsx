@@ -6,11 +6,7 @@ import { UserInfoDto } from '../services/AuthResponse';
 type AuthContextType = {
     username: string | null;
     roles: string[] | null;
-<<<<<<< HEAD
-    getLoggedUser: () => void;
-=======
     requestProfileInformations: () => void;
->>>>>>> b7a3f3e36885c2d2c17969647167bf61fe8d1cf9
     login: () => Promise<void>;
     logout: () => void;
     handleAuthorizationCode: (code: string, state: string | null) => Promise<string | null>;
