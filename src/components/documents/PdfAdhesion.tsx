@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         padding: 15,
-        fontFamily: "Open Sans",
+        fontFamily: "Roboto",
         fontSize: 10,
     },
     header: {
