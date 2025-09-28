@@ -9,6 +9,7 @@ export const INSCRIPTION_ADULTE_ENDPOINT = "/inscriptions-adultes/{id}";
 export const NEW_INSCRIPTION_ADULTE_ENDPOINT = "/inscriptions-adultes";
 export const ADHESION_ENDPOINT = "/adhesions/{id}";
 export const ADHESION_SEARCH_ENDPOINT = "/adhesions";
+export const DELETE_ADHESION_ENDPOINT = "/adhesions";
 export const NEW_ADHESION_ENDPOINT = "/adhesions";
 export const CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT = "/inscriptions-enfants/incoherences";
 export const CHECK_COHERENCE_INSCRIPTION_ENDPOINT = "/inscriptions-enfants/{id}/incoherences";

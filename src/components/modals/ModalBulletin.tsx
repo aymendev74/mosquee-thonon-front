@@ -1,9 +1,8 @@
 import { Button, Col, Divider, Form, Modal, notification, Row, Spin, Tag } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
-import useApi from "../../hooks/useApi";
 import { ApiCallbacks, buildUrlWithParams, BULLETIN_ENDPOINT, BULLETIN_EXISTING_ENDPOINT, BULLETINS_ELEVE_ENDPOINT, handleApiCall, MATIERES_ENDPOINT } from "../../services/services";
 import dayjs from "dayjs";
-import { BulletinDto, BulletinDtoB, BulletinDtoF, MatiereDto, MatiereNoteEnum } from "../../services/classe";
+import { BulletinDtoB, BulletinDtoF, MatiereNoteEnum, TypeMatiereEnum } from "../../services/classe";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { EleveEnrichedDto } from "../../services/eleve";
 import { InputFormItem } from "../common/InputFormItem";
@@ -12,6 +11,7 @@ import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { firstLettertoUpperCase, prepareBulletinBeforeSave } from '../../utils/FormUtils';
 import { useMatieresStore } from "../stores/useMatieresStore";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
+import useApi, { APICallResult } from "../../hooks/useApi";
 
 
 export type ModalBulletinProps = {
@@ -24,31 +24,36 @@ export type ModalBulletinProps = {
 }
 
 export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, setOpen, isCreation, bulletin, annees, eleve }) => {
-    const { isLoading, result, setApiCallDefinition, apiCallDefinition, resetApi } = useApi();
+    const { execute, isLoading } = useApi();
     const [form] = Form.useForm();
-    const { matieres } = useMatieresStore();
+    const { getMatieresByType } = useMatieresStore();
 
     const close = () => {
         form.resetFields();
         setOpen(false);
     };
 
-    const onValider = (values: any) => {
+    const onValider = async (values: any) => {
         const { notes, remarques, ...otherFields } = values;
-        const bulletinMatieres = Object.keys(notes || {}).map((idMatiere) => ({
-            idMatiere: Number(idMatiere),
-            note: notes[idMatiere],
-            remarque: remarques?.[idMatiere]
+        const bulletinMatieres = Object.keys(notes || {}).map((code) => ({
+            code,
+            note: notes[code],
+            remarque: remarques?.[code]
         }));
         const bulletinToSave: BulletinDtoB = prepareBulletinBeforeSave({
             ...bulletin,
             ...otherFields,
             bulletinMatieres
         });
+        let result = null;
         if (isCreation) {
-            setApiCallDefinition({ method: "POST", url: BULLETIN_ENDPOINT, data: bulletinToSave });
+            result = await execute<BulletinDtoB>({ method: "POST", url: BULLETIN_ENDPOINT, data: bulletinToSave });
         } else {
-            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletin?.id }), data: bulletinToSave });
+            result = await execute<BulletinDtoB>({ method: "PUT", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletin?.id }), data: bulletinToSave });
+        }
+        if (result.success) {
+            confirmSaveSuccess();
+            setOpen(false);
         }
     }
 
@@ -61,8 +66,8 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
             const notes: Record<string, string> = {};
             const remarques: Record<string, string> = {};
             bulletin.bulletinMatieres?.forEach((matiere) => {
-                notes[matiere.idMatiere] = matiere.note;
-                remarques[matiere.idMatiere] = matiere.remarque;
+                notes[matiere.code.toString()] = matiere.note;
+                remarques[matiere.code.toString()] = matiere.remarque;
             });
             form.setFieldsValue({ ...bulletin, notes, remarques });
         }
@@ -71,33 +76,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
     function confirmSaveSuccess() {
         notification.success({ message: "Le bulletin a bien été enregistré" });
         close();
-        resetApi();
     }
-
-    const apiCallbacks: ApiCallbacks = {
-        [`POST:${BULLETIN_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                confirmSaveSuccess();
-                setOpen(false);
-            }
-        },
-        [`PUT:${BULLETIN_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                confirmSaveSuccess();
-                setOpen(false);
-            }
-        },
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
 
     function getNotesOptions() {
         return [{ value: MatiereNoteEnum.A, label: <Tag color="green">Acquis</Tag> },
@@ -137,17 +116,17 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                     </Col>
                 </Row>
                 <Divider orientation="left">Notes</Divider>
-                {matieres?.map((matiere) => (
-                    <Row key={matiere.id} gutter={[32, 32]}>
+                {getMatieresByType(TypeMatiereEnum.ENFANT).map((matiere) => (
+                    <Row key={matiere.code} gutter={[32, 32]}>
                         <Col span={4}>
-                            <Tag color="geekblue">{matiere.libelle}</Tag>
+                            <Tag color="geekblue">{matiere.fr}</Tag>
                         </Col>
                         <Col span={9}>
-                            <SelectFormItem name={"notes." + matiere.id} label="Sélectionnez une note" options={getNotesOptions()}
+                            <SelectFormItem name={"notes." + matiere.code} label="Sélectionnez une note" options={getNotesOptions()}
                                 rules={[{ required: true, message: "Veuillez sélectionner une note" }]} />
                         </Col>
                         <Col span={11}>
-                            <InputFormItem name={"remarques." + matiere.id} label="Remarques" />
+                            <InputFormItem name={"remarques." + matiere.code} label="Remarques" />
                         </Col>
                     </Row>
                 ))}

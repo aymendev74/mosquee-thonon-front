@@ -3,9 +3,12 @@ import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/render
 import { getConsentementInscriptionCoursLibelle } from '../../utils/FormUtils';
 import { InscriptionAdulteBack } from '../../services/inscription';
 import { Sexe } from '../../services/eleve';
+import { MatiereEnum, TraductionDto, TypeMatiereEnum } from '../../services/classe';
+import { useMatieresStore } from '../stores/useMatieresStore';
 
 export type PdfInscriptionCoursArabeAdulteProps = {
     inscription: InscriptionAdulteBack;
+    matieres: TraductionDto[];
 };
 
 const styles = StyleSheet.create({
@@ -114,10 +117,15 @@ const styles = StyleSheet.create({
     },
 });
 
-export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCoursArabeAdulteProps> = ({ inscription }) => {
+export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCoursArabeAdulteProps> = ({ inscription, matieres }) => {
 
     const getSexeLibelle = () => {
         return inscription?.sexe === Sexe.MASCULIN ? "Masculin" : "Féminin";
+    }
+
+    const getMatieres = () => {
+        return matieres.filter(matiere => inscription?.matieres.includes(matiere.code as MatiereEnum))
+            .map(matiere => matiere.fr).join(" / ");
     }
 
     return inscription ? (
@@ -162,10 +170,15 @@ export const PdfInscriptionCoursArabeAdulte: FunctionComponent<PdfInscriptionCou
                     <View style={styles.formElement}>
                         <Text>E-mail : <Text style={styles.bold}>{inscription.email}</Text></Text>
                     </View>
-                    <View style={[styles.formElement, { marginBottom: 20 }]}>
+                    <View style={[styles.formElement]}>
                         {inscription.mobile && (<Text>Tél. Mobile: <Text style={styles.bold}>{inscription.mobile}</Text></Text>)}
                     </View>
-                    <View style={styles.checkboxContainer}>
+                    {getMatieres().length > 0 &&
+                        (<View style={[styles.formElement]}>
+                            {inscription.mobile && (<Text>Enseignements souhaités : <Text style={styles.bold}>{getMatieres()}</Text></Text>)}
+                        </View>)
+                    }
+                    <View style={[styles.checkboxContainer, { marginTop: 20 }]}>
                         <View style={styles.checkbox} />
                         <Text style={styles.labelConsentement}>{getConsentementInscriptionCoursLibelle()}</Text>
                     </View>

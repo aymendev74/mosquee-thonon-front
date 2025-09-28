@@ -25,7 +25,7 @@ const Enseignants = () => {
     const [usernames, setUsernames] = useState<string[]>([]);
     const [allRoles, setAllRoles] = useState<string[]>([]);
     const { roles } = useAuth();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { execute, isLoading } = useApi();
 
     function getUsernameOptions() {
         return usernames.map((username) => ({ label: username, value: username }));
@@ -41,18 +41,28 @@ const Enseignants = () => {
         formEnseignant.resetFields();
     };
 
+    async function loadEnseignants() {
+        const { successData } = await execute<EnseignantDto[]>({ method: "GET", url: ENSEIGNANT_ENDPOINT });
+        if (successData) {
+            setEnseignants(successData);
+        }
+    }
+
     const handleAddOrUpdateEnseignant = () => {
         formEnseignant
             .validateFields()
-            .then((values) => {
+            .then(async (values) => {
                 if (editingEnseignantId) {
                     let enseignant = enseignants.find((enseignant) => enseignant.id === editingEnseignantId);
                     enseignant = { ...enseignant, ...values };
-                    setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT, { id: editingEnseignantId }), data: enseignant });
+                    await execute({ method: "PUT", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT, { id: editingEnseignantId }), data: enseignant });
+                    notification.open({ message: "L'enseignant a bien été créé", type: "success" });
                 } else {
                     const newEnseignant = { ...values };
-                    setApiCallDefinition({ method: "POST", url: ENSEIGNANT_ENDPOINT, data: newEnseignant });
+                    await execute({ method: "POST", url: ENSEIGNANT_ENDPOINT, data: newEnseignant });
+                    notification.open({ message: "L'enseignant a bien été mis à jour", type: "success" });
                 }
+                loadEnseignants();
                 setIsModalEnseignantVisible(false);
                 formEnseignant.resetFields();
             })
@@ -64,13 +74,14 @@ const Enseignants = () => {
     const handleAddUtilisateur = () => {
         formUtilisateur
             .validateFields()
-            .then((values) => {
+            .then(async (values) => {
                 const newUser = {
                     username: values.username,
                     password: values.password,
                     roles: [{ role: values.role }]
                 }
-                setApiCallDefinition({ method: "POST", url: USER_ENDPOINT, data: newUser });
+                await execute({ method: "POST", url: USER_ENDPOINT, data: newUser });
+                loadUsers();
                 setIsModalUtilisateurVisible(false);
                 formUtilisateur.resetFields();
             })
@@ -88,66 +99,25 @@ const Enseignants = () => {
         }
     };
 
-    function onDeleteEnseignant(id: number) {
-        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT, { id }) });
+    async function onDeleteEnseignant(id: number) {
+        await execute({ method: "DELETE", url: buildUrlWithParams(EXISTING_ENSEIGNANT_ENDPOINT, { id }) });
+        loadEnseignants();
+    }
+
+    async function loadUsers() {
+        const { successData } = await execute<string[]>({ method: "GET", url: USER_ENDPOINT });
+        if (successData) {
+            setUsernames(successData);
+        }
     }
 
     useEffect(() => {
-        setApiCallDefinition({ method: "GET", url: USER_ENDPOINT });
-    }, []);
-
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${USER_ENDPOINT}`]: (result: any) => {
-            setUsernames(result);
-            setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
-        },
-        [`GET:${ENSEIGNANT_ENDPOINT}`]: (result: any) => {
-            setEnseignants(result);
-            resetApi();
-        },
-        [`POST:${ENSEIGNANT_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.open({ message: "L'enseignant a bien été créé", type: "success" });
-                // On reload les enseignants depuis la base
-                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
-            }
-        },
-        [`PUT:${EXISTING_ENSEIGNANT_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.open({ message: "L'enseignant a bien été mis à jour", type: "success" });
-                // On reload les enseignants depuis la base
-                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
-            }
-        },
-        [`DELETE:${EXISTING_ENSEIGNANT_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.open({ message: "L'enseignant a bien été supprimé", type: "success" });
-                // On reload les enseignants depuis la base
-                setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
-            }
-        },
-        [`GET:${ROLES_ENDPOINT}`]: (result: any) => {
-            setAllRoles(result);
-            resetApi();
-        },
-        [`POST:${USER_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.open({ message: "L'utilisateur a bien été créé", type: "success" });
-                // On reload les utilisateurs depuis la base
-                setApiCallDefinition({ method: "GET", url: USER_ENDPOINT });
-            }
-        },
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
+        const loadData = async () => {
+            loadUsers();
+            loadEnseignants();
         }
-    }, [result]);
+        loadData();
+    }, []);
 
     const columns = [
         { title: 'Nom', dataIndex: 'nom', key: 'nom' },
@@ -163,13 +133,15 @@ const Enseignants = () => {
                 )
             }
         }
-
     ];
 
-    const onNewUtilisateur = () => {
+    const onNewUtilisateur = async () => {
         setIsModalEnseignantVisible(false);
         setIsModalUtilisateurVisible(true);
-        setApiCallDefinition({ method: "GET", url: ROLES_ENDPOINT });
+        const { successData } = await execute<string[]>({ method: "GET", url: ROLES_ENDPOINT });
+        if (successData) {
+            setAllRoles(successData);
+        }
     }
 
     const ModalEnseignant = () => (

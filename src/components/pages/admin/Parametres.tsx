@@ -15,11 +15,11 @@ export const Parametres: FunctionComponent = () => {
 
     const { username } = useAuth();
     const [form] = Form.useForm();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { execute, isLoading } = useApi();
     const [inscriptionEnfantFromDateVisible, setInscriptionEnfantFromDateVisible] = useState<boolean>(false);
     const [inscriptionAdulteFromDateVisible, setInscriptionAdulteFromDateVisible] = useState<boolean>(false);
 
-    const onFinish = (params: ParamsDtoF) => {
+    const onFinish = async (params: ParamsDtoF) => {
         const { sendMailEnabled, reinscriptionPrioritaire } = params;
         let inscriptionEnfantEnabledFromDate = null;
         let inscriptionAdulteEnabledFromDate = null;
@@ -42,35 +42,33 @@ export const Parametres: FunctionComponent = () => {
             { name: ParamName.INSCRIPTION_ADULTE_ENABLED_FROM_DATE, value: inscriptionAdulteEnabledFromDate },
             { name: ParamName.SEND_EMAIL_ENABLED, value: sendMailEnabled ? sendMailEnabled.toString() : "false" }
         ];
-        setApiCallDefinition({ method: "POST", url: PARAM_ENDPOINT, data: paramsDto });
+        const resultSaveParams = await execute({ method: "POST", url: PARAM_ENDPOINT, data: paramsDto });
+        if (resultSaveParams.success) {
+            notification.open({ message: "Les paramètres de l'application ont bien été enregistrés", type: "success" });
+        }
     }
 
     useEffect(() => {
-        setApiCallDefinition({ method: "GET", url: PARAM_ENDPOINT });
+        const loadParams = async () => {
+            const { successData: paramsDto } = await execute<ParamsDtoB>({ method: "GET", url: PARAM_ENDPOINT });
+            if (paramsDto) {
+                let paramsDtoF: ParamsDtoF = { sendMailEnabled: paramsDto.sendMailEnabled, reinscriptionPrioritaire: paramsDto.reinscriptionPrioritaire };
+                if (paramsDto.inscriptionEnfantEnabledFromDate) {
+                    paramsDtoF = { ...paramsDtoF, inscriptionEnfantEnabledFromDate: dayjs(paramsDto.inscriptionEnfantEnabledFromDate, APPLICATION_DATE_FORMAT) };
+                    form.setFieldValue("inscriptionEnfantEnabled", true);
+                    setInscriptionEnfantFromDateVisible(true);
+                }
+                if (paramsDto.inscriptionAdulteEnabledFromDate) {
+                    paramsDtoF = { ...paramsDtoF, inscriptionAdulteEnabledFromDate: dayjs(paramsDto.inscriptionAdulteEnabledFromDate, APPLICATION_DATE_FORMAT) };
+                    form.setFieldValue("inscriptionAdulteEnabled", true);
+                    setInscriptionAdulteFromDateVisible(true);
+                }
+                form.setFieldsValue(paramsDtoF);
+            }
+        }
+        loadParams();
     }, []);
 
-    useEffect(() => {
-        if (apiCallDefinition?.url === PARAM_ENDPOINT && apiCallDefinition?.method === "GET" && result) {
-            const resultAsParamsDto: ParamsDtoB = result as ParamsDtoB;
-            let paramsDtoF: ParamsDtoF = { sendMailEnabled: resultAsParamsDto.sendMailEnabled, reinscriptionPrioritaire: resultAsParamsDto.reinscriptionPrioritaire };
-            if (resultAsParamsDto.inscriptionEnfantEnabledFromDate) {
-                paramsDtoF = { ...paramsDtoF, inscriptionEnfantEnabledFromDate: dayjs(resultAsParamsDto.inscriptionEnfantEnabledFromDate, APPLICATION_DATE_FORMAT) };
-                form.setFieldValue("inscriptionEnfantEnabled", true);
-                setInscriptionEnfantFromDateVisible(true);
-            }
-            if (resultAsParamsDto.inscriptionAdulteEnabledFromDate) {
-                paramsDtoF = { ...paramsDtoF, inscriptionAdulteEnabledFromDate: dayjs(resultAsParamsDto.inscriptionAdulteEnabledFromDate, APPLICATION_DATE_FORMAT) };
-                form.setFieldValue("inscriptionAdulteEnabled", true);
-                setInscriptionAdulteFromDateVisible(true);
-            }
-            form.setFieldsValue(paramsDtoF);
-            resetApi();
-        }
-        if (apiCallDefinition?.url === PARAM_ENDPOINT && apiCallDefinition?.method === "POST") {
-            notification.open({ message: "Les paramètres de l'application ont bien été enregistrés", type: "success" });
-            resetApi();
-        }
-    }, [result]);
 
     function onInscriptionEnfantEnabledChange(checked: boolean): void {
         if (!checked) {

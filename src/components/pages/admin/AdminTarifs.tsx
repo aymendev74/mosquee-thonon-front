@@ -18,7 +18,7 @@ export const AdminTarifs: FunctionComponent = () => {
 
     const { username } = useAuth();
     const [form] = Form.useForm();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { execute, isLoading } = useApi();
     const [periodesDto, setPeriodesDto] = useState<PeriodeInfoDto[]>();
     const [modalPeriodeOpen, setModalPeriodeOpen] = useState<boolean>(false);
     const [createPeriode, setCreatePeriode] = useState<boolean>(false);
@@ -29,54 +29,28 @@ export const AdminTarifs: FunctionComponent = () => {
     const [openPopOver, setOpenPopOver] = useState<boolean>(false);
     const [application, setApplication] = useState<ApplicationTarif>("COURS_ENFANT");
 
-    useEffect(() => {
-        // On reload les périodes dès lors que la modal permettant leur modification se referme, afin récupérer les modifications
+    async function loadPeriodes() {
         if (!modalPeriodeOpen) {
-            setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
-        }
-    }, [modalPeriodeOpen]);
-
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${PERIODES_ENDPOINT}`]: (result: any) => {
-            const resultAsPeriodeDto = result as PeriodeInfoDto[];
-            setPeriodesDto(resultAsPeriodeDto);
-            setPeriodesOptions(getPeriodeOptions(resultAsPeriodeDto));
-            resetApi();
-        },
-        [`POST:${TARIFS_ADMIN_ENDPOINT}`]: (result: any) => {
-            setViewTarif(true);
-            notification.open({ message: "Les nouveaux tarifs ont bien été enregistrés", type: "success" });
-            form.setFieldsValue(result);
-        },
-        [`GET:${TARIFS_ADMIN_GET_ENDPOINT}`]: (result: any) => {
-            setViewTarif(true);
-            if (!apiCallDefinition?.url.endsWith(selectedIdPeriode)) {
-                // Si l'appel ne vas pas rechercher les tarifs de la période sélectionnée c'est que le user demande la copie des
-                // tarifs de la période active
-                const resultAsInfoTarifDto = result as InfoTarifDto;
-                const { idPeriode, ...rest } = resultAsInfoTarifDto;
-                form.setFieldsValue({ idPeriode: selectedIdPeriode, ...rest });
-                notification.open({ message: "Les tarifs de la période sélectionnée ont bien été copiés", type: "success" });
-            } else {
-                form.setFieldsValue(result);
+            const resultPeriodes = await execute<PeriodeInfoDto[]>({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
+            if (resultPeriodes.success && resultPeriodes.successData) {
+                setPeriodesDto(resultPeriodes.successData);
+                setPeriodesOptions(getPeriodeOptions(resultPeriodes.successData));
             }
-            resetApi();
         }
     };
 
-
     useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
+        if (!modalPeriodeOpen) {
+            loadPeriodes();
         }
-    }, [result]);
+    }, [modalPeriodeOpen]);
 
-    const onEditTarif = () => {
-        setApiCallDefinition({ method: "GET", url: buildUrlWithParams(TARIFS_ADMIN_GET_ENDPOINT, { id: selectedIdPeriode }) });
+    const onEditTarif = async () => {
+        const resultTarifs = await execute({ method: "GET", url: buildUrlWithParams(TARIFS_ADMIN_GET_ENDPOINT, { id: selectedIdPeriode }) });
+        if (resultTarifs.success && resultTarifs.successData) {
+            setViewTarif(true);
+            form.setFieldsValue(resultTarifs.successData);
+        }
     }
 
     const onCreatePeriode = () => {
@@ -100,12 +74,22 @@ export const AdminTarifs: FunctionComponent = () => {
         return periodesDto?.find(p => p.id === selectedIdPeriode)?.existInscription ?? false;
     }
 
-    const copierTarif = (value: any) => {
-        setApiCallDefinition({ method: "GET", url: buildUrlWithParams(TARIFS_ADMIN_GET_ENDPOINT, { id: value }) });
+    const copierTarif = async (value: any) => {
+        const resultTarifs = await execute<InfoTarifDto>({ method: "GET", url: buildUrlWithParams(TARIFS_ADMIN_GET_ENDPOINT, { id: value }) });
+        if (resultTarifs.success && resultTarifs.successData) {
+            const { idPeriode, ...rest } = resultTarifs.successData;
+            form.setFieldsValue({ idPeriode: selectedIdPeriode, ...rest });
+            notification.open({ message: "Les tarifs de la période sélectionnée ont bien été copiés", type: "success" });
+        }
     }
 
-    const onFinish = (infoTarif: InfoTarifDto) => {
-        setApiCallDefinition({ method: "POST", url: TARIFS_ADMIN_ENDPOINT, data: infoTarif });
+    const onFinish = async (infoTarif: InfoTarifDto) => {
+        const resultSavedTarifs = await execute({ method: "POST", url: TARIFS_ADMIN_ENDPOINT, data: infoTarif });
+        if (resultSavedTarifs.success && resultSavedTarifs.successData) {
+            setViewTarif(true);
+            notification.open({ message: "Les nouveaux tarifs ont bien été enregistrés", type: "success" });
+            form.setFieldsValue(resultSavedTarifs.successData);
+        }
     }
 
     const handleOpenPopOverChange = (newValue: boolean) => {
@@ -167,7 +151,7 @@ export const AdminTarifs: FunctionComponent = () => {
         setViewTarif(false);
         setSelectedIdPeriode(null);
         form.setFieldValue("idPeriode", null);
-        setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
+        loadPeriodes();
     }, [application]);
 
     return username ? (

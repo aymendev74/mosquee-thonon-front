@@ -74,6 +74,7 @@ export function getJourActiviteOptions(): DefaultOptionType[] {
         { value: JourActiviteEnum.SAMEDI_MATIN, label: "Samedi matin" },
         { value: JourActiviteEnum.DIMANCHE_MATIN, label: "Dimanche matin" },
         { value: JourActiviteEnum.DIMANCHE_APRES_MIDI, label: "Dimanche après-midi" },
+        { value: JourActiviteEnum.MERCREDI_APRES_MIDI, label: "Mercredi après-midi" },
     ];
 };
 

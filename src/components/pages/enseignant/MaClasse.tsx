@@ -10,7 +10,7 @@ import {
     MATIERES_ENDPOINT
 } from '../../../services/services';
 import { Button, Card, Col, Collapse, Divider, Form, notification, Row, Select, Table, Tag, Tooltip } from 'antd';
-import { BulletinDto, BulletinDtoB, BulletinDtoF, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, MatiereDto, PresenceEleveDto } from '../../../services/classe';
+import { BulletinDtoB, BulletinDtoF, ClasseDtoB, ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto, TraductionDto, TypeMatiereEnum } from '../../../services/classe';
 import exportToExcel, { APPLICATION_DATE_FORMAT, ExcelColumnHeadersType, prepareClasseBeforeForm, prepareFeuillePresenceBeforeForm, firstLettertoUpperCase, prepareBulletinBeforeForm } from '../../../utils/FormUtils';
 import { AddCircleOutline, AddOutlined } from '@mui/icons-material';
 import { ModalFeuillePresence } from '../../modals/ModalFeuillePresence';
@@ -31,7 +31,7 @@ import { useMatieresStore } from '../../stores/useMatieresStore';
 
 const MaClasse = () => {
     const { username } = useAuth();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
+    const { execute } = useApi();
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
     const [modalBulletinOpen, setModalBulletinOpen] = useState(false);
     const [classe, setClasse] = useState<ClasseDtoF | undefined>();
@@ -44,23 +44,54 @@ const MaClasse = () => {
     const [bulletin, setBulletin] = useState<BulletinDtoF | undefined>();
     const [bulletinsPdf, setBulletinsPdf] = useState<number[]>([]);
     const { id } = useParams();
-    const { setMatieres, matieres } = useMatieresStore();
-    console.log(elevesEnriched);
+    const { getMatieresByType } = useMatieresStore();
 
     function onCreateFeuillePresence() {
         setFeuilleToEdit(undefined);
         setModalFeuillePresenceOpen(true);
     }
 
+    async function loadClasse() {
+        const { successData: classe } = await execute<ClasseDtoB>({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
+        if (classe) {
+            const classesF = prepareClasseBeforeForm(classe);
+            setClasse(classesF);
+        }
+    };
+
+    async function loadFeuillesPresence() {
+        const { successData: feuillesPresence } = await execute<FeuillePresenceDtoB[]>({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id }) });
+        if (feuillesPresence) {
+            const feuillesPresenceF = feuillesPresence.map(feuille => prepareFeuillePresenceBeforeForm(feuille));
+            setFeuillesPresence(feuillesPresenceF);
+        }
+    };
+
+    async function loadElevesEnriched() {
+        const { successData: elevesEnriched } = await execute<EleveEnrichedDto[]>({ method: "GET", url: ELEVES_ENRICHED_ENDPOINT, params: { idClasse: id } });
+        if (elevesEnriched) {
+            setElevesEnriched(elevesEnriched);
+        }
+    };
+
     useEffect(() => {
         if (!modalFeuillePresenceOpen) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
+            loadClasse();
+            loadFeuillesPresence();
+            loadElevesEnriched();
         }
     }, [modalFeuillePresenceOpen]);
 
     useEffect(() => {
+        const loadBulletinsEleve = async () => {
+            const { successData: bulletins } = await execute<BulletinDtoB[]>({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: selectedEleveId }) });
+            if (bulletins) {
+                let bulletinsF = bulletins.map((bulletin) => prepareBulletinBeforeForm(bulletin));
+                setBulletins(bulletinsF);
+            }
+        }
         if (!modalBulletinOpen && selectedEleveId) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: selectedEleveId }) });
+            loadBulletinsEleve();
         }
     }, [modalBulletinOpen])
 
@@ -71,58 +102,6 @@ const MaClasse = () => {
         }
         return "";
     }
-
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${EXISTING_CLASSES_ENDPOINT}`]: (result: any) => {
-            const classesF = prepareClasseBeforeForm(result as ClasseDtoB);
-            setClasse(classesF);
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id }) });
-
-        },
-        [`GET:${FEUILLE_PRESENCE_ENDPOINT}`]: (result: any) => {
-            const feuillesPresencesB = result as FeuillePresenceDtoB[];
-            setFeuillesPresence(feuillesPresencesB.map((feuillePresence) => prepareFeuillePresenceBeforeForm(feuillePresence)));
-            setApiCallDefinition({ method: "GET", url: ELEVES_ENRICHED_ENDPOINT, params: { idClasse: id } });
-        },
-        [`GET:${ELEVES_ENRICHED_ENDPOINT}`]: (result: any) => {
-            const eleves = result as EleveEnrichedDto[];
-            setElevesEnriched(eleves);
-            setApiCallDefinition({ method: "GET", url: MATIERES_ENDPOINT });
-        },
-        [`GET:${MATIERES_ENDPOINT}`]: (result: any) => {
-            setMatieres(result as MatiereDto[]);
-            resetApi();
-        },
-        [`PATCH:${ELEVES_ENDPOINT}`]: (result: any) => {
-            notification.success({ message: "Les résultats des élèves ont bien été enregistrés" });
-            // on reload la classe entièrement pour raffraichir l'écran
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id }) });
-        },
-        [`DELETE:${EXISTING_FEUILLE_PRESENCE_ENDPOINT}`]: (result: any) => {
-            notification.success({ message: "La feuille de temps a bien été supprimée" });
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }) });
-        },
-        [`GET:${BULLETINS_ELEVE_ENDPOINT}`]: (result: any) => {
-            const bulletins = result as BulletinDtoB[];
-            let bulletinsF = bulletins.map((bulletin) => prepareBulletinBeforeForm(bulletin));
-            setBulletins(bulletinsF);
-            resetApi();
-        },
-        [`DELETE:${BULLETIN_EXISTING_ENDPOINT}`]: (result: any) => {
-            notification.success({ message: "Le bulletin a bien été supprimé" });
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: selectedEleveId }) });
-        },
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
 
     function getListeEleves(elevesAbsents: PresenceEleveDto[]) {
         return elevesAbsents.map((eleve) =>
@@ -142,8 +121,19 @@ const MaClasse = () => {
         setModalFeuillePresenceOpen(true);
     };
 
-    function onDeleteFeuille(feuillePresence: FeuillePresenceDtoF) {
-        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(EXISTING_FEUILLE_PRESENCE_ENDPOINT, { id: feuillePresence.id }) });
+    async function onDeleteFeuille(feuillePresence: FeuillePresenceDtoF) {
+        const { success } = await execute({ method: "DELETE", url: buildUrlWithParams(EXISTING_FEUILLE_PRESENCE_ENDPOINT, { id: feuillePresence.id }) });
+        if (success) {
+            notification.success({ message: "La feuille de temps a bien été supprimée" });
+            const { successData: feuillesPresencesB } = await execute<FeuillePresenceDtoB[]>({ method: "GET", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }) });
+            if (feuillesPresencesB) {
+                setFeuillesPresence(feuillesPresencesB.map((feuillePresence) => prepareFeuillePresenceBeforeForm(feuillePresence)));
+            }
+            const { successData: elevesEnriched } = await execute<EleveEnrichedDto[]>({ method: "GET", url: ELEVES_ENRICHED_ENDPOINT, params: { idClasse: id } });
+            if (elevesEnriched) {
+                setElevesEnriched(elevesEnriched);
+            }
+        }
     };
 
     const columnsTableEffectif: ColumnsType<EleveEnrichedDto> = [
@@ -321,10 +311,14 @@ const MaClasse = () => {
         return (<Tag color="geekblue">Total : <strong>{total}</strong></Tag>);
     }
 
-    function onEnregistrerResultat() {
+    async function onEnregistrerResultat() {
         if (elevesEnriched.length > 0) {
             const patchesEleves: PatchEleve[] = elevesEnriched.map(eleve => ({ id: eleve.id, resultat: eleve.resultat }));
-            setApiCallDefinition({ method: "PATCH", url: ELEVES_ENDPOINT, data: { eleves: patchesEleves } });
+            const { success } = await execute({ method: "PATCH", url: ELEVES_ENDPOINT, data: { eleves: patchesEleves } });
+            if (success) {
+                notification.success({ message: "Les résultats des élèves ont bien été enregistrés" });
+            }
+            loadClasse();
         }
     };
 
@@ -351,10 +345,15 @@ const MaClasse = () => {
         }
     };
 
-    function loadBulletinsEleve(eleveId: number) {
+    async function loadBulletinsEleve(eleveId: number) {
         setSelectedEleveId(eleveId);
         if (eleveId) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: eleveId }) });
+            const { successData: bulletinsEleve } = await execute<BulletinDtoB[]>({ method: "GET", url: buildUrlWithParams(BULLETINS_ELEVE_ENDPOINT, { id: eleveId }) });
+            if (bulletinsEleve) {
+                let bulletinsF = bulletinsEleve.map((bulletin) => prepareBulletinBeforeForm(bulletin));
+                setBulletins(bulletinsF);
+            }
+
         } else {
             setBulletins([]);
         }
@@ -448,8 +447,14 @@ const MaClasse = () => {
         setBulletin(bulletins.find(bulletin => bulletin.id === bulletinId));
     };
 
-    function onDeleteBulletin(bulletinId: number) {
-        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletinId }) });
+    async function onDeleteBulletin(bulletinId: number) {
+        const { success } = await execute({ method: "DELETE", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletinId }) });
+        if (success) {
+            notification.success({ message: "Le bulletin a bien été supprimé" });
+        }
+        if (selectedEleveId) {
+            loadBulletinsEleve(selectedEleveId);
+        }
     };
 
     const getBulletinById = (id: number) => bulletins.find(bulletin => bulletin.id === id);
@@ -459,7 +464,7 @@ const MaClasse = () => {
             (
                 <PDFDownloadLink className="m-left-10" document={<PdfAuthContextBridge>
                     <PdfBulletin bulletin={getBulletinById(id)!}
-                        eleve={elevesEnriched.find(eleve => eleve.id === getBulletinById(id)?.idEleve)!} matieres={matieres}
+                        eleve={elevesEnriched.find(eleve => eleve.id === getBulletinById(id)?.idEleve)!} matieres={getMatieresByType(TypeMatiereEnum.ENFANT)}
                         nomPrenomEnseignant={classe?.nomPrenomEnseignant ?? ""} nomClasse={classe?.libelle ?? ""} />
                 </PdfAuthContextBridge>}
                     fileName="bulletin">
@@ -467,8 +472,7 @@ const MaClasse = () => {
                         return loading ? "Génération Pdf..." : <FilePdfTwoTone />
                     }
                     }
-                </PDFDownloadLink>) : (<Tooltip color="geekblue" title="Fonctionnalité en cours de développement..."><Button className="m-left-10" type="primary" onClick={() => { setBulletinsPdf([...bulletinsPdf, id]) }} icon={<FilePdfTwoTone />}
-                    disabled /></Tooltip>)
+                </PDFDownloadLink>) : (<Button className="m-left-10" type="primary" onClick={() => { setBulletinsPdf([...bulletinsPdf, id]) }} icon={<FilePdfTwoTone />} />)
     }
 
     function onCreerBulletin() {
@@ -579,7 +583,7 @@ const MaClasse = () => {
                 <div>
                     <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
                         feuilleToEdit={feuilleToEdit} />
-                    <ModalBulletin open={modalBulletinOpen} setOpen={setModalBulletinOpen} isCreation={true}
+                    <ModalBulletin open={modalBulletinOpen} setOpen={setModalBulletinOpen} isCreation={bulletin?.id === undefined}
                         annees={[classe?.debutAnneeScolaire!, classe?.finAnneeScolaire!]} eleve={getSelectedEleve()}
                         bulletin={bulletin} />
                     <Collapse accordion defaultActiveKey={["1"]} items={collapseItems} />

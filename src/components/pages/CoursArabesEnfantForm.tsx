@@ -25,7 +25,7 @@ import { ParamsDto, ParamsDtoB } from "../../services/parametres";
 
 export const CoursArabesEnfantForm: FunctionComponent = () => {
 
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading, status } = useApi();
+    const { execute, isLoading } = useApi();
     const location = useLocation();
     const [form] = useForm();
     const navigate = useNavigate();
@@ -33,10 +33,9 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
-    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantFront>();
+    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantBack>();
     const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
-    const [codeIncoherence, setCodeIncoherence] = useState<string>();
     const [activeStep, setActiveStep] = useState<string>("1");
     const { warning } = Modal;
 
@@ -44,14 +43,16 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
     const isAdmin = location.state ? location.state.isAdmin : undefined;
 
-    const calculTarif = () => {
+    const calculTarif = async () => {
         let adherent = form.getFieldValue(["responsableLegal", "adherent"]);
         if (eleves.length > 0) {
             const nbEleves = eleves.length;
             if (id) {
-                setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT, { id }), params: { adherent: adherent ?? false, nbEleves } });
+                const { successData: tarif } = await execute<TarifInscriptionDto>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT, { id }), params: { adherent: adherent ?? false, nbEleves } });
+                handleTarifInscription(tarif);
             } else {
-                setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, params: { adherent: adherent ?? false, nbEleves } });
+                const { successData: tarif } = await execute<TarifInscriptionDto>({ method: "GET", url: NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, params: { adherent: adherent ?? false, nbEleves } });
+                handleTarifInscription(tarif);
             }
         } else {
             setTarifInscription(undefined);
@@ -111,6 +112,34 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         }
     ];
 
+    async function handleCoherenceBeforeSaveInscription(codeIncoherence: string | null | undefined) {
+        if (codeIncoherence === "ELEVE_ALREADY_EXISTS") {
+            notification.open({ message: "Au moins un élève saisi figure déjà dans une autre demande d'inscription sur la même période", type: "error" });
+        } else if (codeIncoherence === "NO_INCOHERENCE") {
+            const inscriptionFormValues: InscriptionEnfantFront = _.cloneDeep(form.getFieldsValue());
+            let sendMailConfirmation = form.getFieldValue("sendMailConfirmation");
+            if (!isAdmin) { // si pas en mode admin, l'envoi du mail est systématique
+                sendMailConfirmation = true;
+            }
+            inscriptionFormValues.eleves = _.cloneDeep(eleves);
+            const inscriptionToSave = prepareInscriptionEnfantBeforeSave(inscriptionFormValues)
+            if (id) {
+                const { success } = await execute<InscriptionEnfantBack>({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }), data: inscriptionToSave, params: { sendMailConfirmation } });
+                if (success) {
+                    notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+                    navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
+                }
+            } else {
+                const { success, successData } = await execute<InscriptionEnfantBack>({ method: "POST", url: NEW_INSCRIPTION_ENFANT_ENDPOINT, data: inscriptionToSave, params: { sendMailConfirmation } });
+                if (success && successData) {
+                    notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
+                    setInscriptionFinished(successData);
+                    resetForm();
+                }
+            }
+        }
+    }
+
     const onFinish = async (inscription: InscriptionEnfantFront) => {
         if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
@@ -123,61 +152,21 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         inscriptionDeepCopy.eleves = _.cloneDeep(eleves);
         const inscriptionToSave: InscriptionEnfantBack = prepareInscriptionEnfantBeforeSave(inscriptionDeepCopy);
         if (id) {
-            setApiCallDefinition({ method: "POST", url: buildUrlWithParams(CHECK_COHERENCE_INSCRIPTION_ENDPOINT, { id }), data: inscriptionToSave });
+            const { successData } = await execute<string>({ method: "POST", url: buildUrlWithParams(CHECK_COHERENCE_INSCRIPTION_ENDPOINT, { id }), data: inscriptionToSave });
+            handleCoherenceBeforeSaveInscription(successData);
         } else {
-            setApiCallDefinition({ method: "POST", url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, data: inscriptionToSave });
+            const { successData } = await execute<string>({ method: "POST", url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, data: inscriptionToSave });
+            handleCoherenceBeforeSaveInscription(successData);
         }
     };
 
-    const checkCoherenceApiCallBack = (result: any) => {
-        setCodeIncoherence(result);
-        resetApi();
-    }
-
-    const tarifInscriptionApiCallBack = (result: any) => {
+    const handleTarifInscription = (result?: TarifInscriptionDto | null) => {
         if (result) {
             setTarifInscription(result);
-            notification.open({ message: "Votre tarif a été mis à jour (voir l'onglet Tarif)", type: "success" });
-        } else if (status === HttpStatusCode.NoContent) { // No content (pas de tarif pour la période)
+        } else { // No content (pas de tarif pour la période)
             notification.open({ message: "Aucun tarif n'a été trouvé pour la période en cours", type: "error" });
             setTarifInscription(undefined);
         }
-        resetApi();
-    }
-
-    const apiCallbacks: ApiCallbacks = {
-        [`PUT:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/adminCours", { state: { application: "COURS_ENFANT" } });
-                resetApi();
-            }
-        },
-        [`POST:${NEW_INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.open({ message: "Votre inscription a bien été enregistrée", type: "success" });
-                setInscriptionFinished(result);
-                resetForm();
-                resetApi();
-            }
-        },
-        [`GET:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
-            const loadedInscription = result as InscriptionEnfantBack;
-            const inscriptionFormValues: InscriptionEnfantFront = prepareInscriptionEnfantBeforeForm(loadedInscription);
-            form.setFieldsValue(inscriptionFormValues);
-            setEleves(inscriptionFormValues.eleves);
-            resetApi();
-        },
-        [`GET:${NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
-        [`GET:${INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
-        [`GET:${PARAM_ENDPOINT}`]: (result: any) => {
-            const resultAsParamsDto = result as ParamsDtoB;
-            setIsOnlyReinscriptionEnabled(resultAsParamsDto.reinscriptionPrioritaire ?? false);
-            setIsInscriptionsFermees(isInscriptionFerme(resultAsParamsDto.inscriptionEnfantEnabledFromDate));
-            resetApi();
-        },
-        [`POST:${CHECK_COHERENCE_INSCRIPTION_ENDPOINT}`]: checkCoherenceApiCallBack,
-        [`POST:${CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT}`]: checkCoherenceApiCallBack,
     };
 
     const getReinscriptionPrioritaire = () => {
@@ -199,49 +188,29 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         }
     }, [isOnlyReinscriptionEnabled]);
 
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
-
-    useEffect(() => {
-        if (codeIncoherence === "ELEVE_ALREADY_EXISTS") {
-            notification.open({ message: "Au moins un élève saisi figure déjà dans une autre demande d'inscription sur la même période", type: "error" });
-            setCodeIncoherence(undefined);
-        } else if (codeIncoherence === "NO_INCOHERENCE") {
-            const inscriptionFormValues: InscriptionEnfantFront = _.cloneDeep(form.getFieldsValue());
-            let sendMailConfirmation = form.getFieldValue("sendMailConfirmation");
-            if (!isAdmin) { // si pas en mode admin, l'envoi du mail est systématique
-                sendMailConfirmation = true;
-            }
-            inscriptionFormValues.eleves = _.cloneDeep(eleves);
-            const inscriptionToSave = prepareInscriptionEnfantBeforeSave(inscriptionFormValues)
-            setCodeIncoherence(undefined);
-            if (id) {
-                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }), data: inscriptionToSave, params: { sendMailConfirmation } });
-            } else {
-                setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ENFANT_ENDPOINT, data: inscriptionToSave, params: { sendMailConfirmation } });
-            }
-        }
-    }, [codeIncoherence])
-
     const onFinishFailed = () => {
         notification.open({ message: "Veuillez contrôler le formulaire car il y a des erreurs dans votre saisie", type: "error" });
     }
 
     useEffect(() => {
-        // En mode admin on load l'inscription demandée
-        if (id) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }) });
-        } else { // Sinon on va simplement vérifier si les réinscriptions prioritaires sont activées
-            setApiCallDefinition({ method: "GET", url: PARAM_ENDPOINT })
+        const loadData = async () => {
+            // En mode admin on load l'inscription demandée
+            if (id) {
+                const { successData: inscription } = await execute<InscriptionEnfantBack>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }) });
+                if (inscription) {
+                    const inscriptionFormValues: InscriptionEnfantFront = prepareInscriptionEnfantBeforeForm(inscription);
+                    form.setFieldsValue(inscriptionFormValues);
+                    setEleves(inscriptionFormValues.eleves);
+                }
+            } else { // Sinon on va simplement vérifier si les réinscriptions prioritaires sont activées
+                const { successData: params } = await execute<ParamsDtoB>({ method: "GET", url: PARAM_ENDPOINT });
+                if (params) {
+                    setIsOnlyReinscriptionEnabled(params.reinscriptionPrioritaire ?? false);
+                    setIsInscriptionsFermees(isInscriptionFerme(params.inscriptionEnfantEnabledFromDate));
+                }
+            }
         }
-
+        loadData();
     }, []);
 
     useEffect(() => {
@@ -292,16 +261,6 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         return inscriptionFinished ? getResult() : (<Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={handleTabChange} type="card" />);
     }
 
-    const getLoadingTip = () => {
-        if (apiCallDefinition?.url === PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT) {
-            return "Initialisation de l'application...";
-        } else if (apiCallDefinition?.method === "POST" && apiCallDefinition.url === INSCRIPTION_ENFANT_ENDPOINT) {
-            return "Enregistrement de votre inscription en cours...";
-        } else {
-            return "Chargement...";
-        }
-    }
-
     /*const getMessageDefilant = (type: TypeMessageDefilant) => {
         const message = type === TypeMessageDefilant.REINSCRIPTION_PRIORITAIRE ?
             "Actuellement, seules les réinscriptions sont autorisées. Vous pouvez vous inscrire pour l'année prochaine, uniquement si vous étiez déjà inscrit pendant "
@@ -342,7 +301,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
                     <h2 className="insc-enfant-title">
                         <TeamOutlined /> Inscription aux cours arabes pour enfants
                     </h2>
-                    <Spin spinning={isLoading} size="large" tip={getLoadingTip()}>
+                    <Spin spinning={isLoading} size="large" tip={"Chargement..."}>
                         {getFormContent()}
                         <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
                     </Spin>

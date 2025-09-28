@@ -1,20 +1,19 @@
 import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag, Tooltip } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
-import useApi from "../../hooks/useApi";
-import _, { get } from "lodash";
+import _ from "lodash";
 import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ELEVES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, handleApiCall } from "../../services/services";
 import { AffectationEleveEnum, ClasseDtoB, ClasseDtoF, LienClasseEleveDto } from "../../services/classe";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getJourActiviteOptions, getNiveauInterneEnfantOptions } from "../common/commoninputs";
 import { EnseignantDto } from "../../services/enseignant";
-import { DefaultOptionType } from "antd/es/select";
 import { EleveBack, EleveFront } from "../../services/eleve";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, prepareEleveBeforeForm, prepareEleveBeforeSave } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, prepareEleveBeforeForm, prepareEleveBeforeSave } from "../../utils/FormUtils";
 import { ColumnsType } from "antd/es/table";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { CheckOutlined, CloseOutlined, EyeOutlined, SearchOutlined, WarningOutlined } from "@ant-design/icons";
 import { SwitchFormItem } from "../common/SwitchFormItem";
+import useApi from "../../hooks/useApi";
 
 
 export type ModalClasseProps = {
@@ -31,11 +30,12 @@ function getEnseignantsOptions(enseignants: EnseignantDto[]) {
 }
 
 export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen, classeToEdit, enseignants, debutAnneeScolaire, finAnneeScolaire }) => {
-    const { isLoading, result, setApiCallDefinition, apiCallDefinition, resetApi } = useApi();
+    const { execute } = useApi();
     const [form] = Form.useForm();
     const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [elevesFiltres, setElevesFiltres] = useState<EleveFront[]>([]);
     const [selectedEleves, setSelectedEleves] = useState<EleveFront[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const close = () => {
         form.resetFields();
@@ -49,7 +49,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         }));
     };
 
-    const onValider = () => {
+    const onValider = async () => {
         const classeForm = form.getFieldsValue();
         const classeToSave: ClasseDtoB = {
             id: classeToEdit?.id,
@@ -61,10 +61,19 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
             debutAnneeScolaire,
             finAnneeScolaire
         }
+        let result = null;
         if (classeToEdit) {
-            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id: classeToEdit.id }), data: classeToSave });
+            result = await execute<ClasseDtoB>({ method: "PUT", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id: classeToEdit.id }), data: classeToSave });
+            if (result.success) {
+                notification.success({ message: "Les modifications ont bien été enregistrées" });
+                setOpen(false);
+            }
         } else {
-            setApiCallDefinition({ method: "POST", url: CLASSES_ENDPOINT, data: classeToSave });
+            result = await execute<ClasseDtoB>({ method: "POST", url: CLASSES_ENDPOINT, data: classeToSave });
+            if (result.success) {
+                notification.success({ message: "La classe a bien été crée" });
+                setOpen(false);
+            }
         }
     }
 
@@ -72,42 +81,32 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         return classeToEdit ? "Modification d'une classe" : "Création d'une nouvelle classe";
     }
 
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${ELEVES_ENDPOINT}`]: (result: any) => {
-            const elevesB = result as EleveBack[];
-            const elevesF = elevesB.map(eleve => prepareEleveBeforeForm([eleve])[0]);
-            setEleves(elevesF);
-            setElevesFiltres([...elevesF]);
+    function initEleves(eleves: EleveFront[] | undefined) {
+        if (eleves) {
+            setEleves(eleves);
+            setElevesFiltres([...eleves]);
             if (classeToEdit) {
                 const elevesClasse = classeToEdit.liensClasseEleves?.map(lien => lien.eleve);
                 if (elevesClasse && elevesClasse.length > 0) {
                     setSelectedEleves(elevesClasse);
                 }
             }
-        },
-        [`POST:${CLASSES_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.success({ message: "La classe a bien été créée" });
-                setOpen(false);
-            }
-        },
-        [`PUT:${EXISTING_CLASSES_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.success({ message: "Les modifications ont bien été enregistrées" });
-                setOpen(false);
-            }
-        },
-    };
+        }
+    }
 
     useEffect(() => {
-        if (open) {
-            setApiCallDefinition({
+        const loadData = async () => {
+            const result = await execute<EleveBack[]>({
                 method: "GET", url: ELEVES_ENDPOINT,
                 params: {
                     anneeDebut: debutAnneeScolaire, anneeFin: finAnneeScolaire, affectation: AffectationEleveEnum.SANS_IMPORTANCE,
                     avecNiveau: false
                 }
             });
+            if (result.success) {
+                const elevesF = result.successData?.map(eleve => prepareEleveBeforeForm([eleve])[0]);
+                initEleves(elevesF);
+            }
 
             // si modification, initialisation du formulaire avec la classe à modifier
             if (classeToEdit) {
@@ -116,22 +115,16 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                     form.setFieldValue("jourActivite", classeToEdit.activites[0].jour);
                 }
             }
+        }
+
+        if (open) {
+            loadData();
         } else {
             setElevesFiltres([]);
             setSelectedEleves([]);
             form.resetFields();
         }
     }, [open]);
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
 
     const rowSelection = {
         onChange: (selectedRowKeys: React.Key[], selectedRows: EleveFront[]) => {
@@ -175,16 +168,19 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         }
     ];
 
-    function onFilterEleves() {
+    async function onFilterEleves() {
         const filterField = form.getFieldValue("filterField");
         if (filterField) {
             const valeurNormalisee = filterField.toLowerCase();
             setElevesFiltres(eleves.filter(eleve => eleve.nom.toLowerCase().includes(valeurNormalisee) || eleve.prenom.toLowerCase().includes(valeurNormalisee)));
         } else {
-            setApiCallDefinition({
+            const result = await execute<EleveFront[]>({
                 method: "GET", url: ELEVES_ENDPOINT,
                 params: { anneeDebut: debutAnneeScolaire, anneeFin: finAnneeScolaire, affectation: AffectationEleveEnum.SANS_IMPORTANCE }
             });
+            if (result.success && result.successData) {
+                initEleves(result.successData);
+            }
         }
     }
 

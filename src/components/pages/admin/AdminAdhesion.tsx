@@ -2,7 +2,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { AdhesionLight, AdhesionPatchDto } from "../../../services/adhesion";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Table, Tag, Tooltip, notification } from "antd";
-import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, handleApiCall } from "../../../services/services";
+import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, DELETE_ADHESION_ENDPOINT, handleApiCall } from "../../../services/services";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EuroCircleOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../../services/inscription";
 import { getFileNameAdhesion } from "../../common/tableDefinition";
@@ -24,7 +24,7 @@ export const AdminAdhesion: FunctionComponent = () => {
     const [dataSource, setDataSource] = useState<AdhesionLight[]>();
     const { roles } = useAuth();
     const navigate = useNavigate();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { execute, isLoading } = useApi();
     const [form] = Form.useForm();
     const [selectedAdhesions, setSelectedAdhesions] = useState<AdhesionLight[]>([]);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
@@ -50,9 +50,33 @@ export const AdminAdhesion: FunctionComponent = () => {
         }
     }
 
-    const onConfirmSuppression = () => {
+    const onConfirmSuppression = async () => {
         setModaleConfirmSuppressionOpen(false);
-        setApiCallDefinition({ method: "DELETE", url: ADHESION_ENDPOINT, data: selectedAdhesions.map(adhesion => adhesion.id) });
+        console.log(selectedAdhesions.map(adhesion => adhesion.id));
+        const resultDelete = await execute<number[]>({ method: "DELETE", url: DELETE_ADHESION_ENDPOINT, data: selectedAdhesions.map(adhesion => adhesion.id) });
+        if (resultDelete.successData) {
+            notification.open({ message: "Les " + resultDelete.successData.length + " adhésions sélectionnées ont été supprimées", type: "success" });
+            // On reload toutes les inscriptions depuis la base
+            const resultAdhesions = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+            setSelectedAdhesions([]);
+            if (resultAdhesions.successData) {
+                setDataSource(resultAdhesions.successData);
+            }
+        }
+    }
+
+    async function validateInscriptions() {
+        const adhesionsPatches: AdhesionPatchDto[] = selectedAdhesions.map(adhesion => ({ id: adhesion.id, statut: StatutInscription.VALIDEE }));
+        const resultValidate = await execute<number[]>({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: adhesionsPatches } });
+        if (resultValidate.successData) {
+            notification.open({ message: "Les " + resultValidate.successData.length + " adhésions sélectionnées ont été validées", type: "success" });
+            // On reload toutes les inscriptions depuis la base
+            const resultAdhesions = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+            setSelectedAdhesions([]);
+            if (resultAdhesions.successData) {
+                setDataSource(resultAdhesions.successData);
+            }
+        }
     }
 
     const DropdownMenu = () => {
@@ -64,8 +88,7 @@ export const AdminAdhesion: FunctionComponent = () => {
                 }
                 navigate("/adhesion", { state: { isReadOnly: readOnly, id: selectedAdhesions[0].id, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
-                const adhesionsPatches: AdhesionPatchDto[] = selectedAdhesions.map(adhesion => ({ id: adhesion.id, statut: StatutInscription.VALIDEE }));
-                setApiCallDefinition({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: adhesionsPatches } });
+                validateInscriptions()
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -87,7 +110,7 @@ export const AdminAdhesion: FunctionComponent = () => {
         );
     };
 
-    const doSearch = () => {
+    const doSearch = async () => {
         const { nom, prenom, statut, montant } = form.getFieldsValue();
         let dateInscription = form.getFieldValue("dateInscription");
         if (dateInscription) {
@@ -97,7 +120,10 @@ export const AdminAdhesion: FunctionComponent = () => {
             nom: nom ?? null, prenom: prenom ?? null, statut: statut ?? null,
             dateInscription: dateInscription ?? null, montant: montant ?? null
         }
-        setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT, params: searchCriteria });
+        const result = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT, params: searchCriteria });
+        if (result.successData) {
+            setDataSource(result.successData);
+        }
     }
 
     const SearchFilters = () => {
@@ -119,39 +145,13 @@ export const AdminAdhesion: FunctionComponent = () => {
 
     useEffect(() => {
         const fetchAdhesions = async () => {
-            setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+            const result = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+            if (result.successData) {
+                setDataSource(result.successData);
+            }
         }
         fetchAdhesions();
     }, []);
-
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${ADHESION_SEARCH_ENDPOINT}`]: (result: any) => {
-            setDataSource(result);
-            resetApi();
-        },
-        [`PATCH:${ADHESION_SEARCH_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Les " + (result as number[]).length + " adhésions sélectionnées ont été validées", type: "success" });
-            // On reload toutes les inscriptions depuis la base
-            setSelectedAdhesions([]);
-            setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
-        },
-        [`DELETE:${ADHESION_SEARCH_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Les " + (result as number[]).length + " adhésions sélectionnées ont été supprimées", type: "success" });
-            // On reload toutes les inscriptions depuis la base
-            setSelectedAdhesions([]);
-            setApiCallDefinition({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
-        }
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
 
     const rowSelection = {
         onChange: (selectedRowKeys: React.Key[], selectedRows: AdhesionLight[]) => {

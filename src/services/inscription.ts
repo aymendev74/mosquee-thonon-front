@@ -1,4 +1,5 @@
 import { ResponsableLegal } from "./ResponsableLegal";
+import { MatiereEnum } from "./classe";
 import { Eleve, Sexe } from "./eleve";
 import { Dayjs } from "dayjs";
 
@@ -94,7 +95,8 @@ export type InscriptionAdulte<T extends Dayjs | string> = {
     montantTotal: number;
     niveauInterne: NiveauInterne;
     sexe: Sexe;
-    statutProfessionnel: StatutProfessionel
+    statutProfessionnel: StatutProfessionel;
+    matieres: MatiereEnum[];
 } & {
     sendMailConfirmation: boolean;
 }

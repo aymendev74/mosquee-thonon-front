@@ -2,9 +2,9 @@ import { Button, Checkbox, Col, Divider, Form, Popover, Result, Row, Spin, notif
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getConsentementInscriptionCoursLibelle, isInscriptionFerme, prepareInscriptionAdulteBeforeForm, prepareInscriptionAdulteBeforeSave, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
+import { getConsentementInscriptionCoursLibelle, isInscriptionFerme, prepareInscriptionAdulteBeforeForm, prepareInscriptionAdulteBeforeSave, validateCodePostal, validateEmail, validateMajorite, validatePhoneNumber } from "../../utils/FormUtils";
 import useApi from "../../hooks/useApi";
-import { ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, PARAM_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
+import { buildUrlWithParams, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, PARAM_ENDPOINT } from "../../services/services";
 import { InscriptionAdulteBack, InscriptionAdulteFront, StatutInscription } from "../../services/inscription";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
@@ -15,26 +15,29 @@ import { getNiveauInterneAdulteOptions, getStatutsProfessionnelsOptions } from "
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import { QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { TarifInscriptionDto } from "../../services/tarif";
-import { HttpStatusCode } from "axios";
 import { ParamsDtoB } from "../../services/parametres";
+import { MultiTagSelect } from "../common/MultiTagSelectFormItem";
+import { useMatieresStore } from "../stores/useMatieresStore";
+import { TypeMatiereEnum } from "../../services/classe";
 
 
 export const CoursArabesAdulteForm: FunctionComponent = () => {
-
     const navigate = useNavigate();
     const [form] = useForm();
     const location = useLocation();
     const id = location.state ? location.state.id : undefined;
     const isReadOnly = location.state ? location.state.isReadOnly : false;
     const isAdmin = location.state ? location.state.isAdmin : false;
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading, status } = useApi();
+    const { execute, isLoading } = useApi();
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
+    const { getMatieresByType } = useMatieresStore();
 
     const onFinish = async (inscription: InscriptionAdulteFront) => {
         const inscriptionToSave = prepareInscriptionAdulteBeforeSave(inscription);
+        console.log(inscriptionToSave);
         let sendMailConfirmation = inscription.sendMailConfirmation;
         if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
@@ -45,74 +48,57 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         }
 
         if (id) {
-            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: inscriptionToSave, params: { sendMailConfirmation } });
+            const { success } = await execute({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: inscriptionToSave, params: { sendMailConfirmation } });
+            if (success) {
+                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+                navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
+            }
         } else {
-            setApiCallDefinition({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: inscriptionToSave, params: { sendMailConfirmation } });
+            const { success } = await execute({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: inscriptionToSave, params: { sendMailConfirmation } });
+            if (success) {
+                setInscriptionSuccess(true);
+                form.resetFields();
+            }
         }
     };
 
-    const onStatutProfessionnelChanged = (value: any) => {
+    const onStatutProfessionnelChanged = async (value: any) => {
         if (value) {
-            setApiCallDefinition({ method: "GET", url: NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, params: { statutProfessionnel: value } });
+            const { successData } = await execute<TarifInscriptionDto>({ method: "GET", url: NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, params: { statutProfessionnel: value } });
+            handleTarifInscription(successData);
         } else {
-            setTarifInscription(undefined);
+            handleTarifInscription(undefined);
         }
-    }
+    };
 
-    const tarifInscriptionApiCallBack = (result: any) => {
+    const handleTarifInscription = (result?: TarifInscriptionDto | null) => {
         if (result) {
             setTarifInscription(result);
-        } else if (status === HttpStatusCode.NoContent) { // No content (pas de tarif pour la période)
+        } else { // No content (pas de tarif pour la période)
             notification.open({ message: "Aucun tarif n'a été trouvé pour la période en cours", type: "error" });
             setTarifInscription(undefined);
         }
-        resetApi();
-    }
-
-    const apiCallbacks: ApiCallbacks = {
-        [`PUT:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-                navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
-                resetApi();
-            }
-        },
-        [`POST:${NEW_INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
-            if (result) {
-                setInscriptionSuccess(true);
-                form.resetFields();
-                resetApi();
-            }
-        },
-        [`GET:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
-            const inscriptionFormValues: InscriptionAdulteFront = prepareInscriptionAdulteBeforeForm(result as InscriptionAdulteBack);
-            form.setFieldsValue(inscriptionFormValues);
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, { id }), params: { statutProfessionnel: inscriptionFormValues.statutProfessionnel } });
-        },
-        [`GET:${NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
-        [`GET:${INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT}`]: tarifInscriptionApiCallBack,
-        [`GET:${PARAM_ENDPOINT}`]: (result: any) => {
-            const resultAsParamsDto = result as ParamsDtoB;
-            setIsInscriptionsFermees(isInscriptionFerme(resultAsParamsDto.inscriptionAdulteEnabledFromDate));
-        },
     };
 
     useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
+        const loadData = async () => {
+            if (id) {
+                const { successData: inscription } = await execute<InscriptionAdulteBack>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }) });
+                if (inscription) {
+                    const inscriptionFormValues: InscriptionAdulteFront = prepareInscriptionAdulteBeforeForm(inscription);
+                    console.log(inscriptionFormValues);
+                    form.setFieldsValue(inscriptionFormValues);
+                    const { successData: tarif } = await execute<TarifInscriptionDto>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, { id }), params: { statutProfessionnel: inscriptionFormValues.statutProfessionnel } });
+                    handleTarifInscription(tarif);
+                }
+            } else {
+                const { successData: params } = await execute<ParamsDtoB>({ method: "GET", url: PARAM_ENDPOINT });
+                if (params) {
+                    setIsInscriptionsFermees(isInscriptionFerme(params.inscriptionAdulteEnabledFromDate));
+                }
             }
         }
-    }, [result]);
-
-    useEffect(() => {
-        if (id) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }) });
-        } else {
-            setApiCallDefinition({ method: "GET", url: PARAM_ENDPOINT })
-        }
+        loadData();
     }, []);
 
     const NiveauHelpContent = (
@@ -132,6 +118,13 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                 </div>
             </>
         );
+    };
+
+    function getMatieresOptions() {
+        return getMatieresByType(TypeMatiereEnum.ADULTE).map((matiere) => ({
+            label: matiere.fr,
+            value: matiere.code,
+        }));
     }
 
     const getFormContent = () => {
@@ -149,7 +142,7 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
             </div>) :
             (<div className="centered-content">
                 <Form
-                    name="adhesion"
+                    name="coursAdulte"
                     onFinish={onFinish}
                     autoComplete="off"
                     form={form}
@@ -235,6 +228,21 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                                 <InputFormItem label="E-mail" name="email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
                             </Col>
                         </Row>
+                        <Divider orientation="left">Domaines d'apprentissage</Divider>
+                        <Row>
+                            <Col span={24}>
+                                <MultiTagSelect name="matieres" label="Enseignement(s) souhaité(s)" options={getMatieresOptions()} disabled={isReadOnly} rules={[
+                                    {
+                                        required: true,
+                                        message: "Veuillez sélectionner au moins une matière",
+                                        validator: (_, val) =>
+                                            val && val.length > 0
+                                                ? Promise.resolve()
+                                                : Promise.reject("Veuillez sélectionner au moins une matière"),
+                                    },
+                                ]} />
+                            </Col>
+                        </Row>
                         {
                             tarifInscription && tarifInscription.tarif > 0 && (
                                 <>
@@ -275,7 +283,7 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                         </div>
                     </Spin>
                 </Form >
-            </div>
+            </div >
             );
     }
 

@@ -516,3 +516,13 @@ body {
 .social-icons a:hover {
   color: #1890ff;
 }
+
+.readonly-selected {
+  background-color: #1890ff !important;
+  /* bleu AntD */
+  color: white !important;
+  border-color: #1890ff !important;
+  opacity: 0.7;
+  /* petit effet "gris read-only" */
+  cursor: not-allowed;
+}

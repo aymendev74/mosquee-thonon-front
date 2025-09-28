@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { notification } from 'antd';
 import { useAxios } from './useAxios';
 import { useAuth } from './AuthContext';
+import { useState } from 'react';
 
 export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
 
@@ -12,22 +12,19 @@ export type ApiCallDefinition = {
     params?: any
 }
 
-export type APiCallResult = {
-    responseData?: any;
-    status?: number;
+export type APICallResult<T> = {
+    successData?: T | null;
+    errorData?: any;
+    success: boolean;
 }
 
-const useApi = (apiCallDef?: ApiCallDefinition) => {
-    const [result, setResult] = useState();
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(false);
-    const [errorResult, setErrorResult] = useState<string>();
-    const [apiCallDefinition, setApiCallDefinition] = useState<ApiCallDefinition | undefined>(apiCallDef);
-    const [status, setStatus] = useState<number | undefined>();
+const useApi = () => {
     const axios = useAxios();
+    const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
 
-    const executeApiCall = async (apiCallDefinition: ApiCallDefinition): Promise<APiCallResult> => {
+    const execute = async <T,>(apiCallDefinition: ApiCallDefinition): Promise<APICallResult<T>> => {
+        setIsLoading(true);
         return axios.request({
             ...apiCallDefinition,
             withCredentials: true,
@@ -35,52 +32,26 @@ const useApi = (apiCallDef?: ApiCallDefinition) => {
                 indexes: null
             }
         }).then(response => {
-            return { responseData: response.data, status: response.status };
+            return { success: true, successData: response.data as T };
         }).catch(function (error) {
             console.log("error", error);
             if (error.response && error.response.status === 401) {
                 login();
+                return { success: false, successData: null, errorData: null }; // 🔹 retour explicite
             } else {
-                notification.open({ message: "Une erreur est survenue", type: "error" });
-            }
-            throw error;
-        });
-    }
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            setError(false);
-            try {
-                const apiCallResult = await executeApiCall(apiCallDefinition!);
-                setResult(apiCallResult.responseData);
-                setStatus(apiCallResult.status);
-            } catch (err) {
-                setError(true);
-                const error = err as any;
-                if (error.response && error.response.data) {
-                    // gestion spécifique de l'erreur via le composant appelant
-                    setErrorResult(error.response.data);
+                if (error.response && error.response.data) { // gestion spécifique de l'erreur via le composant appelant
+                    return { success: false, errorData: error.response.data }
+                } else {
+                    notification.open({ message: "Une erreur est survenue", type: "error" });
+                    return { success: false, successData: null, errorData: null };
                 }
-            } finally {
-                setIsLoading(false);
             }
-
-        }
-        if (apiCallDefinition) {
-            fetchData();
-        }
-    }, [apiCallDefinition]);
-
-
-    const resetApi = () => {
-        setResult(undefined);
-        setErrorResult(undefined);
-        setApiCallDefinition(undefined);
-        setStatus(undefined);
+        }).finally(() => {
+            setIsLoading(false);
+        })
     }
 
-    return { setApiCallDefinition, result, isLoading, errorResult, apiCallDefinition, status, resetApi };
+    return { execute, isLoading };
 };
 
 export default useApi;
