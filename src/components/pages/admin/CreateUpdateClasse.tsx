@@ -17,7 +17,7 @@ import { valueType } from 'antd/es/statistic/utils';
 
 const CreateUpdateClasse = () => {
     const { roles } = useAuth();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { execute, isLoading } = useApi();
     const [enseignants, setEnseignants] = useState<EnseignantDto[]>([]);
     const [classes, setClasses] = useState<ClasseDtoF[]>([]);
     const [form] = useForm();
@@ -27,10 +27,14 @@ const CreateUpdateClasse = () => {
     const [modalDeleteClasseOpen, setModalDeleteClasseOpen] = useState(false);
     const [classeToDelete, setClasseToDelete] = useState<number | undefined>();
 
-    function doSearchClasses(values: any) {
-        const anneeDebut: number = values.anneeDebut;
-        const anneeFin: number = anneeDebut + 1;
-        setApiCallDefinition({ method: "GET", url: CLASSES_ENDPOINT, params: { anneeDebut, anneeFin } });
+    async function doSearchClasses(values: any) {
+        const params = { anneeDebut: values.anneeDebut, anneeFin: values.anneeFin ?? values.anneeDebut + 1 };
+        const resultClasses = await execute<ClasseDtoB[]>({ method: "GET", url: CLASSES_ENDPOINT, params });
+        if (resultClasses.success && resultClasses.successData) {
+            const classesF = resultClasses.successData.map(classe => prepareClasseBeforeForm(classe));
+            setClasses(classesF);
+        }
+
     }
 
     function onCreateClasse() {
@@ -55,7 +59,8 @@ const CreateUpdateClasse = () => {
     }
 
     function onConfirmDeleteClasse() {
-        setApiCallDefinition({ method: "DELETE", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id: classeToDelete }) });
+        execute({ method: "DELETE", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id: classeToDelete }) });
+        doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
     }
 
     function getActionsClasseButtons(classe: ClasseDtoF) {
@@ -97,37 +102,17 @@ const CreateUpdateClasse = () => {
     }
 
     useEffect(() => {
-        if (!modalClasseOpen) {
-            setApiCallDefinition({ method: "GET", url: CLASSES_ENDPOINT, params: { anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 } });
-        }
-    }, [modalClasseOpen]);
-
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${CLASSES_ENDPOINT}`]: (result: any) => {
-            const classesB = result as ClasseDtoB[];
-            const classesF = classesB.map(classe => prepareClasseBeforeForm(classe));
-            setClasses(classesF);
-            setApiCallDefinition({ method: "GET", url: ENSEIGNANT_ENDPOINT });
-        },
-        [`GET:${ENSEIGNANT_ENDPOINT}`]: (result: any) => {
-            setEnseignants(result);
-            resetApi();
-        },
-        [`DELETE:${EXISTING_CLASSES_ENDPOINT}`]: (result: any) => {
-            setApiCallDefinition({ method: "GET", url: CLASSES_ENDPOINT, params: { anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 } });
-            setModalDeleteClasseOpen(false);
-        },
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
+        const loadData = async () => {
+            if (!modalClasseOpen) {
+                doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
+                const resultEnseignants = await execute<EnseignantDto[]>({ method: "GET", url: ENSEIGNANT_ENDPOINT });
+                if (resultEnseignants.success && resultEnseignants.successData) {
+                    setEnseignants(resultEnseignants.successData);
+                }
             }
         }
-    }, [result]);
+        loadData();
+    }, [modalClasseOpen]);
 
     function handleAnneeScolaireChanged(val: valueType | null) {
         if (!val) return;

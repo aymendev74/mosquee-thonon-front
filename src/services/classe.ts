@@ -28,6 +28,7 @@ export enum JourActiviteEnum {
     SAMEDI_MATIN = "SAMEDI_MATIN",
     DIMANCHE_MATIN = "DIMANCHE_MATIN",
     DIMANCHE_APRES_MIDI = "DIMANCHE_APRES_MIDI",
+    MERCREDI_APRES_MIDI = "MERCREDI_APRES_MIDI",
 }
 
 export type ClasseActiviteDto = {
@@ -70,7 +71,7 @@ export enum MatiereNoteEnum {
 }
 
 export type BulletinMatiereDto = {
-    idMatiere: number;
+    code: MatiereEnum;
     note: MatiereNoteEnum;
     remarque: string;
 }
@@ -99,8 +100,12 @@ export enum MatiereEnum {
     ASSIDUITE_COMPORTEMENT = "ASSIDUITE_COMPORTEMENT",
 }
 
-export type MatiereDto = {
-    id: number;
-    code: MatiereEnum;
-    libelle: string;
+export enum TypeMatiereEnum {
+    ENFANT = "ENFANT",
+    ADULTE = "ADULTE",
+};
+
+export type TraductionDto = {
+    code: string;
+    fr: string;
 }

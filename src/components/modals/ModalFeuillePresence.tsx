@@ -1,8 +1,7 @@
 import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
-import useApi from "../../hooks/useApi";
 import _ from "lodash";
-import { ApiCallbacks, buildUrlWithParams, EXISTING_FEUILLE_PRESENCE_ENDPOINT, FEUILLE_PRESENCE_ENDPOINT, handleApiCall } from "../../services/services";
+import { buildUrlWithParams, EXISTING_FEUILLE_PRESENCE_ENDPOINT, FEUILLE_PRESENCE_ENDPOINT } from "../../services/services";
 import { ClasseDtoF, FeuillePresenceDtoB, FeuillePresenceDtoF, PresenceEleveDto } from "../../services/classe";
 import { EleveFront } from "../../services/eleve";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
@@ -10,6 +9,7 @@ import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
+import useApi from "../../hooks/useApi";
 
 
 export type ModalFeuillePresenceProps = {
@@ -20,7 +20,7 @@ export type ModalFeuillePresenceProps = {
 }
 
 export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> = ({ open, setOpen, classe, feuilleToEdit }) => {
-    const { isLoading, result, setApiCallDefinition, apiCallDefinition, resetApi } = useApi();
+    const { execute, isLoading } = useApi();
     const [form] = Form.useForm();
     const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [selectedEleves, setSelectedEleves] = useState<EleveFront[]>([]);
@@ -30,7 +30,7 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
         setOpen(false);
     };
 
-    function onFinish() {
+    async function onFinish() {
         const dateFeuille = form.getFieldValue("dateFeuille");
         const elevesPresents: PresenceEleveDto[] = selectedEleves.map((eleve) => ({ idEleve: eleve.id!, present: true }));
         const elevesAbsents: PresenceEleveDto[] = eleves.filter((eleve) => !selectedEleves.map((eleve) => eleve.id).includes(eleve.id)).map((eleve) => ({ idEleve: eleve.id!, present: false }));
@@ -38,25 +38,24 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
             date: dayjs(dateFeuille).format(APPLICATION_DATE_FORMAT),
             presenceEleves: [...elevesPresents, ...elevesAbsents],
         }
+        let result = null;
         if (feuilleToEdit) { // mise à jour
-            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(EXISTING_FEUILLE_PRESENCE_ENDPOINT, { id: feuilleToEdit.id }), data: feuillePresence });
+            result = await execute<FeuillePresenceDtoB>({ method: "PUT", url: buildUrlWithParams(EXISTING_FEUILLE_PRESENCE_ENDPOINT, { id: feuilleToEdit.id }), data: feuillePresence });
         } else { // création
-            setApiCallDefinition({ method: "POST", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }), data: feuillePresence });
+            result = await execute<FeuillePresenceDtoB>({ method: "POST", url: buildUrlWithParams(FEUILLE_PRESENCE_ENDPOINT, { id: classe?.id }), data: feuillePresence });
+        }
+        if (result.success && result.successData) {
+            handleSaveSucess(result.successData);
         }
     };
 
-    function handleSaveSucess(result: any) {
+    function handleSaveSucess(result: FeuillePresenceDtoB) {
         if (result) {
             notification.success({ message: "La feuille de présence a bien été enregistrée" });
             setOpen(false);
             setEleves([]);
             setSelectedEleves([]);
         }
-    };
-
-    const apiCallbacks: ApiCallbacks = {
-        [`POST:${FEUILLE_PRESENCE_ENDPOINT}`]: handleSaveSucess,
-        [`PUT:${EXISTING_FEUILLE_PRESENCE_ENDPOINT}`]: handleSaveSucess,
     };
 
     useEffect(() => {
@@ -74,16 +73,6 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
             setSelectedEleves([]);
         }
     }, [open]);
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
 
     const rowSelection = {
         onChange: (selectedRowKeys: React.Key[], selectedRows: EleveFront[]) => {

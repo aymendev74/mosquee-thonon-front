@@ -27,8 +27,7 @@ export const AdhesionForm: FunctionComponent = () => {
     const isReadOnly = location.state ? location.state.isReadOnly : undefined;
     const isAdmin = location.state ? location.state.isAdmin : undefined;
     const [versementMensuelOptions, setVersementMensuelOptions] = useState<DefaultOptionType[]>();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
-    const { result: resultTarifs } = useApi({ method: "GET", url: TARIFS_ENDPOINT, params: { application: "ADHESION" } });
+    const { execute, isLoading } = useApi();
     const [autreMontantVisible, setAutreMontantVisible] = useState<boolean>(false);
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
@@ -40,11 +39,31 @@ export const AdhesionForm: FunctionComponent = () => {
         }
         adhesion.dateNaissance = dayjs(adhesion.dateNaissance).format(APPLICATION_DATE_FORMAT);
         if (id) {
-            setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }), data: adhesion });
+            const { success } = await execute({ method: "PUT", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }), data: adhesion });
+            if (success) {
+                notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
+                navigate("/adminAdhesion");
+            }
         } else {
-            setApiCallDefinition({ method: "POST", url: NEW_ADHESION_ENDPOINT, data: adhesion });
+            const { success } = await execute({ method: "POST", url: NEW_ADHESION_ENDPOINT, data: adhesion });
+            if (success) {
+                setInscriptionSuccess(true);
+                form.resetFields();
+            }
         }
     };
+
+    useEffect(() => {
+        const loadTarifs = async () => {
+            const { successData: resultTarifs } = await execute<TarifDto[]>({ method: "GET", url: TARIFS_ENDPOINT, params: { application: "ADHESION" } });
+            if (resultTarifs) {
+                const tarifOptions: DefaultOptionType[] = [];
+                resultTarifs.forEach(tarif => tarifOptions.push({ value: tarif.id, label: tarif.type === "FIXE" ? formatMontant(tarif.montant) : "Autre" }));
+                setVersementMensuelOptions(tarifOptions);
+            }
+        }
+        loadTarifs();
+    }, []);
 
     const getCiviliteOptions = () => {
         return [{ value: "M", label: "Monsieur" }, { value: "MME", label: "Madame" }];
@@ -59,50 +78,19 @@ export const AdhesionForm: FunctionComponent = () => {
     }
 
     useEffect(() => {
-        if (resultTarifs) {
-            const resultAsTarifs = resultTarifs as TarifDto[];
-            const tarifOptions: DefaultOptionType[] = [];
-            resultAsTarifs.forEach(tarif => tarifOptions.push({ value: tarif.id, label: tarif.type === "FIXE" ? formatMontant(tarif.montant) : "Autre" }));
-            setVersementMensuelOptions(tarifOptions);
-        }
-    }, [resultTarifs]);
-
-    const apiCallbacks: ApiCallbacks = {
-        [`PUT:${ADHESION_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
-            navigate("/adminAdhesion");
-            resetApi()
-        },
-        [`POST:${NEW_ADHESION_ENDPOINT}`]: (result: any) => {
-            setInscriptionSuccess(true);
-            form.resetFields();
-            resetApi()
-        },
-        [`GET:${ADHESION_ENDPOINT}`]: (result: any) => {
-            const adhesion = result as Adhesion;
-            adhesion.dateNaissance = dayjs(adhesion.dateNaissance, APPLICATION_DATE_FORMAT);
-            if (adhesion.montantAutre) {
-                setAutreMontantVisible(true);
-            }
-            form.setFieldsValue(adhesion);
-            resetApi();
-        }
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
+        const loadAdhesion = async () => {
+            if (id) {
+                const { successData: adhesion } = await execute<Adhesion>({ method: "GET", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }) });
+                if (adhesion) {
+                    adhesion.dateNaissance = dayjs(adhesion.dateNaissance, APPLICATION_DATE_FORMAT);
+                    if (adhesion.montantAutre) {
+                        setAutreMontantVisible(true);
+                    }
+                    form.setFieldsValue(adhesion);
+                }
             }
         }
-    }, [result]);
-
-    useEffect(() => {
-        if (id) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }) });
-        }
+        loadAdhesion();
     }, []);
 
     return inscriptionSuccess ? (

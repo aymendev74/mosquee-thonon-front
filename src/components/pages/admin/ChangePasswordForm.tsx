@@ -1,10 +1,10 @@
-import { Button, Card, Form, Input, Spin, notification } from 'antd';
-import { FunctionComponent, useEffect } from 'react';
+import { Button, Form, Input, Spin, notification } from 'antd';
+import { FunctionComponent, useState } from 'react';
 import { CHANGE_PASSWORD_ENDPOINT, ERROR_INVALID_OLD_PASSWORD } from '../../../services/services';
-import useApi from '../../../hooks/useApi';
 import { useForm } from 'antd/es/form/Form';
 import { useAuth } from '../../../hooks/AuthContext';
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
+import useApi from '../../../hooks/useApi';
 
 type FieldType = {
     newPassword?: string;
@@ -14,23 +14,19 @@ type FieldType = {
 
 export const ChangePassword: FunctionComponent = () => {
     const { username } = useAuth();
-    const { result, errorResult, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { execute, isLoading } = useApi();
     const [form] = useForm();
 
     const onFinish = async (values: any) => {
-        setApiCallDefinition({ method: "POST", url: CHANGE_PASSWORD_ENDPOINT, data: { oldPassword: values.oldPassword, newPassword: values.newPassword } });
-    };
-
-    useEffect(() => {
-        if (result) {
+        const { successData, errorData } = await execute<boolean>({ method: "POST", url: CHANGE_PASSWORD_ENDPOINT, data: { oldPassword: values.oldPassword, newPassword: values.newPassword } });
+        if (successData) {
             notification.open({ message: "Votre mot de passe a bien été modifié", type: "success" });
             form.resetFields();
         }
-        if (errorResult === ERROR_INVALID_OLD_PASSWORD) {
+        if (errorData === ERROR_INVALID_OLD_PASSWORD) {
             notification.open({ message: "Le mot de passe actuel est incorrect", type: "error" });
         }
-        resetApi();
-    }, [result, errorResult]);
+    };
 
     return username ? (
         <div className="centered-content">
@@ -38,7 +34,7 @@ export const ChangePassword: FunctionComponent = () => {
                 name="changePassword"
                 labelCol={{ span: 14 }}
                 wrapperCol={{ span: 10 }}
-                style={{ maxWidth: 600 }}
+                style={{ maxWidth: 600, marginTop: "100px" }}
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 autoComplete="off"

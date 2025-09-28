@@ -1,12 +1,14 @@
 import { create } from 'zustand'
-import { MatiereDto } from '../../services/classe'
+import { TraductionDto, TypeMatiereEnum } from '../../services/classe'
 
 type MatiereStore = {
-    matieres: MatiereDto[]
-    setMatieres: (matieres: MatiereDto[]) => void
+    matieres: Record<TypeMatiereEnum, TraductionDto[]>
+    getMatieresByType: (type: TypeMatiereEnum) => TraductionDto[]
+    setMatieres: (matieres: Record<TypeMatiereEnum, TraductionDto[]>) => void
 }
 
-export const useMatieresStore = create<MatiereStore>((set) => ({
-    matieres: [],
+export const useMatieresStore = create<MatiereStore>((set, get) => ({
+    matieres: { ENFANT: [], ADULTE: [] },
+    getMatieresByType: (type: TypeMatiereEnum) => get().matieres[type] ?? [],
     setMatieres: (matieres) => set({ matieres })
 }))

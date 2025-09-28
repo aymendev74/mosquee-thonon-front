@@ -21,12 +21,18 @@ import MaClasse from './components/pages/enseignant/MaClasse';
 import { NotFound } from './components/pages/NotFound';
 import AdhesionInfos from './components/pages/AdhesionInfos';
 import { useEffect } from 'react';
+import useApi from './hooks/useApi';
+import { ApiCallbacks, handleApiCall, MATIERES_ENDPOINT } from './services/services';
+import { useMatieresStore } from './components/stores/useMatieresStore';
+import { TraductionDto, TypeMatiereEnum } from './services/classe';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
   const { username, logout, requestProfileInformations } = useAuth();
   const navigate = useNavigate();
+  const { execute } = useApi();
+  const { setMatieres } = useMatieresStore();
 
   const DropdownAuthUser = () => {
     const handleMenuClick = (e: any) => {
@@ -67,6 +73,16 @@ function App() {
 
   useEffect(() => {
     requestProfileInformations();
+  }, []);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const { successData: matieres } = await execute<Record<TypeMatiereEnum, TraductionDto[]>>({ method: "GET", url: MATIERES_ENDPOINT });
+      if (matieres) {
+        setMatieres(matieres);
+      }
+    }
+    loadData();
   }, []);
 
   return (

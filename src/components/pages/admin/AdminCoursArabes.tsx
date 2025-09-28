@@ -2,7 +2,6 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { InscriptionAdulteBack, InscriptionEnfantBack, InscriptionLight, InscriptionPatchDto, StatutInscription } from "../../../services/inscription";
 import { ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, PERIODES_ENDPOINT } from "../../../services/services";
 import { useLocation, useNavigate } from "react-router-dom";
-import useApi from "../../../hooks/useApi";
 import Table, { ColumnsType } from "antd/es/table";
 import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined } from "@ant-design/icons";
@@ -21,6 +20,9 @@ import { PdfInscriptionCoursArabeAdulte } from "../../documents/PdfInscriptionCo
 import { useAuth } from "../../../hooks/AuthContext";
 import { UnahtorizedAccess } from "../UnahtorizedAccess";
 import { PdfAuthContextBridge } from "../../documents/PdfContextBridge";
+import useApi from "../../../hooks/useApi";
+import { useMatieresStore } from "../../stores/useMatieresStore";
+import { TypeMatiereEnum } from "../../../services/classe";
 
 export const AdminCoursArabes: FunctionComponent = () => {
 
@@ -30,14 +32,14 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const [dataSource, setDataSource] = useState<InscriptionLight[]>();
     const { roles } = useAuth();
     const navigate = useNavigate();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi, isLoading } = useApi();
+    const { execute, isLoading } = useApi();
     const [form] = Form.useForm();
     const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
     const [periodesOptions, setPeriodesOptions] = useState<DefaultOptionType[]>();
     const [inscriptionsEnfantsById, setInscriptionsEnfantsById] = useState<Record<number, InscriptionEnfantBack>>({});
     const [inscriptionsAdultesById, setInscriptionsAdultesById] = useState<Record<number, InscriptionAdulteBack>>({});
-    const [loadingInscriptionId, setLoadingInscriptionId] = useState<number>();
+    const { getMatieresByType } = useMatieresStore();
 
     const CONSULTER_MENU_KEY = "1";
     const MODIFIER_MENU_KEY = "2";
@@ -75,11 +77,24 @@ export const AdminCoursArabes: FunctionComponent = () => {
         if (dataSource) {
             exportToExcel<InscriptionLight>(dataSource, excelColumnHeaders, `inscriptions-${type}`);
         }
-    }
+    };
 
-    const onConfirmSuppression = () => {
+    async function loadInscriptions(params?: any) {
+        const resultInscriptions = await execute<InscriptionLight[]>({ method: "GET", url: INSCRIPTION_ENDPOINT, params: params ?? buildSearchCriteria() });
+        if (resultInscriptions.successData) {
+            setDataSource(resultInscriptions.successData);
+        }
+    };
+
+    const onConfirmSuppression = async () => {
         setModaleConfirmSuppressionOpen(false);
-        setApiCallDefinition({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: getSelectedInscriptionDistinctIds() });
+        const result = await execute<number[]>({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: getSelectedInscriptionDistinctIds() });
+        if (result.success) {
+            notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
+            // On reload toutes les inscriptions depuis la base
+            setSelectedInscriptions([]);
+            loadInscriptions();
+        }
     }
 
     const getSelectedInscriptionDistinctIds = () => {
@@ -87,7 +102,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
     }
 
     const DropdownMenu = () => {
-        const handleMenuClick = (e: any) => {
+        const handleMenuClick = async (e: any) => {
             if (selectedInscriptions.length === 1 && [CONSULTER_MENU_KEY, MODIFIER_MENU_KEY].includes(e.key)) { // Consultation/Modification d'inscription
                 let readOnly: boolean = false;
                 if (e.key === CONSULTER_MENU_KEY) {
@@ -97,7 +112,12 @@ export const AdminCoursArabes: FunctionComponent = () => {
                 navigate(path, { state: { isReadOnly: readOnly, id: selectedInscriptions[0].idInscription, isAdmin: true } })
             } else if (e.key === VALIDER_MENU_KEY) { // Validation d'inscriptions
                 const inscriptionsPatch: InscriptionPatchDto[] = getSelectedInscriptionDistinctIds().map(id => ({ id, statut: StatutInscription.VALIDEE }));
-                setApiCallDefinition({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: inscriptionsPatch } });
+                const resultValidationInscriptions = await execute({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: inscriptionsPatch } });
+                if (resultValidationInscriptions.success) {
+                    notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
+                    setSelectedInscriptions([]);
+                    loadInscriptions();
+                }
             } else if (e.key === SUPPRIMER_MENU_KEY) { // Suppression d'inscriptions
                 setModaleConfirmSuppressionOpen(true);
             }
@@ -137,10 +157,6 @@ export const AdminCoursArabes: FunctionComponent = () => {
         return searchCriteria;
     }
 
-    const doSearch = () => {
-        setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: buildSearchCriteria() });
-    }
-
     const getSearchFilters = () => {
         let filters: InputSearchFieldDef[] = [
             { name: "idPeriode", libelle: "Période", inputType: "Select", selectOptions: periodesOptions },
@@ -166,58 +182,22 @@ export const AdminCoursArabes: FunctionComponent = () => {
 
     const SearchFilters: FunctionComponent = () => {
         return (
-            <AdminSearchFilter doSearch={doSearch} inputFilters={getSearchFilters()} />
+            <AdminSearchFilter doSearch={() => loadInscriptions()} inputFilters={getSearchFilters()} />
         );
     };
 
     useEffect(() => {
-        setApiCallDefinition({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
-    }, [type]);
-
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
-            setDataSource(result);
-            resetApi();
-        },
-        [`PATCH:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
-            // On reload toutes les inscriptions depuis la base
-            setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: buildSearchCriteria() });
-        },
-        [`DELETE:${INSCRIPTION_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "Les modifications ont bien été prises en compte", type: "success" });
-            // On reload toutes les inscriptions depuis la base
-            setSelectedInscriptions([]);
-            setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: buildSearchCriteria() });
-        },
-        [`GET:${PERIODES_ENDPOINT}`]: (result: any) => {
-            const periodes = result as PeriodeInfoDto[];
-            if (periodes?.length > 0) {
+        const loadPeriodes = async () => {
+            const resultPeriodes = await execute<PeriodeInfoDto[]>({ method: "GET", url: PERIODES_ENDPOINT, params: { application } });
+            if (resultPeriodes.success && resultPeriodes.successData && resultPeriodes.successData?.length > 0) {
+                const periodes = resultPeriodes.successData;
                 setPeriodesOptions(getPeriodeOptions(periodes));
                 form.setFieldValue("idPeriode", periodes[0].id);
-                setApiCallDefinition({ method: "GET", url: INSCRIPTION_ENDPOINT, params: { type, idPeriode: periodes[0].id } });
-            }
-        },
-        [`GET:${INSCRIPTION_ENFANT_ENDPOINT}`]: (result: any) => {
-            setInscriptionsEnfantsById({ ...inscriptionsEnfantsById, [loadingInscriptionId!]: result });
-            setLoadingInscriptionId(undefined);
-        },
-        [`GET:${INSCRIPTION_ADULTE_ENDPOINT}`]: (result: any) => {
-            setInscriptionsAdultesById({ ...inscriptionsAdultesById, [loadingInscriptionId!]: result });
-            setLoadingInscriptionId(undefined);
-        }
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
+                loadInscriptions({ type, idPeriode: periodes[0].id });
             }
         }
-    }, [result]);
+        loadPeriodes();
+    }, [type]);
 
     const rowSelection = {
         onChange: (selectedRowKeys: React.Key[], selectedRows: InscriptionLight[]) => {
@@ -244,18 +224,23 @@ export const AdminCoursArabes: FunctionComponent = () => {
         } else {
             return (
                 <PdfAuthContextBridge>
-                    <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} />
+                    <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} matieres={getMatieresByType(TypeMatiereEnum.ADULTE)} />
                 </PdfAuthContextBridge>
             );
         }
     }
 
-    function loadInscription(id: number) {
-        setLoadingInscriptionId(id);
+    async function loadInscription(id: number) {
         if (type === "ENFANT") {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }) });
+            const resultInscription = await execute<InscriptionEnfantBack>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }) });
+            if (resultInscription.success && resultInscription.successData) {
+                setInscriptionsEnfantsById({ ...inscriptionsEnfantsById, [id]: resultInscription.successData });
+            }
         } else {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id }) });
+            const resultInscription = await execute<InscriptionAdulteBack>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id }) });
+            if (resultInscription.success && resultInscription.successData) {
+                setInscriptionsAdultesById({ ...inscriptionsAdultesById, [id]: resultInscription.successData });
+            }
         }
     }
 

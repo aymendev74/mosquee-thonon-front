@@ -106,20 +106,18 @@ const styles = StyleSheet.create({
 });
 
 export const PdfAdhesion: FunctionComponent<PdfAdhesionProps> = ({ id }) => {
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
+    const { execute } = useApi();
     const [adhesion, setAdhesion] = useState<Adhesion | undefined>();
 
     useEffect(() => {
-        if (apiCallDefinition?.method === "GET" && result) { // load de l'adhésion
-            const adhesion = result as Adhesion;
-            setAdhesion(adhesion);
-            resetApi();
+        const loadAdhesion = async () => {
+            const { successData: adhesion } = await execute<Adhesion>({ method: "GET", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }) });
+            if (adhesion) {
+                setAdhesion(adhesion);
+            }
         }
-    }, [result]);
-
-    useEffect(() => {
         if (id) {
-            setApiCallDefinition({ method: "GET", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }) });
+            loadAdhesion();
         }
     }, []);
 

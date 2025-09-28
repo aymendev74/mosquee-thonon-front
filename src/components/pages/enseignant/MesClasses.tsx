@@ -14,17 +14,20 @@ import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 const MesClasses = () => {
     const { username } = useAuth();
-    const { result, apiCallDefinition, setApiCallDefinition, resetApi } = useApi();
+    const { execute } = useApi();
     const [classes, setClasses] = useState<ClasseDtoF[]>([]);
     const [form] = useForm();
     const [debutAnneeScolaire, setDebutAnneeScolaire] = useState<number>(dayjs().year());
     const navigate = useNavigate();
 
 
-    function doSearchClasses(values: any) {
-        const anneeDebut: number = values.anneeDebut;
-        const anneeFin: number = anneeDebut + 1;
-        setApiCallDefinition({ method: "GET", url: CLASSES_ENDPOINT, params: { anneeDebut, anneeFin } });
+    async function doSearchClasses(values: any) {
+        const params = { anneeDebut: values.anneeDebut, anneeFin: values.anneeFin ?? values.anneeDebut + 1 };
+        const { successData: classesB } = await execute<ClasseDtoB[]>({ method: "GET", url: CLASSES_ENDPOINT, params });
+        if (classesB) {
+            const classesF = classesB.map(classe => prepareClasseBeforeForm(classe));
+            setClasses(classesF);
+        }
     }
 
     function getActionsClasseButtons(classe: ClasseDtoF) {
@@ -62,26 +65,8 @@ const MesClasses = () => {
     }
 
     useEffect(() => {
-        setApiCallDefinition({ method: "GET", url: CLASSES_ENDPOINT, params: { anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 } });
+        doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
     }, []);
-
-    const apiCallbacks: ApiCallbacks = {
-        [`GET:${CLASSES_ENDPOINT}`]: (result: any) => {
-            const classesB = result as ClasseDtoB[];
-            const classesF = classesB.map(classe => prepareClasseBeforeForm(classe));
-            setClasses(classesF);
-        },
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
 
     return username ? (
         <>

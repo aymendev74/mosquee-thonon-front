@@ -1,7 +1,6 @@
 import { Button, Col, Form, Modal, Row, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
 import { PeriodeDtoBack, PeriodeDtoFront, PeriodeInfoDto, PeriodeValidationResultDto } from "../../services/periode";
-import useApi from "../../hooks/useApi";
 import { InputNumberFormItem } from "../common/InputNumberFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import _ from "lodash";
@@ -9,6 +8,7 @@ import { ApiCallbacks, buildUrlWithParams, handleApiCall, PERIODES_ENDPOINT, PER
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 import dayjs, { Dayjs } from "dayjs";
 import { ApplicationTarif } from "../../services/tarif";
+import useApi from "../../hooks/useApi";
 
 
 export type ModalPeriodeProps = {
@@ -20,7 +20,7 @@ export type ModalPeriodeProps = {
 }
 
 export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOpen, isCreation, periode, application }) => {
-    const { isLoading, result, setApiCallDefinition, apiCallDefinition, resetApi } = useApi();
+    const { execute, isLoading } = useApi();
     const [error, setError] = useState<string | undefined>();
     const [form] = Form.useForm();
 
@@ -29,8 +29,9 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
         setOpen(false);
         setError(undefined);
     };
+
     const onValider = () => {
-        form.validateFields().then((values) => {
+        form.validateFields().then(async (values) => {
             const periodeDto: PeriodeDtoFront = _.cloneDeep(values);
             const periodeToSave: PeriodeDtoBack = {
                 dateDebut: periodeDto.dateDebut.format(APPLICATION_DATE_FORMAT),
@@ -41,10 +42,27 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
                 application
             };
             setError(undefined);
+            let result = null;
             if (isCreation) {
-                setApiCallDefinition({ method: "POST", url: PERIODES_VALIDATION_ENDPOINT, data: periodeToSave });
+                result = await execute<PeriodeValidationResultDto>({ method: "POST", url: PERIODES_VALIDATION_ENDPOINT, data: periodeToSave });
+                if (result.success && result.successData) {
+                    if (result.successData.success) {
+                        await execute<PeriodeDtoBack>({ method: "POST", url: PERIODES_ENDPOINT, data: result.successData.periode });
+                        close();
+                    } else {
+                        setError(getErrorLabel(result.successData.errorCode));
+                    }
+                }
             } else {
-                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(PERIODES_EXISTING_VALIDATION_ENDPOINT, { id: periode?.id }), data: periodeToSave });
+                result = await execute<PeriodeValidationResultDto>({ method: "PUT", url: buildUrlWithParams(PERIODES_EXISTING_VALIDATION_ENDPOINT, { id: periode?.id }), data: periodeToSave });
+                if (result.success && result.successData) {
+                    if (result.successData.success) {
+                        await execute<PeriodeDtoBack>({ method: "PUT", url: buildUrlWithParams(PERIODES_EXISTING_ENDPOINT, { id: periode?.id }), data: result.successData.periode });
+                        close();
+                    } else {
+                        setError(getErrorLabel(result.successData.errorCode));
+                    }
+                }
             }
         }).catch((errorInfo) => {
             console.error("Validation failed:", errorInfo);
@@ -77,47 +95,6 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
             return "Il existe actuellement un nombre d'inscriptions sur cette période supérieur au nombre maximum d'élèves. Veuillez corrgier votre saisie.";
         }
     }
-
-    const apiCallbacks: ApiCallbacks = {
-        [`PUT:${PERIODES_EXISTING_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "La période a bien été modifiée", type: "success" });
-            close();
-            resetApi();
-        },
-        [`POST:${PERIODES_ENDPOINT}`]: (result: any) => {
-            notification.open({ message: "La période a bien été créée", type: "success" });
-            close();
-            resetApi();
-        },
-        [`POST:${PERIODES_VALIDATION_ENDPOINT}`]: (result: any) => {
-            const resultAsValidationResult = result as PeriodeValidationResultDto;
-            if (resultAsValidationResult.success) {
-                setApiCallDefinition({ method: "POST", url: PERIODES_ENDPOINT, data: resultAsValidationResult.periode });
-            } else {
-                setError(getErrorLabel(resultAsValidationResult.errorCode));
-                resetApi();
-            }
-        },
-        [`PUT:${PERIODES_EXISTING_VALIDATION_ENDPOINT}`]: (result: any) => {
-            const resultAsValidationResult = result as PeriodeValidationResultDto;
-            if (resultAsValidationResult.success) {
-                setApiCallDefinition({ method: "PUT", url: buildUrlWithParams(PERIODES_EXISTING_ENDPOINT, { id: periode?.id }), data: resultAsValidationResult.periode });
-            } else {
-                setError(getErrorLabel(resultAsValidationResult.errorCode));
-                resetApi();
-            }
-        }
-    };
-
-    useEffect(() => {
-        const { method, url } = { ...apiCallDefinition };
-        if (method && url) {
-            const callBack = handleApiCall(method, url, apiCallbacks);
-            if (callBack) {
-                callBack(result);
-            }
-        }
-    }, [result]);
 
     function onAnneeDebutSelected(value: Dayjs | null) {
         if (value) {
@@ -158,7 +135,7 @@ export const ModalPeriode: FunctionComponent<ModalPeriodeProps> = ({ open, setOp
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
                         <Tooltip title="Au delà, les inscriptions seront sur liste d'attente" color="geekblue">
-                            <InputNumberFormItem name="nbMaxInscription" label="Nombre d'élève (maximum)" />
+                            <InputNumberFormItem name="nbMaxInscription" label="Nombre d'élève (maximum)" min={0} />
                         </Tooltip>
                     </Col>
                 </Row>
