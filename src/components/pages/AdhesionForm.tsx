@@ -3,7 +3,7 @@ import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Adhesion } from "../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateEmail, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
 import useApi from "../../hooks/useApi";
 import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, NEW_ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
@@ -176,7 +176,12 @@ export const AdhesionForm: FunctionComponent = () => {
                         </Row>
                         <Row gutter={[16, 0]}>
                             <Col xs={24} md={12}>
-                                <InputFormItem label="E-mail" name="email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
+                                <InputFormItem label="E-mail" name="email" rules={[{
+                                    required: true,
+                                    type: "email",
+                                    message:
+                                        "Veuillez saisir une adresse e-mail valide",
+                                }]} disabled={isReadOnly} required />
                             </Col>
                         </Row>
                         <Row>
@@ -185,13 +190,13 @@ export const AdhesionForm: FunctionComponent = () => {
                             </Col>
                         </Row>
                         <Row gutter={[16, 0]}>
-                            <Col xs={24} md={18} lg={10}>
-                                <SelectFormItem name="idTarif" label="Je m'engage à verser mensuellement" rules={[{
-                                    required: true, message: "Veuillez saisir votre versement mensuel"
+                            <Col xs={24} md={18} lg={12}>
+                                <SelectFormItem name="idTarif" label="Ma cotisation mensuelle" rules={[{
+                                    required: true, message: "Veuillez saisir le montant de votre cotisation"
                                 }]}
                                     disabled={isReadOnly} options={versementMensuelOptions} onChange={onMontantChanged} />
                             </Col>
-                            {autreMontantVisible && (<Col xs={24} md={10} lg={6}>
+                            {autreMontantVisible && (<Col xs={24} md={10} lg={8}>
                                 <InputNumberFormItem name="montantAutre" label="Montant" disabled={isReadOnly} addonAfter="€"
                                     rules={[{ validator: validateMontantMinAdhesion }, { required: true, message: "Veuillez saisir le montant de votre cotisation" }]} min={1} />
                             </Col>)
