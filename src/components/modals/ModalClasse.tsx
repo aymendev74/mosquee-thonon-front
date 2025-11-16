@@ -129,7 +129,8 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
     const rowSelection = {
         onChange: (selectedRowKeys: React.Key[], selectedRows: EleveFront[]) => {
             setSelectedEleves(selectedRows);
-        }
+        },
+        preserveSelectedRowKeys: true
     };
 
     const columnsTableEleves: ColumnsType<EleveFront> = [
@@ -179,7 +180,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                 params: { anneeDebut: debutAnneeScolaire, anneeFin: finAnneeScolaire, affectation: AffectationEleveEnum.SANS_IMPORTANCE }
             });
             if (result.success && result.successData) {
-                initEleves(result.successData);
+                setElevesFiltres([...result.successData]);
             }
         }
     }

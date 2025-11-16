@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, FileExcelOutlined, FilePdfOutlined, FilePdfTwoTone } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfOutlined, FilePdfTwoTone } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
 import {
     ApiCallbacks, EXISTING_CLASSES_ENDPOINT, handleApiCall, buildUrlWithParams,
@@ -30,13 +30,14 @@ import { PdfBulletin } from '../../documents/PdfBulletin';
 import { useMatieresStore } from '../../stores/useMatieresStore';
 
 const MaClasse = () => {
-    const { username } = useAuth();
+    const { username, roles } = useAuth();
     const { execute } = useApi();
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
     const [modalBulletinOpen, setModalBulletinOpen] = useState(false);
     const [classe, setClasse] = useState<ClasseDtoF | undefined>();
     const [feuillesPresence, setFeuillesPresence] = useState<FeuillePresenceDtoF[]>([]);
-    const [feuilleToEdit, setFeuilleToEdit] = useState<FeuillePresenceDtoF | undefined>();
+    const [feuilleToView, setFeuilleToView] = useState<FeuillePresenceDtoF | undefined>();
+    const [feuilleToViewReadOnly, setFeuilleToViewReadOnly] = useState<boolean>(false);
     const [elevesEnriched, setElevesEnriched] = useState<EleveEnrichedDto[]>([]);
     const [vueDetaille, setVueDetaille] = useState(false);
     const [bulletins, setBulletins] = useState<BulletinDtoF[]>([]);
@@ -47,8 +48,9 @@ const MaClasse = () => {
     const { getMatieresByType } = useMatieresStore();
 
     function onCreateFeuillePresence() {
-        setFeuilleToEdit(undefined);
+        setFeuilleToView(undefined);
         setModalFeuillePresenceOpen(true);
+        setFeuilleToViewReadOnly(false);
     }
 
     async function loadClasse() {
@@ -116,8 +118,9 @@ const MaClasse = () => {
         );
     };
 
-    function onModifierFeuille(feuillePresence: FeuillePresenceDtoF) {
-        setFeuilleToEdit(feuillePresence);
+    function onViewFeuille(feuillePresence: FeuillePresenceDtoF, readOnly: boolean) {
+        setFeuilleToView(feuillePresence);
+        setFeuilleToViewReadOnly(readOnly);
         setModalFeuillePresenceOpen(true);
     };
 
@@ -245,12 +248,15 @@ const MaClasse = () => {
             title: "",
             key: "actions",
             render: (value, record, index) => {
-                return (
+                return roles?.includes("ROLE_ADMIN") ? (
                     <>
-                        <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierFeuille(record)} />
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => onViewFeuille(record, false)} />
                         <Button className="m-left-10" type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteFeuille(record)} danger />
                     </>
-                )
+                ) :
+                    (
+                        <Button type="primary" icon={<EyeOutlined />} onClick={() => onViewFeuille(record, true)} />
+                    );
             }
         },
     ];
@@ -582,7 +588,7 @@ const MaClasse = () => {
                 </div>
                 <div>
                     <ModalFeuillePresence open={modalFeuillePresenceOpen} setOpen={setModalFeuillePresenceOpen} classe={classe}
-                        feuilleToEdit={feuilleToEdit} />
+                        feuilleToEdit={feuilleToView} readOnly={feuilleToViewReadOnly} />
                     <ModalBulletin open={modalBulletinOpen} setOpen={setModalBulletinOpen} isCreation={bulletin?.id === undefined}
                         annees={[classe?.debutAnneeScolaire!, classe?.finAnneeScolaire!]} eleve={getSelectedEleve()}
                         bulletin={bulletin} />
