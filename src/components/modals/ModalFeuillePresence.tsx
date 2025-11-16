@@ -17,9 +17,10 @@ export type ModalFeuillePresenceProps = {
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     classe?: ClasseDtoF,
     feuilleToEdit?: FeuillePresenceDtoF,
+    readOnly: boolean,
 }
 
-export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> = ({ open, setOpen, classe, feuilleToEdit }) => {
+export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> = ({ open, setOpen, classe, feuilleToEdit, readOnly }) => {
     const { execute, isLoading } = useApi();
     const [form] = Form.useForm();
     const [eleves, setEleves] = useState<EleveFront[]>([]);
@@ -121,21 +122,22 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
                 <Divider orientation="left">Date du cours</Divider>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <DatePickerFormItem name="dateFeuille" label="Date" rules={[{ required: true, message: "Veuillez saisir la date de la feuille de présence" }]} />
+                        <DatePickerFormItem name="dateFeuille" label="Date" rules={[{ required: true, message: "Veuillez saisir la date de la feuille de présence" }]}
+                            disabled={readOnly} />
                     </Col>
                 </Row>
                 <Divider orientation="left">Liste des élèves</Divider>
                 <h3>Selectionnez les élèves qui ont assisté au cours</h3>
                 <Table dataSource={eleves}
                     columns={columnsTableEleves}
-                    rowSelection={{ type: "checkbox", selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}
+                    rowSelection={{ type: "checkbox", getCheckboxProps: readOnly ? () => ({ disabled: true }) : undefined, selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}
                     pagination={{ pageSize: 10, showTotal: formatTotal }}
                     rowKey={record => record.id!} />
             </Spin>
             <Row gutter={[16, 32]}>
                 <Col span={24} style={{ textAlign: "right" }}>
                     <Button onClick={close} icon={<CloseOutlined />}>Annuler</Button>
-                    <Button className="m-left-10" htmlType="submit" icon={<CheckOutlined />} danger>Valider</Button>
+                    <Button className="m-left-10" htmlType="submit" icon={<CheckOutlined />} disabled={readOnly} danger>Valider</Button>
                 </Col>
             </Row>
         </Form>

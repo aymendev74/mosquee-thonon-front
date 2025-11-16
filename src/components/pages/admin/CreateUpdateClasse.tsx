@@ -58,9 +58,10 @@ const CreateUpdateClasse = () => {
         setModalDeleteClasseOpen(true);
     }
 
-    function onConfirmDeleteClasse() {
-        execute({ method: "DELETE", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id: classeToDelete }) });
+    async function onConfirmDeleteClasse() {
+        await execute({ method: "DELETE", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id: classeToDelete }) });
         doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
+        setModalDeleteClasseOpen(false);
     }
 
     function getActionsClasseButtons(classe: ClasseDtoF) {
