@@ -292,6 +292,11 @@ body {
   color: orange;
 }
 
+.user-activation-title {
+  border-bottom: 3px solid #1A73E8;
+  color: #1A73E8;
+}
+
 .login-button {
   width: 150px
 }

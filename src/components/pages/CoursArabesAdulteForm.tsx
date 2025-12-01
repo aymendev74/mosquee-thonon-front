@@ -2,7 +2,7 @@ import { Button, Checkbox, Col, Divider, Form, Popover, Result, Row, Spin, notif
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getConsentementInscriptionCoursLibelle, isInscriptionFerme, prepareInscriptionAdulteBeforeForm, prepareInscriptionAdulteBeforeSave, validateCodePostal, validateEmail, validateMajorite, validatePhoneNumber } from "../../utils/FormUtils";
+import { getConsentementInscriptionCoursLibelle, isInscriptionFerme, prepareInscriptionAdulteBeforeForm, prepareInscriptionAdulteBeforeSave, validateCodePostal, validateMajorite, validatePhoneNumber } from "../../utils/FormUtils";
 import useApi from "../../hooks/useApi";
 import { buildUrlWithParams, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, PARAM_ENDPOINT } from "../../services/services";
 import { InscriptionAdulteBack, InscriptionAdulteFront, StatutInscription } from "../../services/inscription";
@@ -225,7 +225,12 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                         </Row>
                         <Row gutter={[16, 0]}>
                             <Col xs={24} md={12}>
-                                <InputFormItem label="E-mail" name="email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
+                                <InputFormItem label="E-mail" name="email" rules={[{
+                                    required: true,
+                                    type: "email",
+                                    message:
+                                        "Veuillez saisir une adresse e-mail valide",
+                                }]} disabled={isReadOnly} required />
                             </Col>
                         </Row>
                         <Divider orientation="left">Domaines d'apprentissage</Divider>

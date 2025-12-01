@@ -2,6 +2,7 @@ import { DefaultOptionType } from "antd/es/select"
 import { NiveauInterne, NiveauScolaire, StatutInscription, StatutProfessionel } from "../../services/inscription"
 import { JourActiviteEnum } from "../../services/classe";
 import { ResultatEnum } from "../../services/eleve";
+import { ROLE_ADMIN, ROLE_ENSEIGNANT, ROLE_TRESORIER, RoleDto } from "../../services/user";
 
 export const getNiveauOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauScolaire.CP, label: "CP" }, { value: NiveauScolaire.CE1, label: "CE1" }, { value: NiveauScolaire.CE2, label: "CE2" },
@@ -82,5 +83,20 @@ export function getResultatOptions(): DefaultOptionType[] {
     return [
         { value: ResultatEnum.ACQUIS, label: "Acquis" },
         { value: ResultatEnum.NON_ACQUIS, label: "Non acquis" },
+    ];
+}
+
+export function getRoleLibelle(roleDto: RoleDto): string {
+    if (roleDto.role === ROLE_ADMIN) return "Administrateur";
+    if (roleDto.role === ROLE_ENSEIGNANT) return "Enseignant";
+    if (roleDto.role === ROLE_TRESORIER) return "Trésorier";
+    return "Inconnu";
+}
+
+export function getRolesOptions(): DefaultOptionType[] {
+    return [
+        { value: ROLE_ADMIN, label: "Administrateur" },
+        { value: ROLE_ENSEIGNANT, label: "Enseignant" },
+        { value: ROLE_TRESORIER, label: "Trésorier" },
     ];
 }

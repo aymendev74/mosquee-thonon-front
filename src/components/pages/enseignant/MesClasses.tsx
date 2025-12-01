@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
 
 const MesClasses = () => {
-    const { username } = useAuth();
+    const { roles } = useAuth();
     const { execute } = useApi();
     const [classes, setClasses] = useState<ClasseDtoF[]>([]);
     const [form] = useForm();
@@ -68,7 +68,7 @@ const MesClasses = () => {
         doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
     }, []);
 
-    return username ? (
+    return roles?.includes("ROLE_ADMIN") || roles?.includes("ROLE_ENSEIGNANT") ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">

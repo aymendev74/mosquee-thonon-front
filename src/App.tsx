@@ -14,7 +14,6 @@ import { HomeAdmin } from './components/pages/admin/HomeAdmin';
 import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm';
 import { useAuth } from './hooks/AuthContext';
 import { SignIn } from './components/pages/admin/SignIn';
-import Enseignants from './components/pages/admin/Enseignants';
 import CreateUpdateClasse from './components/pages/admin/CreateUpdateClasse';
 import MesClasses from './components/pages/enseignant/MesClasses';
 import MaClasse from './components/pages/enseignant/MaClasse';
@@ -22,9 +21,11 @@ import { NotFound } from './components/pages/NotFound';
 import AdhesionInfos from './components/pages/AdhesionInfos';
 import { useEffect } from 'react';
 import useApi from './hooks/useApi';
-import { ApiCallbacks, handleApiCall, MATIERES_ENDPOINT } from './services/services';
+import { MATIERES_ENDPOINT } from './services/services';
 import { useMatieresStore } from './components/stores/useMatieresStore';
 import { TraductionDto, TypeMatiereEnum } from './services/classe';
+import Utilisateurs from './components/pages/admin/Utilisateurs';
+import AccountActivation from './components/pages/AccountActivation';
 
 const { Header, Content, Footer } = Layout;
 
@@ -119,13 +120,14 @@ function App() {
           <Route path="/adminCours" element={<AdminCoursArabes />} />
           <Route path="/adminAdhesion" element={<AdminAdhesion />} />
           <Route path="/adminTarif" element={<AdminTarifs />} />
-          <Route path="/enseignants" element={<Enseignants />} />
           <Route path="/creerModifierClasse" element={<CreateUpdateClasse />} />
           <Route path="/classes" element={<MesClasses />} />
           <Route path="/classes/:id" element={<MaClasse />} />
           <Route path="/changePassword" element={<ChangePassword />} />
           <Route path="/don" element={<FaireUnDon />} />
           <Route path="/parametres" element={<Parametres />} />
+          <Route path="/utilisateurs" element={<Utilisateurs />} />
+          <Route path="/accountActivation" element={<AccountActivation />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>

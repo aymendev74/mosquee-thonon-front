@@ -2,6 +2,7 @@ import { notification } from 'antd';
 import { useAxios } from './useAxios';
 import { useAuth } from './AuthContext';
 import { useState } from 'react';
+import z from 'zod';
 
 export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
 
@@ -23,7 +24,7 @@ const useApi = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
 
-    const execute = async <T,>(apiCallDefinition: ApiCallDefinition): Promise<APICallResult<T>> => {
+    const execute = async <T,>(apiCallDefinition: ApiCallDefinition, schema?: z.ZodType<T, any, any>): Promise<APICallResult<T>> => {
         setIsLoading(true);
         return axios.request({
             ...apiCallDefinition,
@@ -32,12 +33,13 @@ const useApi = () => {
                 indexes: null
             }
         }).then(response => {
-            return { success: true, successData: response.data as T };
+            const successData = schema ? schema.parse(response.data) : response.data as T;
+            return { success: true, successData: successData };
         }).catch(function (error) {
             console.log("error", error);
             if (error.response && error.response.status === 401) {
                 login();
-                return { success: false, successData: null, errorData: null }; // 🔹 retour explicite
+                return { success: false, successData: null, errorData: null };
             } else {
                 if (error.response && error.response.data) { // gestion spécifique de l'erreur via le composant appelant
                     return { success: false, errorData: error.response.data }

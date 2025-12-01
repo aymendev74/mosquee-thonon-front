@@ -28,14 +28,6 @@ export const validateCodePostal = (_: any, value: any) => {
     return Promise.resolve();
 };
 
-export const validateEmail = (_: any, value: any) => {
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    if (!emailRegex.test(value)) {
-        return Promise.reject('Veuillez saisir une adresse e-mail valide.');
-    }
-    return Promise.resolve();
-};
-
 export const validateMajorite = (_: any, date: dayjs.Dayjs) => {
     const datePlus18ans = date.add(18, "year");
     if (datePlus18ans.isAfter(dayjs())) {

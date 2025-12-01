@@ -1,6 +1,6 @@
 import { Button, Col, Divider, Row, Tooltip } from "antd";
 import { FunctionComponent } from "react";
-import { validateCodePostal, validateEmail, validatePhoneNumber } from "../../utils/FormUtils";
+import { validateCodePostal, validatePhoneNumber } from "../../utils/FormUtils";
 import { InputFormItem } from "../common/InputFormItem";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
@@ -78,7 +78,12 @@ export const ResponsableLegal: FunctionComponent<ResponsableLegalProps> = ({ isR
         </Row>
         <Row gutter={[16, 0]}>
             <Col xs={24} md={12}>
-                <InputFormItem label="E-mail" name="responsableLegal.email" rules={[{ validator: validateEmail }]} disabled={isReadOnly} required />
+                <InputFormItem label="E-mail" name="responsableLegal.email" rules={[{
+                    required: true,
+                    type: "email",
+                    message:
+                        "Veuillez saisir une adresse e-mail valide",
+                }]} disabled={isReadOnly} required />
             </Col>
         </Row>
         <Row gutter={[16, 0]}>
