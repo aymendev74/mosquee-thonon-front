@@ -88,11 +88,6 @@ export const MyMenu: FunctionComponent = () => {
             label: "Paramètres",
         },
         {
-            key: "enseignants",
-            icon: <EditOutlined />,
-            label: "Enseignants",
-        },
-        {
             key: "classeMenu",
             icon: <UserOutlined />,
             label: "Classes",
@@ -108,6 +103,11 @@ export const MyMenu: FunctionComponent = () => {
                     label: "Mes classes",
                 }
             ]
+        },
+        {
+            key: "utilisateurs",
+            icon: <UserOutlined />,
+            label: "Utilisateurs",
         }];
         return menuItems;
     };
@@ -121,11 +121,22 @@ export const MyMenu: FunctionComponent = () => {
         return menuItems;
     }
 
+    function getTresorierMenuItems() {
+        const menuItems: MenuProps["items"] = [{
+            key: "adminAdhesion",
+            icon: <EuroCircleOutlined />,
+            label: "Adhésion",
+        }];
+        return menuItems;
+    }
+
     const getMenuItems = () => {
         if (roles?.includes("ROLE_ADMIN")) {
             return getAdminMenuItems();
         } else if (roles?.includes("ROLE_ENSEIGNANT")) {
             return getEnseignantMenuItems();
+        } else if (roles?.includes("ROLE_TRESORIER")) {
+            return getTresorierMenuItems();
         } else {
             return getPublicMenuItems();
         }

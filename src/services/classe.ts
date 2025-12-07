@@ -39,7 +39,7 @@ type ClasseDto<K extends string | Dayjs> = {
     id?: number;
     libelle?: string;
     niveau?: NiveauInterne;
-    idEnseignant?: number;
+    idUtilisateur?: number;
     nomPrenomEnseignant?: string;
     liensClasseEleves?: LienClasseEleveDto<K>[];
     debutAnneeScolaire: number;

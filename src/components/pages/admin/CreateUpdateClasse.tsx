@@ -1,24 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusCircleOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import useApi from '../../../hooks/useApi';
-import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, handleApiCall } from '../../../services/services';
+import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, handleApiCall, USER_ENDPOINT } from '../../../services/services';
 import { Button, Card, Col, Divider, Empty, FloatButton, Form, notification, Row, Tooltip } from 'antd';
 import { InputNumberFormItem } from '../../common/InputNumberFormItem';
 import { useForm } from 'antd/es/form/Form';
 import dayjs from 'dayjs';
 import { ClasseDtoB, ClasseDtoF } from '../../../services/classe';
 import { ModalClasse } from '../../modals/ModalClasse';
-import { EnseignantDto } from '../../../services/enseignant';
 import { prepareClasseBeforeForm } from '../../../utils/FormUtils';
 import { ModaleConfirmSuppression } from '../../modals/ModalConfirmSuppression';
 import { UnahtorizedAccess } from '../UnahtorizedAccess';
 import { valueType } from 'antd/es/statistic/utils';
+import { UserDto } from '../../../services/user';
 
 const CreateUpdateClasse = () => {
     const { roles } = useAuth();
     const { execute, isLoading } = useApi();
-    const [enseignants, setEnseignants] = useState<EnseignantDto[]>([]);
+    const [enseignants, setEnseignants] = useState<UserDto[]>([]);
     const [classes, setClasses] = useState<ClasseDtoF[]>([]);
     const [form] = useForm();
     const [modalClasseOpen, setModalClasseOpen] = useState(false);
@@ -78,7 +78,7 @@ const CreateUpdateClasse = () => {
     }
 
     const getClasseView = (classe: ClasseDtoF) => {
-        const enseignant = enseignants.find(enseignant => enseignant.id === classe.idEnseignant);
+        const enseignant = enseignants.find(enseignant => enseignant.id === classe.idUtilisateur);
         return (
             <Col span={6}>
                 <Card className="card-focus-effect" size="small" title={classe.libelle} extra={getActionsClasseButtons(classe)} >
@@ -106,7 +106,7 @@ const CreateUpdateClasse = () => {
         const loadData = async () => {
             if (!modalClasseOpen) {
                 doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
-                const resultEnseignants = await execute<EnseignantDto[]>({ method: "GET", url: ENSEIGNANT_ENDPOINT });
+                const resultEnseignants = await execute<UserDto[]>({ method: "GET", url: USER_ENDPOINT, params: { role: "ROLE_ENSEIGNANT" } });
                 if (resultEnseignants.success && resultEnseignants.successData) {
                     setEnseignants(resultEnseignants.successData);
                 }
@@ -125,8 +125,6 @@ const CreateUpdateClasse = () => {
 
     return roles?.includes("ROLE_ADMIN") ? (
         <>
-            <FloatButton.BackTop />
-            <FloatButton icon={<PlusOutlined />} type="primary" onClick={onCreateClasse} tooltip="Créer une nouvelle classe" />
             <ModalClasse
                 open={modalClasseOpen}
                 setOpen={setModalClasseOpen}
@@ -158,6 +156,9 @@ const CreateUpdateClasse = () => {
                         </Col>
                         <Col span={1}>
                             <Tooltip title="Rechercher les classes" color="geekblue"><Button type="primary" htmlType="submit" icon={<SearchOutlined />} /></Tooltip>
+                        </Col>
+                        <Col span={1}>
+                            <Button type="primary" icon={<PlusCircleOutlined />} onClick={onCreateClasse}>Nouvelle classe</Button>
                         </Col>
                     </Row>
                 </Form>

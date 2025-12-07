@@ -221,7 +221,7 @@ export const AdminAdhesion: FunctionComponent = () => {
         }
     }
 
-    return roles?.includes("ROLE_ADMIN") ? (
+    return roles?.includes("ROLE_ADMIN") || roles?.includes("ROLE_TRESORIER") ? (
         <div className="centered-content">
             <Form
                 name="adminAdhesion"

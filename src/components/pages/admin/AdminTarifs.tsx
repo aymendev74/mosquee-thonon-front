@@ -16,7 +16,7 @@ import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const AdminTarifs: FunctionComponent = () => {
 
-    const { username } = useAuth();
+    const { username, roles } = useAuth();
     const [form] = Form.useForm();
     const { execute, isLoading } = useApi();
     const [periodesDto, setPeriodesDto] = useState<PeriodeInfoDto[]>();
@@ -154,7 +154,7 @@ export const AdminTarifs: FunctionComponent = () => {
         loadPeriodes();
     }, [application]);
 
-    return username ? (
+    return roles?.includes("ROLE_ADMIN") ? (
         <div className="centered-content">
             <Form
                 name="basic"

@@ -1,19 +1,18 @@
-import { Button, Card, Col, Divider, Form, Row, Spin, Tooltip, notification } from "antd";
+import { Button, Card, Col, Form, Row, Spin, Tooltip, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { PARAM_ENDPOINT } from "../../../services/services";
 import useApi from "../../../hooks/useApi";
 import { SwitchFormItem } from "../../common/SwitchFormItem";
-import { ParamDto, ParamName, ParamsDto, ParamsDtoB, ParamsDtoF } from "../../../services/parametres";
+import { ParamDto, ParamName, ParamsDtoB, ParamsDtoF } from "../../../services/parametres";
 import dayjs from "dayjs";
 import { APPLICATION_DATE_FORMAT } from "../../../utils/FormUtils";
 import { DatePickerFormItem } from "../../common/DatePickerFormItem";
-import { SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined, SaveOutlined, MailOutlined, UserOutlined, TeamOutlined } from "@ant-design/icons";
 import { useAuth } from "../../../hooks/AuthContext";
 import { UnahtorizedAccess } from "../UnahtorizedAccess";
 
 export const Parametres: FunctionComponent = () => {
-
-    const { username } = useAuth();
+    const { roles } = useAuth();
     const [form] = Form.useForm();
     const { execute, isLoading } = useApi();
     const [inscriptionEnfantFromDateVisible, setInscriptionEnfantFromDateVisible] = useState<boolean>(false);
@@ -21,54 +20,59 @@ export const Parametres: FunctionComponent = () => {
 
     const onFinish = async (params: ParamsDtoF) => {
         const { sendMailEnabled, reinscriptionPrioritaire } = params;
-        let inscriptionEnfantEnabledFromDate = null;
-        let inscriptionAdulteEnabledFromDate = null;
+        let inscriptionEnfantEnabledFromDate = params.inscriptionEnfantEnabledFromDate
+            ? dayjs(params.inscriptionEnfantEnabledFromDate).format(APPLICATION_DATE_FORMAT)
+            : "";
 
-        if (params.inscriptionEnfantEnabledFromDate) {
-            inscriptionEnfantEnabledFromDate = dayjs(params.inscriptionEnfantEnabledFromDate).format(APPLICATION_DATE_FORMAT);
-        } else {
-            inscriptionEnfantEnabledFromDate = "";
-        }
-
-        if (params.inscriptionAdulteEnabledFromDate) {
-            inscriptionAdulteEnabledFromDate = dayjs(params.inscriptionAdulteEnabledFromDate).format(APPLICATION_DATE_FORMAT);
-        } else {
-            inscriptionAdulteEnabledFromDate = "";
-        }
+        let inscriptionAdulteEnabledFromDate = params.inscriptionAdulteEnabledFromDate
+            ? dayjs(params.inscriptionAdulteEnabledFromDate).format(APPLICATION_DATE_FORMAT)
+            : "";
 
         const paramsDto: ParamDto[] = [
-            { name: ParamName.REINSCRIPTION_ENABLED, value: reinscriptionPrioritaire ? reinscriptionPrioritaire.toString() : "false" },
+            { name: ParamName.REINSCRIPTION_ENABLED, value: reinscriptionPrioritaire ? "true" : "false" },
             { name: ParamName.INSCRIPTION_ENFANT_ENABLED_FROM_DATE, value: inscriptionEnfantEnabledFromDate },
             { name: ParamName.INSCRIPTION_ADULTE_ENABLED_FROM_DATE, value: inscriptionAdulteEnabledFromDate },
-            { name: ParamName.SEND_EMAIL_ENABLED, value: sendMailEnabled ? sendMailEnabled.toString() : "false" }
+            { name: ParamName.SEND_EMAIL_ENABLED, value: sendMailEnabled ? "true" : "false" }
         ];
+
         const resultSaveParams = await execute({ method: "POST", url: PARAM_ENDPOINT, data: paramsDto });
         if (resultSaveParams.success) {
-            notification.open({ message: "Les paramètres de l'application ont bien été enregistrés", type: "success" });
+            notification.success({
+                message: "Succès",
+                description: "Les paramètres de l'application ont bien été enregistrés"
+            });
         }
-    }
+    };
 
     useEffect(() => {
         const loadParams = async () => {
             const { successData: paramsDto } = await execute<ParamsDtoB>({ method: "GET", url: PARAM_ENDPOINT });
             if (paramsDto) {
-                let paramsDtoF: ParamsDtoF = { sendMailEnabled: paramsDto.sendMailEnabled, reinscriptionPrioritaire: paramsDto.reinscriptionPrioritaire };
+                let paramsDtoF: ParamsDtoF = {
+                    sendMailEnabled: paramsDto.sendMailEnabled,
+                    reinscriptionPrioritaire: paramsDto.reinscriptionPrioritaire
+                };
                 if (paramsDto.inscriptionEnfantEnabledFromDate) {
-                    paramsDtoF = { ...paramsDtoF, inscriptionEnfantEnabledFromDate: dayjs(paramsDto.inscriptionEnfantEnabledFromDate, APPLICATION_DATE_FORMAT) };
+                    paramsDtoF = {
+                        ...paramsDtoF,
+                        inscriptionEnfantEnabledFromDate: dayjs(paramsDto.inscriptionEnfantEnabledFromDate, APPLICATION_DATE_FORMAT)
+                    };
                     form.setFieldValue("inscriptionEnfantEnabled", true);
                     setInscriptionEnfantFromDateVisible(true);
                 }
                 if (paramsDto.inscriptionAdulteEnabledFromDate) {
-                    paramsDtoF = { ...paramsDtoF, inscriptionAdulteEnabledFromDate: dayjs(paramsDto.inscriptionAdulteEnabledFromDate, APPLICATION_DATE_FORMAT) };
+                    paramsDtoF = {
+                        ...paramsDtoF,
+                        inscriptionAdulteEnabledFromDate: dayjs(paramsDto.inscriptionAdulteEnabledFromDate, APPLICATION_DATE_FORMAT)
+                    };
                     form.setFieldValue("inscriptionAdulteEnabled", true);
                     setInscriptionAdulteFromDateVisible(true);
                 }
                 form.setFieldsValue(paramsDtoF);
             }
-        }
+        };
         loadParams();
     }, []);
-
 
     function onInscriptionEnfantEnabledChange(checked: boolean): void {
         if (!checked) {
@@ -85,82 +89,78 @@ export const Parametres: FunctionComponent = () => {
         setInscriptionAdulteFromDateVisible(checked);
     }
 
-    function onReinscriptionChanged(checked: boolean): void {
-        if (checked) {
-            form.setFieldValue("inscriptionEnfantEnabled", true);
-            setInscriptionEnfantFromDateVisible(true);
-        }
-    }
-
-    return username ? (
+    return roles?.includes("ROLE_ADMIN") ? (
         <div className="centered-content">
-            <Form
-                name="basic"
-                autoComplete="off"
-                className="container-full-width"
-                onFinish={onFinish}
-                form={form}
-            >
+            <Form form={form} onFinish={onFinish} layout="vertical" className="container-full-width">
                 <Spin spinning={isLoading}>
-                    <h2 className="admin-param-title"><SettingOutlined /> Paramètres de l'application</h2>
-                    <Row gutter={[16, 32]}>
-                        <Col span={24}>
-                            <Divider orientation="left">Paramètres généraux</Divider>
+                    <h2 className="admin-param-title">
+                        <SettingOutlined style={{ marginRight: 8 }} /> Paramètres de l'application
+                    </h2>
+
+                    <Row gutter={[24, 24]}>
+                        <Col xs={24} sm={20} md={16} lg={12} xl={10}>
+                            <Card title={<><MailOutlined /> Paramètres généraux</>} bordered hoverable>
+                                <Tooltip color="geekblue" title="Si désactivé, les mails ne sont pas envoyés lors des inscriptions (utile en test)">
+                                    <SwitchFormItem name="sendMailEnabled" label="Activer l'envoi des e-mails" />
+                                </Tooltip>
+                            </Card>
+                        </Col>
+
+                        <Col xs={24} sm={20} md={16} lg={12} xl={10}>
+                            <Card title={<><TeamOutlined /> Paramètres cours enfants</>} bordered hoverable>
+                                <Row gutter={16}>
+                                    <Col span={10}>
+                                        <Tooltip color="geekblue" title="Active ou désactive le formulaire d'inscription pour les enfants">
+                                            <SwitchFormItem name="inscriptionEnfantEnabled" label="Activer les inscriptions aux cours enfants" onChange={onInscriptionEnfantEnabledChange} />
+                                        </Tooltip>
+                                    </Col>
+                                    {inscriptionEnfantFromDateVisible && (
+                                        <>
+                                            <Col span={6}>
+                                                <Tooltip color="geekblue" title="Indiquez la date à partir de laquelle les inscriptions sont ouvertes">
+                                                    <DatePickerFormItem name="inscriptionEnfantEnabledFromDate" label="A partir du" rules={[{ required: true, message: "Date obligatoire" }]} />
+                                                </Tooltip>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Tooltip color="geekblue" title="Seuls les élèves inscrits l'année précédente peuvent se réinscrire">
+                                                    <SwitchFormItem name="reinscriptionPrioritaire" label="Réinscriptions prioritaires" />
+                                                </Tooltip>
+                                            </Col>
+                                        </>
+                                    )}
+                                </Row>
+                            </Card>
+                        </Col>
+
+                        <Col xs={24} sm={20} md={16} lg={12} xl={10}>
+                            <Card title={<><UserOutlined /> Paramètres cours adultes</>} bordered hoverable>
+                                <Row gutter={16}>
+                                    <Col span={10}>
+                                        <Tooltip color="geekblue" title="Active ou désactive le formulaire d'inscription pour les adultes">
+                                            <SwitchFormItem name="inscriptionAdulteEnabled" label="Activer les inscriptions aux cours adultes" onChange={onInscriptionAdulteEnabledChange} />
+                                        </Tooltip>
+                                    </Col>
+                                    {inscriptionAdulteFromDateVisible && (
+                                        <Col span={8}>
+                                            <Tooltip color="geekblue" title="Indiquez la date à partir de laquelle les inscriptions sont possibles">
+                                                <DatePickerFormItem name="inscriptionAdulteEnabledFromDate" label="A partir du" rules={[{ required: true, message: "Date obligatoire" }]} />
+                                            </Tooltip>
+                                        </Col>
+                                    )}
+                                </Row>
+                            </Card>
                         </Col>
                     </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={8}>
-                            <Tooltip color="geekblue" title="Si désactivé, les mails ne sont pas envoyés lors des inscriptions (utile lors des sessions de tests par exemple)">
-                                <SwitchFormItem name="sendMailEnabled" label="Activer/Désactiver l'envoi des e-mails" />
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={24}>
-                            <Divider orientation="left">Paramètres cours enfants</Divider>
-                        </Col>
-                    </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={4}>
-                            <Tooltip color="geekblue" title="Si ce paramètre est activé, personne ne peut voir le formulaire d'inscription et personne ne peut donc s'inscrire">
-                                <SwitchFormItem name="inscriptionEnfantEnabled" label="Activer/Désactiver les inscriptions" onChange={onInscriptionEnfantEnabledChange} />
-                            </Tooltip>
-                        </Col>
-                        {inscriptionEnfantFromDateVisible && (<Col span={4}>
-                            <Tooltip color="geekblue" title="Indiquez à partir de quelle date les inscriptions doivent être activées">
-                                <DatePickerFormItem name="inscriptionEnfantEnabledFromDate" label="A partir de" rules={[{ required: true, message: "La date est obligatoire" }]} />
-                            </Tooltip>
-                        </Col>)
-                        }
-                    </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={8}>
-                            <Tooltip color="geekblue" title="Ce paramètre permet d'activer les réinscriptions. Lorsqu'il est activé,
-                        seuls les élèves inscrits pendant la dernière période scolaire sont autorisés à se réinscrire">
-                                <SwitchFormItem name="reinscriptionPrioritaire" label="Activer/Désactiver les réinscriptions prioritaires" onChange={onReinscriptionChanged} />
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={24}>
-                            <Divider orientation="left">Paramètres cours adultes</Divider>
-                        </Col>
-                    </Row>
-                    <Row gutter={[16, 32]}>
-                        <Col span={4}>
-                            <Tooltip color="geekblue" title="Si ce paramètre est activé, personne ne peut voir le formulaire d'inscription et personne ne peut donc s'inscrire">
-                                <SwitchFormItem name="inscriptionAdulteEnabled" label="Activer/Désactiver les inscriptions" onChange={onInscriptionAdulteEnabledChange} />
-                            </Tooltip>
-                        </Col>
-                        {inscriptionAdulteFromDateVisible && (<Col span={4}>
-                            <Tooltip color="geekblue" title="Indiquez à partir de quelle date les inscriptions doivent être activées">
-                                <DatePickerFormItem name="inscriptionAdulteEnabledFromDate" label="A partir de" rules={[{ required: true, message: "La date est obligatoire" }]} />
-                            </Tooltip>
-                        </Col>)
-                        }
-                    </Row>
-                    <Button type="primary" htmlType="submit">Enregistrer</Button>
+
+                    <div style={{ textAlign: "center", marginTop: 24 }}>
+                        <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={isLoading}>
+                            Enregistrer les paramètres
+                        </Button>
+                    </div>
                 </Spin>
-            </Form >
-        </div>) : <UnahtorizedAccess />
+            </Form>
+        </div>
+    ) : (
+        <UnahtorizedAccess />
+    );
 };
