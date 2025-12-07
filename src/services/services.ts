@@ -2,6 +2,10 @@ import { HttpMethod } from "../hooks/useApi";
 
 export const CHANGE_PASSWORD_ENDPOINT = "/users/password";
 export const USER_ENDPOINT = "/users";
+export const USER_EXISITING_ENDPOINT = "/users/{id}";
+export const USER_RESEND_ACTIVATION_MAIL_ENDPOINT = "/users/{id}/activationMail";
+export const USER_ACCOUNT_INFORMATIONS_ENDPOINT = "/users/informations";
+export const USER_ACCOUNT_ENABLE_ENDPOINT = "/users/enable";
 export const NEW_INSCRIPTION_ENFANT_ENDPOINT = "/inscriptions-enfants";
 export const INSCRIPTION_ENFANT_ENDPOINT = "/inscriptions-enfants/{id}";
 export const INSCRIPTION_ENDPOINT = "/inscriptions";

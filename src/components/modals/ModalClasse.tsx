@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { CheckOutlined, CloseOutlined, EyeOutlined, SearchOutlined, WarningOutlined } from "@ant-design/icons";
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import useApi from "../../hooks/useApi";
+import { UserDto } from "../../services/user";
 
 
 export type ModalClasseProps = {
@@ -22,10 +23,10 @@ export type ModalClasseProps = {
     classeToEdit?: ClasseDtoF,
     debutAnneeScolaire: number,
     finAnneeScolaire: number,
-    enseignants: EnseignantDto[],
+    enseignants: UserDto[],
 }
 
-function getEnseignantsOptions(enseignants: EnseignantDto[]) {
+function getEnseignantsOptions(enseignants: UserDto[]) {
     return enseignants?.map((enseignant) => ({ label: enseignant.prenom + " " + enseignant.nom, value: enseignant.id }));
 }
 
@@ -57,7 +58,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
             niveau: classeForm.niveau,
             liensClasseEleves: getSelectedElevesAsLiens(),
             activites: [{ jour: classeForm.jourActivite }],
-            idEnseignant: enseignants.find((enseignant) => enseignant.id === classeForm.idEnseignant)?.id,
+            idUtilisateur: enseignants.find((enseignant) => enseignant.id === classeForm.idUtilisateur)?.id,
             debutAnneeScolaire,
             finAnneeScolaire
         }
@@ -216,7 +217,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col span={12}>
-                        <SelectFormItem name="idEnseignant" label="Enseignant" options={getEnseignantsOptions(enseignants)} />
+                        <SelectFormItem name="idUtilisateur" label="Enseignant" options={getEnseignantsOptions(enseignants)} />
                     </Col>
                     <Col span={12}>
                         <SelectFormItem name="jourActivite" label="Jour de classe" options={getJourActiviteOptions()} />

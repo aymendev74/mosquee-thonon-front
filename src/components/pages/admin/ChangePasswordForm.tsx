@@ -53,7 +53,17 @@ export const ChangePassword: FunctionComponent = () => {
                     <Form.Item<FieldType>
                         label="Nouveau mot de passe"
                         name="newPassword"
-                        rules={[{ required: true, message: "Veuillez saisir votre nouveau mot de passe" }]}
+                        rules={[
+                            { required: true, message: 'Veuillez saisir votre mot de passe' },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (value && value.length < 8) {
+                                        return Promise.reject(new Error('Le mot de passe doit contenir au minimum 8 caractères'));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            }),
+                        ]}
                     >
                         <Input.Password />
                     </Form.Item>

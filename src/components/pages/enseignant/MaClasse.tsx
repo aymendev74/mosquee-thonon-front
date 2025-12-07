@@ -30,7 +30,7 @@ import { PdfBulletin } from '../../documents/PdfBulletin';
 import { useMatieresStore } from '../../stores/useMatieresStore';
 
 const MaClasse = () => {
-    const { username, roles } = useAuth();
+    const { roles } = useAuth();
     const { execute } = useApi();
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
     const [modalBulletinOpen, setModalBulletinOpen] = useState(false);
@@ -571,7 +571,7 @@ const MaClasse = () => {
         return elevesEnriched.find(eleve => eleve.id === selectedEleveId);
     }
 
-    return username ? (
+    return roles?.includes("ROLE_ADMIN") || roles?.includes("ROLE_ENSEIGNANT") ? (
         <>
             <div className="centered-content">
                 <div className="container-full-width">
