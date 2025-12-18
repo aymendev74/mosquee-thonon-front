@@ -17,7 +17,9 @@ export type Adhesion = {
     montant: number;
     statut: StatutInscription | boolean;
     noMembre: number;
-}
+} & {
+    sendMailConfirmation: boolean;
+};
 
 export type AdhesionLight = {
     id: number;
