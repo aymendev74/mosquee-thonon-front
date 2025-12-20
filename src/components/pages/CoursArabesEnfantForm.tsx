@@ -152,7 +152,8 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         inscriptionDeepCopy.eleves = _.cloneDeep(eleves);
         const inscriptionToSave: InscriptionEnfantBack = prepareInscriptionEnfantBeforeSave(inscriptionDeepCopy);
         if (id) {
-            const { successData } = await execute<string>({ method: "POST", url: buildUrlWithParams(CHECK_COHERENCE_INSCRIPTION_ENDPOINT, { id }), data: inscriptionToSave });
+            const { sendMailConfirmation } = { ...inscription };
+            const { successData } = await execute<string>({ method: "POST", url: buildUrlWithParams(CHECK_COHERENCE_INSCRIPTION_ENDPOINT, { id }), data: inscriptionToSave, params: { sendMailConfirmation } });
             handleCoherenceBeforeSaveInscription(successData);
         } else {
             const { successData } = await execute<string>({ method: "POST", url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, data: inscriptionToSave });
@@ -260,21 +261,6 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     const getFormContent = () => {
         return inscriptionFinished ? getResult() : (<Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={handleTabChange} type="card" />);
     }
-
-    /*const getMessageDefilant = (type: TypeMessageDefilant) => {
-        const message = type === TypeMessageDefilant.REINSCRIPTION_PRIORITAIRE ?
-            "Actuellement, seules les réinscriptions sont autorisées. Vous pouvez vous inscrire pour l'année prochaine, uniquement si vous étiez déjà inscrit pendant "
-            + "la dernière année scolaire. Les inscriptions pour les nouveaux élèves seront ouvertes ultérieurement."
-            : "Il n'y a plus aucune place disponible pour la prochaine période scolaire, les inscriptions sont fermées."
-        return (
-            <div className="message-scroll-container">
-                <div className="message-scroll">
-                    {message}
-                </div>
-            </div>
-        );
-    }*/
-
 
     const getInscriptionFermeesContent = () => {
         return (

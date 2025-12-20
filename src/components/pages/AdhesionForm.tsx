@@ -16,6 +16,7 @@ import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
 import dayjs from "dayjs";
 import { EuroCircleOutlined } from "@ant-design/icons";
+import { SwitchFormItem } from "../common/SwitchFormItem";
 
 
 export const AdhesionForm: FunctionComponent = () => {
@@ -31,6 +32,7 @@ export const AdhesionForm: FunctionComponent = () => {
     const [autreMontantVisible, setAutreMontantVisible] = useState<boolean>(false);
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
+    const statutAdhesion = Form.useWatch("statut", form);
 
     const onFinish = async (adhesion: Adhesion) => {
         if (!isAdmin && !consentementChecked) {
@@ -39,7 +41,8 @@ export const AdhesionForm: FunctionComponent = () => {
         }
         adhesion.dateNaissance = dayjs(adhesion.dateNaissance).format(APPLICATION_DATE_FORMAT);
         if (id) {
-            const { success } = await execute({ method: "PUT", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }), data: adhesion });
+            const { sendMailConfirmation } = { ...adhesion };
+            const { success } = await execute({ method: "PUT", url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }), data: adhesion, params: { sendMailConfirmation } });
             if (success) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
                 navigate("/adminAdhesion");
@@ -212,6 +215,13 @@ export const AdhesionForm: FunctionComponent = () => {
                             <Row gutter={[16, 0]}>
                                 <Col span={12}>
                                     <InputFormItem label="Numéro de membre" name="noMembre" disabled={isReadOnly} />
+                                </Col>
+                            </Row>
+                            <Divider orientation="left">Renvoi du mail de confirmation</Divider>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} md={12}>
+                                    <SwitchFormItem name="sendMailConfirmation" label="Envoi du mail de confirmation (avec les coordonnées bancaires)"
+                                        disabled={isReadOnly || statutAdhesion !== StatutInscription.VALIDEE} />
                                 </Col>
                             </Row>
                         </>)}

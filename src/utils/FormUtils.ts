@@ -85,6 +85,7 @@ export function prepareInscriptionEnfantBeforeForm(inscription: InscriptionEnfan
             autorisationMedia: convertBooleanToOuiNon(inscription.responsableLegal.autorisationMedia),
         },
         eleves: prepareEleveBeforeForm(inscription.eleves),
+        sendMailConfirmation: false
     };
     return inscriptionToSave;
 }
@@ -93,6 +94,7 @@ export function prepareInscriptionAdulteBeforeForm(inscription: InscriptionAdult
     const inscriptionToSave: InscriptionAdulteFront = {
         ...inscription,
         dateNaissance: dayjs(inscription.dateNaissance, APPLICATION_DATE_FORMAT),
+        sendMailConfirmation: false
     };
     return inscriptionToSave;
 }

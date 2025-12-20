@@ -37,24 +37,19 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
 
     const onFinish = async (inscription: InscriptionAdulteFront) => {
         const inscriptionToSave = prepareInscriptionAdulteBeforeSave(inscription);
-        console.log(inscriptionToSave);
-        let sendMailConfirmation = inscription.sendMailConfirmation;
         if (!isAdmin && !consentementChecked) {
             notification.open({ message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider", type: "warning" });
             return;
         }
-        if (!isAdmin) { // En mode non admin, on envoie systématiquement le mail de confirmation
-            sendMailConfirmation = true;
-        }
-
         if (id) {
+            const { sendMailConfirmation } = { ...inscription };
             const { success } = await execute({ method: "PUT", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }), data: inscriptionToSave, params: { sendMailConfirmation } });
             if (success) {
                 notification.open({ message: "Les modifications ont bien été enregistrées", type: "success" });
                 navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
             }
         } else {
-            const { success } = await execute({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: inscriptionToSave, params: { sendMailConfirmation } });
+            const { success } = await execute({ method: "POST", url: NEW_INSCRIPTION_ADULTE_ENDPOINT, data: inscriptionToSave });
             if (success) {
                 setInscriptionSuccess(true);
                 form.resetFields();
