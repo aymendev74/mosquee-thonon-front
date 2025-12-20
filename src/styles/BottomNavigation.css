@@ -1,0 +1,57 @@
+.bottom-navigation {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #001529;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    padding: 0 8px;
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.65);
+    padding: 4px;
+}
+
+.bottom-nav-item:active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.bottom-nav-item.active {
+    color: #1890ff;
+}
+
+.bottom-nav-icon {
+    font-size: 20px;
+    margin-bottom: 2px;
+}
+
+.bottom-nav-label {
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* Ajouter un padding au contenu pour éviter qu'il soit caché par la bottom nav sur mobile */
+@media (max-width: 768px) {    
+    .content {
+        padding-bottom: 100px !important;
+    }
+    /* S'assurer que la pagination mobile est bien visible */
+    .mobile-pagination {
+        margin-bottom: 50px !important;
+    }
+}

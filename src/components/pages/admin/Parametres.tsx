@@ -108,20 +108,20 @@ export const Parametres: FunctionComponent = () => {
 
                         <Col xs={24} sm={20} md={16} lg={12} xl={10}>
                             <Card title={<><TeamOutlined /> Paramètres cours enfants</>} bordered hoverable>
-                                <Row gutter={16}>
-                                    <Col span={10}>
+                                <Row gutter={[16, 16]}>
+                                    <Col xs={24} sm={24} md={10}>
                                         <Tooltip color="geekblue" title="Active ou désactive le formulaire d'inscription pour les enfants">
                                             <SwitchFormItem name="inscriptionEnfantEnabled" label="Activer les inscriptions aux cours enfants" onChange={onInscriptionEnfantEnabledChange} />
                                         </Tooltip>
                                     </Col>
                                     {inscriptionEnfantFromDateVisible && (
                                         <>
-                                            <Col span={6}>
+                                            <Col xs={24} sm={12} md={6}>
                                                 <Tooltip color="geekblue" title="Indiquez la date à partir de laquelle les inscriptions sont ouvertes">
                                                     <DatePickerFormItem name="inscriptionEnfantEnabledFromDate" label="A partir du" rules={[{ required: true, message: "Date obligatoire" }]} />
                                                 </Tooltip>
                                             </Col>
-                                            <Col span={8}>
+                                            <Col xs={24} sm={12} md={8}>
                                                 <Tooltip color="geekblue" title="Seuls les élèves inscrits l'année précédente peuvent se réinscrire">
                                                     <SwitchFormItem name="reinscriptionPrioritaire" label="Réinscriptions prioritaires" />
                                                 </Tooltip>
@@ -134,14 +134,14 @@ export const Parametres: FunctionComponent = () => {
 
                         <Col xs={24} sm={20} md={16} lg={12} xl={10}>
                             <Card title={<><UserOutlined /> Paramètres cours adultes</>} bordered hoverable>
-                                <Row gutter={16}>
-                                    <Col span={10}>
+                                <Row gutter={[16, 16]}>
+                                    <Col xs={24} sm={24} md={10}>
                                         <Tooltip color="geekblue" title="Active ou désactive le formulaire d'inscription pour les adultes">
                                             <SwitchFormItem name="inscriptionAdulteEnabled" label="Activer les inscriptions aux cours adultes" onChange={onInscriptionAdulteEnabledChange} />
                                         </Tooltip>
                                     </Col>
                                     {inscriptionAdulteFromDateVisible && (
-                                        <Col span={8}>
+                                        <Col xs={24} sm={12} md={8}>
                                             <Tooltip color="geekblue" title="Indiquez la date à partir de laquelle les inscriptions sont possibles">
                                                 <DatePickerFormItem name="inscriptionAdulteEnabledFromDate" label="A partir du" rules={[{ required: true, message: "Date obligatoire" }]} />
                                             </Tooltip>

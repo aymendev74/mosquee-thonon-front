@@ -3,8 +3,9 @@ import { InscriptionAdulteBack, InscriptionEnfantBack, InscriptionLight, Inscrip
 import { ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, PERIODES_ENDPOINT } from "../../../services/services";
 import { useLocation, useNavigate } from "react-router-dom";
 import Table, { ColumnsType } from "antd/es/table";
-import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification } from "antd";
-import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification, Pagination, Checkbox, Input, InputNumber, Select, DatePicker } from "antd";
+import { useMediaQuery } from 'react-responsive';
+import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined, SearchOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
 import { getLibelleNiveauScolaire, getNiveauInterneAdulteOptions, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
 import exportToExcel, { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, ExcelColumnHeadersType } from "../../../utils/FormUtils";
@@ -39,6 +40,10 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const [periodesOptions, setPeriodesOptions] = useState<DefaultOptionType[]>();
     const [inscriptionsEnfantsById, setInscriptionsEnfantsById] = useState<Record<number, InscriptionEnfantBack>>({});
     const [inscriptionsAdultesById, setInscriptionsAdultesById] = useState<Record<number, InscriptionAdulteBack>>({});
+    const [currentMobilePage, setCurrentMobilePage] = useState(1);
+    const mobilePageSize = 10;
+    const [collapseActiveKey, setCollapseActiveKey] = useState<string[]>([]);
+    const isMobile = useMediaQuery({ maxWidth: 768 });
     const { getMatieresByType } = useMatieresStore();
 
     const CONSULTER_MENU_KEY = "1";
@@ -83,6 +88,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
         const resultInscriptions = await execute<InscriptionLight[]>({ method: "GET", url: INSCRIPTION_ENDPOINT, params: params ?? buildSearchCriteria() });
         if (resultInscriptions.successData) {
             setDataSource(resultInscriptions.successData);
+            setCollapseActiveKey([]); // réduire le collapse et mettre en évidence les résultats (sur mobile)
         }
     };
 
@@ -123,10 +129,13 @@ export const AdminCoursArabes: FunctionComponent = () => {
             }
         };
 
-        const items: MenuProps['items'] = [{ label: <><EyeTwoTone className="action-icon" />Consulter</>, key: CONSULTER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
-        { label: <><EditTwoTone className="action-icon" />Modifier</>, key: MODIFIER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
-        { label: <><CheckCircleTwoTone className="action-icon" />Valider inscription</>, key: VALIDER_MENU_KEY, disabled: selectedInscriptions.length < 1 },
+        const desktopActions: MenuProps['items'] = [{ label: <><EyeTwoTone className="action-icon" />Consulter</>, key: CONSULTER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
+        { label: <><EditTwoTone className="action-icon" />Modifier</>, key: MODIFIER_MENU_KEY, disabled: selectedInscriptions.length !== 1 }];
+
+        const commonActions: MenuProps['items'] = [{ label: <><CheckCircleTwoTone className="action-icon" />Valider</>, key: VALIDER_MENU_KEY, disabled: selectedInscriptions.length < 1 },
         { label: <><DeleteTwoTone className="action-icon" />Supprimer</>, danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedInscriptions.length < 1 }];
+
+        const items: MenuProps['items'] = isMobile ? [...commonActions] : [...desktopActions, ...commonActions];
 
         const menu: MenuProps = { items, onClick: handleMenuClick };
 
@@ -183,6 +192,127 @@ export const AdminCoursArabes: FunctionComponent = () => {
     const SearchFilters: FunctionComponent = () => {
         return (
             <AdminSearchFilter doSearch={() => loadInscriptions()} inputFilters={getSearchFilters()} />
+        );
+    };
+
+    const SearchFiltersNoCard: FunctionComponent = () => {
+        const allFilters = getSearchFilters();
+        // Sur mobile, on garde uniquement les filtres essentiels
+        const mobileFilterNames = ['idPeriode', 'prenom', 'nom', 'noInscription', 'statut'];
+        const filters = allFilters.filter(f => mobileFilterNames.includes(f.name));
+        
+        return (
+            <div>
+                {filters.map(filter => {
+                    let inputElement;
+                    
+                    if (filter.inputType === "InputText") {
+                        inputElement = <Input placeholder={filter.libelle} onPressEnter={() => loadInscriptions()} />;
+                    } else if (filter.inputType === "InputNumber") {
+                        inputElement = <InputNumber placeholder={filter.libelle} style={{ width: '100%' }} onPressEnter={() => loadInscriptions()} />;
+                    } else if (filter.inputType === "Date") {
+                        inputElement = <DatePicker placeholder={filter.libelle} style={{ width: '100%' }} onChange={() => loadInscriptions()} />;
+                    } else if (filter.inputType === "Select" && 'selectOptions' in filter) {
+                        inputElement = <Select placeholder={filter.libelle} options={filter.selectOptions} allowClear />;
+                    } else if (filter.inputType === "SelectTags" && 'selectOptions' in filter) {
+                        inputElement = <Select mode="multiple" placeholder={filter.libelle} options={filter.selectOptions} allowClear />;
+                    }
+
+                    const formItem = (
+                        <Form.Item key={filter.name} name={filter.name} label={filter.libelle}>
+                            {inputElement}
+                        </Form.Item>
+                    );
+                    
+                    return filter.tooltip ? (
+                        <Tooltip key={filter.name} title={filter.tooltip} color="geekblue">
+                            {formItem}
+                        </Tooltip>
+                    ) : formItem;
+                })}
+                <div className="centered-content">
+                    <Button icon={<SearchOutlined />} onClick={() => loadInscriptions()} style={{ marginRight: "10px" }} type="primary">Rechercher</Button>
+                </div>
+            </div>
+        );
+    };
+
+    const filterCollapseItems: any[] = [
+        {
+            key: '1',
+            label: <span><SearchOutlined /> Filtres de recherche</span>,
+            children: <SearchFiltersNoCard />
+        }
+    ];
+
+    const MobileInscriptionCard = ({ inscription }: { inscription: InscriptionLight }) => {
+        const isSelected = selectedInscriptions.some(i => i.id === inscription.id);
+        
+        const handleCardClick = () => {
+            if (isSelected) {
+                setSelectedInscriptions(selectedInscriptions.filter(i => i.id !== inscription.id));
+            } else {
+                setSelectedInscriptions([...selectedInscriptions, inscription]);
+            }
+        };
+
+        const getStatutTag = () => {
+            if (inscription.statut === StatutInscription.VALIDEE) {
+                return <Tag color="green">Validée</Tag>;
+            } else if (inscription.statut === StatutInscription.PROVISOIRE) {
+                return <Tag color="orange">À valider</Tag>;
+            } else if (inscription.statut === StatutInscription.LISTE_ATTENTE) {
+                return <Tag color="red">Liste d'attente</Tag>;
+            } else {
+                return <Tag color="red">Refusée</Tag>;
+            }
+        };
+
+        return (
+            <Card className="adhesion-card-mobile" size="small">
+                <div className="adhesion-card-header">
+                    <div className="adhesion-card-name">
+                        {inscription.prenom} {inscription.nom}
+                    </div>
+                    <Checkbox checked={isSelected} onChange={handleCardClick} />
+                </div>
+                <div className="adhesion-card-row">
+                    <span className="adhesion-card-label">N° inscription:</span>
+                    <span className="adhesion-card-value">{inscription.noInscription}</span>
+                </div>
+                <div className="adhesion-card-row">
+                    <span className="adhesion-card-label">Niveau interne:</span>
+                    <span className="adhesion-card-value">{inscription.niveauInterne}</span>
+                </div>
+                <div className="adhesion-card-row">
+                    <span className="adhesion-card-label">Téléphone:</span>
+                    <span className="adhesion-card-value">{inscription.mobile}</span>
+                </div>
+                <div className="adhesion-card-row">
+                    <span className="adhesion-card-label">Statut:</span>
+                    <span className="adhesion-card-value">{getStatutTag()}</span>
+                </div>
+                <div className="adhesion-card-row">
+                    <span className="adhesion-card-label">Date:</span>
+                    <span className="adhesion-card-value">
+                        {dayjs(inscription.dateInscription, APPLICATION_DATE_TIME_FORMAT).format(APPLICATION_DATE_FORMAT)}
+                    </span>
+                </div>
+                <div className="adhesion-card-actions">
+                    <Button size="small" type="primary" onClick={() => {
+                        const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
+                        navigate(path, { state: { isReadOnly: true, id: inscription.idInscription, isAdmin: true } });
+                    }}>
+                        <EyeTwoTone /> Consulter
+                    </Button>
+                    <Button size="small" onClick={() => {
+                        const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
+                        navigate(path, { state: { isReadOnly: false, id: inscription.idInscription, isAdmin: true } });
+                    }}>
+                        <EditTwoTone /> Modifier
+                    </Button>
+                </div>
+            </Card>
         );
     };
 
@@ -345,30 +475,91 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
                     </h2>
                     <div className="search-result-container">
-                        <div>
-                            <SearchFilters />
-                        </div>
-                        <div>
-                            <Card title="Résultats" bordered={false}>
-                                <div className="menu-action-container">
-                                    <div className="label">Veuillez choisir une action à effectuer :</div>
-                                    <div className="bt-action"><DropdownMenu /></div>
-                                    <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
-                                        <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">Exporter</Button>
-                                    </Tooltip>
-                                </div>
-                                <Row>
-                                    <Col span={24}>
-                                        <Table rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                            columns={columnsTableInscriptions} dataSource={dataSource} rowKey={record => record.id}
-                                            pagination={{ showTotal: formatTotal }} />
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </div>
+                        {isMobile ? (
+                            <Collapse 
+                                activeKey={collapseActiveKey}
+                                onChange={(keys) => setCollapseActiveKey(keys as string[])}
+                                items={filterCollapseItems} 
+                                className="mobile-filters-collapse" 
+                            />
+                        ) : (
+                            <div className="desktop-filters">
+                                <SearchFilters />
+                            </div>
+                        )}
+                        
+                        {dataSource && dataSource.length > 0 ? (
+                            <div className={isMobile ? "mobile-results" : "desktop-results"}>
+                                {isMobile ? (
+                                    <>
+                                        <div className="mobile-results-header">
+                                            <h3>Résultats</h3>
+                                        </div>
+                                        <div className="menu-action-container">
+                                            <div className="label">Action à effectuer :</div>
+                                            <div className="bt-action">
+                                                <DropdownMenu />
+                                            </div>                                            
+                                        </div>
+                                        <div className="adhesion-cards-mobile">
+                                            {dataSource
+                                                .slice((currentMobilePage - 1) * mobilePageSize, currentMobilePage * mobilePageSize)
+                                                .map(inscription => (
+                                                    <MobileInscriptionCard key={inscription.id} inscription={inscription} />
+                                                ))}
+                                            <div className="mobile-pagination">
+                                                <Pagination
+                                                    current={currentMobilePage}
+                                                    pageSize={mobilePageSize}
+                                                    total={dataSource.length}
+                                                    onChange={(page) => setCurrentMobilePage(page)}
+                                                    showSizeChanger={false}
+                                                    showTotal={(total, range) => `${range[0]}-${range[1]} sur ${total}`}
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <Card title="Résultats" bordered={false}>
+                                        <div className="menu-action-container">
+                                            <div className="label">Veuillez choisir une action à effectuer :</div>
+                                            <div className="bt-action">
+                                                <DropdownMenu />
+                                            </div>
+                                            <Tooltip color="geekblue" title="Exporter le resultat de la recherche dans un fichier Excel">
+                                                <Button icon={<FileExcelOutlined />} onClick={exportData} disabled={!isInscriptionsSelected()} type="primary">
+                                                    Exporter
+                                                </Button>
+                                            </Tooltip>
+                                        </div>
+
+                                        <Row>
+                                            <Col span={24}>
+                                                <Table 
+                                                    rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
+                                                    columns={columnsTableInscriptions} 
+                                                    dataSource={dataSource} 
+                                                    rowKey={record => record.id}
+                                                    pagination={{ showTotal: formatTotal }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Card>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="no-results">
+                                Aucune inscription trouvée
+                            </div>
+                        )}
                     </div>
-                    <ModaleConfirmSuppressionInscription open={modaleConfirmSuppressionOpen} setOpen={setModaleConfirmSuppressionOpen}
-                        nbInscriptions={getSelectedInscriptionDistinctIds().length} onConfirm={onConfirmSuppression} />
+
+                    <ModaleConfirmSuppressionInscription 
+                        open={modaleConfirmSuppressionOpen} 
+                        setOpen={setModaleConfirmSuppressionOpen}
+                        nbInscriptions={getSelectedInscriptionDistinctIds().length} 
+                        onConfirm={onConfirmSuppression} 
+                    />
                 </Spin>
             </Form>
         </div>

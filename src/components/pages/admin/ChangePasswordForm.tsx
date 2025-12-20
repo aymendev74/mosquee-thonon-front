@@ -88,7 +88,7 @@ export const ChangePassword: FunctionComponent = () => {
 
                     <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
                         <Button type="primary" htmlType="submit">
-                            Connexion
+                            Valider
                         </Button>
                     </Form.Item>
                 </Spin>

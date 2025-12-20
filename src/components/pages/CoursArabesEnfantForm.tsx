@@ -1,4 +1,4 @@
-import { Button, Form, Modal, Result, Spin, Tabs, TabsProps, notification } from "antd";
+import { Button, Form, Modal, Result, Spin, Steps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { ApiCallbacks, buildUrlWithParams, CHECK_COHERENCE_INSCRIPTION_ENDPOINT, CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, handleApiCall, INSCRIPTION_ENFANT_ENDPOINT, NEW_INSCRIPTION_ENFANT_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, TARIFS_ENDPOINT, NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT } from "../../services/services";
 import { InscriptionEnfantBack, InscriptionEnfantFront, StatutInscription } from "../../services/inscription";
@@ -11,7 +11,7 @@ import { Tarif } from "../inscriptions/Tarif";
 import { Eleves } from "../inscriptions/Eleves";
 import { EleveFront } from "../../services/eleve";
 import { TarifInscriptionDto } from "../../services/tarif";
-import { EuroCircleOutlined, InfoCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { CheckOutlined, EuroCircleOutlined, InfoCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { APPLICATION_DATE_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, isInscriptionFerme, prepareInscriptionEnfantBeforeForm, prepareInscriptionEnfantBeforeSave } from "../../utils/FormUtils";
 import { HttpStatusCode } from "axios";
 import dayjs, { Dayjs } from "dayjs";
@@ -36,7 +36,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantBack>();
     const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
-    const [activeStep, setActiveStep] = useState<string>("1");
+    const [activeStep, setActiveStep] = useState<number>(0);
     const { warning } = Modal;
 
     const id = location.state ? location.state.id : undefined;
@@ -64,49 +64,56 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         setEleves([]);
     }
 
-    const handleTabChange = async (activeKey: string) => {
-        try {
-            if (activeKey === "2" || activeKey === "3") {
-                // si on veut passer à l'étape "élèves" ou "tarif", on lance la validation du formulaire (responsable légal)
-                await form.validateFields();
-                if (activeKey === "3" && eleves.length === 0) {
-                    // Si on veut aller sur l'étape "tarif", et qu'on a pas saisie d'élèves, alors impossible
-                    notification.open({ message: "Veuillez ajouter des élèves avant de pouvoir visualiser votre tarif", type: "warning" });
-                    throw new Error("Pas d'élèves saisis, impossible de visualiser les tarifs");
+    const handleStepChange = async (newStep: number) => {
+        // Empêcher le changement si on essaie d'aller en avant sans validation
+        if (newStep > activeStep) {
+            try {
+                if (newStep === 1 || newStep === 2) {
+                    // si on veut passer à l'étape "élèves" ou "tarif", on lance la validation du formulaire (responsable légal)
+                    await form.validateFields();
+                    if (newStep === 2 && eleves.length === 0) {
+                        // Si on veut aller sur l'étape "tarif", et qu'on a pas saisie d'élèves, alors impossible
+                        notification.open({ message: "Veuillez ajouter des élèves avant de pouvoir visualiser votre tarif", type: "warning" });
+                        return; // Ne pas changer l'étape
+                    }
                 }
+                setActiveStep(newStep);
+            } catch (errorInfo) {
+                console.log('Validation failed:', errorInfo);
+                // Ne pas changer l'étape en cas d'erreur de validation
             }
-            setActiveStep(activeKey);
-        } catch (errorInfo) {
-            console.log('Validation failed:', errorInfo);
+        } else {
+            // Permettre le retour en arrière sans validation
+            setActiveStep(newStep);
         }
     }
 
     const onPreviousStep = () => {
-        const newActiveStep = Number(activeStep) - 1;
-        handleTabChange(String(newActiveStep));
+        const newActiveStep = activeStep - 1;
+        handleStepChange(newActiveStep);
     }
 
     const onNextStep = () => {
-        const newActiveStep = Number(activeStep) + 1;
-        handleTabChange(String(newActiveStep));
+        const newActiveStep = activeStep + 1;
+        handleStepChange(newActiveStep);
     }
 
-    const tabItems: TabsProps['items'] = [
+    const steps = [
         {
-            key: COURS_KEY_STEP_RESP_LEGAL,
-            label: <><InfoCircleOutlined />Responsable</>,
-            children: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} onNextStep={onNextStep} form={form} />,
+            title: 'Responsable',
+            icon: <InfoCircleOutlined />,
+            content: <ResponsableLegal isReadOnly={isReadOnly} isAdmin={isAdmin} doCalculTarif={calculTarif} onNextStep={onNextStep} form={form} />,
         },
         {
-            key: COURS_KEY_STEP_ELEVES,
-            label: <><UserOutlined />Elèves</>,
-            children: <Eleves isReadOnly={isReadOnly} isAdmin={isAdmin} form={form} eleves={eleves} setEleves={setEleves} onPreviousStep={onPreviousStep}
+            title: 'Élèves',
+            icon: <UserOutlined />,
+            content: <Eleves isReadOnly={isReadOnly} isAdmin={isAdmin} form={form} eleves={eleves} setEleves={setEleves} onPreviousStep={onPreviousStep}
                 onNextStep={onNextStep} />,
         },
         {
-            key: COURS_KEY_STEP_TARIF,
-            label: <><EuroCircleOutlined />Tarif</>,
-            children: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} isReadOnly={isReadOnly}
+            title: 'Tarif',
+            icon: <EuroCircleOutlined />,
+            content: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} isReadOnly={isReadOnly}
                 onPreviousStep={onPreviousStep} consentementChecked={consentementChecked} setConsentementChecked={setConsentementChecked}
                 isReinscriptionOnlyEnabled={isOnlyReinscriptionEnabled} />,
         }
@@ -259,7 +266,28 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
     }
 
     const getFormContent = () => {
-        return inscriptionFinished ? getResult() : (<Tabs tabBarExtraContent centered activeKey={activeStep} items={tabItems} onChange={handleTabChange} type="card" />);
+        if (inscriptionFinished) {
+            return getResult();
+        }
+        
+        return (
+            <div className="steps-container">
+                <Steps
+                    current={activeStep}
+                    className="custom-steps"
+                    direction="horizontal"
+                    responsive={false}
+                    items={steps.map((item, index) => ({
+                        title: item.title,
+                        icon: index < activeStep ? <CheckOutlined style={{ color: 'green' }} /> : item.icon,
+                        status: index < activeStep ? 'finish' : index === activeStep ? 'process' : 'wait',
+                    }))}
+                />
+                <div className="steps-content">
+                    {steps[activeStep].content}
+                </div>
+            </div>
+        );
     }
 
     const getInscriptionFermeesContent = () => {
@@ -294,5 +322,4 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
                 </Form >
             </div>
         );
-
 }

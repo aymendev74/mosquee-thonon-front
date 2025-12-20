@@ -168,6 +168,34 @@ body {
   margin-right: 20px;
 }
 
+/* Responsive pour l'écran Parametres sur mobile */
+@media screen and (max-width: 768px) {
+  .container-full-width {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
+  .container-full-width .ant-card {
+    margin-bottom: 16px;
+  }
+
+  .container-full-width .ant-card-body {
+    padding: 20px !important;
+  }
+
+  .container-full-width .ant-form-item {
+    margin-bottom: 20px !important;
+  }
+
+  .container-full-width .ant-form-item-label {
+    padding-bottom: 6px !important;
+  }
+
+  .container-full-width .ant-row {
+    row-gap: 16px !important;
+  }
+}
+
 .filters-container {
   width: 25%;
   margin-right: 25px;
@@ -381,6 +409,252 @@ body {
   padding: 20px;
 }
 
+/* Style des titres des Cards sur desktop uniquement */
+.search-result-container .desktop-filters .ant-card-head,
+.search-result-container .desktop-results .ant-card-head {
+  background: #001529;
+}
+
+.search-result-container .desktop-filters .ant-card-head-title,
+.search-result-container .desktop-results .ant-card-head-title {
+  color: #ffffff !important;
+}
+
+/* Masquer les filtres desktop sur mobile et vice-versa */
+.mobile-filters-collapse {
+  display: none;
+}
+
+.desktop-filters {
+  display: block;
+}
+
+/* Responsive pour AdminAdhesion sur mobile */
+@media screen and (max-width: 768px) {
+  .search-result-container {
+    grid-template-columns: 1fr;
+    padding: 0;
+    gap: 0;
+    background: #f0f2f5;
+  }
+
+  /* Style du conteneur principal des résultats */
+  .mobile-results {
+    padding: 16px;
+    background: #fff;
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* En-tête des résultats mobiles */
+  .mobile-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: #001529;
+    border-radius: 4px;
+  }
+
+  .mobile-results-header h3 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  /* Style spécifique pour la carte des résultats sur mobile */
+  .search-result-container > .ant-card {
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    width: 100%;
+  }
+
+  .search-result-container > .ant-card > .ant-card-head {
+    padding: 0;
+    min-height: auto;
+    border: none;
+  }
+
+  .search-result-container > .ant-card > .ant-card-body {
+    padding: 0;
+  }
+
+  /* Masquer le tableau sur mobile */
+  .search-result-container .ant-table-wrapper {
+    display: none;
+  }
+
+  /* Afficher les cards sur mobile */
+  .adhesion-cards-mobile {
+    display: block !important;
+    padding: 0;
+    padding-bottom: 70px;
+  }
+
+  /* Style des cartes d'adhésion */
+  .adhesion-card-mobile {
+    margin-bottom: 16px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+    background: #fff;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .adhesion-card-mobile .ant-card-body {
+    padding: 12px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .adhesion-card-mobile:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  /* Afficher le Collapse sur mobile, masquer les filtres desktop */
+  .mobile-filters-collapse {
+    display: block !important;
+    margin: 0 0 16px 0;
+    background: #fff;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .mobile-filters-collapse .ant-collapse-header {
+    padding: 12px 16px !important;
+    background: #001529 !important;
+    font-weight: 500;
+  }
+
+  .mobile-filters-collapse .ant-collapse-header .ant-collapse-header-text {
+    color: #ffffff !important;
+  }
+
+  .mobile-filters-collapse .ant-collapse-content {
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .mobile-filters-collapse .ant-collapse-content-box {
+    padding: 16px !important;
+  }
+
+  .mobile-filters-collapse .ant-form-item {
+    margin-bottom: 12px !important;
+  }
+
+  .mobile-filters-collapse .ant-form-item-label {
+    padding-bottom: 4px !important;
+  }
+
+  .mobile-filters-collapse .centered-content {
+    margin-top: 8px !important;
+  }
+
+  .desktop-filters {
+    display: none !important;
+  }
+
+  /* Style pour la pagination mobile */
+  .mobile-pagination {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Style pour le message 'Aucun résultat' */
+  .no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #8c8c8c;
+    background: #fff;
+    border-radius: 8px;
+    margin-top: 16px;
+  }
+}
+
+/* Cards pour affichage mobile des adhésions */
+.adhesion-cards-mobile {
+  display: none;
+}
+
+.adhesion-card-mobile {
+  margin-bottom: 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.adhesion-card-mobile .ant-card-body {
+  padding: 12px;
+}
+
+.adhesion-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.adhesion-card-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #001529;
+}
+
+.adhesion-card-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.9rem;
+}
+
+.adhesion-card-label {
+  color: #8c8c8c;
+  font-weight: 500;
+}
+
+.adhesion-card-value {
+  color: #262626;
+  font-weight: 400;
+}
+
+.adhesion-card-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.adhesion-card-actions .ant-btn {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
 .container-adhesion-infos {
   max-width: 700px;
   margin: 0 auto;
@@ -530,4 +804,112 @@ body {
   opacity: 0.7;
   /* petit effet "gris read-only" */
   cursor: not-allowed;
+}
+
+/* Styles pour le nouveau design avec Steps */
+.steps-container {
+  width: 100%;
+}
+
+.custom-steps {
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.steps-content {
+  margin-top: 1.5rem;
+}
+
+/* Désactiver les clics sur les Steps pour éviter le bug de surbrillance */
+.steps-readonly .ant-steps-item {
+  cursor: default !important;
+  pointer-events: none;
+}
+
+/* Amélioration visuelle des Steps */
+.custom-steps .ant-steps-item-process .ant-steps-item-icon {
+  background-color: #4FC3F7;
+  border-color: #4FC3F7;
+}
+
+.custom-steps .ant-steps-item-finish .ant-steps-item-icon {
+  border-color: #52c41a;
+  background-color: #fff;
+}
+
+.custom-steps .ant-steps-item-finish .ant-steps-icon {
+  color: #52c41a;
+}
+
+.custom-steps .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-tail::after {
+  background-color: #4FC3F7;
+}
+
+/* Responsive pour tablettes */
+@media screen and (max-width: 900px) {
+  .custom-steps {
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .steps-content {
+    margin-top: 1rem;
+  }
+}
+
+/* Responsive pour mobile - Steps horizontaux compacts */
+@media screen and (max-width: 768px) {
+  .custom-steps {
+    margin-bottom: 1.5rem;
+  }
+
+  .custom-steps .ant-steps-item-title {
+    font-size: 0.8rem !important;
+    line-height: 1.3;
+    padding-right: 0 !important;
+  }
+
+  .custom-steps .ant-steps-item-description {
+    display: none;
+  }
+
+  .custom-steps .ant-steps-item-icon {
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    font-size: 16px !important;
+    margin: 0 auto;
+  }
+
+  .steps-content {
+    margin-top: 1rem;
+  }
+}
+
+/* Responsive pour très petits écrans */
+@media screen and (max-width: 480px) {
+  .custom-steps {
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+
+  .custom-steps .ant-steps-item-title {
+    font-size: 0.7rem !important;
+    line-height: 1.2;
+  }
+
+  .custom-steps .ant-steps-item-icon {
+    width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+    font-size: 14px !important;
+  }
+
+  .custom-steps .ant-steps-item-container {
+    padding: 0 4px !important;
+  }
+
+  .steps-content {
+    margin-top: 0.75rem;
+  }
 }
