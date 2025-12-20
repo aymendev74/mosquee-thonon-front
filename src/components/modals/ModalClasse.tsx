@@ -6,7 +6,6 @@ import { AffectationEleveEnum, ClasseDtoB, ClasseDtoF, LienClasseEleveDto } from
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getJourActiviteOptions, getNiveauInterneEnfantOptions } from "../common/commoninputs";
-import { EnseignantDto } from "../../services/enseignant";
 import { EleveBack, EleveFront } from "../../services/eleve";
 import { APPLICATION_DATE_FORMAT, prepareEleveBeforeForm, prepareEleveBeforeSave } from "../../utils/FormUtils";
 import { ColumnsType } from "antd/es/table";

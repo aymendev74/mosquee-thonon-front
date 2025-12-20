@@ -23,7 +23,10 @@ export type InscriptionEnfant<T extends Dayjs | string, U extends string | boole
     montantTotal: number;
 }
 
-export type InscriptionEnfantFront = InscriptionEnfant<Dayjs, string>;
+export type InscriptionEnfantFront = InscriptionEnfant<Dayjs, string> & {
+    sendMailConfirmation: boolean
+};
+
 export type InscriptionEnfantBack = InscriptionEnfant<string, boolean>;
 
 export type InscriptionLight = {
@@ -97,11 +100,12 @@ export type InscriptionAdulte<T extends Dayjs | string> = {
     sexe: Sexe;
     statutProfessionnel: StatutProfessionel;
     matieres: MatiereEnum[];
-} & {
-    sendMailConfirmation: boolean;
 }
 
-export type InscriptionAdulteFront = InscriptionAdulte<Dayjs>;
+export type InscriptionAdulteFront = InscriptionAdulte<Dayjs> & {
+    sendMailConfirmation: boolean;
+};
+
 export type InscriptionAdulteBack = InscriptionAdulte<string>;
 
 export type TypeInscription = "ADULTE" | "ENFANT";
