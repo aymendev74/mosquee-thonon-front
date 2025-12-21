@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { AdhesionLight, AdhesionPatchDto } from "../../../services/adhesion";
 import { useNavigate } from "react-router-dom";
-import { Form, Table, Button, Row, Col, Card, Tag, Spin, Tooltip, Dropdown, Menu, Collapse, Input, InputNumber, Select, DatePicker, Pagination, Checkbox, notification } from "antd";
+import { Form, Table, Button, Row, Col, Card, Tag, Spin, Tooltip, Dropdown, Menu, Collapse, Input, InputNumber, Select, DatePicker, Pagination, Checkbox, notification, Space } from "antd";
 import { useMediaQuery } from 'react-responsive';
 import type { MenuProps } from 'antd';
 import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, ApiCallbacks, DELETE_ADHESION_ENDPOINT, handleApiCall } from "../../../services/services";
-import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EuroCircleOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, CheckCircleTwoTone, DeleteOutlined, DeleteTwoTone, DownOutlined, EditOutlined, EditTwoTone, EuroCircleOutlined, EyeOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, SearchOutlined } from "@ant-design/icons";
 import { StatutInscription } from "../../../services/inscription";
 import { getFileNameAdhesion } from "../../common/tableDefinition";
 import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
@@ -235,6 +235,40 @@ export const AdminAdhesion = () => {
                     <Button size="small" onClick={() => navigate("/adhesion", { state: { isReadOnly: false, id: adhesion.id, isAdmin: true } })}>
                         <EditTwoTone /> Modifier
                     </Button>
+                    <Button 
+                        size="small" 
+                        type="primary"
+                        disabled={adhesion.statut === StatutInscription.VALIDEE}
+                        onClick={async () => {
+                            const adhesionPatch: AdhesionPatchDto = { id: adhesion.id, statut: StatutInscription.VALIDEE };
+                            const result = await execute<number[]>({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: [adhesionPatch] } });
+                            if (result.successData) {
+                                notification.success({ message: "L'adhésion a été validée" });
+                                const resultAdhesions = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+                                if (resultAdhesions.successData) {
+                                    setDataSource(resultAdhesions.successData);
+                                }
+                            }
+                        }}
+                    >
+                        <CheckCircleTwoTone /> Valider
+                    </Button>
+                    <Button 
+                        size="small" 
+                        danger
+                        onClick={async () => {
+                            const result = await execute<number[]>({ method: "DELETE", url: DELETE_ADHESION_ENDPOINT, data: [adhesion.id] });
+                            if (result.successData) {
+                                notification.success({ message: "L'adhésion a été supprimée" });
+                                const resultAdhesions = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+                                if (resultAdhesions.successData) {
+                                    setDataSource(resultAdhesions.successData);
+                                }
+                            }
+                        }}
+                    >
+                        <DeleteTwoTone /> Supprimer
+                    </Button>
                 </div>
             </Card>
         );
@@ -298,15 +332,87 @@ export const AdminAdhesion = () => {
             }
         },
         {
-            title: "Fichier Pdf",
-            key: "pdf",
-            render: (value, record, index) => renderPdf(record.id) ? (<PDFDownloadLink document={
-                <PdfAuthContextBridge><PdfAdhesion id={record.id} /></PdfAuthContextBridge>} fileName={getFileNameAdhesion(record)}>
-                {({ blob, url, loading, error }) => {
-                    return loading ? "Génération Pdf..." : <FilePdfTwoTone />
-                }
-                }
-            </PDFDownloadLink>) : <Button type="primary" onClick={() => setRenderedPdfAdhesionsIds([...renderedPdfAdhesionIds, record.id])}>Générer Pdf</Button>
+            title: 'Actions',
+            key: 'actions',
+            render: (_, adhesion: AdhesionLight) => (
+                <Space size="small">
+                    <Tooltip title="Consulter">
+                        <Button
+                            icon={<EyeOutlined />}
+                            size="small"
+                            onClick={() => navigate("/adhesion", { state: { isReadOnly: true, id: adhesion.id, isAdmin: true } })}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Modifier">
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            onClick={() => navigate("/adhesion", { state: { isReadOnly: false, id: adhesion.id, isAdmin: true } })}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Valider">
+                        <Button
+                            icon={<CheckCircleOutlined />}
+                            size="small"
+                            type="primary"
+                            disabled={adhesion.statut === StatutInscription.VALIDEE}
+                            onClick={async () => {
+                                const adhesionPatch: AdhesionPatchDto = { id: adhesion.id, statut: StatutInscription.VALIDEE };
+                                const result = await execute<number[]>({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: [adhesionPatch] } });
+                                if (result.successData) {
+                                    notification.success({ message: "L'adhésion a été validée" });
+                                    const resultAdhesions = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+                                    if (resultAdhesions.successData) {
+                                        setDataSource(resultAdhesions.successData);
+                                    }
+                                }
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Supprimer">
+                        <Button
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            danger
+                            onClick={async () => {
+                                const result = await execute<number[]>({ method: "DELETE", url: DELETE_ADHESION_ENDPOINT, data: [adhesion.id] });
+                                if (result.successData) {
+                                    notification.success({ message: "L'adhésion a été supprimée" });
+                                    const resultAdhesions = await execute<AdhesionLight[]>({ method: "GET", url: ADHESION_SEARCH_ENDPOINT });
+                                    if (resultAdhesions.successData) {
+                                        setDataSource(resultAdhesions.successData);
+                                    }
+                                }
+                            }}
+                        />
+                    </Tooltip>
+                    {renderPdf(adhesion.id) ? (
+                        <PDFDownloadLink 
+                            document={<PdfAuthContextBridge><PdfAdhesion id={adhesion.id} /></PdfAuthContextBridge>} 
+                            fileName={getFileNameAdhesion(adhesion)}
+                        >
+                            {({ blob, url, loading, error }) => (
+                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"}>
+                                    <Button
+                                        icon={<FilePdfTwoTone />}
+                                        size="small"
+                                        loading={loading}
+                                    />
+                                </Tooltip>
+                            )}
+                        </PDFDownloadLink>
+                    ) : (
+                        <Tooltip title="Générer PDF">
+                            <Button
+                                icon={<FilePdfTwoTone />}
+                                size="small"
+                                type="primary"
+                                onClick={() => setRenderedPdfAdhesionsIds([...renderedPdfAdhesionIds, adhesion.id])}
+                            />
+                        </Tooltip>
+                    )}
+                </Space>
+            ),
         },
     ]
 

@@ -229,6 +229,37 @@ const Utilisateurs: React.FC = () => {
                 </span>
             ),
         },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_: any, user: UserDto) => (
+                <Space size="small">
+                    <Tooltip title="Modifier">
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            onClick={() => onEditUser(user)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Renvoyer mail d'activation">
+                        <Button
+                            icon={<MailOutlined />}
+                            size="small"
+                            disabled={user.enabled || !user.email}
+                            onClick={() => onResendActivationMail(user)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Supprimer">
+                        <Button
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            danger
+                            onClick={() => onDeleteUser(user)}
+                        />
+                    </Tooltip>
+                </Space>
+            ),
+        },
     ];
 
     const SearchFilters = () => {
@@ -243,7 +274,6 @@ const Utilisateurs: React.FC = () => {
     };
 
     const SearchFiltersNoCard = () => {
-        const mobileFilterNames = ['prenomFilter', 'nomFilter', 'emailFilter', 'roleFilter'];
         const filters = [
             { name: "prenomFilter", libelle: "Prénom" },
             { name: "nomFilter", libelle: "Nom" },
@@ -276,30 +306,19 @@ const Utilisateurs: React.FC = () => {
     };
 
     const MobileUserCard = ({ user }: { user: UserDto }) => {
-        const isSelected = selectedUsers.some(u => u.id === user.id);
-        
-        const handleCardClick = () => {
-            if (isSelected) {
-                setSelectedUsers(selectedUsers.filter(u => u.id !== user.id));
-            } else {
-                setSelectedUsers([...selectedUsers, user]);
-            }
-        };
-
         return (
             <Card className="adhesion-card-mobile" size="small">
                 <div className="adhesion-card-header">
                     <div className="adhesion-card-name">
                         {user.prenom} {user.nom}
                     </div>
-                    <Checkbox checked={isSelected} onChange={handleCardClick} />
                 </div>
                 <div className="adhesion-card-row">
                     <span className="adhesion-card-label">Email:</span>
                     <span className="adhesion-card-value">{user.email}</span>
                 </div>
                 <div className="adhesion-card-row">
-                    <span className="adhesion-card-label">Username:</span>
+                    <span className="adhesion-card-label">Nom d'utilisateur:</span>
                     <span className="adhesion-card-value">{user.username}</span>
                 </div>
                 <div className="adhesion-card-row">
@@ -330,11 +349,12 @@ const Utilisateurs: React.FC = () => {
                     <Button size="small" onClick={() => onEditUser(user)}>
                         <EditTwoTone /> Modifier
                     </Button>
-                    {(
-                        <Button size="small" onClick={() => onResendActivationMail(user)} disabled={user.enabled || !user.email}>
-                            <MailOutlined /> Mail d'activation
-                        </Button>
-                    )}
+                    <Button size="small" onClick={() => onResendActivationMail(user)} disabled={user.enabled || !user.email}>
+                        <MailOutlined /> Mail d'activation
+                    </Button>
+                    <Button size="small" danger onClick={() => onDeleteUser(user)}>
+                        <DeleteOutlined /> Supprimer
+                    </Button>
                 </div>
             </Card>
         );
@@ -347,12 +367,6 @@ const Utilisateurs: React.FC = () => {
             children: <SearchFiltersNoCard />
         }
     ];
-
-    const rowSelection = {
-        onChange: (selectedRowKeys: React.Key[], selectedRows: UserDto[]) => {
-            setSelectedUsers(selectedRows);
-        }
-    };
 
     return roles?.includes("ROLE_ADMIN") ? (
         <div className="centered-content">
@@ -413,26 +427,18 @@ const Utilisateurs: React.FC = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <Card title="Résultats" bordered={false}>
-                                        <div className="menu-action-container">
-                                            <div className="label">Veuillez choisir une action à effectuer :</div>
-                                            <div className="bt-action">
-                                                <DropdownMenu />
-                                            </div>
-                                        </div>
-
-                                        <Row>
-                                            <Col span={24}>
-                                                <Table<UserDto>
-                                                    rowSelection={{ type: "checkbox", selectedRowKeys: selectedUsers.map(user => user.id), ...rowSelection }}
-                                                    dataSource={users}
-                                                    columns={columns}
-                                                    rowKey={(record) => record.username}
-                                                    loading={isLoading}
-                                                    pagination={{ pageSize: 10 }}
-                                                />
-                                            </Col>
-                                        </Row>
+                                    <Card title="Résultats" bordered={false} extra={
+                                        <Button type="primary" onClick={onCreateUser} icon={<PlusOutlined />}>
+                                            Nouvel utilisateur
+                                        </Button>
+                                    }>
+                                        <Table<UserDto>
+                                            dataSource={users}
+                                            columns={columns}
+                                            rowKey={(record) => record.username}
+                                            loading={isLoading}
+                                            pagination={{ pageSize: 10 }}
+                                        />
                                     </Card>
                                 )}
                             </div>

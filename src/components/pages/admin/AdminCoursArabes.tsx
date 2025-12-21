@@ -3,9 +3,9 @@ import { InscriptionAdulteBack, InscriptionEnfantBack, InscriptionLight, Inscrip
 import { ApiCallbacks, buildUrlWithParams, handleApiCall, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, PERIODES_ENDPOINT } from "../../../services/services";
 import { useLocation, useNavigate } from "react-router-dom";
 import Table, { ColumnsType } from "antd/es/table";
-import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification, Pagination, Checkbox, Input, InputNumber, Select, DatePicker } from "antd";
+import { Button, Card, Col, Collapse, Dropdown, Form, MenuProps, Row, Spin, Tag, Tooltip, notification, Pagination, Checkbox, Input, InputNumber, Select, DatePicker, Space } from "antd";
 import { useMediaQuery } from 'react-responsive';
-import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined, SearchOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, CheckCircleTwoTone, DeleteOutlined, DeleteTwoTone, DownOutlined, EditOutlined, EditTwoTone, EyeOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, TeamOutlined, UserOutlined, WarningOutlined, SearchOutlined } from "@ant-design/icons";
 import { ModaleConfirmSuppressionInscription } from "../../modals/ModalConfirmSuppressionInscription";
 import { getLibelleNiveauScolaire, getNiveauInterneAdulteOptions, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../common/commoninputs";
 import exportToExcel, { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT, ExcelColumnHeadersType } from "../../../utils/FormUtils";
@@ -311,6 +311,34 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     }}>
                         <EditTwoTone /> Modifier
                     </Button>
+                    <Button 
+                        size="small" 
+                        type="primary"
+                        disabled={inscription.statut === StatutInscription.VALIDEE}
+                        onClick={async () => {
+                            const inscriptionPatch: InscriptionPatchDto = { id: inscription.idInscription, statut: StatutInscription.VALIDEE };
+                            const result = await execute({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: [inscriptionPatch] } });
+                            if (result.success) {
+                                notification.success({ message: "L'inscription a été validée" });
+                                loadInscriptions();
+                            }
+                        }}
+                    >
+                        <CheckCircleTwoTone /> Valider
+                    </Button>
+                    <Button 
+                        size="small" 
+                        danger
+                        onClick={async () => {
+                            const result = await execute<number[]>({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: [inscription.idInscription] });
+                            if (result.success) {
+                                notification.success({ message: "L'inscription a été supprimée" });
+                                loadInscriptions();
+                            }
+                        }}
+                    >
+                        <DeleteTwoTone /> Supprimer
+                    </Button>
                 </div>
             </Card>
         );
@@ -442,9 +470,87 @@ export const AdminCoursArabes: FunctionComponent = () => {
             }
         },
         {
-            title: "Fichier Pdf",
-            key: "pdf",
-            render: (value, record, index) => getPdf(record),
+            title: 'Actions',
+            key: 'actions',
+            render: (_, inscription: InscriptionLight) => (
+                <Space size="small">
+                    <Tooltip title="Consulter">
+                        <Button
+                            icon={<EyeOutlined />}
+                            size="small"
+                            onClick={() => {
+                                const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
+                                navigate(path, { state: { isReadOnly: true, id: inscription.idInscription, isAdmin: true } });
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Modifier">
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            onClick={() => {
+                                const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
+                                navigate(path, { state: { isReadOnly: false, id: inscription.idInscription, isAdmin: true } });
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Valider">
+                        <Button
+                            icon={<CheckCircleOutlined />}
+                            size="small"
+                            type="primary"
+                            disabled={inscription.statut === StatutInscription.VALIDEE}
+                            onClick={async () => {
+                                const inscriptionPatch: InscriptionPatchDto = { id: inscription.idInscription, statut: StatutInscription.VALIDEE };
+                                const result = await execute({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: [inscriptionPatch] } });
+                                if (result.success) {
+                                    notification.success({ message: "L'inscription a été validée" });
+                                    loadInscriptions();
+                                }
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Supprimer">
+                        <Button
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            danger
+                            onClick={async () => {
+                                const result = await execute<number[]>({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: [inscription.idInscription] });
+                                if (result.success) {
+                                    notification.success({ message: "L'inscription a été supprimée" });
+                                    loadInscriptions();
+                                }
+                            }}
+                        />
+                    </Tooltip>
+                    {renderPdf(inscription.idInscription) ? (
+                        <PDFDownloadLink 
+                            document={getDocumentContent(inscription.idInscription)} 
+                            fileName={getFileNameInscription(inscription)}
+                        >
+                            {({ blob, url, loading, error }) => (
+                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"}>
+                                    <Button
+                                        icon={<FilePdfTwoTone />}
+                                        size="small"
+                                        loading={loading}
+                                    />
+                                </Tooltip>
+                            )}
+                        </PDFDownloadLink>
+                    ) : (
+                        <Tooltip title="Générer PDF">
+                            <Button
+                                icon={<FilePdfTwoTone />}
+                                size="small"
+                                type="primary"
+                                onClick={() => loadInscription(inscription.idInscription)}
+                            />
+                        </Tooltip>
+                    )}
+                </Space>
+            ),
         },
     ];
 

@@ -1,6 +1,6 @@
 import { FunctionComponent, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { HomeOutlined, TeamOutlined, EuroCircleOutlined, UserOutlined, MenuOutlined } from "@ant-design/icons";
+import { HomeOutlined, TeamOutlined, EuroCircleOutlined, UserOutlined, MenuOutlined, DollarCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
 import { Drawer, Menu, MenuProps } from "antd";
 import "../styles/BottomNavigation.css";
@@ -68,22 +68,27 @@ export const BottomNavigation: FunctionComponent = () => {
                 {
                     key: "adminTarif",
                     label: "Tarifs",
+                    icon: <DollarCircleOutlined />,
                 },
                 {
                     key: "parametres",
                     label: "Paramètres",
+                    icon: <SettingOutlined />,
                 },
                 {
                     key: "creerModifierClasse",
                     label: "Créer/Modifier Classe",
+                    icon: <UserOutlined />,
                 },
                 {
                     key: "classes",
                     label: "Mes classes",
+                    icon: <TeamOutlined />,
                 },
                 {
                     key: "utilisateurs",
                     label: "Utilisateurs",
+                    icon: <UserOutlined />,
                 }
             ];
         } else if (roles?.includes("ROLE_ENSEIGNANT")) {
@@ -91,6 +96,7 @@ export const BottomNavigation: FunctionComponent = () => {
                 {
                     key: "classes",
                     label: "Mes classes",
+                    icon: <TeamOutlined />,
                 }
             ];
         } else if (roles?.includes("ROLE_TRESORIER")) {
@@ -98,6 +104,7 @@ export const BottomNavigation: FunctionComponent = () => {
                 {
                     key: "adminAdhesion",
                     label: "Adhésion",
+                    icon: <EuroCircleOutlined />,
                 }
             ];
         } else {
