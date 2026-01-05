@@ -1,7 +1,7 @@
 import { PayPalButtons, PayPalScriptProvider, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { Form, Result, Spin } from "antd";
 import { FunctionComponent, useCallback, useState } from "react";
-import { InputNumberFormItem } from "../common/InputNumberFormItem";
+import { InputNumberFormItem } from "../../common/InputNumberFormItem";
 import { useForm } from "antd/es/form/Form";
 
 export const FaireUnDon: FunctionComponent = () => {

@@ -1,33 +1,34 @@
 import { Layout, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
 import { useMediaQuery } from 'react-responsive';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { Home } from './components/pages/Home';
-import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm';
-import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
+import { Home } from './components/routes/public/Home';
+import { CoursArabesEnfantForm } from './components/routes/public/CoursArabesEnfantForm';
+import { AdminCoursArabes } from './components/routes/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
 import { BottomNavigation } from './components/BottomNavigation';
-import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
-import { AdhesionForm } from './components/pages/AdhesionForm';
-import { AdminAdhesion } from './components/pages/admin/AdminAdhesion';
-import { AdminTarifs } from './components/pages/admin/AdminTarifs';
-import { FaireUnDon } from './components/pages/FaireUnDon';
-import { Parametres } from './components/pages/admin/Parametres';
-import { HomeAdmin } from './components/pages/admin/HomeAdmin';
-import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm';
+import { ChangePassword } from './components/routes/admin/ChangePasswordForm';
+import { AdhesionForm } from './components/routes/public/AdhesionForm';
+import { AdminAdhesion } from './components/routes/admin/AdminAdhesion';
+import { AdminTarifs } from './components/routes/admin/AdminTarifs';
+import { FaireUnDon } from './components/routes/public/FaireUnDon';
+import { Parametres } from './components/routes/admin/Parametres';
+import { HomeAdmin } from './components/routes/admin/HomeAdmin';
+import { CoursArabesAdulteForm } from './components/routes/public/CoursArabesAdulteForm';
 import { useAuth } from './hooks/AuthContext';
-import { SignIn } from './components/pages/admin/SignIn';
-import CreateUpdateClasse from './components/pages/admin/CreateUpdateClasse';
-import MesClasses from './components/pages/enseignant/MesClasses';
-import MaClasse from './components/pages/enseignant/MaClasse';
-import { NotFound } from './components/pages/NotFound';
-import AdhesionInfos from './components/pages/AdhesionInfos';
+import { SignIn } from './components/routes/admin/SignIn';
+import CreateUpdateClasse from './components/routes/admin/CreateUpdateClasse';
+import MesClasses from './components/routes/enseignant/MesClasses';
+import MaClasse from './components/routes/enseignant/MaClasse';
+import { NotFound } from './components/routes/public/NotFound';
+import AdhesionInfos from './components/routes/public/AdhesionInfos';
 import { useEffect } from 'react';
 import useApi from './hooks/useApi';
 import { MATIERES_ENDPOINT } from './services/services';
 import { useMatieresStore } from './components/stores/useMatieresStore';
 import { TraductionDto, TypeMatiereEnum } from './services/classe';
-import Utilisateurs from './components/pages/admin/Utilisateurs';
-import AccountActivation from './components/pages/AccountActivation';
+import Utilisateurs from './components/routes/admin/Utilisateurs';
+import AccountActivation from './components/routes/public/AccountActivation';
+import { ProfileMobile } from './components/routes/ProfileMobile';
 
 const { Header, Content, Footer } = Layout;
 
@@ -115,12 +116,9 @@ function App() {
       )}
       {isMobile && (
         <Header style={{ padding: "0 16px", height: "56px", lineHeight: "56px" }}>
-          <Row justify="space-between" align="middle">
+          <Row justify="center" align="middle">
             <Col>
               <div className="logo" style={{ display: "inline-block", verticalAlign: "middle" }} />
-            </Col>
-            <Col>
-              {username && <DropdownAuthUser />}
             </Col>
           </Row>
         </Header>
@@ -145,6 +143,7 @@ function App() {
           <Route path="/parametres" element={<Parametres />} />
           <Route path="/utilisateurs" element={<Utilisateurs />} />
           <Route path="/accountActivation" element={<AccountActivation />} />
+          <Route path="/profile" element={<ProfileMobile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>

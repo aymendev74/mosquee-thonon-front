@@ -21,7 +21,7 @@ import { CollapseProps } from 'antd/lib';
 import { EleveEnrichedDto, PatchEleve, ResultatEnum } from '../../../services/eleve';
 import { SwitchFormItem } from '../../common/SwitchFormItem';
 import { getJourActiviteOptions, getResultatOptions } from '../../common/commoninputs';
-import { UnahtorizedAccess } from '../UnahtorizedAccess';
+import { UnahtorizedAccess } from '../public/UnahtorizedAccess';
 import { SelectFormItem } from '../../common/SelectFormItem';
 import { ModalBulletin } from '../../modals/ModalBulletin';
 import { PDFDownloadLink } from '@react-pdf/renderer';

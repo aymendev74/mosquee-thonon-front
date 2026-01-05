@@ -1,68 +1,35 @@
-import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/AuthContext';
-import { DeleteOutlined, EditOutlined, PlusCircleOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import useApi from '../../../hooks/useApi';
-import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, handleApiCall, USER_ENDPOINT } from '../../../services/services';
-import { Button, Card, Col, Divider, Empty, FloatButton, Form, notification, Row, Tooltip } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Divider, Empty, Form, Row, Tooltip } from 'antd';
 import { InputNumberFormItem } from '../../common/InputNumberFormItem';
 import { useForm } from 'antd/es/form/Form';
 import dayjs from 'dayjs';
-import { ClasseDtoB, ClasseDtoF } from '../../../services/classe';
+import { ClasseDtoF } from '../../../services/classe';
 import { ModalClasse } from '../../modals/ModalClasse';
-import { prepareClasseBeforeForm } from '../../../utils/FormUtils';
 import { ModaleConfirmSuppression } from '../../modals/ModalConfirmSuppression';
-import { UnahtorizedAccess } from '../UnahtorizedAccess';
-import { valueType } from 'antd/es/statistic/utils';
-import { UserDto } from '../../../services/user';
+import { UnahtorizedAccess } from '../public/UnahtorizedAccess';
+import { useClasseManagement } from './classes/hooks/useClasseManagement';
 
 const CreateUpdateClasse = () => {
     const { roles } = useAuth();
-    const { execute, isLoading } = useApi();
-    const [enseignants, setEnseignants] = useState<UserDto[]>([]);
-    const [classes, setClasses] = useState<ClasseDtoF[]>([]);
     const [form] = useForm();
-    const [modalClasseOpen, setModalClasseOpen] = useState(false);
-    const [debutAnneeScolaire, setDebutAnneeScolaire] = useState<number>(dayjs().year());
-    const [classeToEdit, setClasseToEdit] = useState<ClasseDtoF | undefined>();
-    const [modalDeleteClasseOpen, setModalDeleteClasseOpen] = useState(false);
-    const [classeToDelete, setClasseToDelete] = useState<number | undefined>();
 
-    async function doSearchClasses(values: any) {
-        const params = { anneeDebut: values.anneeDebut, anneeFin: values.anneeFin ?? values.anneeDebut + 1 };
-        const resultClasses = await execute<ClasseDtoB[]>({ method: "GET", url: CLASSES_ENDPOINT, params });
-        if (resultClasses.success && resultClasses.successData) {
-            const classesF = resultClasses.successData.map(classe => prepareClasseBeforeForm(classe));
-            setClasses(classesF);
-        }
-
-    }
-
-    function onCreateClasse() {
-        const debutAnneeScolaire: number = form.getFieldValue("anneeDebut");
-        if (!debutAnneeScolaire) {
-            notification.warning({ message: "Veuillez sélectionner une année avant de pouvoir créer une classe" });
-            return;
-        }
-        setDebutAnneeScolaire(debutAnneeScolaire);
-        setClasseToEdit(undefined);
-        setModalClasseOpen(true);
-    }
-
-    function onModifierClasse(classe: ClasseDtoF) {
-        setClasseToEdit(classe);
-        setModalClasseOpen(true);
-    }
-
-    function onDeleteClasse(classe: ClasseDtoF) {
-        setClasseToDelete(classe.id);
-        setModalDeleteClasseOpen(true);
-    }
-
-    async function onConfirmDeleteClasse() {
-        await execute({ method: "DELETE", url: buildUrlWithParams(EXISTING_CLASSES_ENDPOINT, { id: classeToDelete }) });
-        doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
-        setModalDeleteClasseOpen(false);
-    }
+    const {
+        enseignants,
+        classes,
+        modalClasseOpen,
+        debutAnneeScolaire,
+        classeToEdit,
+        modalDeleteClasseOpen,
+        setModalClasseOpen,
+        setModalDeleteClasseOpen,
+        doSearchClasses,
+        onCreateClasse,
+        onModifierClasse,
+        onDeleteClasse,
+        onConfirmDeleteClasse,
+        handleAnneeScolaireChanged,
+    } = useClasseManagement(form);
 
     function getActionsClasseButtons(classe: ClasseDtoF) {
         return (
@@ -101,27 +68,6 @@ const CreateUpdateClasse = () => {
             </>
         );
     }
-
-    useEffect(() => {
-        const loadData = async () => {
-            if (!modalClasseOpen) {
-                doSearchClasses({ anneeDebut: debutAnneeScolaire, anneeFin: debutAnneeScolaire + 1 });
-                const resultEnseignants = await execute<UserDto[]>({ method: "GET", url: USER_ENDPOINT, params: { role: "ROLE_ENSEIGNANT" } });
-                if (resultEnseignants.success && resultEnseignants.successData) {
-                    setEnseignants(resultEnseignants.successData);
-                }
-            }
-        }
-        loadData();
-    }, [modalClasseOpen]);
-
-    function handleAnneeScolaireChanged(val: valueType | null) {
-        if (!val) return;
-        const anneeDebut = typeof val === "string" ? parseFloat(val) : val;
-        if (!isNaN(anneeDebut)) { // Vérifie si c'est bien un nombre
-            setDebutAnneeScolaire(anneeDebut);
-        }
-    };
 
     return roles?.includes("ROLE_ADMIN") ? (
         <>

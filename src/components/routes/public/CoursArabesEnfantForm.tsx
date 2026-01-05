@@ -1,27 +1,20 @@
 import { Button, Form, Modal, Result, Spin, Steps, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
-import { ApiCallbacks, buildUrlWithParams, CHECK_COHERENCE_INSCRIPTION_ENDPOINT, CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, handleApiCall, INSCRIPTION_ENFANT_ENDPOINT, NEW_INSCRIPTION_ENFANT_ENDPOINT, PARAM_ENDPOINT, PARAM_REINSCRIPTION_PRIORITAIRE_ENDPOINT, TARIFS_ENDPOINT, NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT } from "../../services/services";
-import { InscriptionEnfantBack, InscriptionEnfantFront, StatutInscription } from "../../services/inscription";
-import useApi from "../../hooks/useApi";
+import { buildUrlWithParams, CHECK_COHERENCE_INSCRIPTION_ENDPOINT, CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT, INSCRIPTION_ENFANT_ENDPOINT, NEW_INSCRIPTION_ENFANT_ENDPOINT, PARAM_ENDPOINT, NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT, INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT } from "../../../services/services";
+import { InscriptionEnfantBack, InscriptionEnfantFront, StatutInscription } from "../../../services/inscription";
+import useApi from "../../../hooks/useApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
-import { ModaleRGPD } from "../modals/ModalRGPD";
-import { ResponsableLegal } from "../inscriptions/ResponsableLegal";
-import { Tarif } from "../inscriptions/Tarif";
-import { Eleves } from "../inscriptions/Eleves";
-import { EleveFront } from "../../services/eleve";
-import { TarifInscriptionDto } from "../../services/tarif";
+import { ModaleRGPD } from "../../modals/ModalRGPD";
+import { ResponsableLegal } from "../../inscriptions/ResponsableLegal";
+import { Tarif } from "../../inscriptions/Tarif";
+import { Eleves } from "../../inscriptions/Eleves";
+import { EleveFront } from "../../../services/eleve";
+import { TarifInscriptionDto } from "../../../services/tarif";
 import { CheckOutlined, EuroCircleOutlined, InfoCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
-import { APPLICATION_DATE_FORMAT, COURS_KEY_STEP_ELEVES, COURS_KEY_STEP_RESP_LEGAL, COURS_KEY_STEP_TARIF, isInscriptionFerme, prepareInscriptionEnfantBeforeForm, prepareInscriptionEnfantBeforeSave } from "../../utils/FormUtils";
-import { HttpStatusCode } from "axios";
-import dayjs, { Dayjs } from "dayjs";
+import { isInscriptionFerme, prepareInscriptionEnfantBeforeForm, prepareInscriptionEnfantBeforeSave } from "../../../utils/FormUtils";
 import _ from "lodash";
-import { ParamsDto, ParamsDtoB } from "../../services/parametres";
-
-/*enum TypeMessageDefilant {
-    REINSCRIPTION_PRIORITAIRE = "REINSCRIPTION_PRIORITAIRE",
-    INSCRIPTIONS_FERMEES = "INSCRIPTIONS_FERMEES"
-}*/
+import { ParamsDtoB } from "../../../services/parametres";
 
 export const CoursArabesEnfantForm: FunctionComponent = () => {
 

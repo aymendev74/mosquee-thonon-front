@@ -1,9 +1,9 @@
 import { Button, Col, Form, Input, Result, Row, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import useApi from '../../hooks/useApi';
-import { AccountInfos, AccountInfosSchema } from '../../services/user';
-import { USER_ACCOUNT_ENABLE_ENDPOINT, USER_ACCOUNT_INFORMATIONS_ENDPOINT } from '../../services/services';
+import useApi from '../../../hooks/useApi';
+import { AccountInfos, AccountInfosSchema } from '../../../services/user';
+import { USER_ACCOUNT_ENABLE_ENDPOINT, USER_ACCOUNT_INFORMATIONS_ENDPOINT } from '../../../services/services';
 
 const AccountActivation: React.FC = () => {
     const [searchParams] = useSearchParams();

@@ -1,6 +1,6 @@
 import { FunctionComponent, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { HomeOutlined, TeamOutlined, EuroCircleOutlined, UserOutlined, MenuOutlined, DollarCircleOutlined, SettingOutlined } from "@ant-design/icons";
+import { HomeOutlined, TeamOutlined, EuroCircleOutlined, UserOutlined, MenuOutlined, DollarCircleOutlined, SettingOutlined, LockOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
 import { Drawer, Menu, MenuProps } from "antd";
 import "../styles/BottomNavigation.css";
@@ -8,7 +8,7 @@ import "../styles/BottomNavigation.css";
 export const BottomNavigation: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { roles } = useAuth();
+    const { roles, logout } = useAuth();
     const [drawerVisible, setDrawerVisible] = useState(false);
 
     const getActiveKey = () => {
@@ -16,7 +16,7 @@ export const BottomNavigation: FunctionComponent = () => {
         if (path === "/") return "home";
         if (path.includes("cours")) return "cours";
         if (path.includes("adhesion")) return "adhesion";
-        if (path.includes("admin") || path.includes("classes") || path.includes("utilisateurs") || path.includes("parametres")) return "admin";
+        if (path.includes("admin") || path.includes("classes") || path.includes("utilisateurs") || path.includes("parametres") || path.includes("changePassword")) return "admin";
         return "";
     };
 
@@ -38,8 +38,12 @@ export const BottomNavigation: FunctionComponent = () => {
     };
 
     const onDrawerMenuClick: MenuProps['onClick'] = (menuInfo) => {
+        console.log(menuInfo.key);
         setDrawerVisible(false);
-        if (menuInfo.key === "adminCoursAdultes" || menuInfo.key === "adminCoursEnfants") {
+        if (menuInfo.key === "logout") {
+            logout();
+            navigate("/");
+        } else if (menuInfo.key === "adminCoursAdultes" || menuInfo.key === "adminCoursEnfants") {
             const application = menuInfo.key === "adminCoursAdultes" ? "COURS_ADULTE" : "COURS_ENFANT";
             navigate("/adminCours", { state: { application } });
         } else {
@@ -89,6 +93,18 @@ export const BottomNavigation: FunctionComponent = () => {
                     key: "utilisateurs",
                     label: "Utilisateurs",
                     icon: <UserOutlined />,
+                },
+                { type: "divider" as const },
+                {
+                    key: "changePassword",
+                    label: "Modifier mot de passe",
+                    icon: <LockOutlined />,
+                },
+                {
+                    key: "logout",
+                    label: "Se déconnecter",
+                    icon: <LogoutOutlined />,
+                    danger: true,
                 }
             ];
         } else if (roles?.includes("ROLE_ENSEIGNANT")) {
@@ -97,6 +113,18 @@ export const BottomNavigation: FunctionComponent = () => {
                     key: "classes",
                     label: "Mes classes",
                     icon: <TeamOutlined />,
+                },
+                { type: "divider" as const },
+                {
+                    key: "changePassword",
+                    label: "Modifier mot de passe",
+                    icon: <LockOutlined />,
+                },
+                {
+                    key: "logout",
+                    label: "Se déconnecter",
+                    icon: <LogoutOutlined />,
+                    danger: true,
                 }
             ];
         } else if (roles?.includes("ROLE_TRESORIER")) {
@@ -105,6 +133,18 @@ export const BottomNavigation: FunctionComponent = () => {
                     key: "adminAdhesion",
                     label: "Adhésion",
                     icon: <EuroCircleOutlined />,
+                },
+                { type: "divider" as const },
+                {
+                    key: "changePassword",
+                    label: "Modifier mot de passe",
+                    icon: <LockOutlined />,
+                },
+                {
+                    key: "logout",
+                    label: "Se déconnecter",
+                    icon: <LogoutOutlined />,
+                    danger: true,
                 }
             ];
         } else {
@@ -124,8 +164,8 @@ export const BottomNavigation: FunctionComponent = () => {
     };
 
     const activeKey = getActiveKey();
-    const isAdmin = roles?.includes("ROLE_ADMIN") || roles?.includes("ROLE_ENSEIGNANT") || roles?.includes("ROLE_TRESORIER");
 
+    console.log(activeKey);
     return (
         <>
             <div className="bottom-navigation">
@@ -153,15 +193,14 @@ export const BottomNavigation: FunctionComponent = () => {
                     <span className="bottom-nav-label">Adhésion</span>
                 </div>
                 
-                {isAdmin && (
-                    <div 
-                        className={`bottom-nav-item ${activeKey === "admin" ? "active" : ""}`}
-                        onClick={() => handleNavClick("admin")}
-                    >
-                        <MenuOutlined className="bottom-nav-icon" />
-                        <span className="bottom-nav-label">Menu</span>
-                    </div>
-                )}
+                <div 
+                    className={`bottom-nav-item ${activeKey === "admin" ? "active" : ""}`}
+                    onClick={() => handleNavClick("admin")}
+                >
+                    <MenuOutlined className="bottom-nav-icon" />
+                    <span className="bottom-nav-label">Menu</span>
+                </div>
+                
             </div>
 
             <Drawer

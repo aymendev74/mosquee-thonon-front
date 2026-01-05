@@ -2,23 +2,23 @@ import { Button, Checkbox, Col, Divider, Form, Popover, Result, Row, Spin, notif
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getConsentementInscriptionCoursLibelle, isInscriptionFerme, prepareInscriptionAdulteBeforeForm, prepareInscriptionAdulteBeforeSave, validateCodePostal, validateMajorite, validatePhoneNumber } from "../../utils/FormUtils";
-import useApi from "../../hooks/useApi";
-import { buildUrlWithParams, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, PARAM_ENDPOINT } from "../../services/services";
-import { InscriptionAdulteBack, InscriptionAdulteFront, StatutInscription } from "../../services/inscription";
-import { InputFormItem } from "../common/InputFormItem";
-import { DatePickerFormItem } from "../common/DatePickerFormItem";
-import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
-import { Sexe } from "../../services/eleve";
-import { SelectFormItem } from "../common/SelectFormItem";
-import { getNiveauInterneAdulteOptions, getStatutsProfessionnelsOptions } from "../common/commoninputs";
-import { SwitchFormItem } from "../common/SwitchFormItem";
+import { getConsentementInscriptionCoursLibelle, isInscriptionFerme, prepareInscriptionAdulteBeforeForm, prepareInscriptionAdulteBeforeSave, validateCodePostal, validateMajorite, validatePhoneNumber } from "../../../utils/FormUtils";
+import useApi from "../../../hooks/useApi";
+import { buildUrlWithParams, INSCRIPTION_ADULTE_ENDPOINT, INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, NEW_INSCRIPTION_ADULTE_ENDPOINT, NEW_INSCRIPTION_ADULTE_TARIFS_ENDPOINT, PARAM_ENDPOINT } from "../../../services/services";
+import { InscriptionAdulteBack, InscriptionAdulteFront, StatutInscription } from "../../../services/inscription";
+import { InputFormItem } from "../../common/InputFormItem";
+import { DatePickerFormItem } from "../../common/DatePickerFormItem";
+import { RadioGroupFormItem } from "../../common/RadioGroupFormItem";
+import { Sexe } from "../../../services/eleve";
+import { SelectFormItem } from "../../common/SelectFormItem";
+import { getNiveauInterneAdulteOptions, getStatutsProfessionnelsOptions } from "../../common/commoninputs";
+import { SwitchFormItem } from "../../common/SwitchFormItem";
 import { QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { TarifInscriptionDto } from "../../services/tarif";
-import { ParamsDtoB } from "../../services/parametres";
-import { MultiTagSelect } from "../common/MultiTagSelectFormItem";
-import { useMatieresStore } from "../stores/useMatieresStore";
-import { TypeMatiereEnum } from "../../services/classe";
+import { TarifInscriptionDto } from "../../../services/tarif";
+import { ParamsDtoB } from "../../../services/parametres";
+import { MultiTagSelect } from "../../common/MultiTagSelectFormItem";
+import { useMatieresStore } from "../../stores/useMatieresStore";
+import { TypeMatiereEnum } from "../../../services/classe";
 
 
 export const CoursArabesAdulteForm: FunctionComponent = () => {

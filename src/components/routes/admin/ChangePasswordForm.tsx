@@ -3,8 +3,8 @@ import { FunctionComponent, useState } from 'react';
 import { CHANGE_PASSWORD_ENDPOINT, ERROR_INVALID_OLD_PASSWORD } from '../../../services/services';
 import { useForm } from 'antd/es/form/Form';
 import { useAuth } from '../../../hooks/AuthContext';
-import { UnahtorizedAccess } from '../UnahtorizedAccess';
 import useApi from '../../../hooks/useApi';
+import { UnahtorizedAccess } from '../public/UnahtorizedAccess';
 
 type FieldType = {
     newPassword?: string;
@@ -32,14 +32,12 @@ export const ChangePassword: FunctionComponent = () => {
         <div className="centered-content">
             <Form
                 name="changePassword"
-                labelCol={{ span: 14 }}
-                wrapperCol={{ span: 10 }}
-                style={{ maxWidth: 600, marginTop: "100px" }}
+                layout="vertical"
+                style={{ maxWidth: 400, width: "80%", marginTop: "100px", padding: "0 16px", boxSizing: "border-box" }}
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 autoComplete="off"
                 form={form}
-                className="container-full-width"
             >
                 <Spin spinning={isLoading}>
                     <Form.Item<FieldType>
@@ -86,7 +84,7 @@ export const ChangePassword: FunctionComponent = () => {
                         <Input.Password />
                     </Form.Item>
 
-                    <Form.Item wrapperCol={{ offset: 10, span: 14 }}>
+                    <Form.Item>
                         <Button type="primary" htmlType="submit">
                             Valider
                         </Button>

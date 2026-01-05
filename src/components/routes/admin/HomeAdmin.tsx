@@ -2,7 +2,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/AuthContext";
 import { Layout, Card, Typography, Space } from "antd";
 import { SmileOutlined } from "@ant-design/icons";
-import { UnahtorizedAccess } from "../UnahtorizedAccess";
+import { UnahtorizedAccess } from "../public/UnahtorizedAccess";
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;

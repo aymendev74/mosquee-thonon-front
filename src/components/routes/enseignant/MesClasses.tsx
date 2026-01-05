@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import { ClasseDtoB, ClasseDtoF } from '../../../services/classe';
 import { prepareClasseBeforeForm } from '../../../utils/FormUtils';
 import { useNavigate } from 'react-router-dom';
-import { UnahtorizedAccess } from '../UnahtorizedAccess';
+import { UnahtorizedAccess } from '../public/UnahtorizedAccess';
 
 const MesClasses = () => {
     const { roles } = useAuth();

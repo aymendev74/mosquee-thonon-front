@@ -1,22 +1,22 @@
 import { Button, Checkbox, Col, Divider, Form, Result, Row, Spin, notification } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent, useEffect, useState } from "react";
-import { Adhesion } from "../../services/adhesion";
+import { Adhesion } from "../../../services/adhesion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { APPLICATION_DATE_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
+import { APPLICATION_DATE_FORMAT, getConsentementAdhesionLibelle, validateCodePostal, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../../utils/FormUtils";
 import { DefaultOptionType } from "antd/es/select";
-import useApi from "../../hooks/useApi";
-import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, NEW_ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../services/services";
-import { TarifDto } from "../../services/tarif";
-import { StatutInscription } from "../../services/inscription";
-import { InputNumberFormItem } from "../common/InputNumberFormItem";
-import { SelectFormItem } from "../common/SelectFormItem";
-import { InputFormItem } from "../common/InputFormItem";
-import { DatePickerFormItem } from "../common/DatePickerFormItem";
-import { RadioGroupFormItem } from "../common/RadioGroupFormItem";
+import useApi from "../../../hooks/useApi";
+import { ADHESION_ENDPOINT, ApiCallbacks, buildUrlWithParams, handleApiCall, NEW_ADHESION_ENDPOINT, TARIFS_ENDPOINT } from "../../../services/services";
+import { TarifDto } from "../../../services/tarif";
+import { StatutInscription } from "../../../services/inscription";
+import { InputNumberFormItem } from "../../common/InputNumberFormItem";
+import { SelectFormItem } from "../../common/SelectFormItem";
+import { InputFormItem } from "../../common/InputFormItem";
+import { DatePickerFormItem } from "../../common/DatePickerFormItem";
+import { RadioGroupFormItem } from "../../common/RadioGroupFormItem";
 import dayjs from "dayjs";
 import { EuroCircleOutlined } from "@ant-design/icons";
-import { SwitchFormItem } from "../common/SwitchFormItem";
+import { SwitchFormItem } from "../../common/SwitchFormItem";
 
 
 export const AdhesionForm: FunctionComponent = () => {
