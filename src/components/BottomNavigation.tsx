@@ -2,13 +2,13 @@ import { FunctionComponent, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HomeOutlined, TeamOutlined, EuroCircleOutlined, UserOutlined, MenuOutlined, DollarCircleOutlined, SettingOutlined, LockOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
-import { Drawer, Menu, MenuProps } from "antd";
+import { Drawer, Menu, MenuProps, Avatar } from "antd";
 import "../styles/BottomNavigation.css";
 
 export const BottomNavigation: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { roles, logout } = useAuth();
+    const { roles, logout, username } = useAuth();
     const [drawerVisible, setDrawerVisible] = useState(false);
 
     const getActiveKey = () => {
@@ -204,7 +204,16 @@ export const BottomNavigation: FunctionComponent = () => {
             </div>
 
             <Drawer
-                title="Menu"
+                title={
+                    <div className="drawer-header">
+                        <Avatar 
+                            size={48} 
+                            icon={<UserOutlined />} 
+                            style={{ backgroundColor: "#722ed1" }}
+                        />
+                        <span className="drawer-username">{username}</span>
+                    </div>
+                }
                 placement="bottom"
                 onClose={() => setDrawerVisible(false)}
                 open={drawerVisible}

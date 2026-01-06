@@ -28,7 +28,6 @@ import { useMatieresStore } from './components/stores/useMatieresStore';
 import { TraductionDto, TypeMatiereEnum } from './services/classe';
 import Utilisateurs from './components/routes/admin/Utilisateurs';
 import AccountActivation from './components/routes/public/AccountActivation';
-import { ProfileMobile } from './components/routes/ProfileMobile';
 
 const { Header, Content, Footer } = Layout;
 
@@ -143,7 +142,6 @@ function App() {
           <Route path="/parametres" element={<Parametres />} />
           <Route path="/utilisateurs" element={<Utilisateurs />} />
           <Route path="/accountActivation" element={<AccountActivation />} />
-          <Route path="/profile" element={<ProfileMobile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>

@@ -45,6 +45,19 @@
     line-height: 1.2;
 }
 
+/* Style du header du drawer avec avatar et username */
+.drawer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.drawer-username {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.85);
+}
+
 /* Ajouter un padding au contenu pour éviter qu'il soit caché par la bottom nav sur mobile */
 @media (max-width: 768px) {    
     .content {
