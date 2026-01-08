@@ -43,10 +43,10 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
             dateInscription = dateInscription.format(APPLICATION_DATE_FORMAT);
         }
         const searchCriteria = {
-            nom: nom ?? null, 
-            prenom: prenom ?? null, 
+            nom: nom ?? null,
+            prenom: prenom ?? null,
             statut: statut ?? null,
-            dateInscription: dateInscription ?? null, 
+            dateInscription: dateInscription ?? null,
             montant: montant ?? null
         };
         await onSearch(searchCriteria);
@@ -54,15 +54,15 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
 
     const DropdownMenu = () => {
         const handleMenuClick = (e: any) => {
-            if (selectedAdhesions.length === 1 && [CONSULTER_MENU_KEY, MODIFIER_MENU_KEY].includes(e.key)) { 
+            if (selectedAdhesions.length === 1 && [CONSULTER_MENU_KEY, MODIFIER_MENU_KEY].includes(e.key)) {
                 let readOnly: boolean = false;
                 if (e.key === CONSULTER_MENU_KEY) {
                     readOnly = true;
                 }
                 navigate("/adhesion", { state: { isReadOnly: readOnly, id: selectedAdhesions[0].id, isAdmin: true } })
-            } else if (e.key === VALIDER_MENU_KEY) { 
+            } else if (e.key === VALIDER_MENU_KEY) {
                 onValidateAdhesions(selectedAdhesions);
-            } else if (e.key === SUPPRIMER_MENU_KEY) { 
+            } else if (e.key === SUPPRIMER_MENU_KEY) {
                 onDeleteAdhesions(selectedAdhesions);
             }
         };
@@ -70,13 +70,13 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
         const desktopActions: MenuProps['items'] = [
             { label: <><EyeTwoTone className="action-icon" />Consulter</>, key: CONSULTER_MENU_KEY, disabled: selectedAdhesions.length !== 1 },
             { label: <><EditTwoTone className="action-icon" />Modifier</>, key: MODIFIER_MENU_KEY, disabled: selectedAdhesions.length !== 1 }
-        ];        
+        ];
         const commonActions: MenuProps['items'] = [
             { label: <><CheckCircleTwoTone className="action-icon" />Valider</>, key: VALIDER_MENU_KEY, disabled: selectedAdhesions.length < 1 },
             { label: <><DeleteTwoTone className="action-icon" />Supprimer</>, danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedAdhesions.length < 1 }
         ];
         const items: MenuProps['items'] = [...desktopActions, ...commonActions];
-        
+
         const menu: MenuProps = { items, onClick: handleMenuClick } as MenuProps;
 
         return (
@@ -139,21 +139,23 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
             key: 'actions',
             render: (_, adhesion: AdhesionLight) => (
                 <Space size="small">
-                    <Tooltip title="Consulter">
+                    <Tooltip title="Consulter" color="geekblue">
                         <Button
                             icon={<EyeOutlined />}
                             size="small"
                             onClick={() => navigate("/adhesion", { state: { isReadOnly: true, id: adhesion.id, isAdmin: true } })}
+                            type="primary"
                         />
                     </Tooltip>
-                    <Tooltip title="Modifier">
+                    <Tooltip title="Modifier" color="geekblue">
                         <Button
                             icon={<EditOutlined />}
                             size="small"
                             onClick={() => navigate("/adhesion", { state: { isReadOnly: false, id: adhesion.id, isAdmin: true } })}
+                            type="primary"
                         />
                     </Tooltip>
-                    <Tooltip title="Valider">
+                    <Tooltip title="Valider" color="geekblue">
                         <Button
                             icon={<CheckCircleOutlined />}
                             size="small"
@@ -162,36 +164,38 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
                             onClick={() => onValidateAdhesion(adhesion.id)}
                         />
                     </Tooltip>
-                    <Tooltip title="Supprimer">
+                    <Tooltip title="Supprimer" color="red">
                         <Button
                             icon={<DeleteOutlined />}
                             size="small"
                             danger
                             onClick={() => onDeleteAdhesion(adhesion.id)}
+                            type="primary"
                         />
                     </Tooltip>
                     {renderPdf(adhesion.id) ? (
-                        <PDFDownloadLink 
-                            document={<PdfAuthContextBridge><PdfAdhesion id={adhesion.id} /></PdfAuthContextBridge>} 
+                        <PDFDownloadLink
+                            document={<PdfAuthContextBridge><PdfAdhesion id={adhesion.id} /></PdfAuthContextBridge>}
                             fileName={getFileNameAdhesion(adhesion)}
                         >
                             {({ blob, url, loading, error }) => (
-                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"}>
+                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"} color="geekblue">
                                     <Button
                                         icon={<FilePdfTwoTone />}
                                         size="small"
                                         loading={loading}
+                                        type="primary"
                                     />
                                 </Tooltip>
                             )}
                         </PDFDownloadLink>
                     ) : (
-                        <Tooltip title="Générer PDF">
+                        <Tooltip title="Générer PDF" color="geekblue">
                             <Button
                                 icon={<FilePdfTwoTone />}
                                 size="small"
                                 type="primary"
-                                onClick={() => generatePdf(adhesion.id)}
+                                onClick={() => generatePdf(adhesion.id)}                                
                             />
                         </Tooltip>
                     )}
@@ -220,7 +224,7 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
 
     return (
         <>
-            <div className="desktop-filters">
+            <div>
                 <Form
                     name="adminAdhesionDesktop"
                     labelCol={{ span: 8 }}
@@ -231,7 +235,7 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
                     <AdminSearchFilter doSearch={doSearch} inputFilters={inputFiltersConfig} />
                 </Form>
             </div>
-            
+
             {dataSource && dataSource.length > 0 ? (
                 <div className="desktop-results">
                     <Card title="Résultats" bordered={false}>
@@ -249,10 +253,10 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
 
                         <Row>
                             <Col span={24}>
-                                <Table 
+                                <Table
                                     rowSelection={{ type: "checkbox", selectedRowKeys: selectedAdhesions.map(adhesion => adhesion.id), ...rowSelection }}
-                                    columns={columnsTableAdhesions} 
-                                    dataSource={dataSource} 
+                                    columns={columnsTableAdhesions}
+                                    dataSource={dataSource}
                                     rowKey={record => record.id}
                                     pagination={{ showTotal: formatTotal }}
                                 />

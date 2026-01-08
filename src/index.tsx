@@ -3,7 +3,6 @@ import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
-//import { AuthProvider } from './hooks/UseAuth';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 import utc from 'dayjs/plugin/utc';
@@ -11,6 +10,7 @@ import timezone from 'dayjs/plugin/timezone';
 import frFR from 'antd/locale/fr_FR';
 import { Font } from '@react-pdf/renderer';
 import { AuthProvider } from './hooks/AuthContext';
+import { antdTheme } from './theme/antdTheme';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -51,26 +51,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <BrowserRouter>
     <ConfigProvider
-      theme={{
-        token: {
-          borderRadius: 10,
-          fontFamily: 'Roboto, sans-serif',
-        },
-        components: {
-          Collapse: {
-            borderRadiusLG: 20,
-            contentBg: "#f5f5f5",
-            headerBg: "#001529",
-          },
-          Card: {
-            headerBg: "#001529",
-            colorBgContainer: "#f5f5f5",
-          },
-          Menu: {
-            subMenuItemSelectedColor: "#ffff",
-          }
-        }
-      }}
+      theme={antdTheme}
       locale={frFR}
     >
       <AuthProvider>
@@ -78,6 +59,4 @@ root.render(
       </AuthProvider>
     </ConfigProvider>
   </BrowserRouter>
-
-
 );

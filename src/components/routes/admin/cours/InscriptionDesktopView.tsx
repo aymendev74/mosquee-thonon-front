@@ -55,14 +55,14 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
         const niveauxInternes = form.getFieldValue("niveauInterne");
         const searchType = application === "COURS_ENFANT" ? "ENFANT" : "ADULTE";
         return {
-            nom: nom ?? null, 
-            prenom: prenom ?? null, 
+            nom: nom ?? null,
+            prenom: prenom ?? null,
             telephone: telephone ?? null,
-            statut: statut ?? null, 
-            dateInscription: dateInscription ?? null, 
+            statut: statut ?? null,
+            dateInscription: dateInscription ?? null,
             niveaux: niveaux ?? null,
-            niveauxInternes: niveauxInternes ?? null, 
-            noInscription: noInscription ?? null, 
+            niveauxInternes: niveauxInternes ?? null,
+            noInscription: noInscription ?? null,
             idPeriode: idPeriode ?? null,
             type: searchType
         };
@@ -92,13 +92,13 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
         const desktopActions: MenuProps['items'] = [
             { label: <><EyeTwoTone className="action-icon" />Consulter</>, key: CONSULTER_MENU_KEY, disabled: selectedInscriptions.length !== 1 },
             { label: <><EditTwoTone className="action-icon" />Modifier</>, key: MODIFIER_MENU_KEY, disabled: selectedInscriptions.length !== 1 }
-        ];        
+        ];
         const commonActions: MenuProps['items'] = [
             { label: <><CheckCircleTwoTone className="action-icon" />Valider</>, key: VALIDER_MENU_KEY, disabled: selectedInscriptions.length < 1 },
             { label: <><DeleteTwoTone className="action-icon" />Supprimer</>, danger: true, key: SUPPRIMER_MENU_KEY, disabled: selectedInscriptions.length < 1 }
         ];
         const items: MenuProps['items'] = [...desktopActions, ...commonActions];
-        
+
         const menu: MenuProps = { items, onClick: handleMenuClick } as MenuProps;
 
         return (
@@ -212,7 +212,7 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
             key: 'actions',
             render: (_, inscription: InscriptionLight) => (
                 <Space size="small">
-                    <Tooltip title="Consulter">
+                    <Tooltip title="Consulter" color="geekblue">
                         <Button
                             icon={<EyeOutlined />}
                             size="small"
@@ -220,9 +220,10 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
                                 const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
                                 navigate(path, { state: { isReadOnly: true, id: inscription.idInscription, isAdmin: true } });
                             }}
+                            type="primary"
                         />
                     </Tooltip>
-                    <Tooltip title="Modifier">
+                    <Tooltip title="Modifier" color="geekblue">
                         <Button
                             icon={<EditOutlined />}
                             size="small"
@@ -230,9 +231,10 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
                                 const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
                                 navigate(path, { state: { isReadOnly: false, id: inscription.idInscription, isAdmin: true } });
                             }}
+                            type="primary"
                         />
                     </Tooltip>
-                    <Tooltip title="Valider">
+                    <Tooltip title="Valider" color="geekblue">
                         <Button
                             icon={<CheckCircleOutlined />}
                             size="small"
@@ -241,31 +243,33 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
                             onClick={() => onValidateInscription(inscription.idInscription)}
                         />
                     </Tooltip>
-                    <Tooltip title="Supprimer">
+                    <Tooltip title="Supprimer" color="red">
                         <Button
                             icon={<DeleteOutlined />}
                             size="small"
                             danger
                             onClick={() => onDeleteInscription(inscription.idInscription)}
+                            type="primary"
                         />
                     </Tooltip>
                     {renderPdf(inscription.idInscription) ? (
-                        <PDFDownloadLink 
-                            document={getDocumentContent(inscription.idInscription)} 
+                        <PDFDownloadLink
+                            document={getDocumentContent(inscription.idInscription)}
                             fileName={getFileNameInscription(inscription)}
                         >
                             {({ blob, url, loading, error }) => (
-                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"}>
+                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"} color="geekblue">
                                     <Button
                                         icon={<FilePdfTwoTone />}
                                         size="small"
                                         loading={loading}
+                                        type="primary"
                                     />
                                 </Tooltip>
                             )}
                         </PDFDownloadLink>
                     ) : (
-                        <Tooltip title="Générer PDF">
+                        <Tooltip title="Générer PDF" color="geekblue">
                             <Button
                                 icon={<FilePdfTwoTone />}
                                 size="small"
@@ -303,7 +307,7 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
 
     return (
         <>
-            <div className="desktop-filters">
+            <div>
                 <Form
                     name="adminInscriptionDesktop"
                     labelCol={{ span: 8 }}
@@ -314,7 +318,7 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
                     <AdminSearchFilter doSearch={doSearch} inputFilters={getSearchFilters()} />
                 </Form>
             </div>
-            
+
             {dataSource && dataSource.length > 0 ? (
                 <div className="desktop-results">
                     <Card title="Résultats" bordered={false}>
@@ -332,10 +336,10 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
 
                         <Row>
                             <Col span={24}>
-                                <Table 
+                                <Table
                                     rowSelection={{ type: "checkbox", selectedRowKeys: selectedInscriptions.map(inscription => inscription.id), ...rowSelection }}
-                                    columns={columnsTableInscriptions} 
-                                    dataSource={dataSource} 
+                                    columns={columnsTableInscriptions}
+                                    dataSource={dataSource}
                                     rowKey={record => record.id}
                                     pagination={{ showTotal: formatTotal }}
                                 />

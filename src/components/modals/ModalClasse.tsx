@@ -1,5 +1,6 @@
-import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag, Tooltip } from "antd";
+import { Button, Card, Checkbox, Col, Divider, Form, Input, Modal, notification, Pagination, Row, Spin, Table, Tag, Tooltip } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
+import { useMediaQuery } from 'react-responsive';
 import _ from "lodash";
 import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ELEVES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, handleApiCall } from "../../services/services";
 import { AffectationEleveEnum, ClasseDtoB, ClasseDtoF, LienClasseEleveDto } from "../../services/classe";
@@ -14,7 +15,6 @@ import { CheckOutlined, CloseOutlined, EyeOutlined, SearchOutlined, WarningOutli
 import { SwitchFormItem } from "../common/SwitchFormItem";
 import useApi from "../../hooks/useApi";
 import { UserDto } from "../../services/user";
-
 
 export type ModalClasseProps = {
     open: boolean,
@@ -36,10 +36,13 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
     const [elevesFiltres, setElevesFiltres] = useState<EleveFront[]>([]);
     const [selectedEleves, setSelectedEleves] = useState<EleveFront[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const isMobile = useMediaQuery({ maxWidth: 768 });
 
     const close = () => {
         form.resetFields();
         setSelectedEleves([]);
+        setCurrentPage(1);
         setOpen(false);
     };
 
@@ -122,15 +125,84 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         } else {
             setElevesFiltres([]);
             setSelectedEleves([]);
+            setCurrentPage(1);
             form.resetFields();
         }
     }, [open]);
 
-    const rowSelection = {
-        onChange: (selectedRowKeys: React.Key[], selectedRows: EleveFront[]) => {
-            setSelectedEleves(selectedRows);
-        },
-        preserveSelectedRowKeys: true
+    const toggleEleveSelection = (eleve: EleveFront) => {
+        const isSelected = selectedEleves.some(e => e.id === eleve.id);
+        if (isSelected) {
+            setSelectedEleves(selectedEleves.filter(e => e.id !== eleve.id));
+        } else {
+            setSelectedEleves([...selectedEleves, eleve]);
+        }
+    };
+
+    const renderElevesCards = () => {
+        const pageSize = 5;
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const currentEleves = elevesFiltres.slice(startIndex, endIndex);
+
+        return (
+            <>
+                <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+                    {currentEleves.map((eleve) => {
+                        const isSelected = selectedEleves.some(e => e.id === eleve.id);
+                        const isInOtherClass = eleve.classeId && eleve.classeId !== classeToEdit?.id;
+                        
+                        return (
+                            <Col xs={24} key={eleve.id}>
+                                <Card
+                                    size="small"
+                                    hoverable
+                                    onClick={() => toggleEleveSelection(eleve)}
+                                    style={{
+                                        border: isSelected ? '2px solid #1890ff' : '1px solid #d9d9d9',
+                                        cursor: 'pointer',
+                                        backgroundColor: isSelected ? '#e6f7ff' : '#fff'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                <Checkbox checked={isSelected} />
+                                                <strong>{eleve.nom} {eleve.prenom}</strong>
+                                                {isInOtherClass && (
+                                                    <Tooltip color="red" title="Élève affecté dans une autre classe">
+                                                        <WarningOutlined style={{ color: '#ff4d4f' }} />
+                                                    </Tooltip>
+                                                )}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#8c8c8c' }}>
+                                                <span><strong>Niveau:</strong> {eleve.niveauInterne}</span>
+                                                <span><strong>Né(e) le:</strong> {dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </Col>
+                        );
+                    })}
+                </Row>
+                {elevesFiltres.length > pageSize && (
+                    <Row style={{ justifyContent: 'center', marginTop: '16px' }}>
+                        <Col>
+                            <Pagination
+                                current={currentPage}
+                                total={elevesFiltres.length}
+                                pageSize={pageSize}
+                                onChange={(page) => setCurrentPage(page)}
+                                showSizeChanger={false}
+                                simple
+                                showTotal={(total, range) => `${range[0]}-${range[1]} sur ${total}`}
+                            />
+                        </Col>
+                    </Row>
+                )}
+            </>
+        );
     };
 
     const columnsTableEleves: ColumnsType<EleveFront> = [
@@ -169,7 +241,14 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         }
     ];
 
-    async function onFilterEleves() {
+    const rowSelection = {
+        onChange: (selectedRowKeys: React.Key[], selectedRows: EleveFront[]) => {
+            setSelectedEleves(selectedRows);
+        },
+        preserveSelectedRowKeys: true
+    };
+
+    const onFilterEleves = async () => {
         const filterField = form.getFieldValue("filterField");
         if (filterField) {
             const valeurNormalisee = filterField.toLowerCase();
@@ -183,6 +262,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                 setElevesFiltres([...result.successData]);
             }
         }
+        setCurrentPage(1);
     }
 
     function formatTotal(total: number) {
@@ -195,10 +275,11 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         } else {
             onFilterEleves();
         }
+        setCurrentPage(1);
     }
 
-    return (<Modal title={getTitre()} open={open} width={800} onCancel={close}
-        footer={<><Button onClick={close} icon={<CloseOutlined />}>Annuler</Button><Button onClick={onValider} icon={<CheckOutlined />} danger>Valider</Button></>}>
+    return (<Modal title={getTitre()} open={open} width={isMobile ? '100%' : 800} onCancel={close}
+        footer={<><Button onClick={close} icon={<CloseOutlined />}>Annuler</Button><Button onClick={onValider} icon={<CheckOutlined />} type="primary">Valider</Button></>}>
         <Form
             name="classe"
             autoComplete="off"
@@ -206,45 +287,68 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         >
             <Spin spinning={isLoading}>
                 <Divider orientation="left">Informations concernant la classe</Divider>
-                <Row gutter={[16, 32]}>
-                    <Col span={12}>
+                <Row gutter={[16, 16]}>
+                    <Col xs={24} sm={12}>
                         <InputFormItem name="libelle" label="Libelle" rules={[{ required: true, message: "Veuillez saisir le libelle de la classe" }]} />
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                         <SelectFormItem name="niveau" label="Niveau" options={getNiveauInterneEnfantOptions()} rules={[{ required: true, message: "Veuillez saisir le niveau de la classe" }]} />
                     </Col>
                 </Row>
-                <Row gutter={[16, 32]}>
-                    <Col span={12}>
+                <Row gutter={[16, 16]}>
+                    <Col xs={24} sm={12}>
                         <SelectFormItem name="idUtilisateur" label="Enseignant" options={getEnseignantsOptions(enseignants)} />
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                         <SelectFormItem name="jourActivite" label="Jour de classe" options={getJourActiviteOptions()} />
                     </Col>
                 </Row>
                 <Divider orientation="left">Sélection des élèves</Divider>
-                <Row gutter={[16, 32]}>
-                    <Col span={12}>
+                <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+                    <Col xs={18} sm={12}>
                         <InputFormItem name="filterField" label="Nom/Prénom" />
                     </Col>
-                    <Col span={1}>
-                        <Tooltip title="Filtrer les élèves sur le nom ou le prénom" color="geekblue">
-                            <Button type="primary" onClick={onFilterEleves} icon={<SearchOutlined />} />
-                        </Tooltip>
+                    <Col xs={6} sm={2}>
+                        <Form.Item label=" " colon={false}>
+                            <Tooltip title="Filtrer" color="geekblue">
+                                <Button type="primary" onClick={onFilterEleves} icon={<SearchOutlined />} block />
+                            </Tooltip>
+                        </Form.Item>
                     </Col>
-                    <Col span={3}>
-                        <Tooltip title="Visualiser l'effectif de la classe uniquement" color="geekblue">
-                            <SwitchFormItem className="m-left-10" name="effectif" onChange={onEffectifSelected} />
-                        </Tooltip>
-                    </Col>
+                    {!isMobile && (
+                        <Col sm={4}>
+                            <Tooltip title="Visualiser l'effectif de la classe uniquement" color="geekblue">
+                                <SwitchFormItem name="effectif" onChange={onEffectifSelected} />
+                            </Tooltip>
+                        </Col>
+                    )}
                 </Row>
-                <Table dataSource={elevesFiltres}
-                    columns={columnsTableEleves}
-                    rowSelection={{ type: "checkbox", selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}
-                    pagination={{ pageSize: 5, showSizeChanger: false, showTotal: formatTotal }}
-                    rowKey={record => record.id!} />
+                {isMobile && (
+                    <>
+                        <Row style={{ marginBottom: '12px' }}>
+                            <Col span={24}>
+                                <Tag color="geekblue">Total : <strong>{elevesFiltres.length} élève(s)</strong></Tag>
+                                <Tag color="blue" style={{ marginLeft: '8px' }}>Sélectionnés : <strong>{selectedEleves.length}</strong></Tag>
+                            </Col>
+                        </Row>
+                        <Row style={{ marginBottom: '16px' }}>
+                            <Col span={24}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{ fontSize: '14px' }}>Afficher uniquement l'effectif sélectionné :</span>
+                                    <SwitchFormItem name="effectif" onChange={onEffectifSelected} style={{ marginBottom: 0 }} />
+                                </div>
+                            </Col>
+                        </Row>
+                    </>
+                )}
+                {isMobile ? renderElevesCards() : (
+                    <Table dataSource={elevesFiltres}
+                        columns={columnsTableEleves}
+                        rowSelection={{ type: "checkbox", selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}
+                        pagination={{ pageSize: 5, showSizeChanger: false, showTotal: formatTotal }}
+                        rowKey={record => record.id!} />
+                )}
             </Spin>
         </Form>
     </Modal>);
-
 }

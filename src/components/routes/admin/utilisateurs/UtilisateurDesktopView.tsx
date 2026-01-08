@@ -91,23 +91,23 @@ export const UtilisateurDesktopView: FunctionComponent<UtilisateurViewProps> = (
 
     return (
         <>
-            <div className="desktop-filters">
-                <AdminSearchFilter 
-                    doSearch={fetchUsers} 
+            <div>
+                <AdminSearchFilter
+                    doSearch={fetchUsers}
                     inputFilters={[
                         { name: "prenomFilter", libelle: "Prénom", inputType: "InputText" },
                         { name: "nomFilter", libelle: "Nom", inputType: "InputText" },
                         { name: "emailFilter", libelle: "E-mail", inputType: "InputText" },
                         { name: "roleFilter", libelle: "Rôle", inputType: "Select", selectOptions: getRolesOptions() },
-                    ]} 
+                    ]}
                 />
             </div>
-            
+
             {users && users.length > 0 ? (
                 <div className="desktop-results">
-                    <Card 
-                        title="Résultats" 
-                        bordered={false} 
+                    <Card
+                        title="Résultats"
+                        bordered={false}
                         extra={
                             <Button type="primary" onClick={onCreateUser} icon={<PlusOutlined />}>
                                 Nouvel utilisateur

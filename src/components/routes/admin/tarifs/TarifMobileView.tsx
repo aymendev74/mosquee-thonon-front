@@ -73,7 +73,7 @@ export const TarifMobileView: FunctionComponent<TarifViewProps> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h3 style={{ margin: 0 }}>Périodes</h3>
                             <Button icon={<PlusCircleOutlined />} type="primary" onClick={onCreatePeriode} size="small">
-                                Nouvelle
+                                Nouvelle période
                             </Button>
                         </div>
                     </Col>
@@ -83,58 +83,55 @@ export const TarifMobileView: FunctionComponent<TarifViewProps> = ({
                         <Col xs={24} key={periode.id}>
                             <Card
                                 hoverable
-                                className={selectedIdPeriode === periode.id ? 'periode-card-selected' : 'periode-card'}
-                                onClick={() => onSelectPeriode(periode)}
-                                style={{
-                                    border: selectedIdPeriode === periode.id ? '2px solid #1890ff' : '1px solid #d9d9d9',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s ease'
-                                }}
-                                bodyStyle={{ padding: '12px' }}
-                            >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '8px' }}>
-                                            {periode.anneeDebut}/{periode.anneeFin}
-                                        </div>
-                                        <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '8px' }}>
-                                            {periode.dateDebut} - {periode.dateFin}
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                            {periode.existInscription && (
-                                                <Tag color="orange">Inscriptions existantes</Tag>
-                                            )}
-                                            <Tag color="blue" icon={<EuroCircleTwoTone />}>
-                                                Voir tarifs
-                                            </Tag>
-                                        </div>
-                                    </div>
+                                bordered
+                                title={<><EuroCircleTwoTone style={{ marginRight: 8 }} />{periode.anneeDebut}/{periode.anneeFin}</>}
+                                extra={
                                     <div style={{ display: 'flex', gap: '4px' }}>
                                         <Tooltip title="Modifier">
                                             <Button
                                                 icon={<EditOutlined />}
                                                 size="small"
-                                                type="text"
+                                                type="primary"
+                                                style={{ color: '#fff' }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     onModifierPeriode();
                                                 }}
                                             />
                                         </Tooltip>
-                                        <Tooltip title="Supprimer">
+                                        {!periode.existInscription && <Tooltip title="Supprimer">
                                             <Button
                                                 icon={<DeleteOutlined />}
                                                 size="small"
-                                                type="text"
+                                                type="primary"
                                                 danger
-                                                disabled={periode.existInscription}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleDeletePeriode(periode);
                                                 }}
                                             />
                                         </Tooltip>
+                                        }
                                     </div>
+                                }
+                                className={selectedIdPeriode === periode.id ? 'periode-card-selected' : 'periode-card'}
+                                onClick={() => onSelectPeriode(periode)}
+                                style={{
+                                    border: selectedIdPeriode === periode.id ? '2px solid #1890ff' : undefined,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '8px' }}>
+                                    {periode.dateDebut} - {periode.dateFin}
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    {periode.existInscription && (
+                                        <Tag color="orange">Inscriptions existantes</Tag>
+                                    )}
+                                    <Tag color="blue">
+                                        Cliquer pour voir les tarifs
+                                    </Tag>
                                 </div>
                             </Card>
                         </Col>

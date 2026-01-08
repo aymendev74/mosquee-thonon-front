@@ -180,19 +180,19 @@ body {
   }
 
   .container-full-width .ant-card-body {
-    padding: 20px !important;
+    padding: 20px;
   }
 
   .container-full-width .ant-form-item {
-    margin-bottom: 20px !important;
+    margin-bottom: 20px;
   }
 
   .container-full-width .ant-form-item-label {
-    padding-bottom: 6px !important;
+    padding-bottom: 6px;
   }
 
   .container-full-width .ant-row {
-    row-gap: 16px !important;
+    row-gap: 16px;
   }
 }
 
@@ -365,18 +365,17 @@ body {
   text-align: center;
 }
 
-.ant-collapse-header {
-  color: #ffffff !important;
-}
+/* Les styles des composants Ant Design sont maintenant gérés par les tokens dans src/theme/antdTheme.ts */
 
-.ant-card-head-title {
-  color: #f5f5f5 !important;
-}
-
+/* === OMBRE DES CARDS === */
+/* Le token boxShadow d'Ant Design ne s'applique pas aux Cards, on utilise CSS */
 .ant-card {
-  border: 1px solid #001529 !important;
-  box-shadow: 0 5px 15px #001529 !important;
+  border: 1px solid #001529;
+  box-shadow: 0 5px 15px rgba(0, 21, 41, 0.6);
 }
+
+/* === EFFETS CSS CUSTOM === */
+/* Ces effets ne peuvent pas être gérés par les tokens et doivent rester en CSS */
 
 .card-focus-effect {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
@@ -409,25 +408,7 @@ body {
   padding: 20px;
 }
 
-/* Style des titres des Cards sur desktop uniquement */
-.search-result-container .desktop-filters .ant-card-head,
-.search-result-container .desktop-results .ant-card-head {
-  background: #001529;
-}
 
-.search-result-container .desktop-filters .ant-card-head-title,
-.search-result-container .desktop-results .ant-card-head-title {
-  color: #ffffff !important;
-}
-
-/* Masquer les filtres desktop sur mobile et vice-versa */
-.mobile-filters-collapse {
-  display: none;
-}
-
-.desktop-filters {
-  display: block;
-}
 
 /* Responsive pour AdminAdhesion sur mobile */
 @media screen and (max-width: 768px) {
@@ -465,62 +446,9 @@ body {
     font-weight: 600;
   }
 
-  /* Style spécifique pour la carte des résultats sur mobile */
-  .search-result-container > .ant-card {
-    box-shadow: none;
-    border: none;
-    background: transparent;
-    width: 100%;
-  }
-
-  .search-result-container > .ant-card > .ant-card-head {
-    padding: 0;
-    min-height: auto;
-    border: none;
-  }
-
-  .search-result-container > .ant-card > .ant-card-body {
-    padding: 0;
-  }
-
-  /* Masquer le tableau sur mobile */
-  .search-result-container .ant-table-wrapper {
-    display: none;
-  }
-
-  /* Afficher les cards sur mobile */
-  .adhesion-cards-mobile {
-    display: block !important;
-    padding: 0;
-    padding-bottom: 70px;
-  }
-
-  /* Style des cartes d'adhésion */
-  .adhesion-card-mobile {
-    margin-bottom: 16px;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-    transition: all 0.2s ease;
-    background: #fff;
-    max-width: 100%;
-    overflow: hidden;
-  }
-
-  .adhesion-card-mobile .ant-card-body {
-    padding: 12px;
-    max-width: 100%;
-    overflow: hidden;
-  }
-
-  .adhesion-card-mobile:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  }
-
   /* Afficher le Collapse sur mobile, masquer les filtres desktop */
   .mobile-filters-collapse {
-    display: block !important;
+    display: block;
     margin: 0 0 16px 0;
     background: #fff;
     border-radius: 0;
@@ -529,13 +457,13 @@ body {
   }
 
   .mobile-filters-collapse .ant-collapse-header {
-    padding: 12px 16px !important;
-    background: #001529 !important;
+    padding: 12px 16px;
+    background: #001529;
     font-weight: 500;
   }
 
   .mobile-filters-collapse .ant-collapse-header .ant-collapse-header-text {
-    color: #ffffff !important;
+    color: #ffffff;
   }
 
   .mobile-filters-collapse .ant-collapse-content {
@@ -544,23 +472,19 @@ body {
   }
 
   .mobile-filters-collapse .ant-collapse-content-box {
-    padding: 16px !important;
+    padding: 16px;
   }
 
   .mobile-filters-collapse .ant-form-item {
-    margin-bottom: 12px !important;
+    margin-bottom: 12px;
   }
 
   .mobile-filters-collapse .ant-form-item-label {
-    padding-bottom: 4px !important;
+    padding-bottom: 4px;
   }
 
   .mobile-filters-collapse .centered-content {
-    margin-top: 8px !important;
-  }
-
-  .desktop-filters {
-    display: none !important;
+    margin-top: 8px;
   }
 
   /* Style pour la pagination mobile */
@@ -591,20 +515,12 @@ body {
   }
 }
 
-/* Cards pour affichage mobile des adhésions */
-.adhesion-cards-mobile {
-  display: none;
-}
 
 .adhesion-card-mobile {
   margin-bottom: 12px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #001529;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.adhesion-card-mobile .ant-card-body {
-  padding: 12px;
+  box-shadow: 0 5px 15px #001529;
 }
 
 .adhesion-card-header {
@@ -762,7 +678,7 @@ body {
   color: #fff;
   padding: 2rem 1rem;
   font-size: 0.9rem;
-  font-family: 'Roboto', sans-serif !important;
+  font-family: 'Roboto', sans-serif;
 }
 
 .footer-section {
@@ -797,12 +713,10 @@ body {
 }
 
 .readonly-selected {
-  background-color: #1890ff !important;
-  /* bleu AntD */
-  color: white !important;
-  border-color: #1890ff !important;
+  background-color: #1890ff;
+  color: white;
+  border-color: #1890ff;
   opacity: 0.7;
-  /* petit effet "gris read-only" */
   cursor: not-allowed;
 }
 
@@ -822,7 +736,7 @@ body {
 
 /* Désactiver les clics sur les Steps pour éviter le bug de surbrillance */
 .steps-readonly .ant-steps-item {
-  cursor: default !important;
+  cursor: default;
   pointer-events: none;
 }
 
@@ -841,7 +755,7 @@ body {
   color: #52c41a;
 }
 
-.custom-steps .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-tail::after {
+.custom-steps .ant-steps-item-finish>.ant-steps-item-container>.ant-steps-item-tail::after {
   background-color: #4FC3F7;
 }
 
@@ -864,9 +778,9 @@ body {
   }
 
   .custom-steps .ant-steps-item-title {
-    font-size: 0.8rem !important;
+    font-size: 0.8rem;
     line-height: 1.3;
-    padding-right: 0 !important;
+    padding-right: 0;
   }
 
   .custom-steps .ant-steps-item-description {
@@ -874,10 +788,10 @@ body {
   }
 
   .custom-steps .ant-steps-item-icon {
-    width: 32px !important;
-    height: 32px !important;
-    line-height: 32px !important;
-    font-size: 16px !important;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 16px;
     margin: 0 auto;
   }
 
@@ -894,19 +808,19 @@ body {
   }
 
   .custom-steps .ant-steps-item-title {
-    font-size: 0.7rem !important;
+    font-size: 0.7rem;
     line-height: 1.2;
   }
 
   .custom-steps .ant-steps-item-icon {
-    width: 28px !important;
-    height: 28px !important;
-    line-height: 28px !important;
-    font-size: 14px !important;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 14px;
   }
 
   .custom-steps .ant-steps-item-container {
-    padding: 0 4px !important;
+    padding: 0 4px;
   }
 
   .steps-content {

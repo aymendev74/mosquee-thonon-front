@@ -37,8 +37,7 @@ export const BottomNavigation: FunctionComponent = () => {
         }
     };
 
-    const onDrawerMenuClick: MenuProps['onClick'] = (menuInfo) => {
-        console.log(menuInfo.key);
+    const onDrawerMenuClick: MenuProps['onClick'] = (menuInfo) => {        
         setDrawerVisible(false);
         if (menuInfo.key === "logout") {
             logout();
@@ -164,8 +163,7 @@ export const BottomNavigation: FunctionComponent = () => {
     };
 
     const activeKey = getActiveKey();
-
-    console.log(activeKey);
+    
     return (
         <>
             <div className="bottom-navigation">
@@ -205,14 +203,20 @@ export const BottomNavigation: FunctionComponent = () => {
 
             <Drawer
                 title={
-                    <div className="drawer-header">
-                        <Avatar 
-                            size={48} 
-                            icon={<UserOutlined />} 
-                            style={{ backgroundColor: "#722ed1" }}
-                        />
-                        <span className="drawer-username">{username}</span>
-                    </div>
+                    username ? (
+                        <div className="drawer-header">
+                            <Avatar 
+                                size={48} 
+                                icon={<UserOutlined />} 
+                                style={{ backgroundColor: "#722ed1" }}
+                            />
+                            <span className="drawer-username">{username}</span>
+                        </div>
+                    ) : (
+                        <div className="drawer-header">
+                            <span className="drawer-username">Menu</span>
+                        </div>
+                    )
                 }
                 placement="bottom"
                 onClose={() => setDrawerVisible(false)}
