@@ -1,33 +1,33 @@
 import { Layout, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
 import { useMediaQuery } from 'react-responsive';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { Home } from './components/routes/public/Home';
-import { CoursArabesEnfantForm } from './components/routes/public/CoursArabesEnfantForm';
-import { AdminCoursArabes } from './components/routes/admin/AdminCoursArabes';
+import { Home } from './routes/public/Home';
+import { CoursArabesEnfantForm } from './routes/public/CoursArabesEnfantForm';
+import { AdminCoursArabes } from './routes/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
 import { BottomNavigation } from './components/BottomNavigation';
-import { ChangePassword } from './components/routes/admin/ChangePasswordForm';
-import { AdhesionForm } from './components/routes/public/AdhesionForm';
-import { AdminAdhesion } from './components/routes/admin/AdminAdhesion';
-import { AdminTarifs } from './components/routes/admin/AdminTarifs';
-import { FaireUnDon } from './components/routes/public/FaireUnDon';
-import { Parametres } from './components/routes/admin/Parametres';
-import { HomeAdmin } from './components/routes/admin/HomeAdmin';
-import { CoursArabesAdulteForm } from './components/routes/public/CoursArabesAdulteForm';
+import { ChangePassword } from './routes/admin/ChangePasswordForm';
+import { AdhesionForm } from './routes/public/AdhesionForm';
+import { AdminAdhesion } from './routes/admin/AdminAdhesion';
+import { AdminTarifs } from './routes/admin/AdminTarifs';
+import { FaireUnDon } from './routes/public/FaireUnDon';
+import { Parametres } from './routes/admin/Parametres';
+import { HomeAdmin } from './routes/admin/HomeAdmin';
+import { CoursArabesAdulteForm } from './routes/public/CoursArabesAdulteForm';
 import { useAuth } from './hooks/AuthContext';
-import { SignIn } from './components/routes/admin/SignIn';
-import CreateUpdateClasse from './components/routes/admin/CreateUpdateClasse';
-import MesClasses from './components/routes/enseignant/MesClasses';
-import MaClasse from './components/routes/enseignant/MaClasse';
-import { NotFound } from './components/routes/public/NotFound';
-import AdhesionInfos from './components/routes/public/AdhesionInfos';
+import { SignIn } from './routes/admin/SignIn';
+import CreateUpdateClasse from './routes/admin/CreateUpdateClasse';
+import MesClasses from './routes/enseignant/MesClasses';
+import MaClasse from './routes/enseignant/MaClasse';
+import { NotFound } from './routes/public/NotFound';
+import AdhesionInfos from './routes/public/AdhesionInfos';
 import { useEffect } from 'react';
 import useApi from './hooks/useApi';
 import { MATIERES_ENDPOINT } from './services/services';
 import { useMatieresStore } from './components/stores/useMatieresStore';
 import { TraductionDto, TypeMatiereEnum } from './services/classe';
-import Utilisateurs from './components/routes/admin/Utilisateurs';
-import AccountActivation from './components/routes/public/AccountActivation';
+import Utilisateurs from './routes/admin/Utilisateurs';
+import AccountActivation from './routes/public/AccountActivation';
 
 const { Header, Content, Footer } = Layout;
 
@@ -92,25 +92,17 @@ function App() {
   return (
     <Layout>
       {!isMobile && (
-        <Header>
-          <Row justify="space-between">
-            <Col span={8} style={{ marginTop: "5px" }}>
-              <div className="d-flex">
-                <div className="logo" />
-                <div className="logo-title hidden-xs">Association musulmane du Chablais</div>
-              </div>
-            </Col>
-            <Col span={8}>
-              <MyMenu />
-            </Col>
-            <Col span={8} style={{ textAlign: "right" }}>
-              {username ? (
-                <DropdownAuthUser />
-              ) : (
-                <></>
-              )}
-            </Col>
-          </Row>
+        <Header className="desktop-header">
+          <div className="header-left">
+            <div className="logo" />
+            <div className="logo-title">Association musulmane du Chablais</div>
+          </div>
+          <div className="header-center">
+            <MyMenu />
+          </div>
+          <div className="header-right">
+            {username && <DropdownAuthUser />}
+          </div>
         </Header>
       )}
       {isMobile && (

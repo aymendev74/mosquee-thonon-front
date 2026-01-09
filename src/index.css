@@ -145,19 +145,6 @@ body {
   }
 }
 
-.menu-action-container {
-  display: flex;
-  margin-bottom: 20px;
-
-  .label {
-    margin-right: 15px;
-  }
-
-  .bt-action {
-    margin-right: 15px;
-  }
-}
-
 .d-flex {
   display: flex;
 }
@@ -208,7 +195,67 @@ body {
 .logo-title {
   color: white;
   font-weight: 600;
-  font-size: large;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* ========================================
+   Header Desktop
+   ======================================== */
+.desktop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px !important;
+  height: 64px;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.header-center .ant-menu {
+  flex: 1;
+  max-width: 100%;
+  border: none;
+  background: transparent;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+/* Responsive pour écrans moyens */
+@media screen and (max-width: 1200px) {
+  .logo-title {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .logo-title {
+    display: none;
+  }
+
+  .header-left {
+    min-width: 60px;
+  }
 }
 
 .footer {
@@ -826,4 +873,138 @@ body {
   .steps-content {
     margin-top: 0.75rem;
   }
+}
+
+/* ========================================
+   Barre de sélection d'actions (Selection Action Bar)
+   ======================================== */
+.selection-action-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #1890ff;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+  animation: slideDown 0.3s ease-out;
+}
+
+.selection-count {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.selection-action-btn {
+  border-color: white !important;
+  color: white !important;
+}
+
+.selection-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.selection-action-btn.ant-btn-dangerous {
+  background-color: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  color: white !important;
+}
+
+.selection-action-btn.ant-btn-dangerous:hover {
+  background-color: #ff7875 !important;
+  border-color: #ff7875 !important;
+}
+
+.selection-cancel-btn {
+  color: white !important;
+}
+
+.selection-cancel-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Animation d'apparition */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   Barre de sélection mobile (au-dessus de la pagination)
+   ======================================== */
+.selection-action-bar-mobile {
+  position: fixed;
+  bottom: 120px;
+  left: 0;
+  right: 0;
+  background-color: #1890ff;
+  color: white;
+  padding: 8px 8px;
+  margin: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-shadow: 0 -4px 12px rgba(24, 144, 255, 0.4);
+  animation: slideUp 0.3s ease-out;
+  z-index: 150;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.selection-action-bar-mobile .selection-count {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.selection-action-bar-mobile .ant-space {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.selection-action-bar-mobile .ant-btn {
+  padding: 6px 10px;
+  height: auto;
+  font-size: 12px;
+  white-space: nowrap;
+  min-width: 40px;
+}
+
+.selection-action-bar-mobile .ant-btn .anticon {
+  font-size: 16px;
+}
+
+.selection-action-bar-mobile .ant-btn:only-child .anticon {
+  margin: 0;
 }
