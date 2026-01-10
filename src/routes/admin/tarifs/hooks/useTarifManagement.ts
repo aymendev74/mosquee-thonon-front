@@ -58,16 +58,16 @@ export const useTarifManagement = (form: FormInstance) => {
         setPeriodeToEdit(undefined);
     };
 
-    const onModifierPeriode = () => {
+    const onModifierPeriode = (periode: PeriodeInfoDto) => {
         setModalPeriodeOpen(true);
         setCreatePeriode(false);
-        setPeriodeToEdit(periodesDto?.find(p => p.id === selectedIdPeriode));
+        setPeriodeToEdit(periode);
     };
 
     const onDeletePeriode = async (periode: PeriodeInfoDto) => {
-        const result = await execute({ 
-            method: "DELETE", 
-            url: buildUrlWithParams(PERIODES_EXISTING_ENDPOINT, { id: periode.id }) 
+        const result = await execute({
+            method: "DELETE",
+            url: buildUrlWithParams(PERIODES_EXISTING_ENDPOINT, { id: periode.id })
         });
         if (result.success) {
             notification.success({ message: 'La période a été supprimée avec succès' });

@@ -8,7 +8,6 @@ import { InfosTarifAdulte } from "../../../components/admin/InfosTarifAdulte";
 import { ModalPeriode } from "../../../components/modals/ModalPeriode";
 
 export const TarifDesktopView: FunctionComponent<TarifViewProps> = ({
-    form,
     application,
     periodesDto,
     periodesOptions,
@@ -24,7 +23,6 @@ export const TarifDesktopView: FunctionComponent<TarifViewProps> = ({
     onCreatePeriode,
     onModifierPeriode,
     onDeletePeriode,
-    onFinish,
     onCopierTarif,
     setCurrentPage,
     setOpenPopOver,
@@ -48,13 +46,13 @@ export const TarifDesktopView: FunctionComponent<TarifViewProps> = ({
         return (
             <Row>
                 <Col span={24}>
-                    <Select 
-                        className="popover-content" 
-                        options={periodesOptions} 
+                    <Select
+                        className="popover-content"
+                        options={periodesOptions}
                         onChange={(value) => {
                             onCopierTarif(value);
                             setOpenPopOver(false);
-                        }} 
+                        }}
                     />
                 </Col>
             </Row>
@@ -94,7 +92,7 @@ export const TarifDesktopView: FunctionComponent<TarifViewProps> = ({
                                                 type="primary"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    onModifierPeriode();
+                                                    onModifierPeriode(periode);
                                                 }}
                                             />
                                         </Tooltip>
@@ -110,7 +108,7 @@ export const TarifDesktopView: FunctionComponent<TarifViewProps> = ({
                                                 }}
                                             />
                                         </Tooltip>
-                                }
+                                        }
                                     </div>
                                 }
                                 className={selectedIdPeriode === periode.id ? 'periode-card-selected' : 'periode-card'}
@@ -163,15 +161,15 @@ export const TarifDesktopView: FunctionComponent<TarifViewProps> = ({
             </Row>
             <Row gutter={[16, 32]}>
                 <Col xs={24} sm={24} md={6}>
-                    <SelectFormItem 
-                        name="typeTarif" 
-                        label="Type de tarif" 
+                    <SelectFormItem
+                        name="typeTarif"
+                        label="Type de tarif"
                         options={[
-                            { value: "COURS_ENFANT", label: "Cours enfant" }, 
+                            { value: "COURS_ENFANT", label: "Cours enfant" },
                             { value: "COURS_ADULTE", label: "Cours adulte" }
                         ]}
-                        onChange={(value) => onApplicationChange(value)} 
-                        defaultValue="COURS_ENFANT" 
+                        onChange={(value) => onApplicationChange(value)}
+                        defaultValue="COURS_ENFANT"
                     />
                 </Col>
             </Row>
@@ -202,12 +200,12 @@ export const TarifDesktopView: FunctionComponent<TarifViewProps> = ({
                     </Tooltip>
                 </div>
             )}
-            <ModalPeriode 
-                open={modalPeriodeOpen} 
-                setOpen={setModalPeriodeOpen} 
-                isCreation={createPeriode} 
-                periode={periodeToEdit} 
-                application={application} 
+            <ModalPeriode
+                open={modalPeriodeOpen}
+                setOpen={setModalPeriodeOpen}
+                isCreation={createPeriode}
+                periode={periodeToEdit}
+                application={application}
             />
         </>
     );

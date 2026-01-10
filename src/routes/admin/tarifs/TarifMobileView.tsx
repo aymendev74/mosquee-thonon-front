@@ -48,13 +48,13 @@ export const TarifMobileView: FunctionComponent<TarifViewProps> = ({
         return (
             <Row>
                 <Col span={24}>
-                    <Select 
-                        className="popover-content" 
-                        options={periodesOptions} 
+                    <Select
+                        className="popover-content"
+                        options={periodesOptions}
                         onChange={(value) => {
                             onCopierTarif(value);
                             setOpenPopOver(false);
-                        }} 
+                        }}
                     />
                 </Col>
             </Row>
@@ -95,7 +95,7 @@ export const TarifMobileView: FunctionComponent<TarifViewProps> = ({
                                                 style={{ color: '#fff' }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    onModifierPeriode();
+                                                    onModifierPeriode(periode);
                                                 }}
                                             />
                                         </Tooltip>
@@ -164,15 +164,15 @@ export const TarifMobileView: FunctionComponent<TarifViewProps> = ({
             </Row>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
-                    <SelectFormItem 
-                        name="typeTarif" 
-                        label="Type de tarif" 
+                    <SelectFormItem
+                        name="typeTarif"
+                        label="Type de tarif"
                         options={[
-                            { value: "COURS_ENFANT", label: "Cours enfant" }, 
+                            { value: "COURS_ENFANT", label: "Cours enfant" },
                             { value: "COURS_ADULTE", label: "Cours adulte" }
                         ]}
-                        onChange={(value) => onApplicationChange(value)} 
-                        defaultValue="COURS_ENFANT" 
+                        onChange={(value) => onApplicationChange(value)}
+                        defaultValue="COURS_ENFANT"
                     />
                 </Col>
             </Row>
@@ -203,12 +203,12 @@ export const TarifMobileView: FunctionComponent<TarifViewProps> = ({
                     </Tooltip>
                 </div>
             )}
-            <ModalPeriode 
-                open={modalPeriodeOpen} 
-                setOpen={setModalPeriodeOpen} 
-                isCreation={createPeriode} 
-                periode={periodeToEdit} 
-                application={application} 
+            <ModalPeriode
+                open={modalPeriodeOpen}
+                setOpen={setModalPeriodeOpen}
+                isCreation={createPeriode}
+                periode={periodeToEdit}
+                application={application}
             />
         </>
     );

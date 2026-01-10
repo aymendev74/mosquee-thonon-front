@@ -19,7 +19,7 @@ export interface TarifViewProps {
     onApplicationChange: (value: ApplicationTarif) => void;
     onSelectPeriode: (periode: PeriodeInfoDto) => void;
     onCreatePeriode: () => void;
-    onModifierPeriode: () => void;
+    onModifierPeriode: (periode: PeriodeInfoDto) => void;
     onDeletePeriode: (periode: PeriodeInfoDto) => void;
     onFinish: (infoTarif: InfoTarifDto) => void;
     onCopierTarif: (value: any) => void;
