@@ -5,7 +5,7 @@ import { UserInfoDto } from '../services/AuthResponse';
 
 type AuthContextType = {
     username: string | null;
-    roles: string[] | null;
+    roles: string[];
     requestProfileInformations: () => void;
     login: () => Promise<void>;
     logout: () => void;
@@ -47,8 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const clientId = process.env.REACT_APP_OAUTH_CLIENT_ID;
     const [loggedUser, setLoggedUser] = useState<UserInfoDto | null>(null);
     const username = loggedUser?.username ?? null;
-    const roles = loggedUser?.roles ?? null;
-    const [isGettingToken, setIsGettingToken] = useState(false);
+    const roles = loggedUser?.roles ?? [];
 
     function getState() {
         const { pathname, search } = window.location

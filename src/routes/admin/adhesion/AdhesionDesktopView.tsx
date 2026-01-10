@@ -32,11 +32,6 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
-    const CONSULTER_MENU_KEY = "1";
-    const MODIFIER_MENU_KEY = "2";
-    const VALIDER_MENU_KEY = "3";
-    const SUPPRIMER_MENU_KEY = "4";
-
     const doSearch = async () => {
         const { nom, prenom, statut, montant } = form.getFieldsValue();
         let dateInscription = form.getFieldValue("dateInscription");
@@ -108,7 +103,7 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
                         <Button
                             icon={<EyeOutlined />}
                             size="small"
-                            onClick={() => navigate("/adhesion", { state: { isReadOnly: true, id: adhesion.id, isAdmin: true } })}
+                            onClick={() => navigate(`/adhesions/${adhesion.id}?readonly=true`)}
                             type="primary"
                         />
                     </Tooltip>
@@ -116,7 +111,7 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
                         <Button
                             icon={<EditOutlined />}
                             size="small"
-                            onClick={() => navigate("/adhesion", { state: { isReadOnly: false, id: adhesion.id, isAdmin: true } })}
+                            onClick={() => navigate(`/adhesions/${adhesion.id}?readonly=false`)}
                             type="primary"
                         />
                     </Tooltip>

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { notification, Form } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import { DefaultOptionType } from 'antd/es/select';
 import dayjs from 'dayjs';
 import useApi from '../../../hooks/useApi';
+import { useAuth } from '../../../hooks/AuthContext';
 import {
     ADHESION_ENDPOINT,
     buildUrlWithParams,
@@ -21,17 +22,19 @@ interface UseAdhesionManagementProps {
 
 export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
     const { execute, isLoading } = useApi();
-    const location = useLocation();
+    const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { roles } = useAuth();
 
     const [versementMensuelOptions, setVersementMensuelOptions] = useState<DefaultOptionType[]>();
     const [autreMontantVisible, setAutreMontantVisible] = useState<boolean>(false);
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
 
-    const id = location.state ? location.state.id : undefined;
-    const isReadOnly = location.state ? location.state.isReadOnly : undefined;
-    const isAdmin = location.state ? location.state.isAdmin : undefined;
+    // Récupérer les paramètres depuis l'URL et le contexte d'auth
+    const isReadOnly = searchParams.get('readonly') === 'true';
+    const isAdmin = roles?.includes("ROLE_ADMIN") || roles?.includes("ROLE_TRESORIER");
     const statutAdhesion = Form.useWatch("statut", form);
 
     const getCiviliteOptions = () => {
@@ -55,7 +58,7 @@ export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
             return;
         }
         adhesion.dateNaissance = dayjs(adhesion.dateNaissance).format(APPLICATION_DATE_FORMAT);
-        
+
         if (id) {
             const { sendMailConfirmation } = { ...adhesion };
             const { success } = await execute({

@@ -75,13 +75,13 @@ const MobileInscriptionCard: FunctionComponent<MobileInscriptionCardProps> = ({
             <div className="adhesion-card-actions">
                 <Button size="small" type="primary" onClick={() => {
                     const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
-                    navigate(path, { state: { isReadOnly: true, id: inscription.idInscription, isAdmin: true } });
+                    navigate(`${path}/${inscription.idInscription}?readonly=true`);
                 }}>
                     <EyeTwoTone /> Consulter
                 </Button>
                 <Button size="small" onClick={() => {
                     const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
-                    navigate(path, { state: { isReadOnly: false, id: inscription.idInscription, isAdmin: true } });
+                    navigate(`${path}/${inscription.idInscription}?readonly=false`);
                 }}>
                     <EditTwoTone /> Modifier
                 </Button>

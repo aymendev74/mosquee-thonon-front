@@ -56,10 +56,10 @@ const MobileAdhesionCard: FunctionComponent<MobileAdhesionCardProps> = ({
                 </span>
             </div>
             <div className="adhesion-card-actions">
-                <Button size="small" type="primary" onClick={() => navigate("/adhesion", { state: { isReadOnly: true, id: adhesion.id, isAdmin: true } })}>
+                <Button size="small" type="primary" onClick={() => navigate(`/adhesions/${adhesion.id}?readonly=true`)}>
                     <EyeTwoTone /> Consulter
                 </Button>
-                <Button size="small" onClick={() => navigate("/adhesion", { state: { isReadOnly: false, id: adhesion.id, isAdmin: true } })}>
+                <Button size="small" onClick={() => navigate(`/adhesions/${adhesion.id}?readonly=false`)}>
                     <EditTwoTone /> Modifier
                 </Button>
                 <Button

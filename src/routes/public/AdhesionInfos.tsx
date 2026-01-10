@@ -37,7 +37,7 @@ const AdhesionInfos = () => {
     const navigate = useNavigate();
 
     const handleAdherer = () => {
-        navigate("/adhesion");
+        navigate("/adhesions");
     };
 
     return (

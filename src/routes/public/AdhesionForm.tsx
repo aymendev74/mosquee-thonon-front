@@ -14,7 +14,7 @@ import { useAdhesionManagement } from "./hooks/useAdhesionManagement";
 
 export const AdhesionForm: FunctionComponent = () => {
     const [form] = useForm();
-    
+
     const {
         isLoading,
         versementMensuelOptions,
@@ -24,7 +24,6 @@ export const AdhesionForm: FunctionComponent = () => {
         consentementChecked,
         setConsentementChecked,
         statutAdhesion,
-        id,
         isReadOnly,
         isAdmin,
         getCiviliteOptions,

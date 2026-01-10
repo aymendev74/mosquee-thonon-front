@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { notification } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import useApi from '../../../hooks/useApi';
+import { useAuth } from '../../../hooks/AuthContext';
 import { useMatieresStore } from '../../../components/stores/useMatieresStore';
 import {
     buildUrlWithParams,
@@ -31,8 +32,10 @@ interface UseCoursArabesAdulteManagementProps {
 
 export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteManagementProps) => {
     const { execute, isLoading } = useApi();
-    const location = useLocation();
+    const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { roles } = useAuth();
     const { getMatieresByType } = useMatieresStore();
 
     const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
@@ -40,9 +43,8 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
 
-    const id = location.state ? location.state.id : undefined;
-    const isReadOnly = location.state ? location.state.isReadOnly : false;
-    const isAdmin = location.state ? location.state.isAdmin : false;
+    const isReadOnly = searchParams.get('readonly') === 'true';
+    const isAdmin = roles?.includes("ROLE_ADMIN");
 
     const handleTarifInscription = (result?: TarifInscriptionDto | null) => {
         if (result) {

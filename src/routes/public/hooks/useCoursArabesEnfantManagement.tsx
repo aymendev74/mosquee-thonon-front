@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Modal, notification } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import _ from 'lodash';
 import useApi from '../../../hooks/useApi';
+import { useAuth } from '../../../hooks/AuthContext';
 import {
     buildUrlWithParams,
     CHECK_COHERENCE_INSCRIPTION_ENDPOINT,
@@ -34,8 +35,10 @@ interface UseCoursArabesEnfantManagementProps {
 
 export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantManagementProps) => {
     const { execute, isLoading } = useApi();
-    const location = useLocation();
+    const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { roles } = useAuth();
     const { warning } = Modal;
 
     const [modalRGPDOpen, setModalRGPDOpen] = useState(false);
@@ -47,9 +50,8 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
     const [activeStep, setActiveStep] = useState<number>(0);
 
-    const id = location.state ? location.state.id : undefined;
-    const isReadOnly = location.state ? location.state.isReadOnly : undefined;
-    const isAdmin = location.state ? location.state.isAdmin : undefined;
+    const isReadOnly = searchParams.get('readonly') === 'true';
+    const isAdmin = roles.includes("ROLE_ADMIN");
 
     const calculTarif = async () => {
         let adherent = form.getFieldValue(["responsableLegal", "adherent"]);
@@ -138,7 +140,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
             }
             inscriptionFormValues.eleves = _.cloneDeep(eleves);
             const inscriptionToSave = prepareInscriptionEnfantBeforeSave(inscriptionFormValues);
-            
+
             if (id) {
                 const { success } = await execute<InscriptionEnfantBack>({
                     method: "PUT",
@@ -186,7 +188,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         }
         inscriptionDeepCopy.eleves = _.cloneDeep(eleves);
         const inscriptionToSave: InscriptionEnfantBack = prepareInscriptionEnfantBeforeSave(inscriptionDeepCopy);
-        
+
         if (id) {
             const { sendMailConfirmation } = { ...inscription };
             const { successData } = await execute<string>({
@@ -281,7 +283,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         id,
         isReadOnly,
         isAdmin,
-        
+
         // Actions
         calculTarif,
         onPreviousStep,

@@ -177,7 +177,7 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
                             size="small"
                             onClick={() => {
                                 const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
-                                navigate(path, { state: { isReadOnly: true, id: inscription.idInscription, isAdmin: true } });
+                                navigate(`${path}/${inscription.idInscription}?readonly=true`);
                             }}
                             type="primary"
                         />
@@ -188,7 +188,7 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
                             size="small"
                             onClick={() => {
                                 const path = application === "COURS_ENFANT" ? "/coursEnfants" : "/coursAdultes";
-                                navigate(path, { state: { isReadOnly: false, id: inscription.idInscription, isAdmin: true } });
+                                navigate(`${path}/${inscription.idInscription}?readonly=false`);
                             }}
                             type="primary"
                         />

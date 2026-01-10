@@ -118,8 +118,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
+          <Route path="/coursEnfants/:id" element={<CoursArabesEnfantForm />} />
           <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
-          <Route path="/adhesion" element={<AdhesionForm />} />
+          <Route path="/coursAdultes/:id" element={<CoursArabesAdulteForm />} />
+          <Route path="/adhesions" element={<AdhesionForm />} />
+          <Route path="/adhesions/:id" element={<AdhesionForm />} />
           <Route path="/adhesionInfos" element={<AdhesionInfos />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/admin" element={<HomeAdmin />} />
