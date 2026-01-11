@@ -1,31 +1,33 @@
 import { Layout, Row, Col, MenuProps, Dropdown, Avatar } from 'antd';
+import { useMediaQuery } from 'react-responsive';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { Home } from './components/pages/Home';
-import { CoursArabesEnfantForm } from './components/pages/CoursArabesEnfantForm';
-import { AdminCoursArabes } from './components/pages/admin/AdminCoursArabes';
+import { Home } from './routes/public/Home';
+import { CoursArabesEnfantForm } from './routes/public/CoursArabesEnfantForm';
+import { AdminCoursArabes } from './routes/admin/AdminCoursArabes';
 import { MyMenu } from './components/MyMenu';
-import { ChangePassword } from './components/pages/admin/ChangePasswordForm';
-import { AdhesionForm } from './components/pages/AdhesionForm';
-import { AdminAdhesion } from './components/pages/admin/AdminAdhesion';
-import { AdminTarifs } from './components/pages/admin/AdminTarifs';
-import { FaireUnDon } from './components/pages/FaireUnDon';
-import { Parametres } from './components/pages/admin/Parametres';
-import { HomeAdmin } from './components/pages/admin/HomeAdmin';
-import { CoursArabesAdulteForm } from './components/pages/CoursArabesAdulteForm';
+import { BottomNavigation } from './components/BottomNavigation';
+import { ChangePassword } from './routes/admin/ChangePasswordForm';
+import { AdhesionForm } from './routes/public/AdhesionForm';
+import { AdminAdhesion } from './routes/admin/AdminAdhesion';
+import { AdminTarifs } from './routes/admin/AdminTarifs';
+import { FaireUnDon } from './routes/public/FaireUnDon';
+import { Parametres } from './routes/admin/Parametres';
+import { HomeAdmin } from './routes/admin/HomeAdmin';
+import { CoursArabesAdulteForm } from './routes/public/CoursArabesAdulteForm';
 import { useAuth } from './hooks/AuthContext';
-import { SignIn } from './components/pages/admin/SignIn';
-import CreateUpdateClasse from './components/pages/admin/CreateUpdateClasse';
-import MesClasses from './components/pages/enseignant/MesClasses';
-import MaClasse from './components/pages/enseignant/MaClasse';
-import { NotFound } from './components/pages/NotFound';
-import AdhesionInfos from './components/pages/AdhesionInfos';
+import { SignIn } from './routes/admin/SignIn';
+import CreateUpdateClasse from './routes/admin/CreateUpdateClasse';
+import MesClasses from './routes/enseignant/MesClasses';
+import MaClasse from './routes/enseignant/MaClasse';
+import { NotFound } from './routes/public/NotFound';
+import AdhesionInfos from './routes/public/AdhesionInfos';
 import { useEffect } from 'react';
 import useApi from './hooks/useApi';
 import { MATIERES_ENDPOINT } from './services/services';
 import { useMatieresStore } from './components/stores/useMatieresStore';
 import { TraductionDto, TypeMatiereEnum } from './services/classe';
-import Utilisateurs from './components/pages/admin/Utilisateurs';
-import AccountActivation from './components/pages/AccountActivation';
+import Utilisateurs from './routes/admin/Utilisateurs';
+import AccountActivation from './routes/public/AccountActivation';
 
 const { Header, Content, Footer } = Layout;
 
@@ -34,6 +36,7 @@ function App() {
   const navigate = useNavigate();
   const { execute } = useApi();
   const { setMatieres } = useMatieresStore();
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const DropdownAuthUser = () => {
     const handleMenuClick = (e: any) => {
@@ -88,32 +91,38 @@ function App() {
 
   return (
     <Layout>
-      <Header>
-        <Row justify="space-between">
-          <Col span={8} style={{ marginTop: "5px" }}>
-            <div className="d-flex">
-              <div className="logo" />
-              <div className="logo-title hidden-xs">Association musulmane du Chablais</div>
-            </div>
-          </Col>
-          <Col span={8}>
+      {!isMobile && (
+        <Header className="desktop-header">
+          <div className="header-left">
+            <div className="logo" />
+            <div className="logo-title">Association musulmane du Chablais</div>
+          </div>
+          <div className="header-center">
             <MyMenu />
-          </Col>
-          <Col span={8} style={{ textAlign: "right" }}>
-            {username ? (
-              <DropdownAuthUser />
-            ) : (
-              <></>
-            )}
-          </Col>
-        </Row>
-      </Header>
+          </div>
+          <div className="header-right">
+            {username && <DropdownAuthUser />}
+          </div>
+        </Header>
+      )}
+      {isMobile && (
+        <Header style={{ padding: "0 16px", height: "56px", lineHeight: "56px" }}>
+          <Row justify="center" align="middle">
+            <Col>
+              <div className="logo" style={{ display: "inline-block", verticalAlign: "middle" }} />
+            </Col>
+          </Row>
+        </Header>
+      )}
       <Content className="content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/coursEnfants" element={<CoursArabesEnfantForm />} />
+          <Route path="/coursEnfants/:id" element={<CoursArabesEnfantForm />} />
           <Route path="/coursAdultes" element={<CoursArabesAdulteForm />} />
-          <Route path="/adhesion" element={<AdhesionForm />} />
+          <Route path="/coursAdultes/:id" element={<CoursArabesAdulteForm />} />
+          <Route path="/adhesions" element={<AdhesionForm />} />
+          <Route path="/adhesions/:id" element={<AdhesionForm />} />
           <Route path="/adhesionInfos" element={<AdhesionInfos />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/admin" element={<HomeAdmin />} />
@@ -158,9 +167,10 @@ function App() {
           </Col>
         </Row>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <p>© 2023 Association Musulmane du Chablais. Tous droits réservés.</p>
+          <p> 2023 Association Musulmane du Chablais. Tous droits réservés.</p>
         </div>
       </Footer>
+      {isMobile && <BottomNavigation />}
     </Layout>
   );
 }

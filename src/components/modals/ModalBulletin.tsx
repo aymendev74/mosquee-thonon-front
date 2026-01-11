@@ -99,18 +99,18 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 <Divider orientation="left">Informations générales</Divider>
                 <div>Nom de l'élève: <Tag color="orange" className="m-left-10">{eleve?.prenom} {eleve?.nom}</Tag></div><br />
                 <Row gutter={[16, 32]}>
-                    <Col span={8}>
+                    <Col xs={24} sm={8}>
                         <SelectFormItem label="Mois" name="mois"
                             options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(mois => ({ value: mois, label: firstLettertoUpperCase(dayjs().month(mois - 1).format("MMMM")) }))}
                             rules={[{ required: true, message: "Veuillez sélectionner le mois" }]} />
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                         <SelectFormItem label="Annee" name="annee" options={annees.map(annee => ({ value: annee, label: annee }))}
                             rules={[{ required: true, message: "Veuillez sélectionner l'année" }]} />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
-                    <Col span={8}>
+                    <Col xs={24} sm={8}>
                         <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" rules={[{ required: true, message: "Veuillez indiquer le nombre d'absences" }]}
                             min={0} />
                     </Col>
@@ -118,24 +118,24 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 <Divider orientation="left">Notes</Divider>
                 {getMatieresByType(TypeMatiereEnum.ENFANT).map((matiere) => (
                     <Row key={matiere.code} gutter={[32, 32]}>
-                        <Col span={4}>
+                        <Col xs={24} sm={4}>
                             <Tag color="geekblue">{matiere.fr}</Tag>
                         </Col>
-                        <Col span={9}>
+                        <Col xs={24} sm={9}>
                             <SelectFormItem name={"notes." + matiere.code} label="Sélectionnez une note" options={getNotesOptions()}
                                 rules={[{ required: true, message: "Veuillez sélectionner une note" }]} />
                         </Col>
-                        <Col span={11}>
+                        <Col xs={24} sm={11}>
                             <InputFormItem name={"remarques." + matiere.code} label="Remarques" />
                         </Col>
                     </Row>
                 ))}
                 <Divider orientation="left">Appréciation générale</Divider>
                 <Row gutter={[16, 32]}>
-                    <Col span={6}>
+                    <Col xs={24} sm={6}>
                         <DatePickerFormItem name="dateBulletin" label="Date" rules={[{ required: true, message: "Veuillez indiquer la date du bulletin (apparaîtra sur le document PDF)" }]} />
                     </Col>
-                    <Col span={18}>
+                    <Col xs={24} sm={18}>
                         <Form.Item
                             label="Appréciation"
                             name="appreciation"
