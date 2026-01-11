@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag } from "antd";
+import { Button, Card, Checkbox, Col, Divider, Form, Input, Modal, notification, Row, Spin, Table, Tag } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
 import _ from "lodash";
 import { buildUrlWithParams, EXISTING_FEUILLE_PRESENCE_ENDPOINT, FEUILLE_PRESENCE_ENDPOINT } from "../../services/services";
@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import useApi from "../../hooks/useApi";
-
+import { useMediaQuery } from "react-responsive";
 
 export type ModalFeuillePresenceProps = {
     open: boolean,
@@ -25,6 +25,7 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
     const [form] = Form.useForm();
     const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [selectedEleves, setSelectedEleves] = useState<EleveFront[]>([]);
+    const isMobile = useMediaQuery({ maxWidth: 768 });
 
     function close() {
         form.resetFields();
@@ -111,6 +112,57 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
         return (<Tag color="geekblue">Total : <strong>{total} élève(s)</strong></Tag>);
     }
 
+    const toggleEleveSelection = (eleve: EleveFront) => {
+        const isSelected = selectedEleves.some(e => e.id === eleve.id);
+        if (isSelected) {
+            setSelectedEleves(selectedEleves.filter(e => e.id !== eleve.id));
+        } else {
+            setSelectedEleves([...selectedEleves, eleve]);
+        }
+    };
+
+    const renderElevesCards = () => {
+        return (
+            <div style={{ maxHeight: '400px', overflowY: 'auto', paddingBottom: '16px' }}>
+                <Row gutter={[16, 16]}>
+                    {eleves.map((eleve) => {
+                        const isSelected = selectedEleves.some(e => e.id === eleve.id);
+                        return (
+                            <Col xs={24} key={eleve.id}>
+                                <Card
+                                    size="small"
+                                    hoverable={!readOnly}
+                                    onClick={() => !readOnly && toggleEleveSelection(eleve)}
+                                    style={{
+                                        border: isSelected ? '2px solid #1890ff' : '1px solid #d9d9d9',
+                                        cursor: readOnly ? 'default' : 'pointer',
+                                        backgroundColor: isSelected ? '#e6f7ff' : '#fff'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                <Checkbox checked={isSelected} disabled={readOnly} />
+                                                <strong>{eleve.nom} {eleve.prenom}</strong>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#8c8c8c' }}>
+                                                <span><strong>Niveau:</strong> {eleve.niveauInterne}</span>
+                                                <span><strong>Né(e) le:</strong> {dayjs(eleve.dateNaissance, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </Col>
+                        );
+                    })}
+                </Row>
+                <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                    {formatTotal(eleves.length)}
+                </div>
+            </div>
+        );
+    };
+
     return (<Modal title="Feuille de présence" open={open} width={500} onCancel={close} footer={<></>}>
         <Form
             name="feuillePresence"
@@ -128,11 +180,15 @@ export const ModalFeuillePresence: FunctionComponent<ModalFeuillePresenceProps> 
                 </Row>
                 <Divider orientation="left">Liste des élèves</Divider>
                 <h3>Selectionnez les élèves qui ont assisté au cours</h3>
-                <Table dataSource={eleves}
-                    columns={columnsTableEleves}
-                    rowSelection={{ type: "checkbox", getCheckboxProps: readOnly ? () => ({ disabled: true }) : undefined, selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}
-                    pagination={{ pageSize: 10, showTotal: formatTotal }}
-                    rowKey={record => record.id!} />
+                {isMobile ? (
+                    renderElevesCards()
+                ) : (
+                    <Table dataSource={eleves}
+                        columns={columnsTableEleves}
+                        rowSelection={{ type: "checkbox", getCheckboxProps: readOnly ? () => ({ disabled: true }) : undefined, selectedRowKeys: selectedEleves.map(eleve => eleve.id!), ...rowSelection }}
+                        pagination={{ pageSize: 10, showTotal: formatTotal }}
+                        rowKey={record => record.id!} />
+                )}
             </Spin>
             <Row gutter={[16, 32]}>
                 <Col span={24} style={{ textAlign: "right" }}>
