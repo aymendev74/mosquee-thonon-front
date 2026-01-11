@@ -37,7 +37,7 @@ export const BottomNavigation: FunctionComponent = () => {
         }
     };
 
-    const onDrawerMenuClick: MenuProps['onClick'] = (menuInfo) => {        
+    const onDrawerMenuClick: MenuProps['onClick'] = (menuInfo) => {
         setDrawerVisible(false);
         if (menuInfo.key === "logout") {
             logout();
@@ -149,6 +149,11 @@ export const BottomNavigation: FunctionComponent = () => {
         } else {
             return [
                 {
+                    key: "adhesionInfos",
+                    label: "Adhésion",
+                    icon: <EuroCircleOutlined />,
+                },
+                {
                     key: "coursAdultes",
                     label: "Cours Adultes",
                     icon: <UserOutlined />,
@@ -163,51 +168,51 @@ export const BottomNavigation: FunctionComponent = () => {
     };
 
     const activeKey = getActiveKey();
-    
+
     return (
         <>
             <div className="bottom-navigation">
-                <div 
+                <div
                     className={`bottom-nav-item ${activeKey === "home" ? "active" : ""}`}
                     onClick={() => handleNavClick("home")}
                 >
                     <HomeOutlined className="bottom-nav-icon" />
                     <span className="bottom-nav-label">Accueil</span>
                 </div>
-                
-                <div 
+
+                <div
                     className={`bottom-nav-item ${activeKey === "cours" ? "active" : ""}`}
                     onClick={() => handleNavClick("cours")}
                 >
                     <TeamOutlined className="bottom-nav-icon" />
                     <span className="bottom-nav-label">Cours</span>
                 </div>
-                
-                <div 
+
+                <div
                     className={`bottom-nav-item ${activeKey === "adhesion" ? "active" : ""}`}
                     onClick={() => handleNavClick("adhesion")}
                 >
                     <EuroCircleOutlined className="bottom-nav-icon" />
                     <span className="bottom-nav-label">Adhésion</span>
                 </div>
-                
-                <div 
+
+                <div
                     className={`bottom-nav-item ${activeKey === "admin" ? "active" : ""}`}
                     onClick={() => handleNavClick("admin")}
                 >
                     <MenuOutlined className="bottom-nav-icon" />
                     <span className="bottom-nav-label">Menu</span>
                 </div>
-                
+
             </div>
 
             <Drawer
                 title={
                     username ? (
                         <div className="drawer-header">
-                            <Avatar 
-                                size={48} 
-                                icon={<UserOutlined />} 
+                            <Avatar
+                                size={48}
+                                icon={<UserOutlined />}
                                 style={{ backgroundColor: "#722ed1" }}
                             />
                             <span className="drawer-username">{username}</span>
