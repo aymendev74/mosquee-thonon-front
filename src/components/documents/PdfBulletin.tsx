@@ -5,13 +5,12 @@ import { EleveEnrichedDto } from "../../services/eleve";
 import { firstLettertoUpperCase } from "../../utils/FormUtils";
 import dayjs from "dayjs";
 
-
 export type PdfBulletinProps = {
     bulletin: BulletinDtoF;
     eleve: EleveEnrichedDto;
     matieres: TraductionDto[];
     nomClasse: string;
-    nomPrenomEnseignant: string;
+    nomsEnseignants: string[];
 };
 
 const styles = StyleSheet.create({
@@ -116,7 +115,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export const PdfBulletin: FunctionComponent<PdfBulletinProps> = ({ bulletin, eleve, matieres, nomPrenomEnseignant }) => {
+export const PdfBulletin: FunctionComponent<PdfBulletinProps> = ({ bulletin, eleve, matieres, nomClasse, nomsEnseignants }) => {
 
     const getMoisAnnee = () => {
         return `${firstLettertoUpperCase(dayjs().month(bulletin.mois! - 1).format("MMMM"))} ${bulletin.annee}`;
@@ -160,7 +159,7 @@ export const PdfBulletin: FunctionComponent<PdfBulletinProps> = ({ bulletin, ele
                     <Text>Bulletin scolaire : {getMoisAnnee()}</Text>
                 </View>
                 <View style={styles.enseignant}>
-                    <Text>Enseignant : {nomPrenomEnseignant}</Text>
+                    <Text>Enseignant(s) : {nomsEnseignants.join(', ')}</Text>
                 </View>
                 <View style={styles.eleve}>
                     <Text>Eleve : {getEleve()}</Text>

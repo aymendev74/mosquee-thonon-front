@@ -12,23 +12,30 @@ export const ClassesEnseignantMobileView: FunctionComponent<ClassesEnseignantVie
     doSearchClasses,
     onConsulterClasse,
 }) => {
+    const getEnseignantsDisplay = (classe: ClasseDtoF) => {
+        if (!classe.enseignants || classe.enseignants.length === 0) {
+            return "-";
+        }
+        return classe.enseignants.map(e => e.nomPrenom).join(", ");
+    };
+
     const getClasseCard = (classe: ClasseDtoF) => {
         return (
             <Col xs={24} key={"col_" + classe.id}>
-                <Card 
-                    className="card-focus-effect" 
-                    size="small" 
+                <Card
+                    className="card-focus-effect"
+                    size="small"
                     bordered
                     style={{
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     }}
                     title={
-                        <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{classe.libelle}</span>                                                
+                        <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{classe.libelle}</span>
                     }
                     extra={
-                        <Button 
-                            type="primary" 
-                            icon={<EyeOutlined />} 
+                        <Button
+                            type="primary"
+                            icon={<EyeOutlined />}
                             onClick={() => onConsulterClasse(classe.id!)}
                             style={{ backgroundColor: '#1890ff', borderColor: '#1890ff' }}
                         />
@@ -36,7 +43,7 @@ export const ClassesEnseignantMobileView: FunctionComponent<ClassesEnseignantVie
                 >
                     <div style={{ padding: '8px 0' }}>
                         <p style={{ marginBottom: '8px' }}>
-                            <b>Enseignant: </b>{classe.nomPrenomEnseignant ?? "-"}
+                            <b>Enseignant(s): </b>{getEnseignantsDisplay(classe)}
                         </p>
                         <p style={{ marginBottom: '8px' }}>
                             <b>Niveau: </b>{classe.niveau}
@@ -64,11 +71,11 @@ export const ClassesEnseignantMobileView: FunctionComponent<ClassesEnseignantVie
                     <Col span={6}>
                         <Form.Item label=" " colon={false}>
                             <Tooltip title="Rechercher" color="geekblue">
-                                <Button 
-                                    type="primary" 
-                                    htmlType="submit" 
-                                    icon={<SearchOutlined />} 
-                                    block 
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    icon={<SearchOutlined />}
+                                    block
                                 />
                             </Tooltip>
                         </Form.Item>
@@ -77,7 +84,7 @@ export const ClassesEnseignantMobileView: FunctionComponent<ClassesEnseignantVie
             </Form>
 
             <Divider orientation="left" style={{ marginTop: '24px' }}>Mes classes</Divider>
-            
+
             <Row gutter={[16, 16]}>
                 {classes && classes.map((classe: ClasseDtoF) => getClasseCard(classe))}
                 {classes.length === 0 && (

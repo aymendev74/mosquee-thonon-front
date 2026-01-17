@@ -3,7 +3,7 @@ import { FunctionComponent, useEffect, useState } from "react"
 import { useMediaQuery } from 'react-responsive';
 import _ from "lodash";
 import { ApiCallbacks, buildUrlWithParams, CLASSES_ENDPOINT, ELEVES_ENDPOINT, ENSEIGNANT_ENDPOINT, EXISTING_CLASSES_ENDPOINT, handleApiCall } from "../../services/services";
-import { AffectationEleveEnum, ClasseDtoB, ClasseDtoF, LienClasseEleveDto } from "../../services/classe";
+import { AffectationEleveEnum, ClasseDtoB, ClasseDtoF, Enseignant, LienClasseEleveDto } from "../../services/classe";
 import { InputFormItem } from "../common/InputFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { getJourActiviteOptions, getNiveauInterneEnfantOptions } from "../common/commoninputs";
@@ -29,6 +29,13 @@ function getEnseignantsOptions(enseignants: UserDto[]) {
     return enseignants?.map((enseignant) => ({ label: enseignant.prenom + " " + enseignant.nom, value: enseignant.id }));
 }
 
+function buildEnseignantsFromIds(enseignantIds: number[], enseignants: UserDto[]) {
+    return enseignantIds?.map(id => {
+        const user = enseignants.find(e => e.id === id);
+        return user ? { id: user.id, nomPrenom: `${user.prenom} ${user.nom}` } as Enseignant : null;
+    }).filter(e => e !== null);
+}
+
 export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen, classeToEdit, enseignants, debutAnneeScolaire, finAnneeScolaire }) => {
     const { execute } = useApi();
     const [form] = Form.useForm();
@@ -37,11 +44,13 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
     const [selectedEleves, setSelectedEleves] = useState<EleveFront[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedEnseignantIds, setSelectedEnseignantIds] = useState<number[]>([]);
     const isMobile = useMediaQuery({ maxWidth: 768 });
 
     const close = () => {
         form.resetFields();
         setSelectedEleves([]);
+        setSelectedEnseignantIds([]);
         setCurrentPage(1);
         setOpen(false);
     };
@@ -60,7 +69,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
             niveau: classeForm.niveau,
             liensClasseEleves: getSelectedElevesAsLiens(),
             activites: [{ jour: classeForm.jourActivite }],
-            idUtilisateur: enseignants.find((enseignant) => enseignant.id === classeForm.idUtilisateur)?.id,
+            enseignants: buildEnseignantsFromIds(classeForm.enseignantIds ?? [], enseignants) as Enseignant[],
             debutAnneeScolaire,
             finAnneeScolaire
         }
@@ -117,6 +126,12 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                 if (classeToEdit.activites && classeToEdit.activites.length > 0) {
                     form.setFieldValue("jourActivite", classeToEdit.activites[0].jour);
                 }
+                // Pré-remplir les enseignants sélectionnés
+                if (classeToEdit.enseignants && classeToEdit.enseignants.length > 0) {
+                    const ids = classeToEdit.enseignants.map(e => e.id);
+                    form.setFieldValue("enseignantIds", ids);
+                    setSelectedEnseignantIds(ids);
+                }
             }
         }
 
@@ -125,6 +140,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
         } else {
             setElevesFiltres([]);
             setSelectedEleves([]);
+            setSelectedEnseignantIds([]);
             setCurrentPage(1);
             form.resetFields();
         }
@@ -151,7 +167,7 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                     {currentEleves.map((eleve) => {
                         const isSelected = selectedEleves.some(e => e.id === eleve.id);
                         const isInOtherClass = eleve.classeId && eleve.classeId !== classeToEdit?.id;
-                        
+
                         return (
                             <Col xs={24} key={eleve.id}>
                                 <Card
@@ -297,7 +313,31 @@ export const ModalClasse: FunctionComponent<ModalClasseProps> = ({ open, setOpen
                 </Row>
                 <Row gutter={[16, 16]}>
                     <Col xs={24} sm={12}>
-                        <SelectFormItem name="idUtilisateur" label="Enseignant" options={getEnseignantsOptions(enseignants)} />
+                        <SelectFormItem
+                            name="enseignantIds"
+                            label="Enseignant(s)"
+                            options={getEnseignantsOptions(enseignants)}
+                            mode="multiple"
+                            maxTagCount={0}
+                            maxTagPlaceholder={() => `${selectedEnseignantIds.length} enseignant(s) sélectionné(s)`}
+                            onChange={(values: number[]) => setSelectedEnseignantIds(values ?? [])}
+                        />
+                        {selectedEnseignantIds.length > 0 && (
+                            <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                {selectedEnseignantIds.map(id => {
+                                    const ens = enseignants.find(e => e.id === id);
+                                    return ens ? (
+                                        <Tag key={id} color="geekblue" closable onClose={() => {
+                                            const newIds = selectedEnseignantIds.filter(eId => eId !== id);
+                                            setSelectedEnseignantIds(newIds);
+                                            form.setFieldValue("enseignantIds", newIds);
+                                        }}>
+                                            {ens.prenom} {ens.nom}
+                                        </Tag>
+                                    ) : null;
+                                })}
+                            </div>
+                        )}
                     </Col>
                     <Col xs={24} sm={12}>
                         <SelectFormItem name="jourActivite" label="Jour de classe" options={getJourActiviteOptions()} />

@@ -89,7 +89,7 @@ body {
   overflow: hidden;
 }
 
-.ant-carousel .slick-slide h3 {
+.ant-carousel .slick-slide .carousel-element h3 {
   color: #fff;
 }
 
