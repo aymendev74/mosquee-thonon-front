@@ -96,8 +96,6 @@ export const AdhesionMobileView: FunctionComponent<AdhesionViewProps> = ({
     const [collapseActiveKey, setCollapseActiveKey] = useState<string[]>([]);
     const pageSize = 10;
 
-    const navigate = useNavigate();
-
     const doSearch = async () => {
         const { nom, prenom, statut, montant } = form.getFieldsValue();
         let dateInscription = form.getFieldValue("dateInscription");

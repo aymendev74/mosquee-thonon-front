@@ -11,6 +11,7 @@ import { useInscriptionManagement } from "./cours/hooks/useInscriptionManagement
 import { InscriptionMobileView } from "./cours/InscriptionMobileView";
 import { InscriptionDesktopView } from "./cours/InscriptionDesktopView";
 import { UnahtorizedAccess } from "../public/UnahtorizedAccess";
+import { BatchLockAlert } from "../../components/common/BatchLockAlert";
 
 export const AdminCoursArabes: FunctionComponent = () => {
     const location = useLocation();
@@ -37,6 +38,8 @@ export const AdminCoursArabes: FunctionComponent = () => {
         loadInscription,
         renderPdf,
         getSelectedInscriptionDistinctIds,
+        batchLockConflict,
+        setBatchLockConflict,
     } = useInscriptionManagement({ application, type });
 
     let excelColumnHeaders: ExcelColumnHeadersType<InscriptionLight> = {
@@ -83,6 +86,14 @@ export const AdminCoursArabes: FunctionComponent = () => {
                     <h2 className={type === "ENFANT" ? "insc-enfant-title" : "insc-adulte-title"}>
                         {icon} Administration des inscriptions {type === "ENFANT" ? "enfant" : "adulte"}
                     </h2>
+
+                    <BatchLockAlert
+                        show={batchLockConflict.show}
+                        resourceType={batchLockConflict.resourceType}
+                        username={batchLockConflict.username}
+                        expiresAt={batchLockConflict.expiresAt}
+                    />
+
                     <div className="search-result-container">
                         {isMobile ? (
                             <InscriptionMobileView
@@ -125,11 +136,11 @@ export const AdminCoursArabes: FunctionComponent = () => {
                         )}
                     </div>
 
-                    <ModaleConfirmSuppressionInscription 
-                        open={modaleConfirmSuppressionOpen} 
+                    <ModaleConfirmSuppressionInscription
+                        open={modaleConfirmSuppressionOpen}
                         setOpen={setModaleConfirmSuppressionOpen}
-                        nbInscriptions={getSelectedInscriptionDistinctIds().length} 
-                        onConfirm={handleDeleteInscriptions} 
+                        nbInscriptions={getSelectedInscriptionDistinctIds().length}
+                        onConfirm={handleDeleteInscriptions}
                     />
                 </Spin>
             </div>
