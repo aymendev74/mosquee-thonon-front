@@ -13,10 +13,11 @@ import { SwitchFormItem } from "../../components/common/SwitchFormItem";
 import { QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { MultiTagSelect } from "../../components/common/MultiTagSelectFormItem";
 import { useCoursArabesAdulteManagement } from "./hooks/useCoursArabesAdulteManagement";
+import { LockAlert } from "../../components/common/LockAlert";
 
 export const CoursArabesAdulteForm: FunctionComponent = () => {
     const [form] = useForm();
-    
+
     const {
         isLoading,
         inscriptionSuccess,
@@ -25,9 +26,9 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
         setConsentementChecked,
         tarifInscription,
         isInscriptionsFermees,
-        id,
         isReadOnly,
         isAdmin,
+        lockStatus,
         onStatutProfessionnelChanged,
         onFinish,
         getMatieresOptions,
@@ -77,6 +78,7 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
                         <UserOutlined /> Inscription aux cours arabes pour adultes
                     </h2>
                     <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
+                        <LockAlert lockStatus={lockStatus} resourceName="Cette inscription" />
                         <Row>
                             <Col span={24}>
                                 <Divider orientation="left">Identité</Divider>

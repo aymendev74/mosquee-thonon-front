@@ -8,10 +8,11 @@ import { Tarif } from "../../components/inscriptions/Tarif";
 import { Eleves } from "../../components/inscriptions/Eleves";
 import { CheckOutlined, EuroCircleOutlined, InfoCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useCoursArabesEnfantManagement } from "./hooks/useCoursArabesEnfantManagement";
+import { LockAlert } from "../../components/common/LockAlert";
 
 export const CoursArabesEnfantForm: FunctionComponent = () => {
     const [form] = useForm();
-    
+
     const {
         isLoading,
         modalRGPDOpen,
@@ -29,6 +30,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         id,
         isReadOnly,
         isAdmin,
+        lockStatus,
         calculTarif,
         onPreviousStep,
         onNextStep,
@@ -101,7 +103,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         if (inscriptionFinished) {
             return getResult();
         }
-        
+
         return (
             <div className="steps-container">
                 <Steps
@@ -148,6 +150,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
                         <TeamOutlined /> Inscription aux cours arabes pour enfants
                     </h2>
                     <Spin spinning={isLoading} size="large" tip={"Chargement..."}>
+                        <LockAlert lockStatus={lockStatus} resourceName="Cette inscription" />
                         {getFormContent()}
                         <ModaleRGPD open={modalRGPDOpen} setOpen={setModalRGPDOpen} />
                     </Spin>

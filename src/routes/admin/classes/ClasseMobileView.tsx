@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react";
 import { Button, Card, Col, Divider, Empty, Form, Row, Tag, Tooltip } from "antd";
-import { DeleteOutlined, EditOutlined, PlusCircleOutlined, SearchOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusCircleOutlined, SearchOutlined, TeamOutlined } from "@ant-design/icons";
 import { ClasseViewProps } from "./types";
 import { InputNumberFormItem } from "../../../components/common/InputNumberFormItem";
 import { ClasseDtoF } from "../../../services/classe";
@@ -8,18 +8,21 @@ import dayjs from "dayjs";
 
 export const ClasseMobileView: FunctionComponent<ClasseViewProps> = ({
     form,
-    enseignants,
     classes,
-    debutAnneeScolaire,
     onCreateClasse,
     onModifierClasse,
     onDeleteClasse,
     doSearchClasses,
     handleAnneeScolaireChanged,
 }) => {
+    const getEnseignantsDisplay = (classe: ClasseDtoF) => {
+        if (!classe.enseignants || classe.enseignants.length === 0) {
+            return "-";
+        }
+        return classe.enseignants.map(e => e.nomPrenom).join(", ");
+    };
+
     const getClasseCard = (classe: ClasseDtoF) => {
-        const enseignant = enseignants.find(e => e.id === classe.idUtilisateur);
-        
         return (
             <Col xs={24} key={classe.id}>
                 <Card
@@ -57,10 +60,10 @@ export const ClasseMobileView: FunctionComponent<ClasseViewProps> = ({
                             <span style={{ color: '#8c8c8c', fontSize: '14px' }}>Nombre d'élèves</span>
                             <Tag color="blue">{classe.liensClasseEleves?.length ?? 0} élève(s)</Tag>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: '#8c8c8c', fontSize: '14px' }}>Enseignant</span>
-                            <span style={{ fontWeight: 500 }}>
-                                {enseignant ? `${enseignant.prenom} ${enseignant.nom}` : "-"}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                            <span style={{ color: '#8c8c8c', fontSize: '14px' }}>Enseignant(s)</span>
+                            <span style={{ fontWeight: 500, textAlign: 'right' }}>
+                                {getEnseignantsDisplay(classe)}
                             </span>
                         </div>
                     </div>

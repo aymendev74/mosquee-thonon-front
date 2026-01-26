@@ -241,8 +241,13 @@ export const MaClasseDesktopView: FunctionComponent<MaClasseViewProps> = ({
                 <Divider orientation="left">Informations générales</Divider>
                 <Row>
                     <Col span={8}>
-                        <Form.Item label="Enseignant">
-                            <Tag color="geekblue">{classe?.nomPrenomEnseignant ?? "-"}</Tag>
+                        <Form.Item label="Enseignant(s)">
+                            {classe?.enseignants && classe.enseignants.length > 0
+                                ? classe.enseignants.map((e, idx) => (
+                                    <Tag color="geekblue" key={idx}>{e.nomPrenom}</Tag>
+                                ))
+                                : <Tag color="geekblue">-</Tag>
+                            }
                         </Form.Item>
                     </Col>
                 </Row>
@@ -291,7 +296,7 @@ export const MaClasseDesktopView: FunctionComponent<MaClasseViewProps> = ({
     const getFeuillePresenceContent = () => {
         return (
             <div style={{ textAlign: "center" }}>
-                <h3>Listes des feuilles de présences pour cette classe</h3>
+                <h3 style={{ color: 'rgba(0, 0, 0, 0.85)' }}>Listes des feuilles de présences pour cette classe</h3>
                 <div style={{ width: "50%", margin: "0 auto", textAlign: "center" }}>
                     <Table dataSource={feuillesPresence}
                         columns={columnsTableFeuillesPresence}
@@ -306,7 +311,7 @@ export const MaClasseDesktopView: FunctionComponent<MaClasseViewProps> = ({
     const getResultatAnnuelContent = () => {
         return (
             <div style={{ textAlign: "center" }}>
-                <h3>Résultats annuels</h3>
+                <h3 style={{ color: 'rgba(0, 0, 0, 0.85)' }}>Résultats annuels</h3>
                 <div style={{ width: "50%", margin: "0 auto", textAlign: "center" }}>
                     <Table dataSource={elevesEnriched}
                         columns={columnsTableResultats}

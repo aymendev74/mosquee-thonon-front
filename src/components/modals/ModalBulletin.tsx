@@ -12,7 +12,9 @@ import { firstLettertoUpperCase, prepareBulletinBeforeSave } from '../../utils/F
 import { useMatieresStore } from "../stores/useMatieresStore";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import useApi, { APICallResult } from "../../hooks/useApi";
-
+import { useLock } from "../../hooks/useLock";
+import { ResourceType, LockResultDto } from "../../types/lock";
+import { LockAlert } from "../common/LockAlert";
 
 export type ModalBulletinProps = {
     open: boolean,
@@ -28,7 +30,19 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
     const [form] = Form.useForm();
     const { getMatieresByType } = useMatieresStore();
 
-    const close = () => {
+    // Gestion du verrou pour l'édition de bulletin (uniquement en modification)
+    const { lockStatus, acquireLock, releaseLock, updateLockStatus, isLocked } = useLock(
+        ResourceType.BULLETIN,
+        !isCreation && bulletin?.id ? bulletin.id : null
+    );
+
+    // Forcer le mode lecture seule si le verrou est en conflit
+    const isReadOnly = lockStatus.status === 'conflict';
+
+    const close = async () => {
+        if (!isCreation && lockStatus.status === 'acquired') {
+            await releaseLock();
+        }
         form.resetFields();
         setOpen(false);
     };
@@ -51,9 +65,29 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
         } else {
             result = await execute<BulletinDtoB>({ method: "PUT", url: buildUrlWithParams(BULLETIN_EXISTING_ENDPOINT, { id: bulletin?.id }), data: bulletinToSave });
         }
+
         if (result.success) {
+            if (!isCreation) {
+                await releaseLock();
+            }
             confirmSaveSuccess();
             setOpen(false);
+        } else if (result.errorData && !isCreation) {
+            // Vérifier si c'est une erreur de conflit de verrou (409)
+            const lockData = result.errorData as LockResultDto;
+            if (lockData && typeof lockData.acquired !== 'undefined' && !lockData.acquired) {
+                // Le verrou a été perdu pendant l'édition
+                updateLockStatus({
+                    status: 'conflict',
+                    expiresAt: lockData.expiresAt,
+                    username: lockData.username
+                });
+                notification.error({
+                    message: "Verrou expiré",
+                    description: `Votre verrou a expiré. Ce bulletin est maintenant modifié par ${lockData.username} jusqu'à ${new Date(lockData.expiresAt).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}. Vos modifications n'ont pas été enregistrées.`,
+                    duration: 8
+                });
+            }
         }
     }
 
@@ -70,8 +104,13 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 remarques[matiere.code.toString()] = matiere.remarque;
             });
             form.setFieldsValue({ ...bulletin, notes, remarques });
+
+            // Tenter d'acquérir le verrou si on est en mode modification
+            if (!isCreation) {
+                acquireLock();
+            }
         }
-    }, [bulletin]);
+    }, [bulletin, isCreation]);
 
     function confirmSaveSuccess() {
         notification.success({ message: "Le bulletin a bien été enregistré" });
@@ -87,7 +126,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
     return (<Modal title={getTitre()} open={open} width={1000} onCancel={close}
         footer={<>
             <Button onClick={close} type="primary">Annuler</Button>
-            <Button htmlType="submit" type="primary" onClick={() => form.submit()} >Valider</Button>
+            <Button htmlType="submit" type="primary" onClick={() => form.submit()} disabled={isReadOnly}>Valider</Button>
         </>} >
         <Form
             name="periode"
@@ -96,22 +135,23 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
             onFinish={onValider}
         >
             <Spin spinning={isLoading}>
+                {!isCreation && <LockAlert lockStatus={lockStatus} resourceName="Ce bulletin" />}
                 <Divider orientation="left">Informations générales</Divider>
                 <div>Nom de l'élève: <Tag color="orange" className="m-left-10">{eleve?.prenom} {eleve?.nom}</Tag></div><br />
                 <Row gutter={[16, 32]}>
                     <Col xs={24} sm={8}>
-                        <SelectFormItem label="Mois" name="mois"
+                        <SelectFormItem label="Mois" name="mois" disabled={isReadOnly}
                             options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(mois => ({ value: mois, label: firstLettertoUpperCase(dayjs().month(mois - 1).format("MMMM")) }))}
                             rules={[{ required: true, message: "Veuillez sélectionner le mois" }]} />
                     </Col>
                     <Col xs={24} sm={12}>
-                        <SelectFormItem label="Annee" name="annee" options={annees.map(annee => ({ value: annee, label: annee }))}
+                        <SelectFormItem label="Annee" name="annee" disabled={isReadOnly} options={annees.map(annee => ({ value: annee, label: annee }))}
                             rules={[{ required: true, message: "Veuillez sélectionner l'année" }]} />
                     </Col>
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col xs={24} sm={8}>
-                        <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" rules={[{ required: true, message: "Veuillez indiquer le nombre d'absences" }]}
+                        <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" disabled={isReadOnly} rules={[{ required: true, message: "Veuillez indiquer le nombre d'absences" }]}
                             min={0} />
                     </Col>
                 </Row>
@@ -122,18 +162,18 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                             <Tag color="geekblue">{matiere.fr}</Tag>
                         </Col>
                         <Col xs={24} sm={9}>
-                            <SelectFormItem name={"notes." + matiere.code} label="Sélectionnez une note" options={getNotesOptions()}
+                            <SelectFormItem name={"notes." + matiere.code} label="Sélectionnez une note" disabled={isReadOnly} options={getNotesOptions()}
                                 rules={[{ required: true, message: "Veuillez sélectionner une note" }]} />
                         </Col>
                         <Col xs={24} sm={11}>
-                            <InputFormItem name={"remarques." + matiere.code} label="Remarques" />
+                            <InputFormItem name={"remarques." + matiere.code} label="Remarques" disabled={isReadOnly} />
                         </Col>
                     </Row>
                 ))}
                 <Divider orientation="left">Appréciation générale</Divider>
                 <Row gutter={[16, 32]}>
                     <Col xs={24} sm={6}>
-                        <DatePickerFormItem name="dateBulletin" label="Date" rules={[{ required: true, message: "Veuillez indiquer la date du bulletin (apparaîtra sur le document PDF)" }]} />
+                        <DatePickerFormItem name="dateBulletin" label="Date" disabled={isReadOnly} rules={[{ required: true, message: "Veuillez indiquer la date du bulletin (apparaîtra sur le document PDF)" }]} />
                     </Col>
                     <Col xs={24} sm={18}>
                         <Form.Item
@@ -141,7 +181,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                             name="appreciation"
                             rules={[{ required: true, message: "Veuillez indiquer votre appréciation générale" }]}
                         >
-                            <TextArea rows={4} placeholder="Veuillez saisir votre appréciation générale ici..." />
+                            <TextArea rows={4} placeholder="Veuillez saisir votre appréciation générale ici..." disabled={isReadOnly} />
                         </Form.Item>
                     </Col>
                 </Row>

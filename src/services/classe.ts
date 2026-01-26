@@ -35,12 +35,16 @@ export type ClasseActiviteDto = {
     jour: JourActiviteEnum;
 }
 
+export type Enseignant = {
+    id: number; // (= idUtil)
+    nomPrenom: string;
+}
+
 type ClasseDto<K extends string | Dayjs> = {
     id?: number;
     libelle?: string;
     niveau?: NiveauInterne;
-    idUtilisateur?: number;
-    nomPrenomEnseignant?: string;
+    enseignants?: Enseignant[];
     liensClasseEleves?: LienClasseEleveDto<K>[];
     debutAnneeScolaire: number;
     finAnneeScolaire: number;

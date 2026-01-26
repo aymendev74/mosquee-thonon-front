@@ -36,38 +36,36 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
                         <div style={{ marginBottom: '12px' }}>
-                            <strong>Enseignant:</strong>
-                            <Tag color="geekblue" style={{ marginLeft: '8px' }}>{classe?.nomPrenomEnseignant ?? "-"}</Tag>
+                            <strong style={{ color: 'rgba(0, 0, 0, 0.85)' }}>Enseignant(s):</strong>
+                            {classe?.enseignants && classe.enseignants.length > 0
+                                ? classe.enseignants.map((e, idx) => (
+                                    <Tag color="geekblue" style={{ marginLeft: '8px' }} key={idx}>{e.nomPrenom}</Tag>
+                                ))
+                                : <Tag color="geekblue" style={{ marginLeft: '8px' }}>-</Tag>
+                            }
                         </div>
                     </Col>
                     <Col span={24}>
                         <div style={{ marginBottom: '12px' }}>
-                            <strong>Jour de classe:</strong>
+                            <strong style={{ color: 'rgba(0, 0, 0, 0.85)' }}>Jour de classe:</strong>
                             <Tag color="geekblue" style={{ marginLeft: '8px' }}>{getJourClasse()}</Tag>
                         </div>
                     </Col>
                     <Col span={24}>
                         <div style={{ marginBottom: '12px' }}>
-                            <strong>Nombre d'élèves:</strong>
+                            <strong style={{ color: 'rgba(0, 0, 0, 0.85)' }}>Nombre d'élèves:</strong>
                             <Tag color="geekblue" style={{ marginLeft: '8px' }}>{elevesEnriched.length}</Tag>
                         </div>
                     </Col>
                     <Col span={24}>
                         <div style={{ marginBottom: '12px' }}>
-                            <strong>Taux de réussite:</strong>
+                            <strong style={{ color: 'rgba(0, 0, 0, 0.85)' }}>Taux de réussite:</strong>
                             <Tag color="geekblue" style={{ marginLeft: '8px' }}>{getTauxReussite()}</Tag>
                         </div>
                     </Col>
                 </Row>
 
                 <Divider orientation="left">Effectif</Divider>
-                <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
-                    <Col span={24}>
-                        <Button type="primary" icon={<FileExcelOutlined />} onClick={exportData} block>
-                            Exporter la liste
-                        </Button>
-                    </Col>
-                </Row>
 
                 <Row gutter={[16, 16]}>
                     {elevesEnriched.map((eleve) => (
@@ -80,6 +78,10 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
                                             <span><strong>Niveau:</strong> {eleve.niveauInterne}</span>
                                             <br />
                                             <span><strong>Né(e) le:</strong> {eleve.dateNaissance}</span>
+                                            <br />
+                                            <span><strong>Autorisé photos / vidéos:</strong> {eleve.autorisationMedia ? 'Oui' : 'Non'}</span>
+                                            <br />
+                                            <span><strong>Autorisé à rentrer seul:</strong> {eleve.autorisationMedia ? 'Oui' : 'Non'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -106,17 +108,17 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
                     {feuillesPresence.map((feuille) => {
                         const elevesAbsents = feuille.presenceEleves.filter((p) => !p.present);
                         const elevesPresents = feuille.presenceEleves.filter((p) => p.present);
-                        
+
                         return (
                             <Col span={24} key={feuille.id}>
-                                <Card 
-                                    size="small" 
+                                <Card
+                                    size="small"
                                     style={{ marginBottom: '8px' }}
                                     title={dayjs(feuille.date, APPLICATION_DATE_FORMAT).format(APPLICATION_DATE_FORMAT)}
                                     extra={
-                                        <Button 
-                                            type="primary" 
-                                            icon={<EyeOutlined />} 
+                                        <Button
+                                            type="primary"
+                                            icon={<EyeOutlined />}
                                             onClick={() => onViewFeuille(feuille, true)}
                                             size="small"
                                         />
@@ -162,11 +164,11 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
                                         Niveau: {eleve.niveauInterne}
                                     </div>
                                 </div>
-                                <Select 
-                                    style={{ width: '100%' }} 
-                                    value={eleve.resultat} 
-                                    options={getResultatOptions()} 
-                                    onChange={(value) => onModifierResultat(eleve.id, value)} 
+                                <Select
+                                    style={{ width: '100%' }}
+                                    value={eleve.resultat}
+                                    options={getResultatOptions()}
+                                    onChange={(value) => onModifierResultat(eleve.id, value)}
                                     placeholder="Sélectionner un résultat"
                                 />
                             </Card>
@@ -182,21 +184,21 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
             <div style={{ padding: '16px' }}>
                 <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
                     <Col span={24}>
-                        <SelectFormItem 
-                            name="eleveid" 
-                            label="Élève" 
-                            options={elevesEnriched.map(eleve => ({ 
-                                value: eleve.id, 
-                                label: `${eleve.prenom} ${eleve.nom}` 
+                        <SelectFormItem
+                            name="eleveid"
+                            label="Élève"
+                            options={elevesEnriched.map(eleve => ({
+                                value: eleve.id,
+                                label: `${eleve.prenom} ${eleve.nom}`
                             }))}
-                            onChange={loadBulletinsEleve} 
+                            onChange={loadBulletinsEleve}
                         />
                     </Col>
                     <Col span={24}>
-                        <Button 
-                            icon={<AddOutlined />} 
-                            type="primary" 
-                            disabled={!selectedEleveId} 
+                        <Button
+                            icon={<AddOutlined />}
+                            type="primary"
+                            disabled={!selectedEleveId}
                             onClick={onCreerBulletin}
                             block
                         >
@@ -208,8 +210,8 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
                 <Row gutter={[16, 16]}>
                     {bulletins.map((bulletin) => (
                         <Col span={24} key={bulletin.id}>
-                            <Card 
-                                size="small" 
+                            <Card
+                                size="small"
                                 style={{ marginBottom: '8px' }}
                                 title={`${firstLettertoUpperCase(dayjs().month(bulletin.mois! - 1).format("MMMM"))} ${bulletin.annee}`}
                             >
@@ -218,16 +220,16 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
                                     <Tag color="orange" style={{ marginLeft: '8px' }}>{bulletin.nbAbsences}</Tag>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <Button 
-                                        type="primary" 
-                                        icon={<EditOutlined />} 
+                                    <Button
+                                        type="primary"
+                                        icon={<EditOutlined />}
                                         onClick={() => onModifierBulletin(bulletin.id!)}
                                         size="small"
                                     />
-                                    <Button 
-                                        type="primary" 
-                                        icon={<DeleteOutlined />} 
-                                        onClick={() => onDeleteBulletin(bulletin.id!)} 
+                                    <Button
+                                        type="primary"
+                                        icon={<DeleteOutlined />}
+                                        onClick={() => onDeleteBulletin(bulletin.id!)}
                                         danger
                                         size="small"
                                     />
@@ -266,9 +268,9 @@ export const MaClasseMobileView: FunctionComponent<MaClasseViewProps> = ({
 
     return (
         <div style={{ padding: '16px' }}>
-            <div style={{ 
-                backgroundColor: '#001529', 
-                color: 'white', 
+            <div style={{
+                backgroundColor: '#001529',
+                color: 'white',
                 padding: '16px',
                 marginBottom: '16px',
                 borderRadius: '8px'

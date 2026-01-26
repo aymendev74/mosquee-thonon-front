@@ -4,12 +4,42 @@ import { ADHESION_SEARCH_ENDPOINT, DELETE_ADHESION_ENDPOINT } from "../../../../
 import { StatutInscription } from "../../../../services/inscription";
 import { notification } from "antd";
 import useApi from "../../../../hooks/useApi";
+import { LockResultDto } from "../../../../types/lock";
 
 export const useAdhesionManagement = () => {
     const [dataSource, setDataSource] = useState<AdhesionLight[]>([]);
     const [selectedAdhesions, setSelectedAdhesions] = useState<AdhesionLight[]>([]);
     const [renderedPdfAdhesionIds, setRenderedPdfAdhesionsIds] = useState<number[]>([]);
     const { execute, isLoading } = useApi();
+
+    // États pour gérer les alertes de conflits de locks groupés
+    const [batchLockConflict, setBatchLockConflict] = useState<{
+        show: boolean;
+        resourceType: string;
+        username?: string;
+        expiresAt?: string;
+    }>({ show: false, resourceType: 'adhésion' });
+
+    // Fonction réutilisable pour gérer les conflits de locks groupés
+    const handleBatchLockConflict = (errorData: any, action: string) => {
+        const lockData = errorData as LockResultDto;
+        if (lockData && typeof lockData.acquired !== 'undefined' && !lockData.acquired) {
+            // Afficher une alerte de conflit pour les actions groupées
+            setBatchLockConflict({
+                show: true,
+                resourceType: 'adhésion',
+                username: lockData.username,
+                expiresAt: lockData.expiresAt
+            });
+            notification.error({
+                message: "Conflit de verrouillage",
+                description: `Une des adhésions sélectionnées est actuellement modifiée par ${lockData.username}. Veuillez réessayer plus tard.`,
+                duration: 6
+            });
+            return true; // Indique qu'un conflit a été géré
+        }
+        return false; // Pas de conflit géré
+    };
 
     useEffect(() => {
         fetchAdhesions();
@@ -30,11 +60,9 @@ export const useAdhesionManagement = () => {
     };
 
     const validateAdhesion = async (adhesionId: number) => {
-        const adhesionPatch: AdhesionPatchDto = { id: adhesionId, statut: StatutInscription.VALIDEE };
-        const result = await execute<number[]>({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: [adhesionPatch] } });
-        if (result.successData) {
-            notification.success({ message: "L'adhésion a été validée" });
-            await fetchAdhesions();
+        const adhesion = dataSource.find(a => a.id === adhesionId);
+        if (adhesion) {
+            await validateAdhesions([adhesion]);
         }
     };
 
@@ -42,26 +70,51 @@ export const useAdhesionManagement = () => {
         const adhesionsPatches: AdhesionPatchDto[] = adhesions.map(adhesion => ({ id: adhesion.id, statut: StatutInscription.VALIDEE }));
         const result = await execute<number[]>({ method: "PATCH", url: ADHESION_SEARCH_ENDPOINT, data: { adhesions: adhesionsPatches } });
         if (result.successData) {
-            notification.success({ message: `Les ${result.successData.length} adhésions sélectionnées ont été validées` });
-            setSelectedAdhesions([]);
+            // Message différent selon le nombre d'adhésions
+            const message = adhesions.length === 1
+                ? "L'adhésion a été validée"
+                : `Les ${result.successData.length} adhésions sélectionnées ont été validées`;
+            notification.success({ message });
+
+            // Ne réinitialiser la sélection que pour les actions groupées
+            if (adhesions.length > 1) {
+                setSelectedAdhesions([]);
+            }
             await fetchAdhesions();
+            // Réinitialiser l'alerte de conflit en cas de succès
+            setBatchLockConflict({ show: false, resourceType: 'adhésion' });
+        } else if (result.errorData) {
+            // Gérer les conflits de locks groupés
+            handleBatchLockConflict(result.errorData, 'validation');
         }
     };
 
     const deleteAdhesion = async (adhesionId: number) => {
-        const result = await execute<number[]>({ method: "DELETE", url: DELETE_ADHESION_ENDPOINT, data: [adhesionId] });
-        if (result.successData) {
-            notification.success({ message: "L'adhésion a été supprimée" });
-            await fetchAdhesions();
+        const adhesion = dataSource.find(a => a.id === adhesionId);
+        if (adhesion) {
+            await deleteAdhesions([adhesion]);
         }
     };
 
     const deleteAdhesions = async (adhesions: AdhesionLight[]) => {
         const result = await execute<number[]>({ method: "DELETE", url: DELETE_ADHESION_ENDPOINT, data: adhesions.map(a => a.id) });
         if (result.successData) {
-            notification.success({ message: `Les ${result.successData.length} adhésions sélectionnées ont été supprimées` });
-            setSelectedAdhesions([]);
+            // Message différent selon le nombre d'adhésions
+            const message = adhesions.length === 1
+                ? "L'adhésion a été supprimée"
+                : `Les ${result.successData.length} adhésions sélectionnées ont été supprimées`;
+            notification.success({ message });
+
+            // Ne réinitialiser la sélection que pour les actions groupées
+            if (adhesions.length > 1) {
+                setSelectedAdhesions([]);
+            }
             await fetchAdhesions();
+            // Réinitialiser l'alerte de conflit en cas de succès
+            setBatchLockConflict({ show: false, resourceType: 'adhésion' });
+        } else if (result.errorData) {
+            // Gérer les conflits de locks groupés
+            handleBatchLockConflict(result.errorData, 'suppression');
         }
     };
 
@@ -85,5 +138,7 @@ export const useAdhesionManagement = () => {
         deleteAdhesions,
         renderPdf,
         generatePdf,
+        batchLockConflict,
+        setBatchLockConflict,
     };
 };
