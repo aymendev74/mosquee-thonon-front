@@ -6,6 +6,7 @@ import useApi from "../../../../hooks/useApi";
 import { PeriodeInfoDto } from "../../../../services/periode";
 import { DefaultOptionType } from "antd/es/select";
 import { getPeriodeOptions } from "../../../../components/common/CommonComponents";
+import { LockResultDto } from "../../../../types/lock";
 
 interface UseInscriptionManagementProps {
     application: string;
@@ -19,6 +20,35 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
     const [inscriptionsEnfantsById, setInscriptionsEnfantsById] = useState<Record<number, InscriptionEnfantBack>>({});
     const [inscriptionsAdultesById, setInscriptionsAdultesById] = useState<Record<number, InscriptionAdulteBack>>({});
     const { execute, isLoading } = useApi();
+
+    // États pour gérer les alertes de conflits de locks groupés
+    const [batchLockConflict, setBatchLockConflict] = useState<{
+        show: boolean;
+        resourceType: string;
+        username?: string;
+        expiresAt?: string;
+    }>({ show: false, resourceType: 'inscription' });
+
+    // Fonction réutilisable pour gérer les conflits de locks groupés
+    const handleBatchLockConflict = (errorData: any, action: string) => {
+        const lockData = errorData as LockResultDto;
+        if (lockData && typeof lockData.acquired !== 'undefined' && !lockData.acquired) {
+            // Afficher une alerte de conflit pour les actions groupées
+            setBatchLockConflict({
+                show: true,
+                resourceType: 'inscription',
+                username: lockData.username,
+                expiresAt: lockData.expiresAt
+            });
+            notification.error({
+                message: "Conflit de verrouillage",
+                description: `Une des inscriptions sélectionnées est actuellement modifiée par ${lockData.username}. Veuillez réessayer plus tard.`,
+                duration: 6
+            });
+            return true; // Indique qu'un conflit a été géré
+        }
+        return false; // Pas de conflit géré
+    };
 
     useEffect(() => {
         const loadPeriodes = async () => {
@@ -50,11 +80,9 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
     };
 
     const validateInscription = async (inscriptionId: number) => {
-        const inscriptionPatch: InscriptionPatchDto = { id: inscriptionId, statut: StatutInscription.VALIDEE };
-        const result = await execute({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: [inscriptionPatch] } });
-        if (result.success) {
-            notification.success({ message: "L'inscription a été validée" });
-            await loadInscriptions();
+        const inscription = dataSource.find(i => i.idInscription === inscriptionId);
+        if (inscription) {
+            await validateInscriptions([inscription]);
         }
     };
 
@@ -63,17 +91,29 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
         const inscriptionsPatch: InscriptionPatchDto[] = distinctIds.map(id => ({ id, statut: StatutInscription.VALIDEE }));
         const result = await execute({ method: "PATCH", url: INSCRIPTION_ENDPOINT, data: { inscriptions: inscriptionsPatch } });
         if (result.success) {
-            notification.success({ message: "Les modifications ont bien été prises en compte" });
-            setSelectedInscriptions([]);
+            // Message différent selon le nombre d'inscriptions
+            const message = inscriptions.length === 1
+                ? "L'inscription a été validée"
+                : "Les modifications ont bien été prises en compte";
+            notification.success({ message });
+
+            // Ne réinitialiser la sélection que pour les actions groupées
+            if (inscriptions.length > 1) {
+                setSelectedInscriptions([]);
+            }
             await loadInscriptions();
+            // Réinitialiser l'alerte de conflit en cas de succès
+            setBatchLockConflict({ show: false, resourceType: 'inscription' });
+        } else if (result.errorData) {
+            // Gérer les conflits de locks groupés
+            handleBatchLockConflict(result.errorData, 'validation');
         }
     };
 
     const deleteInscription = async (inscriptionId: number) => {
-        const result = await execute<number[]>({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: [inscriptionId] });
-        if (result.success) {
-            notification.success({ message: "L'inscription a été supprimée" });
-            await loadInscriptions();
+        const inscription = dataSource.find(i => i.idInscription === inscriptionId);
+        if (inscription) {
+            await deleteInscriptions([inscription]);
         }
     };
 
@@ -81,9 +121,22 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
         const distinctIds = Array.from(new Set(inscriptions.map(inscription => inscription.idInscription)));
         const result = await execute<number[]>({ method: "DELETE", url: INSCRIPTION_ENDPOINT, data: distinctIds });
         if (result.success) {
-            notification.success({ message: "Les modifications ont bien été prises en compte" });
-            setSelectedInscriptions([]);
+            // Message différent selon le nombre d'inscriptions
+            const message = inscriptions.length === 1
+                ? "L'inscription a été supprimée"
+                : "Les modifications ont bien été prises en compte";
+            notification.success({ message });
+
+            // Ne réinitialiser la sélection que pour les actions groupées
+            if (inscriptions.length > 1) {
+                setSelectedInscriptions([]);
+            }
             await loadInscriptions();
+            // Réinitialiser l'alerte de conflit en cas de succès
+            setBatchLockConflict({ show: false, resourceType: 'inscription' });
+        } else if (result.errorData) {
+            // Gérer les conflits de locks groupés
+            handleBatchLockConflict(result.errorData, 'suppression');
         }
     };
 
@@ -123,5 +176,7 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
         loadInscription,
         renderPdf,
         getSelectedInscriptionDistinctIds,
+        batchLockConflict,
+        setBatchLockConflict,
     };
 };

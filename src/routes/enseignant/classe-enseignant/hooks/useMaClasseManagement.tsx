@@ -36,7 +36,7 @@ import { getJourActiviteOptions } from '../../../../components/common/commoninpu
 import { PdfAuthContextBridge } from '../../../../components/documents/PdfContextBridge';
 import { PdfBulletin } from '../../../../components/documents/PdfBulletin';
 
-export const useMaClasseManagement = () => {    
+export const useMaClasseManagement = () => {
     const { execute } = useApi();
     const { id } = useParams();
     const { getMatieresByType } = useMatieresStore();
@@ -227,9 +227,9 @@ export const useMaClasseManagement = () => {
             (
                 <PDFDownloadLink className="m-left-10" document={<PdfAuthContextBridge>
                     <PdfBulletin bulletin={getBulletinById(id)!}
-                        eleve={elevesEnriched.find(eleve => eleve.id === getBulletinById(id)?.idEleve)!} 
+                        eleve={elevesEnriched.find(eleve => eleve.id === getBulletinById(id)?.idEleve)!}
                         matieres={getMatieresByType(TypeMatiereEnum.ENFANT)}
-                        nomPrenomEnseignant={classe?.nomPrenomEnseignant ?? ""} 
+                        nomsEnseignants={classe?.enseignants?.map(e => e.nomPrenom) ?? []}
                         nomClasse={classe?.libelle ?? ""} />
                 </PdfAuthContextBridge>}
                     fileName="bulletin">
@@ -267,7 +267,7 @@ export const useMaClasseManagement = () => {
         modalBulletinOpen,
         setModalBulletinOpen,
         bulletin,
-        
+
         // Actions
         onCreateFeuillePresence,
         onViewFeuille,

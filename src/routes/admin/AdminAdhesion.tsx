@@ -10,12 +10,13 @@ import { useAdhesionManagement } from "./adhesion/hooks/useAdhesionManagement";
 import { AdhesionMobileView } from "./adhesion/AdhesionMobileView";
 import { AdhesionDesktopView } from "./adhesion/AdhesionDesktopView";
 import { UnahtorizedAccess } from "../public/UnahtorizedAccess";
+import { BatchLockAlert } from "../../components/common/BatchLockAlert";
 
 export const AdminAdhesion = () => {
     const [modaleConfirmSuppressionOpen, setModaleConfirmSuppressionOpen] = useState<boolean>(false);
     const isMobile = useMediaQuery({ maxWidth: 768 });
     const { roles } = useAuth();
-    
+
     const {
         dataSource,
         selectedAdhesions,
@@ -28,9 +29,11 @@ export const AdminAdhesion = () => {
         deleteAdhesions,
         renderPdf,
         generatePdf,
+        batchLockConflict,
+        setBatchLockConflict,
     } = useAdhesionManagement();
 
-    const excelColumnHeaders: ExcelColumnHeadersType<AdhesionLight> = { 
+    const excelColumnHeaders: ExcelColumnHeadersType<AdhesionLight> = {
         nom: "Nom",
         prenom: "Prénom",
         ville: "Ville",
@@ -56,6 +59,14 @@ export const AdminAdhesion = () => {
                 <h2 className="adhesion-title">
                     <EuroCircleOutlined /> Administration des adhésions
                 </h2>
+
+                <BatchLockAlert
+                    show={batchLockConflict.show}
+                    resourceType={batchLockConflict.resourceType}
+                    username={batchLockConflict.username}
+                    expiresAt={batchLockConflict.expiresAt}
+                />
+
                 <Spin spinning={isLoading}>
                     <div className="search-result-container">
                         {isMobile ? (
@@ -89,11 +100,11 @@ export const AdminAdhesion = () => {
                         )}
                     </div>
 
-                    <ModaleConfirmSuppressionInscription 
-                        open={modaleConfirmSuppressionOpen} 
+                    <ModaleConfirmSuppressionInscription
+                        open={modaleConfirmSuppressionOpen}
                         setOpen={setModaleConfirmSuppressionOpen}
                         nbInscriptions={selectedAdhesions.length}
-                        onConfirm={handleDeleteAdhesions} 
+                        onConfirm={handleDeleteAdhesions}
                     />
                 </Spin>
             </div>

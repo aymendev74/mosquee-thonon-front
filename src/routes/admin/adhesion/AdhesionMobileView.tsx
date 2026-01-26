@@ -1,5 +1,5 @@
 import { FunctionComponent, useState } from "react";
-import { Button, Card, Checkbox, Collapse, Dropdown, Form, Input, InputNumber, Pagination, Select, Tag, Tooltip } from "antd";
+import { Button, Card, Checkbox, Collapse, Dropdown, Form, Input, InputNumber, Pagination, Select, Tag } from "antd";
 import { CheckCircleTwoTone, DeleteTwoTone, DownOutlined, EditTwoTone, EyeTwoTone, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { AdhesionLight } from "../../../services/adhesion";
@@ -7,7 +7,6 @@ import { StatutInscription } from "../../../services/inscription";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
 import dayjs from "dayjs";
 import { AdhesionViewProps } from "./types";
-import type { MenuProps } from 'antd';
 import { SelectionActionBar } from "../../../components/common/SelectionActionBar";
 
 interface MobileAdhesionCardProps {
@@ -96,8 +95,6 @@ export const AdhesionMobileView: FunctionComponent<AdhesionViewProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [collapseActiveKey, setCollapseActiveKey] = useState<string[]>([]);
     const pageSize = 10;
-
-    const navigate = useNavigate();
 
     const doSearch = async () => {
         const { nom, prenom, statut, montant } = form.getFieldsValue();

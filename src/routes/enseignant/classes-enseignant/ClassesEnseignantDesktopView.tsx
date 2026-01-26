@@ -20,18 +20,25 @@ export const ClassesEnseignantDesktopView: FunctionComponent<ClassesEnseignantVi
         );
     };
 
+    const getEnseignantsDisplay = (classe: ClasseDtoF) => {
+        if (!classe.enseignants || classe.enseignants.length === 0) {
+            return "-";
+        }
+        return classe.enseignants.map(e => e.nomPrenom).join(", ");
+    };
+
     const getClasseCard = (classe: ClasseDtoF) => {
         return (
             <Col xs={24} sm={12} md={8} lg={6} key={"col_" + classe.id}>
-                <Card 
-                    className="card-focus-effect" 
-                    size="small" 
-                    title={classe.libelle} 
-                    extra={getActionsClasseButtons(classe)} 
+                <Card
+                    className="card-focus-effect"
+                    size="small"
+                    title={classe.libelle}
+                    extra={getActionsClasseButtons(classe)}
                     hoverable
                     bordered
                 >
-                    <p><b>Enseignant: </b>{classe.nomPrenomEnseignant ?? "-"}</p>
+                    <p><b>Enseignant(s): </b>{getEnseignantsDisplay(classe)}</p>
                     <p><b>Niveau: </b>{classe.niveau}</p>
                     <p><b>Nombre d'élèves: </b>{classe.liensClasseEleves?.length ?? 0}</p>
                 </Card>

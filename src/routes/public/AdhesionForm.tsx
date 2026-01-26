@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Divider, Form, Result, Row, Spin } from "antd";
+import { Button, Checkbox, Col, Divider, Form, Result, Row, Spin, Alert } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent } from "react";
 import { getConsentementAdhesionLibelle, validateCodePostal, validateMajorite, validateMontantMinAdhesion, validatePhoneNumber } from "../../utils/FormUtils";
@@ -8,7 +8,7 @@ import { SelectFormItem } from "../../components/common/SelectFormItem";
 import { InputFormItem } from "../../components/common/InputFormItem";
 import { DatePickerFormItem } from "../../components/common/DatePickerFormItem";
 import { RadioGroupFormItem } from "../../components/common/RadioGroupFormItem";
-import { EuroCircleOutlined } from "@ant-design/icons";
+import { EuroCircleOutlined, LockOutlined } from "@ant-design/icons";
 import { SwitchFormItem } from "../../components/common/SwitchFormItem";
 import { useAdhesionManagement } from "./hooks/useAdhesionManagement";
 
@@ -26,6 +26,8 @@ export const AdhesionForm: FunctionComponent = () => {
         statutAdhesion,
         isReadOnly,
         isAdmin,
+        lockStatus,
+        isLocked,
         getCiviliteOptions,
         onMontantChanged,
         onFinish,
@@ -56,6 +58,17 @@ export const AdhesionForm: FunctionComponent = () => {
                         <EuroCircleOutlined /> Devenir adhérent de l'AMC
                     </h2>
                     <Spin spinning={isLoading} size="large" tip="Enregistrement de votre adhésion...">
+                        {lockStatus.status === 'conflict' && (
+                            <Alert
+                                message="Ressource verrouillée"
+                                description={`Cette adhésion est actuellement en cours de modification par ${lockStatus.username} jusqu'à ${new Date(lockStatus.expiresAt).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.`}
+                                type="warning"
+                                icon={<LockOutlined />}
+                                showIcon
+                                closable
+                                style={{ marginBottom: 16 }}
+                            />
+                        )}
                         <Row>
                             <Col xs={24} md={12}>
                                 <Divider orientation="left">Identité</Divider>

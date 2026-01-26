@@ -25,6 +25,8 @@ import {
     prepareInscriptionAdulteBeforeForm,
     prepareInscriptionAdulteBeforeSave
 } from '../../../utils/FormUtils';
+import { useLock } from '../../../hooks/useLock';
+import { ResourceType, LockResultDto } from '../../../types/lock';
 
 interface UseCoursArabesAdulteManagementProps {
     form: FormInstance;
@@ -45,6 +47,15 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
 
     const isReadOnly = searchParams.get('readonly') === 'true';
     const isAdmin = roles?.includes("ROLE_ADMIN");
+
+    // Gestion du verrou pour l'édition
+    const { lockStatus, acquireLock, releaseLock, updateLockStatus, isLocked } = useLock(
+        ResourceType.INSCRIPTION,
+        id ? parseInt(id) : null
+    );
+
+    // Forcer le mode lecture seule si le verrou est en conflit
+    const effectiveReadOnly = isReadOnly || lockStatus.status === 'conflict';
 
     const handleTarifInscription = (result?: TarifInscriptionDto | null) => {
         if (result) {
@@ -83,18 +94,36 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
 
         if (id) {
             const { sendMailConfirmation } = { ...inscription };
-            const { success } = await execute({
+            const result = await execute({
                 method: "PUT",
                 url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id }),
                 data: inscriptionToSave,
                 params: { sendMailConfirmation }
             });
-            if (success) {
+
+            if (result.success) {
+                await releaseLock();
                 notification.open({
                     message: "Les modifications ont bien été enregistrées",
                     type: "success"
                 });
                 navigate("/adminCours", { state: { application: "COURS_ADULTE" } });
+            } else if (result.errorData) {
+                // Vérifier si c'est une erreur de conflit de verrou (409)
+                const lockData = result.errorData as LockResultDto;
+                if (lockData && typeof lockData.acquired !== 'undefined' && !lockData.acquired) {
+                    // Le verrou a été perdu pendant l'édition
+                    updateLockStatus({
+                        status: 'conflict',
+                        expiresAt: lockData.expiresAt,
+                        username: lockData.username
+                    });
+                    notification.error({
+                        message: "Verrou expiré",
+                        description: `Votre verrou a expiré. Cette inscription est maintenant modifiée par ${lockData.username} jusqu'à ${new Date(lockData.expiresAt).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}. Vos modifications n'ont pas été enregistrées.`,
+                        duration: 8
+                    });
+                }
             }
         } else {
             const { success } = await execute({
@@ -119,6 +148,11 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
     useEffect(() => {
         const loadData = async () => {
             if (id) {
+                // Tenter d'acquérir le verrou si on est en mode édition (admin et non readonly)
+                if (isAdmin && !isReadOnly) {
+                    await acquireLock();
+                }
+
                 const { successData: inscription } = await execute<InscriptionAdulteBack>({
                     method: "GET",
                     url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id: id })
@@ -144,7 +178,7 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
             }
         };
         loadData();
-    }, []);
+    }, [id, isAdmin, isReadOnly]);
 
     return {
         // States
@@ -156,12 +190,13 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
         tarifInscription,
         isInscriptionsFermees,
         id,
-        isReadOnly,
+        isReadOnly: effectiveReadOnly,
         isAdmin,
+        lockStatus,
 
         // Actions
+        getMatieresOptions,
         onStatutProfessionnelChanged,
         onFinish,
-        getMatieresOptions,
     };
 };

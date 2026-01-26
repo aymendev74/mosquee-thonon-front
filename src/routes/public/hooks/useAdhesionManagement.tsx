@@ -15,6 +15,8 @@ import {
 import { Adhesion } from '../../../services/adhesion';
 import { TarifDto } from '../../../services/tarif';
 import { APPLICATION_DATE_FORMAT } from '../../../utils/FormUtils';
+import { useLock } from '../../../hooks/useLock';
+import { ResourceType, LockResultDto } from '../../../types/lock';
 
 interface UseAdhesionManagementProps {
     form: FormInstance;
@@ -36,6 +38,15 @@ export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
     const isReadOnly = searchParams.get('readonly') === 'true';
     const isAdmin = roles?.includes("ROLE_ADMIN") || roles?.includes("ROLE_TRESORIER");
     const statutAdhesion = Form.useWatch("statut", form);
+
+    // Gestion du verrou pour l'édition
+    const { lockStatus, acquireLock, releaseLock, updateLockStatus, isLocked } = useLock(
+        ResourceType.ADHESION,
+        id ? parseInt(id) : null
+    );
+
+    // Forcer le mode lecture seule si le verrou est en conflit
+    const effectiveReadOnly = isReadOnly || lockStatus.status === 'conflict';
 
     const getCiviliteOptions = () => {
         return [{ value: "M", label: "Monsieur" }, { value: "MME", label: "Madame" }];
@@ -61,18 +72,36 @@ export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
 
         if (id) {
             const { sendMailConfirmation } = { ...adhesion };
-            const { success } = await execute({
+            const result = await execute({
                 method: "PUT",
                 url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id }),
                 data: adhesion,
                 params: { sendMailConfirmation }
             });
-            if (success) {
+
+            if (result.success) {
+                await releaseLock();
                 notification.open({
                     message: "Les modifications ont bien été enregistrées",
                     type: "success"
                 });
                 navigate("/adminAdhesion");
+            } else if (result.errorData) {
+                // Vérifier si c'est une erreur de conflit de verrou (409)
+                const lockData = result.errorData as LockResultDto;
+                if (lockData && typeof lockData.acquired !== 'undefined' && !lockData.acquired) {
+                    // Le verrou a été perdu pendant l'édition
+                    updateLockStatus({
+                        status: 'conflict',
+                        expiresAt: lockData.expiresAt,
+                        username: lockData.username
+                    });
+                    notification.error({
+                        message: "Verrou expiré",
+                        description: `Votre verrou a expiré. Cette adhésion est maintenant modifiée par ${lockData.username} jusqu'à ${new Date(lockData.expiresAt).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}. Vos modifications n'ont pas été enregistrées.`,
+                        duration: 8
+                    });
+                }
             }
         } else {
             const { success } = await execute({
@@ -111,6 +140,11 @@ export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
     useEffect(() => {
         const loadAdhesion = async () => {
             if (id) {
+                // Tenter d'acquérir le verrou si on est en mode édition (admin et non readonly)
+                if (isAdmin && !isReadOnly) {
+                    await acquireLock();
+                }
+
                 const { successData: adhesion } = await execute<Adhesion>({
                     method: "GET",
                     url: buildUrlWithParams(ADHESION_ENDPOINT, { id: id })
@@ -125,7 +159,7 @@ export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
             }
         };
         loadAdhesion();
-    }, []);
+    }, [id, isAdmin, isReadOnly]);
 
     return {
         // States
@@ -138,12 +172,15 @@ export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
         setConsentementChecked,
         statutAdhesion,
         id,
-        isReadOnly,
+        isReadOnly: effectiveReadOnly,
         isAdmin,
+        lockStatus,
+        isLocked,
 
         // Actions
         getCiviliteOptions,
         onMontantChanged,
         onFinish,
+        releaseLock,
     };
 };

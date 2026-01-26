@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react";
 import { Button, Card, Col, Divider, Empty, Form, Row, Tooltip } from "antd";
-import { DeleteOutlined, EditOutlined, PlusCircleOutlined, SearchOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusCircleOutlined, SearchOutlined, TeamOutlined } from "@ant-design/icons";
 import { ClasseViewProps } from "./types";
 import { InputNumberFormItem } from "../../../components/common/InputNumberFormItem";
 import { ClasseDtoF } from "../../../services/classe";
@@ -8,18 +8,21 @@ import dayjs from "dayjs";
 
 export const ClasseDesktopView: FunctionComponent<ClasseViewProps> = ({
     form,
-    enseignants,
     classes,
-    debutAnneeScolaire,
     onCreateClasse,
     onModifierClasse,
     onDeleteClasse,
     doSearchClasses,
     handleAnneeScolaireChanged,
 }) => {
+    const getEnseignantsDisplay = (classe: ClasseDtoF) => {
+        if (!classe.enseignants || classe.enseignants.length === 0) {
+            return "-";
+        }
+        return classe.enseignants.map(e => e.nomPrenom).join(", ");
+    };
+
     const getClasseCard = (classe: ClasseDtoF) => {
-        const enseignant = enseignants.find(e => e.id === classe.idUtilisateur);
-        
         return (
             <Col xs={24} sm={12} md={8} lg={6} key={classe.id}>
                 <Card
@@ -56,7 +59,7 @@ export const ClasseDesktopView: FunctionComponent<ClasseViewProps> = ({
                         <strong>Nombre d'élèves:</strong> {classe.liensClasseEleves?.length ?? 0}
                     </div>
                     <div>
-                        <strong>Enseignant:</strong> {enseignant ? `${enseignant.prenom} ${enseignant.nom}` : "-"}
+                        <strong>Enseignant(s):</strong> {getEnseignantsDisplay(classe)}
                     </div>
                 </Card>
             </Col>

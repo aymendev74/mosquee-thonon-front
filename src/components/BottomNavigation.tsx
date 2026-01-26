@@ -168,6 +168,7 @@ export const BottomNavigation: FunctionComponent = () => {
     };
 
     const activeKey = getActiveKey();
+    const isAuthenticated = roles && roles.length > 0;
 
     return (
         <>
@@ -180,21 +181,25 @@ export const BottomNavigation: FunctionComponent = () => {
                     <span className="bottom-nav-label">Accueil</span>
                 </div>
 
-                <div
-                    className={`bottom-nav-item ${activeKey === "cours" ? "active" : ""}`}
-                    onClick={() => handleNavClick("cours")}
-                >
-                    <TeamOutlined className="bottom-nav-icon" />
-                    <span className="bottom-nav-label">Cours</span>
-                </div>
+                {!isAuthenticated && (
+                    <div
+                        className={`bottom-nav-item ${activeKey === "cours" ? "active" : ""}`}
+                        onClick={() => handleNavClick("cours")}
+                    >
+                        <TeamOutlined className="bottom-nav-icon" />
+                        <span className="bottom-nav-label">Cours</span>
+                    </div>
+                )}
 
-                <div
-                    className={`bottom-nav-item ${activeKey === "adhesion" ? "active" : ""}`}
-                    onClick={() => handleNavClick("adhesion")}
-                >
-                    <EuroCircleOutlined className="bottom-nav-icon" />
-                    <span className="bottom-nav-label">Adhésion</span>
-                </div>
+                {!isAuthenticated && (
+                    <div
+                        className={`bottom-nav-item ${activeKey === "adhesion" ? "active" : ""}`}
+                        onClick={() => handleNavClick("adhesion")}
+                    >
+                        <EuroCircleOutlined className="bottom-nav-icon" />
+                        <span className="bottom-nav-label">Adhésion</span>
+                    </div>
+                )}
 
                 <div
                     className={`bottom-nav-item ${activeKey === "admin" ? "active" : ""}`}
