@@ -3,8 +3,9 @@ name: Mosquée Thonon front ReactJS
 on:
   push:
     branches:
-      - master
-      - 'release-*'
+      - '**'
+    tags:
+      - '**'
   pull_request:
     branches:
       - master
