@@ -53,6 +53,7 @@ export const useMaClasseManagement = () => {
     const [selectedEleveId, setSelectedEleveId] = useState<number | undefined>();
     const [bulletin, setBulletin] = useState<BulletinDtoF | undefined>();
     const [bulletinsPdf, setBulletinsPdf] = useState<number[]>([]);
+    const [nbAbsencesEleveFromFeuillesPresence, setNbAbsencesEleveFromFeuillesPresence] = useState<number>(0);
 
     const onCreateFeuillePresence = () => {
         setFeuilleToView(undefined);
@@ -200,6 +201,11 @@ export const useMaClasseManagement = () => {
                 let bulletinsF = bulletinsEleve.map((bulletin) => prepareBulletinBeforeForm(bulletin));
                 setBulletins(bulletinsF);
             }
+            // on calcule le nombre d'absences de l'élève (utile pour la modal bulletin)            
+            const nbAbsencesEleveFromFeuillesPresence = feuillesPresence?.flatMap((feuille) => feuille.presenceEleves)
+                .filter((presenceEleve) => presenceEleve.idEleve === eleveId)
+                .reduce((total, presenceEleve) => total + (presenceEleve.present ? 0 : 1), 0);
+            setNbAbsencesEleveFromFeuillesPresence(nbAbsencesEleveFromFeuillesPresence);
         } else {
             setBulletins([]);
         }
@@ -261,14 +267,15 @@ export const useMaClasseManagement = () => {
         vueDetaille,
         bulletinsPdf,
         modalFeuillePresenceOpen,
-        setModalFeuillePresenceOpen,
         feuilleToView,
         feuilleToViewReadOnly,
         modalBulletinOpen,
-        setModalBulletinOpen,
         bulletin,
+        nbAbsencesEleveFromFeuillesPresence,
 
         // Actions
+        setModalBulletinOpen,
+        setModalFeuillePresenceOpen,
         onCreateFeuillePresence,
         onViewFeuille,
         onDeleteFeuille,

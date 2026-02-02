@@ -20,12 +20,13 @@ const MaClasse = () => {
         vueDetaille,
         bulletinsPdf,
         modalFeuillePresenceOpen,
-        setModalFeuillePresenceOpen,
+        nbAbsencesEleveFromFeuillesPresence,
         feuilleToView,
         feuilleToViewReadOnly,
         modalBulletinOpen,
-        setModalBulletinOpen,
         bulletin,
+        setModalBulletinOpen,
+        setModalFeuillePresenceOpen,
         onCreateFeuillePresence,
         onViewFeuille,
         onDeleteFeuille,
@@ -73,7 +74,7 @@ const MaClasse = () => {
                 feuilleToEdit={feuilleToView} readOnly={feuilleToViewReadOnly} />
             <ModalBulletin open={modalBulletinOpen} setOpen={setModalBulletinOpen} isCreation={bulletin?.id === undefined}
                 annees={[classe?.debutAnneeScolaire!, classe?.finAnneeScolaire!]} eleve={getSelectedEleve()}
-                bulletin={bulletin} />
+                bulletin={bulletin} nbAbsences={nbAbsencesEleveFromFeuillesPresence} />
             {isMobile ? <MaClasseMobileView {...viewProps} /> : <MaClasseDesktopView {...viewProps} />}
         </>
     ) : <UnahtorizedAccess />
