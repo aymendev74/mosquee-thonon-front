@@ -104,11 +104,13 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 notes[matiere.code.toString()] = matiere.note;
                 remarques[matiere.code.toString()] = matiere.remarque;
             });
-            form.setFieldsValue({ ...bulletin, notes, remarques, nbAbsences });
+            form.setFieldsValue({ ...bulletin, notes, remarques });
 
             // Tenter d'acquérir le verrou si on est en mode modification
             if (!isCreation) {
                 acquireLock();
+            } else { // en cration, on set le nombre d'absences calculés automatiquement (feuilles présence)
+                form.setFieldValue("nbAbsences", nbAbsences);
             }
         }
     }, [bulletin, isCreation]);
