@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Modal, notification, Row, Spin, Tag } from "antd";
+import { Button, Col, Divider, Form, Modal, notification, Row, Spin, Tag, Tooltip } from "antd";
 import { FunctionComponent, useEffect, useState } from "react"
 import { ApiCallbacks, buildUrlWithParams, BULLETIN_ENDPOINT, BULLETIN_EXISTING_ENDPOINT, BULLETINS_ELEVE_ENDPOINT, handleApiCall, MATIERES_ENDPOINT } from "../../services/services";
 import dayjs from "dayjs";
@@ -23,9 +23,10 @@ export type ModalBulletinProps = {
     bulletin?: BulletinDtoF,
     annees: number[],
     eleve?: EleveEnrichedDto,
+    nbAbsences: number,
 }
 
-export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, setOpen, isCreation, bulletin, annees, eleve }) => {
+export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, setOpen, isCreation, bulletin, annees, eleve, nbAbsences }) => {
     const { execute, isLoading } = useApi();
     const [form] = Form.useForm();
     const { getMatieresByType } = useMatieresStore();
@@ -103,7 +104,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 notes[matiere.code.toString()] = matiere.note;
                 remarques[matiere.code.toString()] = matiere.remarque;
             });
-            form.setFieldsValue({ ...bulletin, notes, remarques });
+            form.setFieldsValue({ ...bulletin, notes, remarques, nbAbsences });
 
             // Tenter d'acquérir le verrou si on est en mode modification
             if (!isCreation) {
@@ -151,8 +152,10 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 </Row>
                 <Row gutter={[16, 32]}>
                     <Col xs={24} sm={8}>
-                        <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" disabled={isReadOnly} rules={[{ required: true, message: "Veuillez indiquer le nombre d'absences" }]}
-                            min={0} />
+                        <Tooltip title="Le nombre d'absences est calculé automatiquement sur la base des feuilles de présence" color="geekblue">
+                            <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" disabled={isReadOnly} rules={[{ required: true, message: "Veuillez indiquer le nombre d'absences" }]}
+                                min={0} />
+                        </Tooltip>
                     </Col>
                 </Row>
                 <Divider orientation="left">Notes</Divider>
