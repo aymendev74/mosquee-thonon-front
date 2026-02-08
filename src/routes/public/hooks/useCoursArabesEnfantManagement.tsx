@@ -11,23 +11,20 @@ import {
     CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT,
     INSCRIPTION_ENFANT_ENDPOINT,
     NEW_INSCRIPTION_ENFANT_ENDPOINT,
-    PARAM_ENDPOINT,
     NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT,
     INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT
 } from '../../../services/services';
 import {
     InscriptionEnfantBack,
     InscriptionEnfantFront,
-    StatutInscription
 } from '../../../services/inscription';
 import { EleveFront } from '../../../services/eleve';
 import { TarifInscriptionDto } from '../../../services/tarif';
-import { ParamsDtoB } from '../../../services/parametres';
 import {
-    isInscriptionFerme,
     prepareInscriptionEnfantBeforeForm,
     prepareInscriptionEnfantBeforeSave
 } from '../../../utils/FormUtils';
+import useParametres from '../../utilisateur/hooks/useParametres';
 import { useLock } from '../../../hooks/useLock';
 import { ResourceType, LockResultDto } from '../../../types/lock';
 
@@ -48,9 +45,8 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
     const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantBack>();
-    const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
-    const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
     const [activeStep, setActiveStep] = useState<number>(0);
+    const { reinscriptionPrioritaire, isInscriptionsEnfantFermees } = useParametres();
 
     const isReadOnly = searchParams.get('readonly') === 'true';
     const isAdmin = roles.includes("ROLE_ADMIN");
@@ -256,13 +252,13 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
     };
 
     useEffect(() => {
-        if (isOnlyReinscriptionEnabled) {
+        if (reinscriptionPrioritaire) {
             warning({
                 title: "Réinscription uniquement !",
                 content: getReinscriptionPrioritaire()
             });
         }
-    }, [isOnlyReinscriptionEnabled]);
+    }, [reinscriptionPrioritaire]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -280,15 +276,6 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
                     const inscriptionFormValues: InscriptionEnfantFront = prepareInscriptionEnfantBeforeForm(inscription);
                     form.setFieldsValue(inscriptionFormValues);
                     setEleves(inscriptionFormValues.eleves);
-                }
-            } else {
-                const { successData: params } = await execute<ParamsDtoB>({
-                    method: "GET",
-                    url: PARAM_ENDPOINT
-                });
-                if (params) {
-                    setIsOnlyReinscriptionEnabled(params.reinscriptionPrioritaire ?? false);
-                    setIsInscriptionsFermees(isInscriptionFerme(params.inscriptionEnfantEnabledFromDate));
                 }
             }
         };
@@ -311,8 +298,8 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         tarifInscription,
         inscriptionFinished,
         setInscriptionFinished,
-        isOnlyReinscriptionEnabled,
-        isInscriptionsFermees,
+        reinscriptionPrioritaire,
+        isInscriptionsEnfantFermees,
         activeStep,
         id,
         isReadOnly: effectiveReadOnly,

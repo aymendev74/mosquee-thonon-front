@@ -28,11 +28,12 @@ import { useMatieresStore } from './components/stores/useMatieresStore';
 import { TraductionDto, TypeMatiereEnum } from './services/classe';
 import Utilisateurs from './routes/admin/Utilisateurs';
 import AccountActivation from './routes/public/AccountActivation';
+import DashboardUtilisateur from './routes/utilisateur/DashboardUtilisateur';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const { username, logout, requestProfileInformations } = useAuth();
+  const { username, prenom, logout, requestProfileInformations } = useAuth();
   const navigate = useNavigate();
   const { execute } = useApi();
   const { setMatieres } = useMatieresStore();
@@ -69,7 +70,7 @@ function App() {
     return (
       <Dropdown menu={menu}>
         <Avatar style={{ backgroundColor: "orange", verticalAlign: "middle", cursor: "pointer", color: "black" }} size="large">
-          {username}
+          {prenom ?? username}
         </Avatar>
       </Dropdown>
     );
@@ -136,6 +137,7 @@ function App() {
           <Route path="/don" element={<FaireUnDon />} />
           <Route path="/parametres" element={<Parametres />} />
           <Route path="/utilisateurs" element={<Utilisateurs />} />
+          <Route path="/dashboard" element={<DashboardUtilisateur />} />
           <Route path="/accountActivation" element={<AccountActivation />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

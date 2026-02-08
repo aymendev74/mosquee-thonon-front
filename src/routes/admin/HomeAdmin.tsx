@@ -8,12 +8,12 @@ const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 export const HomeAdmin: FunctionComponent = () => {
-    const { username } = useAuth();
+    const { username, prenom } = useAuth();
     const [loggedUser, setLoggedUser] = useState<string | null>();
 
     useEffect(() => {
-        setLoggedUser(username);
-    }, [username]);
+        setLoggedUser(prenom ?? username);
+    }, [username, prenom]);
 
     return (
         <Layout>

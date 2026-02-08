@@ -20,6 +20,7 @@ export type UserDto = {
 export const ROLE_ADMIN = "ROLE_ADMIN";
 export const ROLE_ENSEIGNANT = "ROLE_ENSEIGNANT";
 export const ROLE_TRESORIER = "ROLE_TRESORIER";
+export const ROLE_UTILISATEUR = "ROLE_UTILISATEUR";
 
 export const AccountInfosSchema = z.object({
     username: z.string(),

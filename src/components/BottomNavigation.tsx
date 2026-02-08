@@ -8,7 +8,7 @@ import "../styles/BottomNavigation.css";
 export const BottomNavigation: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { roles, logout, username } = useAuth();
+    const { roles, logout, username, prenom } = useAuth();
     const [drawerVisible, setDrawerVisible] = useState(false);
 
     const getActiveKey = () => {
@@ -220,7 +220,7 @@ export const BottomNavigation: FunctionComponent = () => {
                                 icon={<UserOutlined />}
                                 style={{ backgroundColor: "#722ed1" }}
                             />
-                            <span className="drawer-username">{username}</span>
+                            <span className="drawer-username">{prenom ?? username}</span>
                         </div>
                     ) : (
                         <div className="drawer-header">

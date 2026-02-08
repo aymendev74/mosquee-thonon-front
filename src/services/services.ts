@@ -43,6 +43,7 @@ export const BULLETINS_ELEVE_ENDPOINT = "/eleves/{id}/bulletins";
 export const BULLETIN_ENDPOINT = "/bulletins";
 export const BULLETIN_EXISTING_ENDPOINT = "/bulletins/{id}";
 export const MATIERES_ENDPOINT = "/matieres";
+export const MES_INSCRIPTIONS_ENDPOINT = "/inscriptions-enfants/mes-inscriptions";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { DollarCircleOutlined, EditOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { BookOutlined, DollarCircleOutlined, EditOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
 
 export const MyMenu: FunctionComponent = () => {
@@ -130,6 +130,15 @@ export const MyMenu: FunctionComponent = () => {
         return menuItems;
     }
 
+    function getUtilisateurMenuItems() {
+        const menuItems: MenuProps["items"] = [{
+            key: "dashboard",
+            icon: <BookOutlined />,
+            label: "Mes inscriptions",
+        }];
+        return menuItems;
+    }
+
     const getMenuItems = () => {
         if (roles?.includes("ROLE_ADMIN")) {
             return getAdminMenuItems();
@@ -137,6 +146,8 @@ export const MyMenu: FunctionComponent = () => {
             return getEnseignantMenuItems();
         } else if (roles?.includes("ROLE_TRESORIER")) {
             return getTresorierMenuItems();
+        } else if (roles?.includes("ROLE_UTILISATEUR")) {
+            return getUtilisateurMenuItems();
         } else {
             return getPublicMenuItems();
         }
