@@ -128,7 +128,7 @@ export function prepareFeuillePresenceBeforeForm(feuille: FeuillePresenceDtoB) {
 export function prepareBulletinBeforeForm(bulletin: BulletinDtoB) {
     const bulletinDtoF: BulletinDtoF = {
         ...bulletin,
-        dateBulletin: dayjs(bulletin.dateBulletin, APPLICATION_DATE_FORMAT)
+        dateBulletin: bulletin.dateBulletin ? dayjs(bulletin.dateBulletin, APPLICATION_DATE_FORMAT) : undefined
     }
     return bulletinDtoF;
 }
@@ -136,7 +136,7 @@ export function prepareBulletinBeforeForm(bulletin: BulletinDtoB) {
 export function prepareBulletinBeforeSave(bulletin: BulletinDtoF) {
     const bulletinDtoB: BulletinDtoB = {
         ...bulletin,
-        dateBulletin: dayjs(bulletin.dateBulletin).format(APPLICATION_DATE_FORMAT)
+        dateBulletin: bulletin.dateBulletin ? dayjs(bulletin.dateBulletin).format(APPLICATION_DATE_FORMAT) : undefined
     }
     return bulletinDtoB;
 }

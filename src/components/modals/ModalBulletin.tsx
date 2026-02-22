@@ -155,7 +155,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 <Row gutter={[16, 32]}>
                     <Col xs={24} sm={8}>
                         <Tooltip title="Le nombre d'absences est calculé automatiquement sur la base des feuilles de présence" color="geekblue">
-                            <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" disabled={isReadOnly} rules={[{ required: true, message: "Veuillez indiquer le nombre d'absences" }]}
+                            <InputNumberFormItem name="nbAbsences" label="Nombre d'absences" disabled={isReadOnly}
                                 min={0} />
                         </Tooltip>
                     </Col>
@@ -167,8 +167,7 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                             <Tag color="geekblue">{matiere.fr}</Tag>
                         </Col>
                         <Col xs={24} sm={9}>
-                            <SelectFormItem name={"notes." + matiere.code} label="Sélectionnez une note" disabled={isReadOnly} options={getNotesOptions()}
-                                rules={[{ required: true, message: "Veuillez sélectionner une note" }]} />
+                            <SelectFormItem name={"notes." + matiere.code} label="Sélectionnez une note" disabled={isReadOnly} options={getNotesOptions()} />
                         </Col>
                         <Col xs={24} sm={11}>
                             <InputFormItem name={"remarques." + matiere.code} label="Remarques" disabled={isReadOnly} />
@@ -178,13 +177,12 @@ export const ModalBulletin: FunctionComponent<ModalBulletinProps> = ({ open, set
                 <Divider orientation="left">Appréciation générale</Divider>
                 <Row gutter={[16, 32]}>
                     <Col xs={24} sm={6}>
-                        <DatePickerFormItem name="dateBulletin" label="Date" disabled={isReadOnly} rules={[{ required: true, message: "Veuillez indiquer la date du bulletin (apparaîtra sur le document PDF)" }]} />
+                        <DatePickerFormItem name="dateBulletin" label="Date" disabled={isReadOnly} />
                     </Col>
                     <Col xs={24} sm={18}>
                         <Form.Item
                             label="Appréciation"
                             name="appreciation"
-                            rules={[{ required: true, message: "Veuillez indiquer votre appréciation générale" }]}
                         >
                             <TextArea rows={4} placeholder="Veuillez saisir votre appréciation générale ici..." disabled={isReadOnly} />
                         </Form.Item>
