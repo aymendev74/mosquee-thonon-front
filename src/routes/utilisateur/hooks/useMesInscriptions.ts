@@ -1,26 +1,33 @@
 import { useEffect, useState } from "react";
 import useApi from "../../../hooks/useApi";
 import { MES_INSCRIPTIONS_ENDPOINT } from "../../../services/services";
-import { InscriptionParAnneeScolaireDto, MesInscriptionsSchema } from "../../../services/mesInscriptions";
+import {
+    InscriptionAdulteParAnneeScolaireDto,
+    InscriptionEnfantParAnneeScolaireDto,
+    MesInscriptionsDto,
+    MesInscriptionsDtoSchema,
+} from "../../../services/mesInscriptions";
 
 const useMesInscriptions = () => {
     const { execute, isLoading } = useApi();
-    const [inscriptions, setInscriptions] = useState<InscriptionParAnneeScolaireDto[]>([]);
+    const [inscriptionsEnfants, setInscriptionsEnfants] = useState<InscriptionEnfantParAnneeScolaireDto[]>([]);
+    const [inscriptionsAdultes, setInscriptionsAdultes] = useState<InscriptionAdulteParAnneeScolaireDto[]>([]);
 
     useEffect(() => {
         const loadInscriptions = async () => {
-            const { successData } = await execute<InscriptionParAnneeScolaireDto[]>(
+            const { successData } = await execute<MesInscriptionsDto>(
                 { method: "GET", url: MES_INSCRIPTIONS_ENDPOINT },
-                MesInscriptionsSchema
+                MesInscriptionsDtoSchema
             );
             if (successData) {
-                setInscriptions(successData);
+                setInscriptionsEnfants(successData.inscriptionsEnfants);
+                setInscriptionsAdultes(successData.inscriptionsAdultes);
             }
         };
         loadInscriptions();
     }, []);
 
-    return { inscriptions, isLoading };
+    return { inscriptionsEnfants, inscriptionsAdultes, isLoading };
 };
 
 export default useMesInscriptions;

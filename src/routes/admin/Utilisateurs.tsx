@@ -156,15 +156,16 @@ const Utilisateurs: React.FC = () => {
                                 />
                             </Tooltip>
                             <SelectFormItem
-                                name="role"
-                                label="Rôle"
-                                placeholder="Choisissez le rôle"
+                                name="roles"
+                                label="Rôles"
+                                placeholder="Choisissez le(s) rôle(s)"
                                 options={getRolesOptions()}
                                 allowClear
+                                mode="multiple"
                                 rules={[
                                     {
                                         required: true,
-                                        message: "Veuillez sélectionner un rôle",
+                                        message: "Veuillez sélectionner au moins un rôle",
                                     },
                                 ]}
                                 disabled={selectedUser !== null}

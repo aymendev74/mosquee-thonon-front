@@ -14,7 +14,15 @@ export const SignIn: FunctionComponent = () => {
         const state = params.get("state");
 
         const init = async () => {
-            const getDefaultRedirect = () => roles?.includes(ROLE_UTILISATEUR) ? "/dashboard" : "/admin";
+            const getDefaultRedirect = () => {
+                if (roles?.includes("ROLE_ADMIN") || roles?.includes("ROLE_ENSEIGNANT") || roles?.includes("ROLE_TRESORIER")) {
+                    return "/admin";
+                }
+                if (roles?.includes(ROLE_UTILISATEUR)) {
+                    return "/dashboard";
+                }
+                return "/";
+            };
 
             if (code) {
                 const redirectionUrl = await handleAuthorizationCode(code, state);

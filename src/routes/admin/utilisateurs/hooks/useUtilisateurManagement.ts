@@ -45,7 +45,9 @@ export const useUtilisateurManagement = (form: FormInstance) => {
     }, []);
 
     const handleCreateOrModifyUser = async (values: any) => {
-        const user = { ...values, roles: [{ role: values.role }] };
+        const roles = values.roles ?? [];
+        const user = { ...values, roles: roles.map((r: string) => ({ role: r })) };
+        delete user.rolesDisplay;
         let result: APICallResult<UserDto>;
         if (selectedUser) {
             result = await execute<UserDto>({
@@ -81,7 +83,7 @@ export const useUtilisateurManagement = (form: FormInstance) => {
     const onEditUser = (user: UserDto) => {
         setSelectedUser(user);
         form.setFieldsValue(user);
-        form.setFieldValue("role", user.roles[0].role);
+        form.setFieldValue("roles", user.roles.map((r) => r.role));
         setIsModalOpen(true);
     };
 

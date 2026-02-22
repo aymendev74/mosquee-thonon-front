@@ -414,11 +414,9 @@ body {
 
 /* Les styles des composants Ant Design sont maintenant gérés par les tokens dans src/theme/antdTheme.ts */
 
-/* === OMBRE DES CARDS === */
-/* Le token boxShadow d'Ant Design ne s'applique pas aux Cards, on utilise CSS */
+/* === STYLE DES CARDS === */
 .ant-card {
-  border: 1px solid #001529;
-  box-shadow: 0 5px 15px rgba(0, 21, 41, 0.6);
+  border: 1px solid #e8e8e8;
 }
 
 /* === EFFETS CSS CUSTOM === */
@@ -565,9 +563,8 @@ body {
 
 .adhesion-card-mobile {
   margin-bottom: 12px;
-  border: 1px solid #001529;
+  border: 1px solid #e8e8e8;
   border-radius: 8px;
-  box-shadow: 0 5px 15px #001529;
 }
 
 .adhesion-card-header {

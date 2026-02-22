@@ -140,17 +140,25 @@ export const MyMenu: FunctionComponent = () => {
     }
 
     const getMenuItems = () => {
-        if (roles?.includes("ROLE_ADMIN")) {
-            return getAdminMenuItems();
-        } else if (roles?.includes("ROLE_ENSEIGNANT")) {
-            return getEnseignantMenuItems();
-        } else if (roles?.includes("ROLE_TRESORIER")) {
-            return getTresorierMenuItems();
-        } else if (roles?.includes("ROLE_UTILISATEUR")) {
-            return getUtilisateurMenuItems();
-        } else {
+        const isAuthenticated = roles && roles.length > 0;
+        if (!isAuthenticated) {
             return getPublicMenuItems();
         }
+        const items: MenuProps["items"] = [];
+        const addedKeys = new Set<string>();
+        const addItems = (newItems: MenuProps["items"]) => {
+            newItems?.forEach((item) => {
+                if (item && "key" in item && !addedKeys.has(item.key as string)) {
+                    addedKeys.add(item.key as string);
+                    items.push(item);
+                }
+            });
+        };
+        if (roles.includes("ROLE_ADMIN")) addItems(getAdminMenuItems());
+        if (roles.includes("ROLE_ENSEIGNANT")) addItems(getEnseignantMenuItems());
+        if (roles.includes("ROLE_TRESORIER")) addItems(getTresorierMenuItems());
+        if (roles.includes("ROLE_UTILISATEUR")) addItems(getUtilisateurMenuItems());
+        return items;
     }
 
 

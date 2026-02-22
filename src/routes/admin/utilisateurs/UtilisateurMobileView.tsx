@@ -37,8 +37,14 @@ export const UtilisateurMobileView: FunctionComponent<UtilisateurViewProps> = ({
                     <span className="adhesion-card-value">{user.username}</span>
                 </div>
                 <div className="adhesion-card-row">
-                    <span className="adhesion-card-label">Rôle:</span>
-                    <span className="adhesion-card-value">{user.roles.map((r) => getRoleLibelle(r)).join(", ")}</span>
+                    <span className="adhesion-card-label">Rôles:</span>
+                    <span className="adhesion-card-value">
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                            {user.roles.map((r) => (
+                                <Tag key={r.role} color="blue">{getRoleLibelle(r)}</Tag>
+                            ))}
+                        </div>
+                    </span>
                 </div>
                 <div className="adhesion-card-row">
                     <span className="adhesion-card-label">Activation:</span>

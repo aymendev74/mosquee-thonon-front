@@ -1,15 +1,18 @@
 import { FunctionComponent } from "react";
-import { Button, Card, Collapse, Descriptions, Layout, List, Spin, Table, Tag, Typography } from "antd";
-import { BookOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, HomeOutlined, PhoneOutlined, ReloadOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Card, Collapse, Descriptions, Layout, Spin, Table, Tabs, Tag, Typography } from "antd";
+import { BookOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, HomeOutlined, PhoneOutlined, ReadOutlined, ReloadOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../../hooks/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { UnahtorizedAccess } from "../public/UnahtorizedAccess";
 import useMesInscriptions from "./hooks/useMesInscriptions";
 import useParametres from "./hooks/useParametres";
-import { EleveAvecAutorisationsDto, InscriptionParAnneeScolaireDto, ResponsableLegalDto } from "../../services/mesInscriptions";
+import { EleveDto, InscriptionAdulteParAnneeScolaireDto, InscriptionEnfantParAnneeScolaireDto, ResponsableLegalDto } from "../../services/mesInscriptions";
 import { StatutInscription } from "../../services/inscription";
 import { ROLE_UTILISATEUR } from "../../services/user";
+import { getLibelleNiveauInterneAdulte, getLibelleStatutProfessionnel } from "../../components/common/commoninputs";
+import { useMatieresStore } from "../../components/stores/useMatieresStore";
+import { TypeMatiereEnum } from "../../services/classe";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -37,7 +40,7 @@ const getColonnesEleves = (isMobile: boolean) => {
                 title: "Élève",
                 dataIndex: "nom",
                 key: "eleve",
-                render: (nom: string, record: EleveAvecAutorisationsDto) => (
+                render: (nom: string, record: EleveDto) => (
                     <div>
                         <div style={{ fontWeight: "bold" }}>{nom} {record.prenom}</div>
                         <div style={{ fontSize: "12px", color: "#666" }}>{record.dateNaissance}</div>
@@ -49,27 +52,6 @@ const getColonnesEleves = (isMobile: boolean) => {
                 dataIndex: "niveau",
                 key: "niveau",
                 width: 80,
-            },
-            {
-                title: "Autorisations",
-                key: "autorisations",
-                width: 120,
-                render: (record: EleveAvecAutorisationsDto) => (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                        <Tag
-                            color={record.autorisationAutonomie ? "green" : "red"}
-                            style={{ margin: 0, fontSize: "10px", padding: "1px 4px" }}
-                        >
-                            {record.autorisationAutonomie ? "Auto" : "Non auto"}
-                        </Tag>
-                        <Tag
-                            color={record.autorisationMedia ? "green" : "red"}
-                            style={{ margin: 0, fontSize: "10px", padding: "1px 4px" }}
-                        >
-                            {record.autorisationMedia ? "Média" : "Non média"}
-                        </Tag>
-                    </div>
-                ),
             },
         ];
     }
@@ -102,18 +84,6 @@ const getColonnesEleves = (isMobile: boolean) => {
             key: "niveauInterne",
             render: (value: string | null) => value ?? "-",
         },
-        {
-            title: "Autorisation autonomie",
-            dataIndex: "autorisationAutonomie",
-            key: "autorisationAutonomie",
-            render: (value: boolean | null) => value ? <Tag color="green">Oui</Tag> : <Tag color="red">Non</Tag>,
-        },
-        {
-            title: "Autorisation média",
-            dataIndex: "autorisationMedia",
-            key: "autorisationMedia",
-            render: (value: boolean | null) => value ? <Tag color="green">Oui</Tag> : <Tag color="red">Non</Tag>,
-        },
     ];
 };
 
@@ -137,18 +107,23 @@ const ResponsableLegalCard: FunctionComponent<{ responsableLegal: ResponsableLeg
                         <Descriptions.Item label="Téléphone">{responsableLegal.telephoneAutre}</Descriptions.Item>
                     </>
                 )}
+                <Descriptions.Item label="Autorisation autonomie">
+                    {responsableLegal.autorisationAutonomie ? <Tag color="green">Oui</Tag> : <Tag color="red">Non</Tag>}
+                </Descriptions.Item>
+                <Descriptions.Item label="Autorisation média">
+                    {responsableLegal.autorisationMedia ? <Tag color="green">Oui</Tag> : <Tag color="red">Non</Tag>}
+                </Descriptions.Item>
             </Descriptions>
         </Card>
     );
 };
 
-const InscriptionAnnee: FunctionComponent<{ inscription: InscriptionParAnneeScolaireDto; shouldShowReinscriptionButton: boolean; onReinscription: () => void }> = ({ inscription, shouldShowReinscriptionButton, onReinscription }) => {
+const InscriptionEnfantAnnee: FunctionComponent<{ inscription: InscriptionEnfantParAnneeScolaireDto; shouldShowReinscriptionButton: boolean; onReinscription: (inscription: InscriptionEnfantParAnneeScolaireDto) => void }> = ({ inscription, shouldShowReinscriptionButton, onReinscription }) => {
     const statutConfig = getStatutConfig(inscription.statut);
     const isMobile = useMediaQuery({ maxWidth: 768 });
 
     return (
         <div>
-            {/* En-tête avec les nouvelles informations */}
             <Card size="small" style={{ marginBottom: 16, backgroundColor: "#fafafa" }}>
                 <Descriptions column={{ xs: 1, sm: 3 }} size="small" bordered>
                     <Descriptions.Item label="Numéro d'inscription">
@@ -169,7 +144,7 @@ const InscriptionAnnee: FunctionComponent<{ inscription: InscriptionParAnneeScol
                 </Descriptions>
             </Card>
 
-            <Title level={5} style={{ marginTop: 8 }}>
+            <Title level={5}>
                 <UserOutlined /> Responsable légal
             </Title>
             <ResponsableLegalCard responsableLegal={inscription.responsableLegal} />
@@ -177,7 +152,7 @@ const InscriptionAnnee: FunctionComponent<{ inscription: InscriptionParAnneeScol
             <Title level={5}>
                 <TeamOutlined /> Élèves inscrits ({inscription.eleves.length})
             </Title>
-            <Table<EleveAvecAutorisationsDto>
+            <Table<EleveDto>
                 dataSource={inscription.eleves}
                 columns={getColonnesEleves(isMobile)}
                 rowKey={(record) => `${record.nom}-${record.prenom}-${record.dateNaissance}`}
@@ -220,7 +195,7 @@ const InscriptionAnnee: FunctionComponent<{ inscription: InscriptionParAnneeScol
                         type="primary"
                         size={isMobile ? "middle" : "large"}
                         icon={<ReloadOutlined />}
-                        onClick={onReinscription}
+                        onClick={() => onReinscription(inscription)}
                         style={{
                             backgroundColor: "#52c41a",
                             borderColor: "#52c41a",
@@ -236,9 +211,100 @@ const InscriptionAnnee: FunctionComponent<{ inscription: InscriptionParAnneeScol
     );
 };
 
+const InscriptionAdulteAnnee: FunctionComponent<{ inscription: InscriptionAdulteParAnneeScolaireDto }> = ({ inscription }) => {
+    const statutConfig = getStatutConfig(inscription.statut);
+    const { getMatieresByType } = useMatieresStore();
+    const matieresAdultes = getMatieresByType(TypeMatiereEnum.ADULTE);
+
+    const getLibelleMatiere = (code: string): string => {
+        const found = matieresAdultes.find((m) => m.code === code);
+        return found?.fr ?? code;
+    };
+
+    return (
+        <div>
+            <Card size="small" style={{ marginBottom: 16, backgroundColor: "#fafafa" }}>
+                <Descriptions column={{ xs: 1, sm: 3 }} size="small" bordered>
+                    <Descriptions.Item label="Numéro d'inscription">
+                        <strong>{inscription.noInscription}</strong>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Statut">
+                        <Tag
+                            color={statutConfig.color}
+                            icon={statutConfig.icon}
+                            style={{ fontSize: "14px", padding: "4px 8px" }}
+                        >
+                            {statutConfig.text}
+                        </Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Montant total">
+                        <strong>{inscription.montantTotal.toFixed(2)} €</strong>
+                    </Descriptions.Item>
+                </Descriptions>
+            </Card>
+
+            <Card size="small" style={{ marginBottom: 16 }}>
+                <Descriptions column={{ xs: 1, sm: 2 }} size="small" bordered>
+                    <Descriptions.Item label={<><UserOutlined /> Nom</>}>{inscription.nom}</Descriptions.Item>
+                    <Descriptions.Item label="Prénom">{inscription.prenom}</Descriptions.Item>
+                    <Descriptions.Item label="Email">{inscription.email}</Descriptions.Item>
+                    <Descriptions.Item label={<><PhoneOutlined /> Mobile</>}>{inscription.mobile}</Descriptions.Item>
+                    <Descriptions.Item label="Date de naissance">{inscription.dateNaissance}</Descriptions.Item>
+                    <Descriptions.Item label="Sexe">{inscription.sexe === "M" ? "Homme" : "Femme"}</Descriptions.Item>
+                    <Descriptions.Item label="Niveau">{getLibelleNiveauInterneAdulte(inscription.niveauInterne)}</Descriptions.Item>
+                    <Descriptions.Item label="Statut professionnel">{getLibelleStatutProfessionnel(inscription.statutProfessionnel)}</Descriptions.Item>
+                </Descriptions>
+                <div style={{ marginTop: 12, padding: "8px 12px", background: "#fafafa", borderRadius: 4 }}>
+                    <span style={{ fontWeight: 500, marginRight: 8 }}>Enseignements :</span>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
+                        {inscription.matieres.map((m) => (
+                            <Tag key={m} color="blue">{getLibelleMatiere(m)}</Tag>
+                        ))}
+                    </div>
+                </div>
+            </Card>
+        </div>
+    );
+};
+
+const getCollapseLabel = (inscription: { anneeDebut: number; anneeFin: number; noInscription: string; statut: StatutInscription }, isMobile: boolean) => {
+    const statutConfig = getStatutConfig(inscription.statut);
+    return (
+        <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            flexWrap: isMobile ? "wrap" : "nowrap"
+        }}>
+            <span style={{ fontSize: isMobile ? "14px" : "inherit" }}>
+                <BookOutlined style={{ marginRight: 8 }} />
+                Année scolaire {inscription.anneeDebut} / {inscription.anneeFin}
+            </span>
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: isMobile ? "8px" : "12px",
+                flexWrap: isMobile ? "wrap" : "nowrap"
+            }}>
+                <span style={{ fontSize: isMobile ? "10px" : "12px", color: "#666" }}>
+                    N°{inscription.noInscription}
+                </span>
+                <Tag
+                    color={statutConfig.color}
+                    icon={statutConfig.icon}
+                    style={{ fontSize: isMobile ? "10px" : "12px", margin: 0 }}
+                >
+                    {statutConfig.text}
+                </Tag>
+            </div>
+        </div>
+    );
+};
+
 const DashboardUtilisateur: FunctionComponent = () => {
     const { username, roles } = useAuth();
-    const { inscriptions, isLoading } = useMesInscriptions();
+    const { inscriptionsEnfants, inscriptionsAdultes, isLoading } = useMesInscriptions();
     const { reinscriptionPrioritaire, isInscriptionsEnfantFermees } = useParametres();
     const navigate = useNavigate();
     const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -247,59 +313,36 @@ const DashboardUtilisateur: FunctionComponent = () => {
         return <UnahtorizedAccess />;
     }
 
-    // Vérifier si le bouton de réinscription doit être affiché
-    const shouldShowReinscriptionButton = (inscription: InscriptionParAnneeScolaireDto) => {
+    const shouldShowReinscriptionButton = (inscription: InscriptionEnfantParAnneeScolaireDto) => {
         const currentYear = new Date().getFullYear();
         const isCurrentYear = inscription.anneeFin === currentYear;
-        return isCurrentYear && reinscriptionPrioritaire && !isInscriptionsEnfantFermees;
+        const hasNewerInscription = inscriptionsEnfants.some((i) => i.anneeFin > inscription.anneeFin);
+        return isCurrentYear && reinscriptionPrioritaire && !isInscriptionsEnfantFermees && !hasNewerInscription;
     };
 
-    const handleReinscription = () => {
-        navigate("/coursEnfants");
+    const handleReinscription = (inscription: InscriptionEnfantParAnneeScolaireDto) => {
+        navigate("/reinscriptionEnfants", { state: { inscription } });
     };
 
-    const collapseItems = inscriptions.map((inscription) => {
-        const statutConfig = getStatutConfig(inscription.statut);
-        return {
-            key: `${inscription.anneeDebut}-${inscription.anneeFin}`,
-            label: (
-                <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    flexWrap: isMobile ? "wrap" : "nowrap"
-                }}>
-                    <span style={{ fontSize: isMobile ? "14px" : "inherit" }}>
-                        <BookOutlined style={{ marginRight: 8 }} />
-                        Année scolaire {inscription.anneeDebut} / {inscription.anneeFin}
-                    </span>
-                    <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: isMobile ? "8px" : "12px",
-                        flexWrap: isMobile ? "wrap" : "nowrap"
-                    }}>
-                        <span style={{ fontSize: isMobile ? "10px" : "12px", color: "#666" }}>
-                            N°{inscription.noInscription}
-                        </span>
-                        <Tag
-                            color={statutConfig.color}
-                            icon={statutConfig.icon}
-                            style={{ fontSize: isMobile ? "10px" : "12px", margin: 0 }}
-                        >
-                            {statutConfig.text}
-                        </Tag>
-                    </div>
-                </div>
-            ),
-            children: <InscriptionAnnee
-                inscription={inscription}
-                shouldShowReinscriptionButton={shouldShowReinscriptionButton(inscription)}
-                onReinscription={handleReinscription}
-            />,
-        };
-    });
+    const hasEnfants = inscriptionsEnfants.length > 0;
+    const hasAdultes = inscriptionsAdultes.length > 0;
+    const hasNoInscription = !hasEnfants && !hasAdultes && !isLoading;
+
+    const collapseEnfantItems = inscriptionsEnfants.map((inscription) => ({
+        key: `enfant-${inscription.anneeDebut}-${inscription.anneeFin}`,
+        label: getCollapseLabel(inscription, isMobile),
+        children: <InscriptionEnfantAnnee
+            inscription={inscription}
+            shouldShowReinscriptionButton={shouldShowReinscriptionButton(inscription)}
+            onReinscription={handleReinscription}
+        />,
+    }));
+
+    const collapseAdulteItems = inscriptionsAdultes.map((inscription) => ({
+        key: `adulte-${inscription.anneeDebut}-${inscription.anneeFin}`,
+        label: getCollapseLabel(inscription, isMobile),
+        children: <InscriptionAdulteAnnee inscription={inscription} />,
+    }));
 
     return (
         <Layout>
@@ -309,19 +352,69 @@ const DashboardUtilisateur: FunctionComponent = () => {
                 margin: "0 auto",
                 width: "100%"
             }}>
-                <Title level={2} style={{ fontSize: isMobile ? "20px" : "inherit" }}>
+                <h2 className="insc-enfant-title">
                     <BookOutlined /> Mes inscriptions
-                </Title>
+                </h2>
 
                 <Spin spinning={isLoading} size="large" tip="Chargement...">
-                    {inscriptions.length === 0 && !isLoading ? (
+                    {hasNoInscription && (
                         <Card style={{ textAlign: "center" }}>
                             <p>Aucune inscription trouvée.</p>
                         </Card>
-                    ) : (
+                    )}
+
+                    {/* Les deux types d'inscriptions : affichage par onglets */}
+                    {hasEnfants && hasAdultes && (
+                        <Tabs
+                            defaultActiveKey="enfants"
+                            size={isMobile ? "small" : "large"}
+                            items={[
+                                {
+                                    key: "enfants",
+                                    label: (
+                                        <span>
+                                            <TeamOutlined /> Cours enfants
+                                            <Tag style={{ marginLeft: 8 }}>{inscriptionsEnfants.length}</Tag>
+                                        </span>
+                                    ),
+                                    children: (
+                                        <Collapse
+                                            defaultActiveKey={[`enfant-${inscriptionsEnfants[0].anneeDebut}-${inscriptionsEnfants[0].anneeFin}`]}
+                                            items={collapseEnfantItems}
+                                        />
+                                    ),
+                                },
+                                {
+                                    key: "adultes",
+                                    label: (
+                                        <span>
+                                            <ReadOutlined /> Cours adultes
+                                            <Tag style={{ marginLeft: 8 }}>{inscriptionsAdultes.length}</Tag>
+                                        </span>
+                                    ),
+                                    children: (
+                                        <Collapse
+                                            defaultActiveKey={[`adulte-${inscriptionsAdultes[0].anneeDebut}-${inscriptionsAdultes[0].anneeFin}`]}
+                                            items={collapseAdulteItems}
+                                        />
+                                    ),
+                                },
+                            ]}
+                        />
+                    )}
+
+                    {/* Un seul type : affichage direct sans onglets */}
+                    {hasEnfants && !hasAdultes && (
                         <Collapse
-                            defaultActiveKey={inscriptions.length > 0 ? [`${inscriptions[0].anneeDebut}-${inscriptions[0].anneeFin}`] : []}
-                            items={collapseItems}
+                            defaultActiveKey={[`enfant-${inscriptionsEnfants[0].anneeDebut}-${inscriptionsEnfants[0].anneeFin}`]}
+                            items={collapseEnfantItems}
+                        />
+                    )}
+
+                    {hasAdultes && !hasEnfants && (
+                        <Collapse
+                            defaultActiveKey={[`adulte-${inscriptionsAdultes[0].anneeDebut}-${inscriptionsAdultes[0].anneeFin}`]}
+                            items={collapseAdulteItems}
                         />
                     )}
                 </Spin>
