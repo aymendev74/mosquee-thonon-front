@@ -228,12 +228,38 @@ export const useMaClasseManagement = () => {
 
     const getBulletinById = (id: number) => bulletins.find(bulletin => bulletin.id === id);
 
+    const isBulletinCompletForPdf = (bulletin: BulletinDtoF | undefined): boolean => {
+        if (!bulletin) return false;
+
+        const hasAllNotes = getMatieresByType(TypeMatiereEnum.ENFANT).every(matiere =>
+            bulletin.bulletinMatieres?.some(bm => bm.code === matiere.code && bm.note)
+        );
+
+        const hasDateBulletin = !!bulletin.dateBulletin;
+        const hasAppreciation = !!bulletin.appreciation && bulletin.appreciation.trim().length > 0;
+        const hasMoisAnnee = !!bulletin.mois && !!bulletin.annee;
+        const hasNombreAbsences = !!bulletin.nbAbsences;
+
+        return hasAllNotes && hasDateBulletin && hasAppreciation && hasMoisAnnee && hasNombreAbsences;
+    };
+
     const getBulletinPdfButton = (id: number) => {
+        const bulletin = getBulletinById(id);
+        const isComplet = isBulletinCompletForPdf(bulletin);
+
+        if (!isComplet) {
+            return (
+                <Tooltip title="Le bulletin doit contenir toutes les informations pour pouvoir être généré" color="orange">
+                    <Button className="m-left-10" type="primary" disabled icon={<FilePdfTwoTone />} />
+                </Tooltip>
+            );
+        }
+
         return bulletinsPdf.some(idBulletin => idBulletin === id) ?
             (
                 <PDFDownloadLink className="m-left-10" document={<PdfAuthContextBridge>
-                    <PdfBulletin bulletin={getBulletinById(id)!}
-                        eleve={elevesEnriched.find(eleve => eleve.id === getBulletinById(id)?.idEleve)!}
+                    <PdfBulletin bulletin={bulletin!}
+                        eleve={elevesEnriched.find(eleve => eleve.id === bulletin?.idEleve)!}
                         matieres={getMatieresByType(TypeMatiereEnum.ENFANT)}
                         nomsEnseignants={classe?.enseignants?.map(e => e.nomPrenom) ?? []}
                         nomClasse={classe?.libelle ?? ""} />
