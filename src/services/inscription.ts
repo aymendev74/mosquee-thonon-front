@@ -84,6 +84,12 @@ export enum NiveauInterne {
     AVANCE = "AVANCE",
 }
 
+export type InscriptionEnfantResultDto = {
+    statut: StatutInscription;
+    newlyCreatedAccount: boolean;
+    enabledAccount: boolean;
+}
+
 export type InscriptionAdulte<T extends Dayjs | string> = {
     nom: string;
     prenom: string;

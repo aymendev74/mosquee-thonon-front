@@ -17,6 +17,7 @@ import {
 import {
     InscriptionEnfantBack,
     InscriptionEnfantFront,
+    InscriptionEnfantResultDto,
 } from '../../../services/inscription';
 import { EleveFront } from '../../../services/eleve';
 import { TarifInscriptionDto } from '../../../services/tarif';
@@ -44,7 +45,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
-    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantBack>();
+    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantResultDto>();
     const [activeStep, setActiveStep] = useState<number>(0);
     const { reinscriptionPrioritaire, isInscriptionsEnfantFermees } = useParametres();
 
@@ -133,20 +134,13 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         }
     };
 
-    const handleCoherenceBeforeSaveInscription = async (codeIncoherence: string | null | undefined) => {
+    const handleCoherenceBeforeSaveInscription = async (codeIncoherence: string | null | undefined, inscriptionToSave: InscriptionEnfantBack, sendMailConfirmation: boolean) => {
         if (codeIncoherence === "ELEVE_ALREADY_EXISTS") {
             notification.open({
                 message: "Au moins un élève saisi figure déjà dans une autre demande d'inscription sur la même période",
                 type: "error"
             });
         } else if (codeIncoherence === "NO_INCOHERENCE") {
-            const inscriptionFormValues: InscriptionEnfantFront = _.cloneDeep(form.getFieldsValue());
-            let sendMailConfirmation = form.getFieldValue("sendMailConfirmation");
-            if (!isAdmin) {
-                sendMailConfirmation = true;
-            }
-            inscriptionFormValues.eleves = _.cloneDeep(eleves);
-            const inscriptionToSave = prepareInscriptionEnfantBeforeSave(inscriptionFormValues);
 
             if (id) {
                 const result = await execute<InscriptionEnfantBack>({
@@ -181,17 +175,13 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
                     }
                 }
             } else {
-                const { success, successData } = await execute<InscriptionEnfantBack>({
+                const { success, successData } = await execute<InscriptionEnfantResultDto>({
                     method: "POST",
                     url: NEW_INSCRIPTION_ENFANT_ENDPOINT,
                     data: inscriptionToSave,
                     params: { sendMailConfirmation }
                 });
                 if (success && successData) {
-                    notification.open({
-                        message: "Votre inscription a bien été enregistrée",
-                        type: "success"
-                    });
                     setInscriptionFinished(successData);
                     resetForm();
                 }
@@ -199,7 +189,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         }
     };
 
-    const onFinish = async (inscription: InscriptionEnfantFront) => {
+    const onFinish = async () => {
         if (!isAdmin && !consentementChecked) {
             notification.open({
                 message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider",
@@ -207,6 +197,8 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
             });
             return;
         }
+        const inscription = form.getFieldsValue(true) as InscriptionEnfantFront;
+        console.log(inscription);
         const inscriptionDeepCopy = _.cloneDeep(inscription);
         if (inscriptionDeepCopy.responsableLegal.adherent == undefined) {
             inscriptionDeepCopy.responsableLegal.adherent = false;
@@ -222,14 +214,15 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
                 data: inscriptionToSave,
                 params: { sendMailConfirmation }
             });
-            handleCoherenceBeforeSaveInscription(successData);
+            handleCoherenceBeforeSaveInscription(successData, inscriptionToSave, sendMailConfirmation);
         } else {
+            let sendMailConfirmation = true;
             const { successData } = await execute<string>({
                 method: "POST",
                 url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT,
                 data: inscriptionToSave
             });
-            handleCoherenceBeforeSaveInscription(successData);
+            handleCoherenceBeforeSaveInscription(successData, inscriptionToSave, sendMailConfirmation);
         }
     };
 

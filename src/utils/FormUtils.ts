@@ -64,6 +64,7 @@ export function prepareEleveBeforeForm(eleves: EleveBack[]) {
 };
 
 export function prepareInscriptionEnfantBeforeSave(inscription: InscriptionEnfantFront) {
+    console.log(inscription.responsableLegal);
     const inscriptionToSave: InscriptionEnfantBack = {
         ...inscription,
         responsableLegal: {

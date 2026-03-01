@@ -1,6 +1,5 @@
-import { Button, Form, Result, Spin, Steps } from "antd";
+import { Form, Spin, Steps } from "antd";
 import { FunctionComponent } from "react";
-import { StatutInscription } from "../../services/inscription";
 import { useForm } from "antd/es/form/Form";
 import { ModaleRGPD } from "../../components/modals/ModalRGPD";
 import { ResponsableLegal } from "../../components/inscriptions/ResponsableLegal";
@@ -9,6 +8,7 @@ import { Eleves } from "../../components/inscriptions/Eleves";
 import { CheckOutlined, EuroCircleOutlined, InfoCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useCoursArabesEnfantManagement } from "./hooks/useCoursArabesEnfantManagement";
 import { LockAlert } from "../../components/common/LockAlert";
+import { InscriptionEnfantResultScreen } from "../../components/inscriptions/InscriptionEnfantResultScreen";
 
 export const CoursArabesEnfantForm: FunctionComponent = () => {
     const [form] = useForm();
@@ -59,49 +59,14 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         }
     ];
 
-    const getResult = () => {
-        if (inscriptionFinished?.statut === StatutInscription.REFUSE) {
-            return (<Result
-                status="error"
-                title="Inscription refusée"
-                subTitle={(<div className="result-message">Votre inscription a été refusée car seules les réinscriptions sont actuellement autorisées. Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter l'AMC par e-mail : amcthonon@gmail.com<br />
-                    Un mail récpitulatif vous a été envoyé à l'adresse e-mail indiquée.
-                </div>)}
-                extra={[
-                    <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
-                        Nouvelle inscription
-                    </Button>]}
-            />);
-        } else if (inscriptionFinished?.statut === StatutInscription.LISTE_ATTENTE) {
-            return (<Result
-                status="warning"
-                title="Inscription en liste d'attente"
-                subTitle={(<div className="result-message">Votre inscription a été enregistrée, cependant vous avez été placée sur liste d'attente.<br />
-                    Un mail récpitulatif vous a été envoyé à l'adresse e-mail indiquée.
-                </div>)}
-                extra={[
-                    <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
-                        Nouvelle inscription
-                    </Button>]}
-            />);
-        } else {
-            return (<Result
-                status="success"
-                title="Inscription enregistré"
-                subTitle={<div className="result-message">Votre inscription a bien été enregistrée.<br />
-                    Un mail récpitulatif vous a été envoyé à l'adresse e-mail indiquée.
-                </div>}
-                extra={[
-                    <Button type="primary" onClick={() => setInscriptionFinished(undefined)}>
-                        Nouvelle inscription
-                    </Button>]}
-            />);
-        }
-    }
-
     const getFormContent = () => {
         if (inscriptionFinished) {
-            return getResult();
+            return (
+                <InscriptionEnfantResultScreen
+                    result={inscriptionFinished}
+                    onNouvelleInscription={() => setInscriptionFinished(undefined)}
+                />
+            );
         }
 
         return (
@@ -145,6 +110,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
                     autoComplete="off"
                     className="container-form"
                     form={form}
+                    preserve={true}
                 >
                     <h2 className="insc-enfant-title">
                         <TeamOutlined /> Inscription aux cours arabes pour enfants
