@@ -8,6 +8,7 @@ const useParametres = () => {
     const { execute, isLoading } = useApi();
     const [reinscriptionPrioritaire, setReinscriptionPrioritaire] = useState<boolean>(false);
     const [isInscriptionsEnfantFermees, setIsInscriptionsEnfantFermees] = useState<boolean>(false);
+    const [isInscriptionsAdulteFermees, setIsInscriptionsAdulteFermees] = useState<boolean>(false);
 
     useEffect(() => {
         const loadParametres = async () => {
@@ -18,12 +19,13 @@ const useParametres = () => {
             if (params) {
                 setReinscriptionPrioritaire(params.reinscriptionPrioritaire ?? false);
                 setIsInscriptionsEnfantFermees(isInscriptionFerme(params.inscriptionEnfantEnabledFromDate));
+                setIsInscriptionsAdulteFermees(isInscriptionFerme(params.inscriptionAdulteEnabledFromDate));
             }
         };
         loadParametres();
     }, []);
 
-    return { reinscriptionPrioritaire, isInscriptionsEnfantFermees, isLoading };
+    return { reinscriptionPrioritaire, isInscriptionsEnfantFermees, isInscriptionsAdulteFermees, isLoading };
 };
 
 export default useParametres;

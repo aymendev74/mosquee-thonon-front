@@ -132,15 +132,15 @@ const ReinscriptionEnfantForm: FunctionComponent = () => {
                             <Row gutter={[16, 12]}>
                                 <Col xs={24} md={12}>
                                     <label style={{ fontWeight: 500, fontSize: 13 }}>Nom</label>
-                                    <Input value={responsableLegal.nom} onChange={(e) => updateResponsableLegal("nom", e.target.value)} />
+                                    <Input value={responsableLegal.nom} onChange={(e) => updateResponsableLegal("nom", e.target.value)} disabled />
                                 </Col>
                                 <Col xs={24} md={12}>
                                     <label style={{ fontWeight: 500, fontSize: 13 }}>Prénom</label>
-                                    <Input value={responsableLegal.prenom} onChange={(e) => updateResponsableLegal("prenom", e.target.value)} />
+                                    <Input value={responsableLegal.prenom} onChange={(e) => updateResponsableLegal("prenom", e.target.value)} disabled />
                                 </Col>
                                 <Col xs={24} md={12}>
                                     <label style={{ fontWeight: 500, fontSize: 13 }}>Email</label>
-                                    <Input value={responsableLegal.email} onChange={(e) => updateResponsableLegal("email", e.target.value)} />
+                                    <Input value={responsableLegal.email} onChange={(e) => updateResponsableLegal("email", e.target.value)} disabled />
                                 </Col>
                                 <Col xs={24} md={12}>
                                     <label style={{ fontWeight: 500, fontSize: 13 }}>Tél. mobile</label>

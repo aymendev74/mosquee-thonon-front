@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Col, Form, Popover, Result, Row, Spin, Typography } from "antd";
+import { Button, Card, Checkbox, Col, Form, Popover, Row, Spin, Typography } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { FunctionComponent } from "react";
 import { getConsentementInscriptionCoursLibelle, validateCodePostal, validateMajorite, validatePhoneNumber } from "../../utils/FormUtils";
@@ -14,6 +14,7 @@ import { BookOutlined, EuroCircleOutlined, PhoneOutlined, QuestionCircleOutlined
 import { MultiTagSelect } from "../../components/common/MultiTagSelectFormItem";
 import { useCoursArabesAdulteManagement } from "./hooks/useCoursArabesAdulteManagement";
 import { LockAlert } from "../../components/common/LockAlert";
+import { InscriptionAdulteResultScreen } from "../../components/inscriptions/InscriptionAdulteResultScreen";
 
 const { Title } = Typography;
 
@@ -22,8 +23,8 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
 
     const {
         isLoading,
-        inscriptionSuccess,
-        setInscriptionSuccess,
+        inscriptionFinished,
+        setInscriptionFinished,
         consentementChecked,
         setConsentementChecked,
         tarifInscription,
@@ -56,16 +57,11 @@ export const CoursArabesAdulteForm: FunctionComponent = () => {
     };
 
     const getFormContent = () => {
-        return inscriptionSuccess ? (
+        return inscriptionFinished ? (
             <div className="centered-content">
-                <Result
-                    status="success"
-                    title="Inscription enregistrée"
-                    subTitle={(<div className="result-message">Votre inscription a bien été enregistrée. Vous serez recontacté rapidement.</div>)}
-                    extra={[
-                        <Button type="primary" onClick={() => setInscriptionSuccess(false)}>
-                            Nouvelle inscription
-                        </Button>]}
+                <InscriptionAdulteResultScreen
+                    result={inscriptionFinished}
+                    onNouvelleInscription={() => setInscriptionFinished(undefined)}
                 />
             </div>) :
             (<div className="centered-content">

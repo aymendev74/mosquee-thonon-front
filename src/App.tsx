@@ -30,6 +30,7 @@ import Utilisateurs from './routes/admin/Utilisateurs';
 import AccountActivation from './routes/public/AccountActivation';
 import DashboardUtilisateur from './routes/utilisateur/DashboardUtilisateur';
 import ReinscriptionEnfantForm from './routes/utilisateur/ReinscriptionEnfantForm';
+import ReinscriptionAdulteForm from './routes/utilisateur/ReinscriptionAdulteForm';
 import ResetPassword from './routes/public/ResetPassword';
 
 const { Header, Content, Footer } = Layout;
@@ -140,6 +141,7 @@ function App() {
           <Route path="/utilisateurs" element={<Utilisateurs />} />
           <Route path="/dashboard" element={<DashboardUtilisateur />} />
           <Route path="/reinscriptionEnfants" element={<ReinscriptionEnfantForm />} />
+          <Route path="/reinscriptionAdultes" element={<ReinscriptionAdulteForm />} />
           <Route path="/accountActivation" element={<AccountActivation />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />

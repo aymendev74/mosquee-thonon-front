@@ -29,7 +29,6 @@ export const AdhesionForm: FunctionComponent = () => {
         isReadOnly,
         isAdmin,
         lockStatus,
-        isLocked,
         getCiviliteOptions,
         onMontantChanged,
         onFinish,

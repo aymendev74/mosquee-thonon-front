@@ -24,6 +24,7 @@ export const ROLE_UTILISATEUR = "ROLE_UTILISATEUR";
 
 export const AccountInfosSchema = z.object({
     username: z.string(),
+    prenom: z.optional(z.string()),
     enabled: z.boolean(),
 });
 export type AccountInfos = z.infer<typeof AccountInfosSchema>;

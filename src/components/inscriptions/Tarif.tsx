@@ -19,10 +19,9 @@ export type TarifProps = {
     onPreviousStep: () => void;
     consentementChecked: boolean;
     setConsentementChecked: React.Dispatch<React.SetStateAction<boolean>>;
-    isReinscriptionOnlyEnabled: boolean;
 }
 
-export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription, form, isAdmin, isReadOnly, onPreviousStep, consentementChecked, setConsentementChecked, isReinscriptionOnlyEnabled }) => {
+export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription, form, isAdmin, isReadOnly, onPreviousStep, consentementChecked, setConsentementChecked }) => {
 
     const getStatutAdherent = () => {
         const adherent = form.getFieldValue(["responsableLegal", "adherent"]);
@@ -67,7 +66,7 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                     style={{ marginBottom: 20 }}
                 />
             )}
-            {!isAdmin && tarifInscription?.listeAttente && !isReinscriptionOnlyEnabled && (
+            {!isAdmin && tarifInscription?.listeAttente && (
                 <Alert message="Liste d'attente" type="warning"
                     description="Attention, le nombre d'élèves inscrits sur la période en cours a atteint la capacité maximum. Vous allez être placés sur liste d'attente si vous validez cette inscription."
                     showIcon style={{ marginBottom: 20 }} />
@@ -90,11 +89,6 @@ export const Tarif: FunctionComponent<TarifProps> = ({ eleves, tarifInscription,
                         </Row>
                     </Card>
                 </>
-            )}
-            {isReinscriptionOnlyEnabled && (
-                <Alert message="Attention à l'orthographe !" type="warning"
-                    description="Vous êtes en train de réinscrire vos enfants, veuillez vous assurer que l'orthographe des noms et prénoms, ainsi que les dates de naissances sont correctes et identiques à l'inscription de l'année précédente. Dans le cas contraire, l'inscription risque d'être rejetée automatiquement."
-                    showIcon style={{ marginBottom: 20 }} />
             )}
             {!isAdmin && tarifInscription && (
                 <Card size="small" style={{ marginBottom: 20 }}>

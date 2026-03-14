@@ -24,8 +24,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         tarifInscription,
         inscriptionFinished,
         setInscriptionFinished,
-        reinscriptionPrioritaire,
-        isInscriptionsEnfantFermees,
+        isFormClosed,
         activeStep,
         id,
         isReadOnly,
@@ -55,7 +54,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
             icon: <EuroCircleOutlined />,
             content: <Tarif eleves={eleves} tarifInscription={tarifInscription} form={form} isAdmin={isAdmin} isReadOnly={isReadOnly}
                 onPreviousStep={onPreviousStep} consentementChecked={consentementChecked} setConsentementChecked={setConsentementChecked}
-                isReinscriptionOnlyEnabled={reinscriptionPrioritaire} />,
+            />
         }
     ];
 
@@ -100,7 +99,7 @@ export const CoursArabesEnfantForm: FunctionComponent = () => {
         );
     }
 
-    return isInscriptionsEnfantFermees ? getInscriptionFermeesContent() :
+    return isFormClosed ? getInscriptionFermeesContent() :
         (
             <div className="centered-content">
                 <Form

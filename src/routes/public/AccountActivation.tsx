@@ -59,7 +59,7 @@ const AccountActivation: React.FC = () => {
                 onFinish={handleFinish}
                 className="container-form">
                 <h2 className="user-activation-title">Activation de votre compte utilisateur</h2>
-                <h3>Bienvenue {accountInfos.username} !</h3>
+                <h3>Bienvenue {accountInfos.prenom ?? accountInfos.username} !</h3>
                 <p>Plus qu'une étape afin de pouvoir utiliser votre compte. Veuillez saisir un mot de passe (minimum 8 caractères).</p>
                 <Spin spinning={isLoading}>
                     <Row gutter={[16, 0]}>

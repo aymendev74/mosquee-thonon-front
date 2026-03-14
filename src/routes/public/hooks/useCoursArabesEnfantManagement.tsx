@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Modal, notification } from 'antd';
+import { notification } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import _ from 'lodash';
 import useApi from '../../../hooks/useApi';
@@ -39,8 +39,6 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { roles } = useAuth();
-    const { warning } = Modal;
-
     const [modalRGPDOpen, setModalRGPDOpen] = useState(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [eleves, setEleves] = useState<EleveFront[]>([]);
@@ -51,6 +49,11 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
 
     const isReadOnly = searchParams.get('readonly') === 'true';
     const isAdmin = roles.includes("ROLE_ADMIN");
+
+    // Quand les réinscriptions sont ouvertes, ce formulaire est désactivé pour les non-admin
+    // (les réinscriptions se font via le formulaire dédié ReinscriptionEnfantForm)
+    // Les admins peuvent toujours accéder aux inscriptions existantes
+    const isFormClosed = !isAdmin && (isInscriptionsEnfantFermees || reinscriptionPrioritaire);
 
     // Gestion du verrou pour l'édition
     const { lockStatus, acquireLock, releaseLock, updateLockStatus, isLocked } = useLock(
@@ -198,7 +201,6 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
             return;
         }
         const inscription = form.getFieldsValue(true) as InscriptionEnfantFront;
-        console.log(inscription);
         const inscriptionDeepCopy = _.cloneDeep(inscription);
         if (inscriptionDeepCopy.responsableLegal.adherent == undefined) {
             inscriptionDeepCopy.responsableLegal.adherent = false;
@@ -233,26 +235,6 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         });
     };
 
-    const getReinscriptionPrioritaire = () => {
-        return (
-            <>
-                <div>
-                    Actuellement, <b>seuls les élèves déja inscrits cette année</b> sont autorisés à se reinscrire pour l'année prochaine<br /><br />
-                    <b>Les inscriptions ne respectant pas ce critère seront automatiquement rejetées</b> par le système.
-                </div>
-            </>
-        );
-    };
-
-    useEffect(() => {
-        if (reinscriptionPrioritaire) {
-            warning({
-                title: "Réinscription uniquement !",
-                content: getReinscriptionPrioritaire()
-            });
-        }
-    }, [reinscriptionPrioritaire]);
-
     useEffect(() => {
         const loadData = async () => {
             if (id) {
@@ -268,6 +250,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
                 if (inscription) {
                     const inscriptionFormValues: InscriptionEnfantFront = prepareInscriptionEnfantBeforeForm(inscription);
                     form.setFieldsValue(inscriptionFormValues);
+                    form.setFieldValue("confirmationEmail", inscriptionFormValues.responsableLegal.email);
                     setEleves(inscriptionFormValues.eleves);
                 }
             }
@@ -291,8 +274,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         tarifInscription,
         inscriptionFinished,
         setInscriptionFinished,
-        reinscriptionPrioritaire,
-        isInscriptionsEnfantFermees,
+        isFormClosed,
         activeStep,
         id,
         isReadOnly: effectiveReadOnly,

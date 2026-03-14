@@ -54,7 +54,7 @@ export const Parametres: FunctionComponent = () => {
                                             </Col>
                                             <Col xs={24} sm={12} md={8}>
                                                 <Tooltip color="geekblue" title="Seuls les élèves inscrits l'année précédente peuvent se réinscrire">
-                                                    <SwitchFormItem name="reinscriptionPrioritaire" label="Réinscriptions prioritaires" />
+                                                    <SwitchFormItem name="reinscriptionPrioritaire" label="Seulement les réinscriptions" />
                                                 </Tooltip>
                                             </Col>
                                         </>
@@ -72,7 +72,7 @@ export const Parametres: FunctionComponent = () => {
                                         </Tooltip>
                                     </Col>
                                     {inscriptionAdulteFromDateVisible && (
-                                        <Col xs={24} sm={12} md={8}>
+                                        <Col xs={24} sm={12} md={6}>
                                             <Tooltip color="geekblue" title="Indiquez la date à partir de laquelle les inscriptions sont possibles">
                                                 <DatePickerFormItem name="inscriptionAdulteEnabledFromDate" label="A partir du" rules={[{ required: true, message: "Date obligatoire" }]} />
                                             </Tooltip>

@@ -211,7 +211,7 @@ const InscriptionEnfantAnnee: FunctionComponent<{ inscription: InscriptionEnfant
     );
 };
 
-const InscriptionAdulteAnnee: FunctionComponent<{ inscription: InscriptionAdulteParAnneeScolaireDto }> = ({ inscription }) => {
+const InscriptionAdulteAnnee: FunctionComponent<{ inscription: InscriptionAdulteParAnneeScolaireDto; shouldShowReinscriptionButton: boolean; onReinscription: (inscription: InscriptionAdulteParAnneeScolaireDto) => void }> = ({ inscription, shouldShowReinscriptionButton, onReinscription }) => {
     const statutConfig = getStatutConfig(inscription.statut);
     const { getMatieresByType } = useMatieresStore();
     const matieresAdultes = getMatieresByType(TypeMatiereEnum.ADULTE);
@@ -220,6 +220,8 @@ const InscriptionAdulteAnnee: FunctionComponent<{ inscription: InscriptionAdulte
         const found = matieresAdultes.find((m) => m.code === code);
         return found?.fr ?? code;
     };
+
+    const isMobile = useMediaQuery({ maxWidth: 768 });
 
     return (
         <div>
@@ -263,6 +265,52 @@ const InscriptionAdulteAnnee: FunctionComponent<{ inscription: InscriptionAdulte
                     </div>
                 </div>
             </Card>
+
+            {/* Bouton de réinscription adulte */}
+            {shouldShowReinscriptionButton && (
+                <Card
+                    size="small"
+                    style={{
+                        marginTop: 16,
+                        textAlign: "center",
+                        backgroundColor: "#f0f8ff",
+                        padding: isMobile ? "12px" : "16px"
+                    }}
+                >
+                    <div style={{ marginBottom: isMobile ? 8 : 12 }}>
+                        <p style={{
+                            margin: 0,
+                            color: "#1890ff",
+                            fontWeight: "bold",
+                            fontSize: isMobile ? "14px" : "inherit"
+                        }}>
+                            🎓 La réinscription pour l'année prochaine est ouverte !
+                        </p>
+                        <p style={{
+                            margin: "4px 0 0 0",
+                            fontSize: isMobile ? "11px" : "12px",
+                            color: "#666",
+                            lineHeight: "1.3"
+                        }}>
+                            En tant qu'inscrit(e) cette année, vous pouvez vous réinscrire prioritairement pour l'année scolaire {inscription.anneeDebut + 1} / {inscription.anneeFin + 1}
+                        </p>
+                    </div>
+                    <Button
+                        type="primary"
+                        size={isMobile ? "middle" : "large"}
+                        icon={<ReloadOutlined />}
+                        onClick={() => onReinscription(inscription)}
+                        style={{
+                            backgroundColor: "#52c41a",
+                            borderColor: "#52c41a",
+                            width: isMobile ? "100%" : "auto",
+                            maxWidth: isMobile ? "280px" : "none"
+                        }}
+                    >
+                        {isMobile ? "Me réinscrire" : "Me réinscrire pour l'année prochaine"}
+                    </Button>
+                </Card>
+            )}
         </div>
     );
 };
@@ -305,7 +353,7 @@ const getCollapseLabel = (inscription: { anneeDebut: number; anneeFin: number; n
 const DashboardUtilisateur: FunctionComponent = () => {
     const { username, roles } = useAuth();
     const { inscriptionsEnfants, inscriptionsAdultes, isLoading } = useMesInscriptions();
-    const { reinscriptionPrioritaire, isInscriptionsEnfantFermees } = useParametres();
+    const { reinscriptionPrioritaire, isInscriptionsEnfantFermees, isInscriptionsAdulteFermees } = useParametres();
     const navigate = useNavigate();
     const isMobile = useMediaQuery({ maxWidth: 768 });
 
@@ -320,8 +368,19 @@ const DashboardUtilisateur: FunctionComponent = () => {
         return isCurrentYear && reinscriptionPrioritaire && !isInscriptionsEnfantFermees && !hasNewerInscription;
     };
 
+    const shouldShowReinscriptionAdulteButton = (inscription: InscriptionAdulteParAnneeScolaireDto) => {
+        const currentYear = new Date().getFullYear();
+        const isCurrentYear = inscription.anneeFin === currentYear;
+        const hasNewerInscription = inscriptionsAdultes.some((i) => i.anneeFin > inscription.anneeFin);
+        return isCurrentYear && !isInscriptionsAdulteFermees && !hasNewerInscription;
+    };
+
     const handleReinscription = (inscription: InscriptionEnfantParAnneeScolaireDto) => {
         navigate("/reinscriptionEnfants", { state: { inscription } });
+    };
+
+    const handleReinscriptionAdulte = (inscription: InscriptionAdulteParAnneeScolaireDto) => {
+        navigate("/reinscriptionAdultes", { state: { inscription } });
     };
 
     const hasEnfants = inscriptionsEnfants.length > 0;
@@ -341,7 +400,11 @@ const DashboardUtilisateur: FunctionComponent = () => {
     const collapseAdulteItems = inscriptionsAdultes.map((inscription) => ({
         key: `adulte-${inscription.anneeDebut}-${inscription.anneeFin}`,
         label: getCollapseLabel(inscription, isMobile),
-        children: <InscriptionAdulteAnnee inscription={inscription} />,
+        children: <InscriptionAdulteAnnee
+            inscription={inscription}
+            shouldShowReinscriptionButton={shouldShowReinscriptionAdulteButton(inscription)}
+            onReinscription={handleReinscriptionAdulte}
+        />,
     }));
 
     return (

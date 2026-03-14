@@ -45,6 +45,7 @@ export const BULLETIN_EXISTING_ENDPOINT = "/bulletins/{id}";
 export const MATIERES_ENDPOINT = "/matieres";
 export const MES_INSCRIPTIONS_ENDPOINT = "/inscriptions/mes-inscriptions";
 export const REINSCRIPTION_ENFANT_ENDPOINT = "/inscriptions-enfants/reinscription";
+export const REINSCRIPTION_ADULTE_ENDPOINT = "/inscriptions-adultes/reinscription";
 export const RESET_PASSWORD_REQUEST_ENDPOINT = "/users/resetPassword/request";
 export const RESET_PASSWORD_INFORMATIONS_ENDPOINT = "/users/resetPassword/informations";
 export const RESET_PASSWORD_ENDPOINT = "/users/resetPassword";
