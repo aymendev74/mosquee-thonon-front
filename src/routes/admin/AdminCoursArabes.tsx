@@ -1,8 +1,8 @@
 import { FunctionComponent, useState } from "react";
 import { InscriptionLight } from "../../services/inscription";
 import { useLocation } from "react-router-dom";
-import { Spin } from "antd";
-import { TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { Spin, Modal } from "antd";
+import { ExclamationCircleFilled, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useMediaQuery } from 'react-responsive';
 import { ModaleConfirmSuppressionInscription } from "../../components/modals/ModalConfirmSuppressionInscription";
 import exportToExcel, { ExcelColumnHeadersType } from "../../utils/FormUtils";
@@ -74,6 +74,29 @@ export const AdminCoursArabes: FunctionComponent = () => {
         }
     };
 
+    const handleDeleteInscription = async (inscriptionId: number) => {
+        Modal.confirm({
+            title: "Attention",
+            icon: <ExclamationCircleFilled />,
+            content: (
+                <div>
+                    <p>Vous êtes sur le point de supprimer cette inscription.</p>
+                    <p>Cette action entraînera la <strong>suppression définitive</strong> de :</p>
+                    <ul>
+                        <li>Toutes les données liées à cette inscription</li>
+                        <li>Les élèves rattachés à cette inscription</li>
+                        <li>Les bulletins associés</li>
+                    </ul>
+                    <p><strong>Cette action est irréversible.</strong></p>
+                </div>
+            ),
+            okText: "Supprimer",
+            okType: "danger",
+            cancelText: "Annuler",
+            onOk: () => deleteInscription(inscriptionId),
+        });
+    };
+
     const handleDeleteInscriptions = async () => {
         setModaleConfirmSuppressionOpen(false);
         await deleteInscriptions(selectedInscriptions);
@@ -107,7 +130,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                                 inscriptionsAdultesById={inscriptionsAdultesById}
                                 onValidateInscription={validateInscription}
                                 onValidateInscriptions={validateInscriptions}
-                                onDeleteInscription={deleteInscription}
+                                onDeleteInscription={handleDeleteInscription}
                                 onDeleteInscriptions={async (inscriptions) => { setModaleConfirmSuppressionOpen(true); }}
                                 onSearch={searchInscriptions}
                                 onExport={exportData}
@@ -126,7 +149,7 @@ export const AdminCoursArabes: FunctionComponent = () => {
                                 inscriptionsAdultesById={inscriptionsAdultesById}
                                 onValidateInscription={validateInscription}
                                 onValidateInscriptions={validateInscriptions}
-                                onDeleteInscription={deleteInscription}
+                                onDeleteInscription={handleDeleteInscription}
                                 onDeleteInscriptions={async (inscriptions) => { setModaleConfirmSuppressionOpen(true); }}
                                 onSearch={searchInscriptions}
                                 onExport={exportData}

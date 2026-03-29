@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { FormInstance, notification } from "antd";
+import { useState, useEffect, createElement } from "react";
+import { FormInstance, Modal, notification } from "antd";
+import { ExclamationCircleFilled } from "@ant-design/icons";
 import useApi, { APICallResult } from "../../../../hooks/useApi";
-import { UserDto } from "../../../../services/user";
+import { UserDto, ROLE_UTILISATEUR } from "../../../../services/user";
 import { buildUrlWithParams, ROLES_ENDPOINT, USER_ENDPOINT, USER_EXISITING_ENDPOINT, USER_RESEND_ACTIVATION_MAIL_ENDPOINT } from "../../../../services/services";
 
 export const useUtilisateurManagement = (form: FormInstance) => {
@@ -45,7 +46,9 @@ export const useUtilisateurManagement = (form: FormInstance) => {
     }, []);
 
     const handleCreateOrModifyUser = async (values: any) => {
-        const user = { ...values, roles: [{ role: values.role }] };
+        const roles = values.roles ?? [];
+        const user = { ...values, roles: roles.map((r: string) => ({ role: r })) };
+        delete user.rolesDisplay;
         let result: APICallResult<UserDto>;
         if (selectedUser) {
             result = await execute<UserDto>({
@@ -81,11 +84,11 @@ export const useUtilisateurManagement = (form: FormInstance) => {
     const onEditUser = (user: UserDto) => {
         setSelectedUser(user);
         form.setFieldsValue(user);
-        form.setFieldValue("role", user.roles[0].role);
+        form.setFieldValue("roles", user.roles.map((r) => r.role));
         setIsModalOpen(true);
     };
 
-    const onDeleteUser = async (user: UserDto) => {
+    const performDeleteUser = async (user: UserDto) => {
         const { success } = await execute<UserDto>({
             method: "DELETE",
             url: buildUrlWithParams(USER_EXISITING_ENDPOINT, { id: user.id }),
@@ -94,6 +97,32 @@ export const useUtilisateurManagement = (form: FormInstance) => {
             notification.open({ message: "L'utilisateur a bien été supprimé", type: "success" });
             setSelectedUsers([]);
             fetchUsers();
+        }
+    };
+
+    const onDeleteUser = (user: UserDto) => {
+        const isUtilisateur = user.roles.some((r) => r.role === ROLE_UTILISATEUR);
+        if (isUtilisateur) {
+            Modal.confirm({
+                title: "Attention",
+                icon: createElement(ExclamationCircleFilled),
+                content: createElement("div", null,
+                    createElement("p", null, "Vous êtes sur le point de supprimer le compte de ", createElement("strong", null, user.prenom + " " + user.nom), "."),
+                    createElement("p", null, "Cette action entraînera la ", createElement("strong", null, "suppression définitive"), " de :"),
+                    createElement("ul", null,
+                        createElement("li", null, "Toutes les inscriptions liées à cet utilisateur"),
+                        createElement("li", null, "Toutes ses données personnelles"),
+                        createElement("li", null, "Ses bulletins"),
+                    ),
+                    createElement("p", null, createElement("strong", null, "Cette action est irréversible.")),
+                ),
+                okText: "Supprimer",
+                okType: "danger",
+                cancelText: "Annuler",
+                onOk: () => performDeleteUser(user),
+            });
+        } else {
+            performDeleteUser(user);
         }
     };
 

@@ -2,7 +2,7 @@ import { DefaultOptionType } from "antd/es/select"
 import { NiveauInterne, NiveauScolaire, StatutInscription, StatutProfessionel } from "../../services/inscription"
 import { JourActiviteEnum } from "../../services/classe";
 import { ResultatEnum } from "../../services/eleve";
-import { ROLE_ADMIN, ROLE_ENSEIGNANT, ROLE_TRESORIER, RoleDto } from "../../services/user";
+import { ROLE_ADMIN, ROLE_ENSEIGNANT, ROLE_TRESORIER, ROLE_UTILISATEUR, RoleDto } from "../../services/user";
 
 export const getNiveauOptions = (): DefaultOptionType[] => {
     return [{ value: NiveauScolaire.CP, label: "CP" }, { value: NiveauScolaire.CE1, label: "CE1" }, { value: NiveauScolaire.CE2, label: "CE2" },
@@ -24,6 +24,15 @@ export const getNiveauInterneAdulteOptions = (): DefaultOptionType[] => {
     { value: NiveauInterne.AVANCE, label: "Avancé" }]
 }
 
+export const getLibelleNiveauInterneAdulte = (niveau: string): string => {
+    const map: Record<string, string> = {
+        [NiveauInterne.DEBUTANT]: "Débutant",
+        [NiveauInterne.INTERMEDIAIRE]: "Intermédiaire",
+        [NiveauInterne.AVANCE]: "Avancé",
+    };
+    return map[niveau] ?? niveau;
+};
+
 export const getStatutInscriptionOptions = () => {
     return [
         { value: StatutInscription.PROVISOIRE, label: "Provisoire" },
@@ -37,6 +46,15 @@ export const getStatutsProfessionnelsOptions = (): DefaultOptionType[] => {
     return [{ value: StatutProfessionel.ETUDIANT, label: "Etudiant" }, { value: StatutProfessionel.AVEC_ACTIVITE, label: "Activité lucrative" },
     { value: StatutProfessionel.SANS_ACTIVITE, label: "Sans activité lucrative" }]
 }
+
+export const getLibelleStatutProfessionnel = (statut: string): string => {
+    const map: Record<string, string> = {
+        [StatutProfessionel.ETUDIANT]: "Etudiant",
+        [StatutProfessionel.AVEC_ACTIVITE]: "Activité lucrative",
+        [StatutProfessionel.SANS_ACTIVITE]: "Sans activité lucrative",
+    };
+    return map[statut] ?? statut;
+};
 
 export const getLibelleNiveauScolaire = (niveau: NiveauScolaire) => {
     if (niveau === NiveauScolaire.CP) {
@@ -90,6 +108,7 @@ export function getRoleLibelle(roleDto: RoleDto): string {
     if (roleDto.role === ROLE_ADMIN) return "Administrateur";
     if (roleDto.role === ROLE_ENSEIGNANT) return "Enseignant";
     if (roleDto.role === ROLE_TRESORIER) return "Trésorier";
+    if (roleDto.role === ROLE_UTILISATEUR) return "Utilisateur";
     return "Inconnu";
 }
 
@@ -98,5 +117,6 @@ export function getRolesOptions(): DefaultOptionType[] {
         { value: ROLE_ADMIN, label: "Administrateur" },
         { value: ROLE_ENSEIGNANT, label: "Enseignant" },
         { value: ROLE_TRESORIER, label: "Trésorier" },
+        { value: ROLE_UTILISATEUR, label: "Utilisateur" },
     ];
 }

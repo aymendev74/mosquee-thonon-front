@@ -1,6 +1,6 @@
 import { FunctionComponent, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { HomeOutlined, TeamOutlined, EuroCircleOutlined, UserOutlined, MenuOutlined, DollarCircleOutlined, SettingOutlined, LockOutlined, LogoutOutlined } from "@ant-design/icons";
+import { BookOutlined, HomeOutlined, TeamOutlined, EuroCircleOutlined, UserOutlined, MenuOutlined, DollarCircleOutlined, SettingOutlined, LockOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
 import { Drawer, Menu, MenuProps, Avatar } from "antd";
 import "../styles/BottomNavigation.css";
@@ -8,7 +8,7 @@ import "../styles/BottomNavigation.css";
 export const BottomNavigation: FunctionComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { roles, logout, username } = useAuth();
+    const { roles, logout, username, prenom } = useAuth();
     const [drawerVisible, setDrawerVisible] = useState(false);
 
     const getActiveKey = () => {
@@ -50,103 +50,10 @@ export const BottomNavigation: FunctionComponent = () => {
         }
     };
 
+    const isAuthenticated = roles && roles.length > 0;
+
     const getDrawerMenuItems = () => {
-        if (roles?.includes("ROLE_ADMIN")) {
-            return [
-                {
-                    key: "adminCoursAdultes",
-                    label: "Cours Adultes",
-                    icon: <UserOutlined />,
-                },
-                {
-                    key: "adminCoursEnfants",
-                    label: "Cours Enfants",
-                    icon: <TeamOutlined />,
-                },
-                {
-                    key: "adminAdhesion",
-                    icon: <EuroCircleOutlined />,
-                    label: "Adhésion",
-                },
-                {
-                    key: "adminTarif",
-                    label: "Tarifs",
-                    icon: <DollarCircleOutlined />,
-                },
-                {
-                    key: "parametres",
-                    label: "Paramètres",
-                    icon: <SettingOutlined />,
-                },
-                {
-                    key: "creerModifierClasse",
-                    label: "Créer/Modifier Classe",
-                    icon: <UserOutlined />,
-                },
-                {
-                    key: "classes",
-                    label: "Mes classes",
-                    icon: <TeamOutlined />,
-                },
-                {
-                    key: "utilisateurs",
-                    label: "Utilisateurs",
-                    icon: <UserOutlined />,
-                },
-                { type: "divider" as const },
-                {
-                    key: "changePassword",
-                    label: "Modifier mot de passe",
-                    icon: <LockOutlined />,
-                },
-                {
-                    key: "logout",
-                    label: "Se déconnecter",
-                    icon: <LogoutOutlined />,
-                    danger: true,
-                }
-            ];
-        } else if (roles?.includes("ROLE_ENSEIGNANT")) {
-            return [
-                {
-                    key: "classes",
-                    label: "Mes classes",
-                    icon: <TeamOutlined />,
-                },
-                { type: "divider" as const },
-                {
-                    key: "changePassword",
-                    label: "Modifier mot de passe",
-                    icon: <LockOutlined />,
-                },
-                {
-                    key: "logout",
-                    label: "Se déconnecter",
-                    icon: <LogoutOutlined />,
-                    danger: true,
-                }
-            ];
-        } else if (roles?.includes("ROLE_TRESORIER")) {
-            return [
-                {
-                    key: "adminAdhesion",
-                    label: "Adhésion",
-                    icon: <EuroCircleOutlined />,
-                },
-                { type: "divider" as const },
-                {
-                    key: "changePassword",
-                    label: "Modifier mot de passe",
-                    icon: <LockOutlined />,
-                },
-                {
-                    key: "logout",
-                    label: "Se déconnecter",
-                    icon: <LogoutOutlined />,
-                    danger: true,
-                }
-            ];
-        } else {
+        if (!isAuthenticated) {
             return [
                 {
                     key: "adhesionInfos",
@@ -165,10 +72,54 @@ export const BottomNavigation: FunctionComponent = () => {
                 }
             ];
         }
+
+        const items: any[] = [];
+        const addedKeys = new Set<string>();
+        const addItems = (newItems: any[]) => {
+            newItems.forEach((item) => {
+                if (item.key && !addedKeys.has(item.key)) {
+                    addedKeys.add(item.key);
+                    items.push(item);
+                }
+            });
+        };
+
+        if (roles?.includes("ROLE_ADMIN")) {
+            addItems([
+                { key: "adminCoursAdultes", label: "Cours Adultes", icon: <UserOutlined /> },
+                { key: "adminCoursEnfants", label: "Cours Enfants", icon: <TeamOutlined /> },
+                { key: "adminAdhesion", icon: <EuroCircleOutlined />, label: "Adhésion" },
+                { key: "adminTarif", label: "Tarifs", icon: <DollarCircleOutlined /> },
+                { key: "parametres", label: "Paramètres", icon: <SettingOutlined /> },
+                { key: "creerModifierClasse", label: "Créer/Modifier Classe", icon: <UserOutlined /> },
+                { key: "classes", label: "Mes classes", icon: <TeamOutlined /> },
+                { key: "utilisateurs", label: "Utilisateurs", icon: <UserOutlined /> },
+            ]);
+        }
+        if (roles?.includes("ROLE_ENSEIGNANT")) {
+            addItems([
+                { key: "classes", label: "Mes classes", icon: <TeamOutlined /> },
+            ]);
+        }
+        if (roles?.includes("ROLE_TRESORIER")) {
+            addItems([
+                { key: "adminAdhesion", label: "Adhésion", icon: <EuroCircleOutlined /> },
+            ]);
+        }
+        if (roles?.includes("ROLE_UTILISATEUR")) {
+            addItems([
+                { key: "dashboard", label: "Mes inscriptions", icon: <BookOutlined /> },
+            ]);
+        }
+
+        items.push({ type: "divider" as const });
+        items.push({ key: "changePassword", label: "Modifier mot de passe", icon: <LockOutlined /> });
+        items.push({ key: "logout", label: "Se déconnecter", icon: <LogoutOutlined />, danger: true });
+
+        return items;
     };
 
     const activeKey = getActiveKey();
-    const isAuthenticated = roles && roles.length > 0;
 
     return (
         <>
@@ -220,7 +171,7 @@ export const BottomNavigation: FunctionComponent = () => {
                                 icon={<UserOutlined />}
                                 style={{ backgroundColor: "#722ed1" }}
                             />
-                            <span className="drawer-username">{username}</span>
+                            <span className="drawer-username">{prenom ?? username}</span>
                         </div>
                     ) : (
                         <div className="drawer-header">

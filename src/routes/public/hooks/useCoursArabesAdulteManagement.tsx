@@ -15,7 +15,8 @@ import {
 } from '../../../services/services';
 import {
     InscriptionAdulteBack,
-    InscriptionAdulteFront
+    InscriptionAdulteFront,
+    InscriptionAdulteResultDto
 } from '../../../services/inscription';
 import { TarifInscriptionDto } from '../../../services/tarif';
 import { ParamsDtoB } from '../../../services/parametres';
@@ -40,7 +41,7 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
     const { roles } = useAuth();
     const { getMatieresByType } = useMatieresStore();
 
-    const [inscriptionSuccess, setInscriptionSuccess] = useState<boolean>(false);
+    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionAdulteResultDto | undefined>(undefined);
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
     const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
@@ -126,13 +127,13 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
                 }
             }
         } else {
-            const { success } = await execute({
+            const { success, successData } = await execute<InscriptionAdulteResultDto>({
                 method: "POST",
                 url: NEW_INSCRIPTION_ADULTE_ENDPOINT,
                 data: inscriptionToSave
             });
-            if (success) {
-                setInscriptionSuccess(true);
+            if (success && successData) {
+                setInscriptionFinished(successData);
                 form.resetFields();
             }
         }
@@ -160,6 +161,7 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
                 if (inscription) {
                     const inscriptionFormValues: InscriptionAdulteFront = prepareInscriptionAdulteBeforeForm(inscription);
                     form.setFieldsValue(inscriptionFormValues);
+                    form.setFieldValue("confirmationEmail", inscriptionFormValues.email);
                     const { successData: tarif } = await execute<TarifInscriptionDto>({
                         method: "GET",
                         url: buildUrlWithParams(INSCRIPTION_ADULTE_EXISTING_TARIFS_ENDPOINT, { id }),
@@ -183,8 +185,8 @@ export const useCoursArabesAdulteManagement = ({ form }: UseCoursArabesAdulteMan
     return {
         // States
         isLoading,
-        inscriptionSuccess,
-        setInscriptionSuccess,
+        inscriptionFinished,
+        setInscriptionFinished,
         consentementChecked,
         setConsentementChecked,
         tarifInscription,
