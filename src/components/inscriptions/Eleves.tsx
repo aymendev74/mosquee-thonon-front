@@ -1,13 +1,15 @@
-import { Button, Col, Collapse, FormInstance, Row, Tag, notification } from "antd";
+import { Alert, Button, Card, Col, FormInstance, Row, Tag, Typography, notification } from "antd";
 import { FunctionComponent, useEffect, useState } from "react";
 import { EleveFront } from "../../services/eleve";
 import { getLibelleNiveauScolaire, getNiveauInterneEnfantOptions, getNiveauOptions } from "../common/commoninputs";
-import { UserAddOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import { InputFormItem } from "../common/InputFormItem";
 import { DatePickerFormItem } from "../common/DatePickerFormItem";
 import { SelectFormItem } from "../common/SelectFormItem";
 import { APPLICATION_DATE_FORMAT } from "../../utils/FormUtils";
 import dayjs, { Dayjs } from "dayjs";
+
+const { Title } = Typography;
 
 export type EleveProps = {
     isReadOnly: boolean;
@@ -23,35 +25,45 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     const [editingIndex, setEditingIndex] = useState<number | null>();
     const [error, setError] = useState<string>();
 
-    const { Panel } = Collapse;
-
     const ElevesList = () => (
-        <Collapse accordion>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
             {eleves.map((eleve, index) => (
-                <Panel header={eleve.prenom} key={index}>
-                    {eleve.classeId &&
-                        (
-                            <p>
-                                <Tag color="red">Attention: Cet élève est affecté à une classe, par mesure de précaution certaines opérations ne sont pas possibles (suppression par ex.)
-                                </Tag>
-                            </p>
-                        )
-                    }
-                    <p><strong>Nom :</strong> {eleve.nom}</p>
-                    <p><strong>Prénom :</strong> {eleve.prenom}</p>
-                    <p><strong>Date de naissance :</strong> {dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT)}</p>
-                    <p><strong>Niveau scolaire :</strong> {getLibelleNiveauScolaire(eleve.niveau)}</p>
-                    {(isAdmin) && <p><strong>Niveau interne :</strong> {eleve.niveauInterne}</p>}
-                    {
-                        !isReadOnly &&
-                        (<>
-                            <Button onClick={() => handleEdit(index)}>Modifier</Button>
-                            <Button className="m-left-10" onClick={() => handleDelete(index)} danger disabled={!!eleve.classeId}>Supprimer</Button>
-                        </>)
-                    }
-                </Panel>
+                <Card
+                    key={index}
+                    size="small"
+                    style={{
+                        border: editingIndex === index ? "2px solid #1890ff" : "1px solid #d9d9d9",
+                        backgroundColor: editingIndex === index ? "#f0f7ff" : "#fafafa",
+                        transition: "all 0.2s ease",
+                    }}
+                >
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: "bold", fontSize: 15 }}>
+                                {eleve.prenom} {eleve.nom}
+                            </div>
+                            <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>
+                                Né(e) le {dayjs(eleve.dateNaissance).format(APPLICATION_DATE_FORMAT)}
+                                {" · "}
+                                {getLibelleNiveauScolaire(eleve.niveau)}
+                                {isAdmin && eleve.niveauInterne && (
+                                    <> {" · "} Niveau interne : {eleve.niveauInterne}</>
+                                )}
+                            </div>
+                            {eleve.classeId && (
+                                <Tag color="orange" style={{ marginTop: 4 }}>Affecté à une classe</Tag>
+                            )}
+                        </div>
+                        {!isReadOnly && (
+                            <div style={{ display: "flex", gap: 8 }}>
+                                <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(index)}>Modifier</Button>
+                                <Button size="small" icon={<DeleteOutlined />} danger onClick={() => handleDelete(index)} disabled={!!eleve.classeId}>Supprimer</Button>
+                            </div>
+                        )}
+                    </div>
+                </Card>
             ))}
-        </Collapse>
+        </div>
     );
 
     const handleAddClick = () => {
@@ -153,43 +165,50 @@ export const Eleves: FunctionComponent<EleveProps> = ({ isReadOnly, isAdmin, ele
     }, []);
 
     return (<>
-        <div className="m-bottom-15">Veuillez renseigner les informations concernant les élèves à inscrire. Vous pouvez modifier les informations à tout moment en sélectionnant l'élève dans la liste ci-dessous et en cliquant sur "Modifier".</div>
-        {!isReadOnly && editingIndex == null && (<Button icon={<UserAddOutlined />} className="m-bottom-15" type="primary" onClick={handleAddClick}>Ajouter un élève</Button>)}
-        {editingIndex != null && (<>
-            <InputFormItem type="hidden" name="idEleve" hidden />
-            <Row gutter={[16, 0]}>
-                <Col xs={24} md={12}>
-                    <InputFormItem name="nomEleve" label="Nom" />
-                </Col>
-                <Col xs={24} md={12}>
-                    <InputFormItem label="Prénom" name="prenomEleve" />
-                </Col>
-            </Row>
-            <Row gutter={[16, 0]}>
-                <Col xs={24} md={12}>
-                    <DatePickerFormItem label="Date de naissance" name="dateNaissanceEleve" placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
-                </Col>
-                {isAdmin ? (<Col xs={24} md={12}>
-                    <SelectFormItem label="Niveau (interne)" name="niveauInterne" disabled={isReadOnly} options={getNiveauInterneEnfantOptions()} />
-                </Col>) : (<Col xs={24} md={12}>
-                    <SelectFormItem label="Niveau scolaire" name="niveauScolaire" disabled={isReadOnly} options={getNiveauOptions()} />
-                </Col>)}
-            </Row>
-            {isAdmin && (<Row gutter={[16, 0]}>
-                <Col xs={24} md={12}>
-                    <SelectFormItem label="Niveau scolaire" name="niveauScolaire" disabled={isReadOnly} options={getNiveauOptions()} />
-                </Col>
-            </Row>)}
-            {error && (<div className="centered-content pad-10 form-errors">
-                {error}
-            </div>)}
-            <div className="centered-content pad-10">
-                <Button onClick={() => { setEditingIndex(null); resetEmptyForm(); }}>Annuler</Button>
-
-                <Button className="m-left-10" onClick={ajouterEleve} type="primary">Enregistrer</Button>
-
-            </div>
-        </>)}
+        <div style={{ marginBottom: 12, color: "#666", fontSize: 13 }}>
+            Veuillez renseigner les informations concernant les élèves à inscrire. Vous pouvez modifier les informations à tout moment en cliquant sur "Modifier".
+        </div>
+        {!isReadOnly && editingIndex == null && (
+            <Button icon={<UserAddOutlined />} style={{ marginBottom: 16 }} type="primary" onClick={handleAddClick}>Ajouter un élève</Button>
+        )}
+        {editingIndex != null && (
+            <Card size="small" style={{ marginBottom: 16, border: "2px solid #1890ff", backgroundColor: "#f0f7ff" }}>
+                <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
+                    {editingIndex < eleves.length ? "Modifier un élève" : "Ajouter un élève"}
+                </Title>
+                <InputFormItem type="hidden" name="idEleve" hidden />
+                <Row gutter={[16, 0]}>
+                    <Col xs={24} md={12}>
+                        <InputFormItem name="nomEleve" label="Nom" />
+                    </Col>
+                    <Col xs={24} md={12}>
+                        <InputFormItem label="Prénom" name="prenomEleve" />
+                    </Col>
+                </Row>
+                <Row gutter={[16, 0]}>
+                    <Col xs={24} md={12}>
+                        <DatePickerFormItem label="Date de naissance" name="dateNaissanceEleve" placeholder="Sélectionnez une date de naissance" disabled={isReadOnly} />
+                    </Col>
+                    {isAdmin ? (<Col xs={24} md={12}>
+                        <SelectFormItem label="Niveau (interne)" name="niveauInterne" disabled={isReadOnly} options={getNiveauInterneEnfantOptions()} />
+                    </Col>) : (<Col xs={24} md={12}>
+                        <SelectFormItem label="Niveau scolaire" name="niveauScolaire" disabled={isReadOnly} options={getNiveauOptions()} />
+                    </Col>)}
+                </Row>
+                {isAdmin && (<Row gutter={[16, 0]}>
+                    <Col xs={24} md={12}>
+                        <SelectFormItem label="Niveau scolaire" name="niveauScolaire" disabled={isReadOnly} options={getNiveauOptions()} />
+                    </Col>
+                </Row>)}
+                {error && (
+                    <Alert type="error" message={error} showIcon style={{ marginBottom: 12 }} />
+                )}
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                    <Button onClick={() => { setEditingIndex(null); resetEmptyForm(); }}>Annuler</Button>
+                    <Button onClick={ajouterEleve} type="primary">Enregistrer</Button>
+                </div>
+            </Card>
+        )}
 
         <ElevesList />
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Modal, notification } from 'antd';
+import { notification } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import _ from 'lodash';
 import useApi from '../../../hooks/useApi';
@@ -11,23 +11,21 @@ import {
     CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT,
     INSCRIPTION_ENFANT_ENDPOINT,
     NEW_INSCRIPTION_ENFANT_ENDPOINT,
-    PARAM_ENDPOINT,
     NEW_INSCRIPTION_ENFANT_TARIFS_ENDPOINT,
     INSCRIPTION_ENFANT_EXISTING_TARIFS_ENDPOINT
 } from '../../../services/services';
 import {
     InscriptionEnfantBack,
     InscriptionEnfantFront,
-    StatutInscription
+    InscriptionEnfantResultDto,
 } from '../../../services/inscription';
 import { EleveFront } from '../../../services/eleve';
 import { TarifInscriptionDto } from '../../../services/tarif';
-import { ParamsDtoB } from '../../../services/parametres';
 import {
-    isInscriptionFerme,
     prepareInscriptionEnfantBeforeForm,
     prepareInscriptionEnfantBeforeSave
 } from '../../../utils/FormUtils';
+import useParametres from '../../utilisateur/hooks/useParametres';
 import { useLock } from '../../../hooks/useLock';
 import { ResourceType, LockResultDto } from '../../../types/lock';
 
@@ -41,19 +39,21 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { roles } = useAuth();
-    const { warning } = Modal;
-
     const [modalRGPDOpen, setModalRGPDOpen] = useState(false);
     const [consentementChecked, setConsentementChecked] = useState(false);
     const [eleves, setEleves] = useState<EleveFront[]>([]);
     const [tarifInscription, setTarifInscription] = useState<TarifInscriptionDto>();
-    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantBack>();
-    const [isOnlyReinscriptionEnabled, setIsOnlyReinscriptionEnabled] = useState<boolean>(false);
-    const [isInscriptionsFermees, setIsInscriptionsFermees] = useState<boolean>(false);
+    const [inscriptionFinished, setInscriptionFinished] = useState<InscriptionEnfantResultDto>();
     const [activeStep, setActiveStep] = useState<number>(0);
+    const { reinscriptionPrioritaire, isInscriptionsEnfantFermees } = useParametres();
 
     const isReadOnly = searchParams.get('readonly') === 'true';
     const isAdmin = roles.includes("ROLE_ADMIN");
+
+    // Quand les réinscriptions sont ouvertes, ce formulaire est désactivé pour les non-admin
+    // (les réinscriptions se font via le formulaire dédié ReinscriptionEnfantForm)
+    // Les admins peuvent toujours accéder aux inscriptions existantes
+    const isFormClosed = !isAdmin && (isInscriptionsEnfantFermees || reinscriptionPrioritaire);
 
     // Gestion du verrou pour l'édition
     const { lockStatus, acquireLock, releaseLock, updateLockStatus, isLocked } = useLock(
@@ -137,20 +137,13 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         }
     };
 
-    const handleCoherenceBeforeSaveInscription = async (codeIncoherence: string | null | undefined) => {
+    const handleCoherenceBeforeSaveInscription = async (codeIncoherence: string | null | undefined, inscriptionToSave: InscriptionEnfantBack, sendMailConfirmation: boolean) => {
         if (codeIncoherence === "ELEVE_ALREADY_EXISTS") {
             notification.open({
                 message: "Au moins un élève saisi figure déjà dans une autre demande d'inscription sur la même période",
                 type: "error"
             });
         } else if (codeIncoherence === "NO_INCOHERENCE") {
-            const inscriptionFormValues: InscriptionEnfantFront = _.cloneDeep(form.getFieldsValue());
-            let sendMailConfirmation = form.getFieldValue("sendMailConfirmation");
-            if (!isAdmin) {
-                sendMailConfirmation = true;
-            }
-            inscriptionFormValues.eleves = _.cloneDeep(eleves);
-            const inscriptionToSave = prepareInscriptionEnfantBeforeSave(inscriptionFormValues);
 
             if (id) {
                 const result = await execute<InscriptionEnfantBack>({
@@ -185,17 +178,13 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
                     }
                 }
             } else {
-                const { success, successData } = await execute<InscriptionEnfantBack>({
+                const { success, successData } = await execute<InscriptionEnfantResultDto>({
                     method: "POST",
                     url: NEW_INSCRIPTION_ENFANT_ENDPOINT,
                     data: inscriptionToSave,
                     params: { sendMailConfirmation }
                 });
                 if (success && successData) {
-                    notification.open({
-                        message: "Votre inscription a bien été enregistrée",
-                        type: "success"
-                    });
                     setInscriptionFinished(successData);
                     resetForm();
                 }
@@ -203,7 +192,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         }
     };
 
-    const onFinish = async (inscription: InscriptionEnfantFront) => {
+    const onFinish = async () => {
         if (!isAdmin && !consentementChecked) {
             notification.open({
                 message: "Veuillez donner votre consentement à la collecte et au traitement de vos données avant de valider",
@@ -211,6 +200,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
             });
             return;
         }
+        const inscription = form.getFieldsValue(true) as InscriptionEnfantFront;
         const inscriptionDeepCopy = _.cloneDeep(inscription);
         if (inscriptionDeepCopy.responsableLegal.adherent == undefined) {
             inscriptionDeepCopy.responsableLegal.adherent = false;
@@ -226,14 +216,15 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
                 data: inscriptionToSave,
                 params: { sendMailConfirmation }
             });
-            handleCoherenceBeforeSaveInscription(successData);
+            handleCoherenceBeforeSaveInscription(successData, inscriptionToSave, sendMailConfirmation);
         } else {
+            let sendMailConfirmation = true;
             const { successData } = await execute<string>({
                 method: "POST",
                 url: CHECK_COHERENCE_NEW_INSCRIPTION_ENDPOINT,
                 data: inscriptionToSave
             });
-            handleCoherenceBeforeSaveInscription(successData);
+            handleCoherenceBeforeSaveInscription(successData, inscriptionToSave, sendMailConfirmation);
         }
     };
 
@@ -243,26 +234,6 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
             type: "error"
         });
     };
-
-    const getReinscriptionPrioritaire = () => {
-        return (
-            <>
-                <div>
-                    Actuellement, <b>seuls les élèves déja inscrits cette année</b> sont autorisés à se reinscrire pour l'année prochaine<br /><br />
-                    <b>Les inscriptions ne respectant pas ce critère seront automatiquement rejetées</b> par le système.
-                </div>
-            </>
-        );
-    };
-
-    useEffect(() => {
-        if (isOnlyReinscriptionEnabled) {
-            warning({
-                title: "Réinscription uniquement !",
-                content: getReinscriptionPrioritaire()
-            });
-        }
-    }, [isOnlyReinscriptionEnabled]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -279,16 +250,8 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
                 if (inscription) {
                     const inscriptionFormValues: InscriptionEnfantFront = prepareInscriptionEnfantBeforeForm(inscription);
                     form.setFieldsValue(inscriptionFormValues);
+                    form.setFieldValue("confirmationEmail", inscriptionFormValues.responsableLegal.email);
                     setEleves(inscriptionFormValues.eleves);
-                }
-            } else {
-                const { successData: params } = await execute<ParamsDtoB>({
-                    method: "GET",
-                    url: PARAM_ENDPOINT
-                });
-                if (params) {
-                    setIsOnlyReinscriptionEnabled(params.reinscriptionPrioritaire ?? false);
-                    setIsInscriptionsFermees(isInscriptionFerme(params.inscriptionEnfantEnabledFromDate));
                 }
             }
         };
@@ -311,8 +274,7 @@ export const useCoursArabesEnfantManagement = ({ form }: UseCoursArabesEnfantMan
         tarifInscription,
         inscriptionFinished,
         setInscriptionFinished,
-        isOnlyReinscriptionEnabled,
-        isInscriptionsFermees,
+        isFormClosed,
         activeStep,
         id,
         isReadOnly: effectiveReadOnly,

@@ -26,7 +26,13 @@ export const UtilisateurDesktopView: FunctionComponent<UtilisateurViewProps> = (
             title: "Rôles",
             dataIndex: "roles",
             key: "roles",
-            render: (roles: RoleDto[]) => roles.map((r) => getRoleLibelle(r)).join(", "),
+            render: (roles: RoleDto[]) => (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                    {roles.map((r) => (
+                        <Tag key={r.role} color="blue">{getRoleLibelle(r)}</Tag>
+                    ))}
+                </div>
+            ),
         },
         {
             title: 'Activation',

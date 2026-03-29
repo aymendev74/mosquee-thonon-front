@@ -93,7 +93,7 @@ export const useTarifManagement = (form: FormInstance) => {
     };
 
     const onFinish = async (infoTarif: InfoTarifDto) => {
-        const resultSavedTarifs = await execute({ method: "POST", url: TARIFS_ADMIN_ENDPOINT, data: infoTarif });
+        const resultSavedTarifs = await execute({ method: "POST", url: TARIFS_ADMIN_ENDPOINT, data: { ...infoTarif, idPeriode: selectedIdPeriode } });
         if (resultSavedTarifs.success && resultSavedTarifs.successData) {
             setViewTarif(true);
             notification.open({ message: "Les nouveaux tarifs ont bien été enregistrés", type: "success" });

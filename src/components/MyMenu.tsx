@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom"
-import { DollarCircleOutlined, EditOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { BookOutlined, DollarCircleOutlined, EditOutlined, EuroCircleOutlined, HomeOutlined, MenuOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/AuthContext";
 
 export const MyMenu: FunctionComponent = () => {
@@ -130,16 +130,35 @@ export const MyMenu: FunctionComponent = () => {
         return menuItems;
     }
 
+    function getUtilisateurMenuItems() {
+        const menuItems: MenuProps["items"] = [{
+            key: "dashboard",
+            icon: <BookOutlined />,
+            label: "Mes inscriptions",
+        }];
+        return menuItems;
+    }
+
     const getMenuItems = () => {
-        if (roles?.includes("ROLE_ADMIN")) {
-            return getAdminMenuItems();
-        } else if (roles?.includes("ROLE_ENSEIGNANT")) {
-            return getEnseignantMenuItems();
-        } else if (roles?.includes("ROLE_TRESORIER")) {
-            return getTresorierMenuItems();
-        } else {
+        const isAuthenticated = roles && roles.length > 0;
+        if (!isAuthenticated) {
             return getPublicMenuItems();
         }
+        const items: MenuProps["items"] = [];
+        const addedKeys = new Set<string>();
+        const addItems = (newItems: MenuProps["items"]) => {
+            newItems?.forEach((item) => {
+                if (item && "key" in item && !addedKeys.has(item.key as string)) {
+                    addedKeys.add(item.key as string);
+                    items.push(item);
+                }
+            });
+        };
+        if (roles.includes("ROLE_ADMIN")) addItems(getAdminMenuItems());
+        if (roles.includes("ROLE_ENSEIGNANT")) addItems(getEnseignantMenuItems());
+        if (roles.includes("ROLE_TRESORIER")) addItems(getTresorierMenuItems());
+        if (roles.includes("ROLE_UTILISATEUR")) addItems(getUtilisateurMenuItems());
+        return items;
     }
 
 

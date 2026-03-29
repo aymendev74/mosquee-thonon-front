@@ -155,6 +155,7 @@ export const useAdhesionManagement = ({ form }: UseAdhesionManagementProps) => {
                         setAutreMontantVisible(true);
                     }
                     form.setFieldsValue(adhesion);
+                    form.setFieldValue("confirmationEmail", adhesion.email);
                 }
             }
         };
