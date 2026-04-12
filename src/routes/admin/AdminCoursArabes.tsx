@@ -27,16 +27,12 @@ export const AdminCoursArabes: FunctionComponent = () => {
         selectedInscriptions,
         setSelectedInscriptions,
         periodesOptions,
-        inscriptionsEnfantsById,
-        inscriptionsAdultesById,
         isLoading,
         searchInscriptions,
         validateInscription,
         validateInscriptions,
         deleteInscription,
         deleteInscriptions,
-        loadInscription,
-        renderPdf,
         getSelectedInscriptionDistinctIds,
         batchLockConflict,
         setBatchLockConflict,
@@ -126,16 +122,12 @@ export const AdminCoursArabes: FunctionComponent = () => {
                                 selectedInscriptions={selectedInscriptions}
                                 setSelectedInscriptions={setSelectedInscriptions}
                                 periodesOptions={periodesOptions}
-                                inscriptionsEnfantsById={inscriptionsEnfantsById}
-                                inscriptionsAdultesById={inscriptionsAdultesById}
                                 onValidateInscription={validateInscription}
                                 onValidateInscriptions={validateInscriptions}
                                 onDeleteInscription={handleDeleteInscription}
                                 onDeleteInscriptions={async (inscriptions) => { setModaleConfirmSuppressionOpen(true); }}
                                 onSearch={searchInscriptions}
                                 onExport={exportData}
-                                onLoadInscription={loadInscription}
-                                renderPdf={renderPdf}
                             />
                         ) : (
                             <InscriptionDesktopView
@@ -145,16 +137,12 @@ export const AdminCoursArabes: FunctionComponent = () => {
                                 selectedInscriptions={selectedInscriptions}
                                 setSelectedInscriptions={setSelectedInscriptions}
                                 periodesOptions={periodesOptions}
-                                inscriptionsEnfantsById={inscriptionsEnfantsById}
-                                inscriptionsAdultesById={inscriptionsAdultesById}
                                 onValidateInscription={validateInscription}
                                 onValidateInscriptions={validateInscriptions}
                                 onDeleteInscription={handleDeleteInscription}
                                 onDeleteInscriptions={async (inscriptions) => { setModaleConfirmSuppressionOpen(true); }}
                                 onSearch={searchInscriptions}
                                 onExport={exportData}
-                                onLoadInscription={loadInscription}
-                                renderPdf={renderPdf}
                             />
                         )}
                     </div>

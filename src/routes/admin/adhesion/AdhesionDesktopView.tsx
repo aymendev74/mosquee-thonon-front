@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react";
-import { Button, Card, Col, Dropdown, Form, Row, Space, Table, Tag, Tooltip } from "antd";
-import { CheckCircleOutlined, CheckCircleTwoTone, CheckOutlined, CloseOutlined, DeleteOutlined, DeleteTwoTone, DownOutlined, EditOutlined, EditTwoTone, EyeOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone } from "@ant-design/icons";
+import { Button, Card, Col, Form, Row, Space, Table, Tag, Tooltip } from "antd";
+import { CheckCircleOutlined, CheckCircleTwoTone, DeleteOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone } from "@ant-design/icons";
 import { SelectionActionBar } from "../../../components/common/SelectionActionBar";
 import { useNavigate } from "react-router-dom";
 import { AdhesionLight } from "../../../services/adhesion";
@@ -9,12 +9,8 @@ import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
 import { AdhesionViewProps } from "./types";
-import type { MenuProps } from 'antd';
 import { AdminSearchFilter } from "../../../components/common/AdminSearchFilter";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { PdfAdhesion } from "../../../components/documents/PdfAdhesion";
-import { getFileNameAdhesion } from "../../../components/common/tableDefinition";
-import { PdfAuthContextBridge } from "../../../components/documents/PdfContextBridge";
+import { buildUrlWithParams, DOCUMENT_CONTENT_ENDPOINT } from "../../../services/services";
 
 export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
     dataSource,
@@ -26,8 +22,6 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
     onDeleteAdhesions,
     onSearch,
     onExport,
-    renderPdf,
-    generatePdf,
 }) => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
@@ -133,30 +127,21 @@ export const AdhesionDesktopView: FunctionComponent<AdhesionViewProps> = ({
                             type="primary"
                         />
                     </Tooltip>
-                    {renderPdf(adhesion.id) ? (
-                        <PDFDownloadLink
-                            document={<PdfAuthContextBridge><PdfAdhesion id={adhesion.id} /></PdfAuthContextBridge>}
-                            fileName={getFileNameAdhesion(adhesion)}
-                        >
-                            {({ blob, url, loading, error }) => (
-                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"} color="geekblue">
-                                    <Button
-                                        icon={<FilePdfTwoTone />}
-                                        size="small"
-                                        loading={loading}
-                                        type="primary"
-                                    />
-                                </Tooltip>
-                            )}
-                        </PDFDownloadLink>
-                    ) : (
-                        <Tooltip title="Générer PDF" color="geekblue">
+                    {adhesion.idDocument ? (
+                        <Tooltip title="Télécharger PDF" color="geekblue">
                             <Button
                                 icon={<FilePdfTwoTone />}
                                 size="small"
                                 type="primary"
-                                onClick={() => generatePdf(adhesion.id)}
+                                onClick={() => {
+                                    const url = buildUrlWithParams(DOCUMENT_CONTENT_ENDPOINT, { idDocument: adhesion.idDocument });
+                                    window.open(`${process.env.REACT_APP_BASE_URL_API_V1}${url}`, '_blank');
+                                }}
                             />
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Le document n'est pas encore disponible" color="orange">
+                            <Button icon={<FilePdfTwoTone />} size="small" type="primary" disabled />
                         </Tooltip>
                     )}
                 </Space>

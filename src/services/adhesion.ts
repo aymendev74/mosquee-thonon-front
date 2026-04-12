@@ -3,6 +3,7 @@ import { Dayjs } from "dayjs";
 
 export type Adhesion = {
     id: number;
+    idDocument?: number;
     titre: string;
     nom: string;
     prenom: string;
@@ -29,6 +30,7 @@ export type AdhesionLight = {
     montant: number;
     statut: StatutInscription | boolean;
     dateInscription: Dayjs | string;
+    idDocument?: number;
 }
 
 export type AdhesionLightForExport = Omit<AdhesionLight, "id">;

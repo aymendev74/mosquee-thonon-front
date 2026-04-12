@@ -10,6 +10,4 @@ export interface AdhesionViewProps {
     onDeleteAdhesions: (adhesions: AdhesionLight[]) => Promise<void>;
     onSearch: (searchCriteria: any) => Promise<void>;
     onExport: () => void;
-    renderPdf: (idAdhesion: number) => boolean;
-    generatePdf: (idAdhesion: number) => void;
 }

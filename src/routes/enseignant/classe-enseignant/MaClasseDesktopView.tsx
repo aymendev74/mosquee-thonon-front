@@ -21,7 +21,6 @@ export const MaClasseDesktopView: FunctionComponent<MaClasseViewProps> = ({
     bulletins,
     selectedEleveId,
     vueDetaille,
-    bulletinsPdf,
     onCreateFeuillePresence,
     onViewFeuille,
     onDeleteFeuille,
@@ -223,9 +222,7 @@ export const MaClasseDesktopView: FunctionComponent<MaClasseViewProps> = ({
                 return <>
                     <Button type="primary" icon={<EditOutlined />} onClick={() => onModifierBulletin(record.id!)} />
                     <Button type="primary" icon={<DeleteOutlined />} onClick={() => onDeleteBulletin(record.id!)} danger className="m-left-10" />
-                    <Tooltip color="geekblue" title="Générer le bulletin au format PDF">
-                        {getBulletinPdfButton(record.id!)}
-                    </Tooltip>
+                    {getBulletinPdfButton(record.id!)}
                 </>;
             }
         }

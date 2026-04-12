@@ -1,14 +1,16 @@
 import { FunctionComponent } from "react";
-import { Button, Card, Collapse, Descriptions, Layout, Spin, Table, Tabs, Tag, Typography } from "antd";
-import { BookOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, HomeOutlined, PhoneOutlined, ReadOutlined, ReloadOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Card, Collapse, Descriptions, Layout, Spin, Table, Tabs, Tag, Tooltip, Typography } from "antd";
+import { BookOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, FilePdfTwoTone, HomeOutlined, PhoneOutlined, ReadOutlined, ReloadOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../../hooks/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { UnahtorizedAccess } from "../public/UnahtorizedAccess";
 import useMesInscriptions from "./hooks/useMesInscriptions";
 import useParametres from "./hooks/useParametres";
+import useBulletins from "./hooks/useBulletins";
 import { EleveDto, InscriptionAdulteParAnneeScolaireDto, InscriptionEnfantParAnneeScolaireDto, ResponsableLegalDto } from "../../services/mesInscriptions";
 import { StatutInscription } from "../../services/inscription";
+import { buildUrlWithParams, DOCUMENT_CONTENT_ENDPOINT } from "../../services/services";
 import { ROLE_UTILISATEUR } from "../../services/user";
 import { getLibelleNiveauInterneAdulte, getLibelleStatutProfessionnel } from "../../components/common/commoninputs";
 import { useMatieresStore } from "../../components/stores/useMatieresStore";
@@ -87,6 +89,63 @@ const getColonnesEleves = (isMobile: boolean) => {
     ];
 };
 
+const BulletinsEleveSection: FunctionComponent<{ eleve: EleveDto; isMobile: boolean }> = ({ eleve, isMobile }) => {
+    const { bulletins, isLoading } = useBulletins(eleve.id);
+
+    if (isLoading) {
+        return <Spin spinning={true} size="small" style={{ marginRight: 8 }} />;
+    }
+
+    if (!bulletins || bulletins.length === 0) {
+        return (
+            <div style={{ fontSize: 12, color: "#999", fontStyle: "italic" }}>
+                Aucun bulletin disponible
+            </div>
+        );
+    }
+
+    return (
+        <div style={{ marginTop: 8 }}>
+            {bulletins.map((bulletin) => {
+                const dateStr = bulletin.dateBulletin ? new Date(bulletin.dateBulletin).toLocaleDateString('fr-FR') : "N/A";
+                return (
+                    <div
+                        key={bulletin.id}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            justifyContent: "space-between",
+                            padding: "8px 0",
+                            borderBottom: "1px solid #f0f0f0",
+                            fontSize: 12
+                        }}
+                    >
+                        <span>
+                            Bulletin {bulletin.mois}/{bulletin.annee} - {dateStr}
+                        </span>
+                        {bulletin.idDocument && (
+                            <Tooltip title="Télécharger le bulletin">
+                                <Button
+                                    type="primary"
+                                    size="small"
+                                    icon={<FilePdfTwoTone />}
+                                    onClick={() => {
+                                        const url = buildUrlWithParams(DOCUMENT_CONTENT_ENDPOINT, { idDocument: bulletin.idDocument });
+                                        window.open(`${process.env.REACT_APP_BASE_URL_API_V1}${url}`, '_blank');
+                                    }}
+                                >
+                                    {isMobile ? "PDF" : "Télécharger"}
+                                </Button>
+                            </Tooltip>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
 const ResponsableLegalCard: FunctionComponent<{ responsableLegal: ResponsableLegalDto }> = ({ responsableLegal }) => {
     return (
         <Card size="small" style={{ marginBottom: 16 }}>
@@ -152,15 +211,61 @@ const InscriptionEnfantAnnee: FunctionComponent<{ inscription: InscriptionEnfant
             <Title level={5}>
                 <TeamOutlined /> Élèves inscrits ({inscription.eleves.length})
             </Title>
-            <Table<EleveDto>
-                dataSource={inscription.eleves}
-                columns={getColonnesEleves(isMobile)}
-                rowKey={(record) => `${record.nom}-${record.prenom}-${record.dateNaissance}`}
-                pagination={false}
-                size="small"
-                scroll={isMobile ? undefined : { x: true }}
-                style={{ width: "100%" }}
-            />
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {inscription.eleves.map((eleve) => (
+                    <Card key={`${eleve.nom}-${eleve.prenom}-${eleve.dateNaissance}`} size="small" style={{ backgroundColor: "#fafafa" }}>
+                        <div style={{ marginBottom: 12 }}>
+                            <div style={{ fontWeight: "bold", fontSize: 14 }}>
+                                {eleve.nom} {eleve.prenom}
+                            </div>
+                            {!isMobile && (
+                                <>
+                                    <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                                        Né(e) le: {eleve.dateNaissance}
+                                    </div>
+                                    <div style={{ fontSize: 12, color: "#666" }}>
+                                        Niveau: {eleve.niveau}
+                                        {eleve.niveauInterne && ` (${eleve.niveauInterne})`}
+                                    </div>
+                                </>
+                            )}
+                            {isMobile && (
+                                <div style={{ fontSize: 11, color: "#666", marginTop: 4 }}>
+                                    {eleve.dateNaissance} • {eleve.niveau}
+                                </div>
+                            )}
+                        </div>
+
+                        <div style={{ borderTop: "1px solid #e8e8e8", paddingTop: 12 }}>
+                            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8 }}>
+                                📋 Bulletins
+                            </div>
+                            <BulletinsEleveSection eleve={eleve} isMobile={isMobile} />
+                        </div>
+                    </Card>
+                ))}
+            </div>
+
+            {/* Document */}
+            {inscription.idDocument && (
+                <Card size="small" style={{ marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 14 }}>📄 Votre document d'inscription</span>
+                        <Tooltip title="Télécharger votre document d'inscription">
+                            <Button
+                                icon={<FilePdfTwoTone />}
+                                type="primary"
+                                onClick={() => {
+                                    const url = buildUrlWithParams(DOCUMENT_CONTENT_ENDPOINT, { idDocument: inscription.idDocument });
+                                    window.open(`${process.env.REACT_APP_BASE_URL_API_V1}${url}`, '_blank');
+                                }}
+                            >
+                                Télécharger PDF
+                            </Button>
+                        </Tooltip>
+                    </div>
+                </Card>
+            )}
 
             {/* Bouton de réinscription */}
             {shouldShowReinscriptionButton && (
@@ -265,6 +370,27 @@ const InscriptionAdulteAnnee: FunctionComponent<{ inscription: InscriptionAdulte
                     </div>
                 </div>
             </Card>
+
+            {/* Document */}
+            {inscription.idDocument && (
+                <Card size="small" style={{ marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 14 }}>📄 Votre document d'inscription</span>
+                        <Tooltip title="Télécharger votre document d'inscription">
+                            <Button
+                                icon={<FilePdfTwoTone />}
+                                type="primary"
+                                onClick={() => {
+                                    const url = buildUrlWithParams(DOCUMENT_CONTENT_ENDPOINT, { idDocument: inscription.idDocument });
+                                    window.open(`${process.env.REACT_APP_BASE_URL_API_V1}${url}`, '_blank');
+                                }}
+                            >
+                                Télécharger PDF
+                            </Button>
+                        </Tooltip>
+                    </div>
+                </Card>
+            )}
 
             {/* Bouton de réinscription adulte */}
             {shouldShowReinscriptionButton && (

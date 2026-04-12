@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { notification, Tooltip, Button } from 'antd';
 import { FilePdfTwoTone } from '@ant-design/icons';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 import useApi from '../../../../hooks/useApi';
-import { useMatieresStore } from '../../../../components/stores/useMatieresStore';
 import {
     buildUrlWithParams,
     EXISTING_CLASSES_ENDPOINT,
@@ -14,6 +12,7 @@ import {
     EXISTING_FEUILLE_PRESENCE_ENDPOINT,
     BULLETINS_ELEVE_ENDPOINT,
     BULLETIN_EXISTING_ENDPOINT,
+    DOCUMENT_CONTENT_ENDPOINT,
 } from '../../../../services/services';
 import {
     ClasseDtoB,
@@ -22,7 +21,6 @@ import {
     FeuillePresenceDtoF,
     BulletinDtoB,
     BulletinDtoF,
-    TypeMatiereEnum,
 } from '../../../../services/classe';
 import {
     prepareClasseBeforeForm,
@@ -33,13 +31,10 @@ import {
 import { EleveEnrichedDto, PatchEleve, ResultatEnum } from '../../../../services/eleve';
 import exportToExcel from '../../../../utils/FormUtils';
 import { getJourActiviteOptions } from '../../../../components/common/commoninputs';
-import { PdfAuthContextBridge } from '../../../../components/documents/PdfContextBridge';
-import { PdfBulletin } from '../../../../components/documents/PdfBulletin';
 
 export const useMaClasseManagement = () => {
     const { execute } = useApi();
     const { id } = useParams();
-    const { getMatieresByType } = useMatieresStore();
 
     const [modalFeuillePresenceOpen, setModalFeuillePresenceOpen] = useState(false);
     const [modalBulletinOpen, setModalBulletinOpen] = useState(false);
@@ -52,7 +47,6 @@ export const useMaClasseManagement = () => {
     const [bulletins, setBulletins] = useState<BulletinDtoF[]>([]);
     const [selectedEleveId, setSelectedEleveId] = useState<number | undefined>();
     const [bulletin, setBulletin] = useState<BulletinDtoF | undefined>();
-    const [bulletinsPdf, setBulletinsPdf] = useState<number[]>([]);
     const [nbAbsencesEleveFromFeuillesPresence, setNbAbsencesEleveFromFeuillesPresence] = useState<number>(0);
 
     const onCreateFeuillePresence = () => {
@@ -228,50 +222,29 @@ export const useMaClasseManagement = () => {
 
     const getBulletinById = (id: number) => bulletins.find(bulletin => bulletin.id === id);
 
-    const isBulletinCompletForPdf = (bulletin: BulletinDtoF | undefined): boolean => {
-        if (!bulletin) return false;
-
-        const hasAllNotes = getMatieresByType(TypeMatiereEnum.ENFANT).every(matiere =>
-            bulletin.bulletinMatieres?.some(bm => bm.code === matiere.code && bm.note)
-        );
-
-        const hasDateBulletin = !!bulletin.dateBulletin;
-        const hasAppreciation = !!bulletin.appreciation && bulletin.appreciation.trim().length > 0;
-        const hasMoisAnnee = !!bulletin.mois && !!bulletin.annee;
-        const hasNombreAbsences = !!bulletin.nbAbsences;
-
-        return hasAllNotes && hasDateBulletin && hasAppreciation && hasMoisAnnee && hasNombreAbsences;
-    };
-
     const getBulletinPdfButton = (id: number) => {
         const bulletin = getBulletinById(id);
-        const isComplet = isBulletinCompletForPdf(bulletin);
 
-        if (!isComplet) {
+        if (!bulletin?.idDocument) {
             return (
-                <Tooltip title="Le bulletin doit contenir toutes les informations pour pouvoir être généré" color="orange">
+                <Tooltip title="Le bulletin n'est pas encore disponible" color="orange">
                     <Button className="m-left-10" type="primary" disabled icon={<FilePdfTwoTone />} />
                 </Tooltip>
             );
         }
 
-        return bulletinsPdf.some(idBulletin => idBulletin === id) ?
-            (
-                <PDFDownloadLink className="m-left-10" document={<PdfAuthContextBridge>
-                    <PdfBulletin bulletin={bulletin!}
-                        eleve={elevesEnriched.find(eleve => eleve.id === bulletin?.idEleve)!}
-                        matieres={getMatieresByType(TypeMatiereEnum.ENFANT)}
-                        nomsEnseignants={classe?.enseignants?.map(e => e.nomPrenom) ?? []}
-                        nomClasse={classe?.libelle ?? ""} />
-                </PdfAuthContextBridge>}
-                    fileName="bulletin">
-                    {({ blob, url, loading, error }) => {
-                        return loading ? "Génération Pdf..." : <FilePdfTwoTone />
-                    }}
-                </PDFDownloadLink>
-            ) : (
-                <Button className="m-left-10" type="primary" onClick={() => { setBulletinsPdf([...bulletinsPdf, id]) }} icon={<FilePdfTwoTone />} />
-            )
+        const url = buildUrlWithParams(DOCUMENT_CONTENT_ENDPOINT, { idDocument: bulletin.idDocument });
+        const fullUrl = `${process.env.REACT_APP_BASE_URL_API_V1}${url}`;
+        return (
+            <Tooltip title="Télécharger le bulletin PDF" color="geekblue">
+                <Button
+                    className="m-left-10"
+                    type="primary"
+                    icon={<FilePdfTwoTone />}
+                    onClick={() => window.open(fullUrl, '_blank')}
+                />
+            </Tooltip>
+        );
     };
 
     const onCreerBulletin = () => {
@@ -291,7 +264,6 @@ export const useMaClasseManagement = () => {
         bulletins,
         selectedEleveId,
         vueDetaille,
-        bulletinsPdf,
         modalFeuillePresenceOpen,
         feuilleToView,
         feuilleToViewReadOnly,

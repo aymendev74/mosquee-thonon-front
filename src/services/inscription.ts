@@ -16,6 +16,7 @@ export type InscriptionSaveCriteria = {
 
 export type InscriptionEnfant<T extends Dayjs | string, U extends string | boolean> = {
     id: number;
+    idDocument?: number;
     statut: StatutInscription | boolean;
     responsableLegal: ResponsableLegal<U>;
     eleves: Eleve<T>[];
@@ -50,6 +51,7 @@ export type InscriptionLight = {
     dateInscription: string;
     noInscription: string;
     email: string;
+    idDocument?: number;
 }
 
 export enum NiveauScolaire {
@@ -96,6 +98,7 @@ export type InscriptionAdulteResultDto = {
 }
 
 export type InscriptionAdulte<T extends Dayjs | string> = {
+    idDocument?: number;
     nom: string;
     prenom: string;
     email: string;

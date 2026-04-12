@@ -17,8 +17,6 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
     const [dataSource, setDataSource] = useState<InscriptionLight[]>([]);
     const [selectedInscriptions, setSelectedInscriptions] = useState<InscriptionLight[]>([]);
     const [periodesOptions, setPeriodesOptions] = useState<DefaultOptionType[]>();
-    const [inscriptionsEnfantsById, setInscriptionsEnfantsById] = useState<Record<number, InscriptionEnfantBack>>({});
-    const [inscriptionsAdultesById, setInscriptionsAdultesById] = useState<Record<number, InscriptionAdulteBack>>({});
     const { execute, isLoading } = useApi();
 
     // États pour gérer les alertes de conflits de locks groupés
@@ -140,32 +138,11 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
         }
     };
 
-    const loadInscription = async (id: number) => {
-        if (type === "ENFANT") {
-            const resultInscription = await execute<InscriptionEnfantBack>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ENFANT_ENDPOINT, { id }) });
-            if (resultInscription.success && resultInscription.successData) {
-                setInscriptionsEnfantsById({ ...inscriptionsEnfantsById, [id]: resultInscription.successData });
-            }
-        } else {
-            const resultInscription = await execute<InscriptionAdulteBack>({ method: "GET", url: buildUrlWithParams(INSCRIPTION_ADULTE_ENDPOINT, { id }) });
-            if (resultInscription.success && resultInscription.successData) {
-                setInscriptionsAdultesById({ ...inscriptionsAdultesById, [id]: resultInscription.successData });
-            }
-        }
-    };
-
-    const renderPdf = (idInscription: number) => {
-        return type === "ENFANT" ? inscriptionsEnfantsById[idInscription] !== undefined
-            : inscriptionsAdultesById[idInscription] !== undefined;
-    };
-
     return {
         dataSource,
         selectedInscriptions,
         setSelectedInscriptions,
         periodesOptions,
-        inscriptionsEnfantsById,
-        inscriptionsAdultesById,
         isLoading,
         loadInscriptions,
         searchInscriptions,
@@ -173,8 +150,6 @@ export const useInscriptionManagement = ({ application, type }: UseInscriptionMa
         validateInscriptions,
         deleteInscription,
         deleteInscriptions,
-        loadInscription,
-        renderPdf,
         getSelectedInscriptionDistinctIds,
         batchLockConflict,
         setBatchLockConflict,

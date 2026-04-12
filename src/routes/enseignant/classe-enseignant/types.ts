@@ -8,7 +8,6 @@ export interface MaClasseViewProps {
     bulletins: BulletinDtoF[];
     selectedEleveId?: number;
     vueDetaille: boolean;
-    bulletinsPdf: number[];
     onCreateFeuillePresence: () => void;
     onViewFeuille: (feuille: FeuillePresenceDtoF, readOnly: boolean) => void;
     onDeleteFeuille: (feuille: FeuillePresenceDtoF) => void;

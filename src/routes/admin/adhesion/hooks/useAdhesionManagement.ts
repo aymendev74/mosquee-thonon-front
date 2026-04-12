@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { AdhesionLight, AdhesionPatchDto } from "../../../../services/adhesion";
-import { ADHESION_SEARCH_ENDPOINT, DELETE_ADHESION_ENDPOINT } from "../../../../services/services";
+import { Adhesion, AdhesionLight, AdhesionPatchDto } from "../../../../services/adhesion";
+import { ADHESION_ENDPOINT, ADHESION_SEARCH_ENDPOINT, DELETE_ADHESION_ENDPOINT, buildUrlWithParams } from "../../../../services/services";
 import { StatutInscription } from "../../../../services/inscription";
 import { notification } from "antd";
 import useApi from "../../../../hooks/useApi";
@@ -9,7 +9,6 @@ import { LockResultDto } from "../../../../types/lock";
 export const useAdhesionManagement = () => {
     const [dataSource, setDataSource] = useState<AdhesionLight[]>([]);
     const [selectedAdhesions, setSelectedAdhesions] = useState<AdhesionLight[]>([]);
-    const [renderedPdfAdhesionIds, setRenderedPdfAdhesionsIds] = useState<number[]>([]);
     const { execute, isLoading } = useApi();
 
     // États pour gérer les alertes de conflits de locks groupés
@@ -118,14 +117,6 @@ export const useAdhesionManagement = () => {
         }
     };
 
-    const renderPdf = (idAdhesion: number) => {
-        return renderedPdfAdhesionIds.includes(idAdhesion);
-    };
-
-    const generatePdf = (idAdhesion: number) => {
-        setRenderedPdfAdhesionsIds([...renderedPdfAdhesionIds, idAdhesion]);
-    };
-
     return {
         dataSource,
         selectedAdhesions,
@@ -136,8 +127,6 @@ export const useAdhesionManagement = () => {
         validateAdhesions,
         deleteAdhesion,
         deleteAdhesions,
-        renderPdf,
-        generatePdf,
         batchLockConflict,
         setBatchLockConflict,
     };

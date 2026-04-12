@@ -27,8 +27,6 @@ export const AdminAdhesion = () => {
         validateAdhesions,
         deleteAdhesion,
         deleteAdhesions,
-        renderPdf,
-        generatePdf,
         batchLockConflict,
         setBatchLockConflict,
     } = useAdhesionManagement();
@@ -80,8 +78,6 @@ export const AdminAdhesion = () => {
                                 onDeleteAdhesions={async (adhesions) => { setModaleConfirmSuppressionOpen(true); }}
                                 onSearch={searchAdhesions}
                                 onExport={exportData}
-                                renderPdf={renderPdf}
-                                generatePdf={generatePdf}
                             />
                         ) : (
                             <AdhesionDesktopView
@@ -94,8 +90,6 @@ export const AdminAdhesion = () => {
                                 onDeleteAdhesions={async (adhesions) => { setModaleConfirmSuppressionOpen(true); }}
                                 onSearch={searchAdhesions}
                                 onExport={exportData}
-                                renderPdf={renderPdf}
-                                generatePdf={generatePdf}
                             />
                         )}
                     </div>

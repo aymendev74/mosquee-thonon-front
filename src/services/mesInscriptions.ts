@@ -40,6 +40,7 @@ export const InscriptionEnfantParAnneeScolaireDtoSchema = z.object({
     montantTotal: z.number(),
     responsableLegal: ResponsableLegalDtoSchema,
     eleves: z.array(EleveDtoSchema),
+    idDocument: z.number().optional(),
 });
 
 export type InscriptionEnfantParAnneeScolaireDto = z.infer<typeof InscriptionEnfantParAnneeScolaireDtoSchema>;
@@ -62,6 +63,7 @@ export const InscriptionAdulteParAnneeScolaireDtoSchema = z.object({
     niveauInterne: z.string(),
     statutProfessionnel: z.string(),
     matieres: z.array(z.string()),
+    idDocument: z.number().optional(),
 });
 
 export type InscriptionAdulteParAnneeScolaireDto = z.infer<typeof InscriptionAdulteParAnneeScolaireDtoSchema>;

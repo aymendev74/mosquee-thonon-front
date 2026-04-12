@@ -1,22 +1,15 @@
 import { FunctionComponent } from "react";
-import { Button, Card, Col, Dropdown, Form, Row, Space, Table, Tag, Tooltip } from "antd";
-import { CheckCircleOutlined, CheckCircleTwoTone, CheckOutlined, CloseOutlined, DeleteOutlined, DeleteTwoTone, DownOutlined, EditOutlined, EditTwoTone, EyeOutlined, EyeTwoTone, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, WarningOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Form, Row, Space, Table, Tag, Tooltip } from "antd";
+import { CheckCircleOutlined, CheckCircleTwoTone, DeleteOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfTwoTone, PauseCircleTwoTone, StopOutlined, WarningOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { InscriptionLight, StatutInscription } from "../../../services/inscription";
 import { APPLICATION_DATE_FORMAT, APPLICATION_DATE_TIME_FORMAT } from "../../../utils/FormUtils";
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
 import { InscriptionViewProps } from "./types";
-import type { MenuProps } from 'antd';
-import { AdminSearchFilter, InputSearchFieldDef } from "../../../components/common/AdminSearchFilter";
+import { AdminSearchFilter, InputSearchFieldDef} from "../../../components/common/AdminSearchFilter";
 import { SelectionActionBar } from "../../../components/common/SelectionActionBar";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { getFileNameInscription } from "../../../components/common/tableDefinition";
-import { PdfAuthContextBridge } from "../../../components/documents/PdfContextBridge";
-import { PdfInscriptionCoursEnfant } from "../../../components/documents/PdfInscriptionCoursEnfant";
-import { PdfInscriptionCoursArabeAdulte } from "../../../components/documents/PdfInscriptionCoursArabeAdulte";
-import { useMatieresStore } from "../../../components/stores/useMatieresStore";
-import { TypeMatiereEnum } from "../../../services/classe";
+import { buildUrlWithParams, DOCUMENT_CONTENT_ENDPOINT } from "../../../services/services";
 import { getLibelleNiveauScolaire, getNiveauInterneAdulteOptions, getNiveauInterneEnfantOptions, getNiveauOptions, getStatutInscriptionOptions } from "../../../components/common/commoninputs";
 
 export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = ({
@@ -26,20 +19,15 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
     selectedInscriptions,
     setSelectedInscriptions,
     periodesOptions,
-    inscriptionsEnfantsById,
-    inscriptionsAdultesById,
     onValidateInscription,
     onValidateInscriptions,
     onDeleteInscription,
     onDeleteInscriptions,
     onSearch,
     onExport,
-    onLoadInscription,
-    renderPdf,
 }) => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
-    const { getMatieresByType } = useMatieresStore();
 
     const buildSearchCriteria = () => {
         const { nom, prenom, telephone, statut, noInscription, idPeriode } = form.getFieldsValue();
@@ -92,21 +80,6 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
         return filters;
     };
 
-    const getDocumentContent = (idInscription: number) => {
-        if (type === "ENFANT") {
-            return (
-                <PdfAuthContextBridge>
-                    <PdfInscriptionCoursEnfant inscription={inscriptionsEnfantsById[idInscription]} />
-                </PdfAuthContextBridge>
-            );
-        } else {
-            return (
-                <PdfAuthContextBridge>
-                    <PdfInscriptionCoursArabeAdulte inscription={inscriptionsAdultesById[idInscription]} matieres={getMatieresByType(TypeMatiereEnum.ADULTE)} />
-                </PdfAuthContextBridge>
-            );
-        }
-    };
 
     const columnsTableInscriptions: ColumnsType<InscriptionLight> = [
         {
@@ -211,30 +184,21 @@ export const InscriptionDesktopView: FunctionComponent<InscriptionViewProps> = (
                             type="primary"
                         />
                     </Tooltip>
-                    {renderPdf(inscription.idInscription) ? (
-                        <PDFDownloadLink
-                            document={getDocumentContent(inscription.idInscription)}
-                            fileName={getFileNameInscription(inscription)}
-                        >
-                            {({ blob, url, loading, error }) => (
-                                <Tooltip title={loading ? "Génération PDF..." : "Télécharger PDF"} color="geekblue">
-                                    <Button
-                                        icon={<FilePdfTwoTone />}
-                                        size="small"
-                                        loading={loading}
-                                        type="primary"
-                                    />
-                                </Tooltip>
-                            )}
-                        </PDFDownloadLink>
-                    ) : (
-                        <Tooltip title="Générer PDF" color="geekblue">
+                    {inscription.idDocument ? (
+                        <Tooltip title="Télécharger PDF" color="geekblue">
                             <Button
                                 icon={<FilePdfTwoTone />}
                                 size="small"
                                 type="primary"
-                                onClick={() => onLoadInscription(inscription.idInscription)}
+                                onClick={() => {
+                                    const url = buildUrlWithParams(DOCUMENT_CONTENT_ENDPOINT, { idDocument: inscription.idDocument });
+                                    window.open(`${process.env.REACT_APP_BASE_URL_API_V1}${url}`, '_blank');
+                                }}
                             />
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Le document n'est pas encore disponible" color="orange">
+                            <Button icon={<FilePdfTwoTone />} size="small" type="primary" disabled />
                         </Tooltip>
                     )}
                 </Space>

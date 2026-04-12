@@ -49,6 +49,7 @@ export const REINSCRIPTION_ADULTE_ENDPOINT = "/inscriptions-adultes/reinscriptio
 export const RESET_PASSWORD_REQUEST_ENDPOINT = "/users/resetPassword/request";
 export const RESET_PASSWORD_INFORMATIONS_ENDPOINT = "/users/resetPassword/informations";
 export const RESET_PASSWORD_ENDPOINT = "/users/resetPassword";
+export const DOCUMENT_CONTENT_ENDPOINT = "/documents/{idDocument}/contenu";
 
 export const ERROR_INVALID_CREDENTIALS = "ERROR_INVALID_CREDENTIALS";
 export const ERROR_INVALID_OLD_PASSWORD = "ERROR_INVALID_OLD_PASSWORD";

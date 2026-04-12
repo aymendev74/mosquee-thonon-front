@@ -83,6 +83,7 @@ export type BulletinMatiereDto = {
 export type BulletinDto<K extends string | Dayjs> = {
     id?: number;
     idEleve?: number;
+    idDocument?: number;
     appreciation?: string;
     nbAbsences?: number;
     mois?: number;
