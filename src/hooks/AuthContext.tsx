@@ -3,6 +3,11 @@ import axios from 'axios';
 import qs from 'qs';
 import { UserInfoDto } from '../services/AuthResponse';
 
+export type AuthorizationResult = {
+    from: string | null;
+    roles: string[];
+};
+
 type AuthContextType = {
     username: string | null;
     prenom: string | null;
@@ -10,7 +15,7 @@ type AuthContextType = {
     requestProfileInformations: () => void;
     login: () => Promise<void>;
     logout: () => void;
-    handleAuthorizationCode: (code: string, state: string | null) => Promise<string | null>;
+    handleAuthorizationCode: (code: string, state: string | null) => Promise<AuthorizationResult | null>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -88,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.replace(logoutEndpoint);
     }, []);
 
-    const exchangeCodeForToken = useCallback(async (code: string, stateEncoded: string | null): Promise<string | null> => {
+    const exchangeCodeForToken = useCallback(async (code: string, stateEncoded: string | null): Promise<AuthorizationResult | null> => {
         let codeVerifier: string | null = null;
         let from: string | null = null;
         if (!stateEncoded) {
@@ -101,6 +106,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const stateObj = JSON.parse(stateDecoded);
             codeVerifier = stateObj.code_verifier;
             from = stateObj.from;
+            console.log("from", from);
         } catch (error) {
             console.error("Erreur de décodage du paramètre state :", error);
             return null;
@@ -123,21 +129,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             },
             withCredentials: true
         });
-        setLoggedUser(responseToken.data);
-        return from;
+        const userInfo: UserInfoDto = responseToken.data;
+        setLoggedUser(userInfo);
+        return { from, roles: userInfo.roles ?? [] };
     }, []);
 
-    const handleAuthorizationCode = useCallback(async (code: string, stateEncoded: string | null): Promise<string | null> => {
-        let redirection: string | null = null;
+    const handleAuthorizationCode = useCallback(async (code: string, stateEncoded: string | null): Promise<AuthorizationResult | null> => {
+        let result: AuthorizationResult | null = null;
         try {
-            redirection = await exchangeCodeForToken(code, stateEncoded);
+            result = await exchangeCodeForToken(code, stateEncoded);
         } catch (e) {
             console.error("Erreur lors de l'échange du code :", e);
         } finally {
             // Nettoyer l'URL : enlever ?code=...&state=... sans recharger la page
             const newUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
-            return redirection;
+            return result;
         }
     }, []);
 
